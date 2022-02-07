@@ -1,19 +1,15 @@
 from datetime import datetime, timedelta
 import json
 import os
-from re import A
 
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash.dependencies import Input, Output
 import requests
-from subgrounds.plotly_wrappers import Scatter, Figure
-from subgrounds.dash_wrappers import Graph
 from subgrounds.schema import TypeRef
 from subgrounds.subgraph import SyntheticField
 from subgrounds.subgrounds import Subgrounds
-from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 
@@ -68,11 +64,12 @@ trades = market_query.trades(
     ]
 )
 
-last_30_metrics = metric_query.protocolMetrics(
+last_5_metrics = metric_query.protocolMetrics(
     orderBy=Metric.timestamp,
     orderDirection='desc',
     first=5
 )
+
 
 # Price & APY calculations
 def get_blocks_per_epoch():
@@ -121,11 +118,19 @@ def get_rebases_per_day(blocks_per_rebase):
 
 
 def get_avg_yield(days=5):
-    reward_yield_df = sg.query_df([last_30_metrics.nextEpochRebase])
+    reward_yield_df = sg.query_df([last_5_metrics.nextEpochRebase])
     avg_yield = float(reward_yield_df.mean().values[0])
 
     return avg_yield / 100
 
+
+# TODO: finish implementing when Cujo updates the Subgraph to include MCO2
+# def get_avg_cc_per_klima(days=5):
+#     cc_df = sg.query_df([last_5_metrics.treasuryRiskFreeValue, last_5_metrics.totalSupply])
+#     avg_cc = float(
+#         (cc_df['protocolMetrics_treasuryRiskFreeValue'] / cc_df['protocolMetrics_totalSupply']).mean()
+#     )
+#     return avg_cc
 
 def get_avg_price(days=30):
     trades = market_query.trades(
@@ -144,6 +149,7 @@ def get_avg_price(days=30):
 def get_data():
     price = get_avg_price()
     rebase_yield = get_avg_yield()
+    # cc_per_klima = get_avg_cc_per_klima()
 
     epoch_length = get_blocks_per_epoch()
     rebases_per_day = get_rebases_per_day(epoch_length)
@@ -155,69 +161,126 @@ data = get_data()
 avg_price = data[0]
 
 # Dashboard
-app = dash.Dash(__name__)
+app = dash.Dash(
+    __name__,
+    suppress_callback_exceptions=True,
+    title="KLIMA Offset Yield Calculator",
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    meta_tags=[{
+        'name': 'viewport',
+        'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'
+    }]
+)
 
-app.layout = html.Div(
-    html.Div([
-        html.H1("Klima Price in BCT Terms"),
-        html.Div([
-            Graph(Figure(
-                subgrounds=sg,
-                traces=[
-                    Scatter(x=trades.datetime, y=trades.close)
-                ]
-            ))
-        ]),
-        html.H1("APY Over Time"),
-        html.Div([
-            Graph(Figure(
-                subgrounds=sg,
-                traces=[
-                    Scatter(x=last_30_metrics.datetime, y=last_30_metrics.currentAPY)
-                ]
-            ))
-        ]),
-        html.Div([
-            dbc.InputGroup([
-                dbc.InputGroupText("Monthly Carbon Footprint to Offset: "),
-                dbc.Input(placeholder="tonnes to offset", type="number", id="input-tonnes"),
-                dbc.InputGroupText(" tonnes"),
-            ]),
-            dbc.InputGroup([
-                dbc.InputGroupText("KLIMA => tonnes of CO2 Conversion Factor: "),
-                dbc.Select(
-                    options=[
-                        {"label": "Intrinsic Value: 1 tonne per KLIMA (most conservative)", "value": 1},
-                        {
-                            "label": (
-                                f"Market Value in BCT: {avg_price:,.2f} tonnes per KLIMA "
-                                f"at recent prices (fluctuates with market activity)"
-                            ),
-                            "value": avg_price
-                        },
-                    ],
-                    id="input-conversion"
+
+input_card = dbc.Card(
+    [
+        dbc.CardHeader(html.H2("Input Parameters")),
+        dbc.CardBody([
+            dbc.Row([
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader("Monthly Carbon Emissions to Offset"),
+                        dbc.CardBody([
+                            dbc.InputGroup([
+                                dbc.Input(placeholder="tonnes to offset", type="number", id="input-tonnes"),
+                                dbc.InputGroupText(" tonnes"),
+                            ])
+                        ])
+                    ])
                 ),
-            ]),
-            html.H2("Monthly Rebase Growth Per KLIMA: "),
-            html.Div(id="monthly-return-per-klima"),
-            html.Div([
-                html.Div([
-                    html.H2(f"Amount of staked KLIMA required to capture {x}x footprint via rebase rewards:"),
-                    html.Div(id=f"klima-required-{x}x")
-                ])
-                for x in [1, 2, 3]
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader("KLIMA => Carbon Offset Conversion Factor"),
+                        dbc.CardBody([
+                            dbc.InputGroup([
+                                dbc.Select(
+                                    options=[
+                                        {
+                                            "label": "Intrinsic Value: 1 tonne per KLIMA (most conservative)",
+                                            "value": 1
+                                        },
+                                        # TODO: add option for current CC
+                                        {
+                                            "label": (
+                                                f"Market Value in BCT: {avg_price:,.2f} tonnes per KLIMA "
+                                                f"at recent prices (fluctuates with market activity)"
+                                            ),
+                                            "value": avg_price
+                                        },
+                                    ],
+                                    placeholder="How many tonnes do you assume each KLIMA is worth?",
+                                    id="input-conversion"
+                                ),
+                            ])
+                        ])
+                    ])
+                )
             ])
         ]),
-        # Hidden div inside the app that stores the intermediate value
-        html.Div(id='intermediate-value', style={'display': 'none'}, children = data),
-        dcc.Interval(
-            id="interval-component",
-            interval=10*1000, # in milliseconds,
-            n_intervals=0
-        )
-    ])
+    ]
 )
+
+
+growth_per_klima_card = dbc.Card(
+    [
+        dbc.CardBody([
+            dbc.CardHeader("Estimated Monthly Rebase Yield"),
+            dbc.CardBody("Loading...", id="monthly-return-per-klima")
+        ]),
+    ]
+)
+
+
+output_cards = [
+    dbc.Col(
+        dbc.Card(
+            [
+                dbc.CardHeader(html.H3(f"{x}x Monthly Emissions")),
+                dbc.CardBody("Loading...", id=f"klima-required-{x}x")
+            ]
+        ),
+    )
+    for x in [1, 2, 3]
+]
+
+
+app.layout = html.Div([
+    dbc.Row(dbc.Col(
+        dbc.Alert(
+            "WARNING: THIS TOOL IS STILL UNDER DEVELOPMENT!",
+            color="warning", style={'textAlign': 'center'}
+        )
+    )),
+    dbc.Row([
+        dbc.Col(
+            dbc.Card(
+                dbc.Row([
+                    dbc.Col(html.Img(src='assets/KlimaDAO-Logo-Green.png', width=100, height=100), width=1),
+                    dbc.Col(html.H1("Klima Infinity Yield-Based Offsetting Estimator", className='page-title'))
+                ]),
+                body=True
+            )
+        ),
+        dbc.Col(growth_per_klima_card, width=3)
+    ]),
+    dbc.Row(dbc.Col(input_card)),
+    dbc.Row([
+        dbc.Col(
+            dbc.Card([
+                dbc.CardHeader(html.H2("Estimated Staked KLIMA to Offset Monthly Emissions with Rebase Yield")),
+                dbc.CardBody([dbc.Row([*output_cards])])
+            ])
+        )
+    ]),
+    # Hidden div inside the app that stores the intermediate value
+    html.Div(id='intermediate-value', style={'display': 'none'}, children=data),
+    dcc.Interval(
+        id="interval-component",
+        interval=60*60*1000,  # 1 hour in milliseconds,
+        n_intervals=0
+    )
+])
 
 
 x_outputs = [
@@ -248,14 +311,17 @@ def cb_render(*vals):
 
     # 30 day ROI
     monthly_roi = (1 + reward_yield) ** (30 * rebases_per_day) - 1
-    # monthly_roi_perc = round(monthly_roi * 100, 1)
+    monthly_roi_rounded = f"{round(monthly_roi * 100, 2)}% per month"
 
     if tonnes_to_offset is None or conversion_factor is None:
-        return (monthly_roi, "--", "--", "--")
+        return (monthly_roi_rounded, "--", "--", "--")
 
-    klima_principal = (tonnes_to_offset / monthly_roi) / float(conversion_factor)
+    klima_principal = round((tonnes_to_offset / monthly_roi) / float(conversion_factor), 2)
 
-    return (monthly_roi, klima_principal, 2 * klima_principal, 3 * klima_principal)
+    return (
+        monthly_roi_rounded, str(klima_principal) + ' sKLIMA',
+        str(2 * klima_principal) + ' sKLIMA', str(3 * klima_principal) + ' sKLIMA'
+    )
 
 
 if __name__ == '__main__':
