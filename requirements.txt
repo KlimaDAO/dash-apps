@@ -3,3 +3,4 @@ gunicorn
 millify
 pytest
 subgrounds==0.0.4
+web3
