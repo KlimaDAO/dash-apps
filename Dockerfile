@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.8-slim AS base
+FROM --platform=linux/amd64 python:3.10-slim AS base
 
 # Set Python interpreter flags
 ENV PYTHONUNBUFFERED 1
