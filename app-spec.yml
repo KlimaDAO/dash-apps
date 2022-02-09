@@ -12,14 +12,19 @@ envs:
     value: ${WEB3_INFURA_PROJECT_ID}
 name: ${DIGITALOCEAN_APP_NAME}
 region: nyc
-workers:
+services:
   - environment_slug: python
     image:
       registry_type: DOCR
       repository: dash-apps
       tag: ${GITHUB_SHA}
+    health_check:
+      http_path: /
+    http_port: 8050
+    routes:
+      - path: /
     instance_count: 1
     instance_size_slug: basic-xxs
     name: yield-offset
-    run_command: python -m src.apps.yield_offset.app
+    run_command: gunicorn --worker-tmp-dir /dev/shm src.apps.yield_offset.app:server
     source_dir: /
