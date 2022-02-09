@@ -1,0 +1,25 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+envs:
+  - key: POLYGONSCAN_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: ${POLYGONSCAN_API_KEY}
+  - key: WEB3_INFURA_PROJECT_ID
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: ${WEB3_INFURA_PROJECT_ID}
+name: ${DIGITALOCEAN_APP_NAME}
+region: nyc
+workers:
+  - environment_slug: python
+    image:
+      registry_type: DOCR
+      repository: dash-apps
+      tag: ${GITHUB_SHA}
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    name: yield-offset
+    run_command: python -m src.apps.yield_offset.app
+    source_dir: /
