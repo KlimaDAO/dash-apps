@@ -1,0 +1,130 @@
+body {
+    background: #121212;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;;
+}
+
+h3 {
+  color:#0c3;
+  font-size:40px;
+}
+
+h2 {
+    color: #0c3;
+    font-size:60px;
+}
+h1 {
+  color: #0c3;
+  font-size:80px;
+}
+
+.card {
+  background: #232B2B;
+  /* border: 2px solid #00CC33; */
+  box-sizing: border-box;
+  border-radius: 15px;
+  color: white;
+  padding: 20px;
+  margin: 10px 10px 10px 10px;
+  padding-top: 20px;
+}
+
+.card-title{
+  font-size: 32px;
+}
+
+.card-text{
+  font-size: 80px;
+  text-align: center;
+  justify-content: center;
+}
+
+
+.page-title {
+  margin: 5px 5px 5px 5px;
+  padding-top: 20px;
+  vertical-align: middle;
+}
+
+.card-graph {
+  background: #232B2B;
+  /* border: 2px solid #00CC33; */
+  box-sizing: border-box;
+  border-radius: 15px;
+  color: white;
+  padding: 20px;
+  margin: 10px 10px 10px 10px;
+  padding-top: 20px;
+  height: 600px;
+}
+
+
+
+/* input box */
+.Select-control {
+  background-color: black;
+}
+
+
+/* changes the text color of input box */
+.Select-value-label {
+  color: white !important;
+  font-size: 20px;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+  border: 1px solid grey;
+  border-radius: 4px;
+}
+
+
+/* dropdown menu options */
+.VirtualizedSelectOption {
+  background-color: black;
+  color: white;
+  
+}
+
+
+/* dropdown menu hover effect */
+.VirtualizedSelectFocusedOption {
+  background-color: black;
+  opacity: .7;
+}
+
+
+/* border on focus - default is blue
+* shadow box around input box.  default is blue
+*/
+.is-focused:not(.is-open) > .Select-control {
+border-color: var(--primary); 
+box-shadow: none;
+}
+
+
+/* this colors the input box text and x  of multi dropdown*/
+.Select--multi .Select-value {
+color: white;
+}
+
+.nav-pills a{
+  display: inline-block;
+  box-sizing: border-box;
+  color: white;
+  text-align: center;
+  padding: 14px;
+  text-decoration: none;
+  font-size: 32px;
+  border-radius: 15px;
+}
+
+/* Change the color of links on mouse-over */
+.nav-pills a:hover {
+  background-color: dimgray;
+  color: white;
+}
+
+/* Add a color to the active/current link */
+.nav-pills .nav-link.active {
+  background-color: black;
+  color: white;
+}
