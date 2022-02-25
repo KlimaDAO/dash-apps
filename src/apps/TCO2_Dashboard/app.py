@@ -32,7 +32,7 @@ def get_data():
     carbon_offsets = carbon_data.Query.carbonOffsets(
         orderBy=carbon_data.CarbonOffset.lastUpdate,
         orderDirection='desc',
-        first=100
+        first=999
     )
 
     df_bridged = sg.query_df([
@@ -50,7 +50,7 @@ def get_data():
     ])
 
     carbon_offsets = carbon_data.Query.retires(
-        first=100
+        first=999
     )
 
     df_retired = sg.query_df([
@@ -77,7 +77,7 @@ def get_data_pool():
         'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon')
 
     carbon_offsets = carbon_data.Query.deposits(
-        first=100
+        first=999
     )
 
     df_deposited = sg.query_df([
@@ -88,7 +88,7 @@ def get_data_pool():
     ])
 
     carbon_offsets = carbon_data.Query.redeems(
-        first=100
+        first=999
     )
 
     df_redeemed = sg.query_df([
