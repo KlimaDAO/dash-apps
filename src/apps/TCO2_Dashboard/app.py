@@ -204,14 +204,14 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "20rem",
+    "width": "16rem",
     "padding": "2rem 1rem",
     "background-color": '#232B2B',
-    "font-size": 40
+    "font-size": 20
 }
 
 CONTENT_STYLE = {
-    "margin-left": "22rem",
+    "margin-left": "18rem",
     "margin-right": "2rem",
     "padding": "2rem 1rem",
 }
@@ -219,7 +219,7 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         dbc.Col(html.Img(src='assets/KlimaDAO-Logo.png',
-                width=300, height=300), width=12),
+                width=200, height=200), width=12),
         html.H3("Dashboards", style={'text-align': 'center'}),
         html.Hr(),
         dbc.Nav(

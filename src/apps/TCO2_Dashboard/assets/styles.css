@@ -5,16 +5,16 @@ body {
 
 h3 {
   color:#0c3;
-  font-size:40px;
+  /* font-size:40px; */
 }
 
 h2 {
     color: #0c3;
-    font-size:60px;
+    /* font-size:60px; */
 }
 h1 {
   color: #0c3;
-  font-size:80px;
+  /* font-size:80px; */
 }
 
 .card {
@@ -29,11 +29,11 @@ h1 {
 }
 
 .card-title{
-  font-size: 32px;
+  font-size: 18px;
 }
 
 .card-text{
-  font-size: 80px;
+  font-size: 32px;
   text-align: center;
   justify-content: center;
 }
@@ -54,7 +54,7 @@ h1 {
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
-  height: 600px;
+  height: 400px;
 }
 
 
@@ -68,7 +68,7 @@ h1 {
 /* changes the text color of input box */
 .Select-value-label {
   color: white !important;
-  font-size: 20px;
+  font-size: 12px;
 }
 
 .Select--single > .Select-control .Select-value, .Select-placeholder {
@@ -113,7 +113,7 @@ color: white;
   text-align: center;
   padding: 14px;
   text-decoration: none;
-  font-size: 32px;
+  /* font-size: 32px; */
   border-radius: 15px;
 }
 

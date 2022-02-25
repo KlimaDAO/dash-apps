@@ -10,7 +10,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dbc.Card([
                     dbc.CardHeader(
                         html.H1("Toucan Carbon Credits Dashboard", className='page-title'))
-                ]), width=8, style={'padding-top': '30px'})
+                ]), width=9, style={'padding-top': '30px'})
         ),
 
         dbc.Row([
@@ -25,7 +25,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                     int(df_retired["Quantity"].sum())), className="card-text")
             ]), width=4),
             dbc.Col(dbc.Card([
-                html.H5("Current Supply of Tokenized Credits",
+                html.H5("Current Supply",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum()-df_retired["Quantity"].sum())), className="card-text")
@@ -49,8 +49,8 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                             dcc.Dropdown(options=[{'label': 'BCT', 'value': 'BCT'},
                                                   {'label': 'NCT', 'value': 'NCT'}], value='BCT',
                                          id='pie_chart_summary', placeholder='Select Carbon Pool',
-                                         style=dict(font=dict(color='black'))), width=2),
-                        dbc.Col([dcc.Graph(id="eligible pie chart plot")], width=10)])
+                                         style=dict(font=dict(color='black'))), width=3),
+                        dbc.Col([dcc.Graph(id="eligible pie chart plot")], width=9)])
                                   ])
                 ], className="card-graph")
             ], width=6),

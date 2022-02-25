@@ -10,7 +10,7 @@ def create_content_bct(bct_deposited, bct_redeemed, fig_deposited_over_time, fig
                 dbc.Card([
                     dbc.CardHeader(
                         html.H1("Toucan Protocol : Base Carbon Tonne Pool", className='page-title'))
-                ]), width=8)
+                ]), width=12)
         ),
         dbc.Row([
             dbc.Col(

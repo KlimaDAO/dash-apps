@@ -26,5 +26,5 @@ services:
     instance_count: 1
     instance_size_slug: basic-xxs
     name: tco2_dashboard
-    run_command: gunicorn --worker-tmp-dir /dev/shm src.apps.tc02_dashboard.app:server
+    run_command: gunicorn --worker-tmp-dir /dev/shm src.apps.tco2_dashboard.app:server
     source_dir: /
