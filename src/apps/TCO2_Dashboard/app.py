@@ -2,13 +2,13 @@ import dash_bootstrap_components as dbc
 import dash
 from dash import html, Input, Output, callback
 from dash import dcc
-from figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
+from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
                      methodology_volume, pool_pie_chart, eligible_pool_pie_chart
-from figures_carbon_pool import deposited_over_time, redeemed_over_time
-from tco2 import create_content_toucan
-from bct import create_content_bct
-from helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool
-from data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map
+from .figures_carbon_pool import deposited_over_time, redeemed_over_time
+from .tco2 import create_content_toucan
+from .bct import create_content_bct
+from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool
+from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map
 from subgrounds.subgrounds import Subgrounds
 from flask_caching import Cache
 

@@ -3,9 +3,9 @@ import plotly.graph_objects as go
 import numpy as np
 import pycountry
 from collections import defaultdict
-from helpers import add_px_figure
+from .helpers import add_px_figure
 from plotly.subplots import make_subplots
-from colors import colors
+from .colors import colors
 
 
 def sub_plots_volume(df, last_df, title_indicator, title_graph):

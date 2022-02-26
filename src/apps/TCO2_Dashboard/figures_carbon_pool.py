@@ -1,5 +1,5 @@
 import plotly.express as px
-from colors import colors
+from .colors import colors
 
 
 def deposited_over_time(df):
