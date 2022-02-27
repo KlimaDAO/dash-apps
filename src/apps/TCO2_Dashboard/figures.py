@@ -196,7 +196,7 @@ def methodology_volume(df):
     fig.update_layout(height=300, paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'],
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=12)
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=8)
     return fig
 
 
