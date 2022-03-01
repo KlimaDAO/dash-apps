@@ -12,17 +12,22 @@ from .data_related_constants import rename_map, retires_rename_map, deposits_ren
 from subgrounds.subgrounds import Subgrounds
 from flask_caching import Cache
 
+CACHE_TIMEOUT = 86400
+CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
+MAX_RECORDS = 999
 
-app = dash.Dash(title="KlimaDAO Tokenized Carbon Dashboard", suppress_callback_exceptions=True,
-                external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(
+    __name__,
+    title="KlimaDAO Tokenized Carbon Dashboard",
+    suppress_callback_exceptions=True,
+    external_stylesheets=[dbc.themes.BOOTSTRAP]
+)
+
+# Configure cache
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'FileSystemCache',
     'CACHE_DIR': '/tmp/cache-directory'
 })
-CACHE_TIMEOUT = 86400
-
-CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
-MAX_RECORDS = 999
 
 
 def get_data():
