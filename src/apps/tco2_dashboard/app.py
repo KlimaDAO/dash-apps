@@ -17,9 +17,9 @@ app = dash.Dash(title="KlimaDAO Tokenized Carbon Dashboard", suppress_callback_e
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache-directory'
+    'CACHE_DIR': 'cache-directory',
+    'CACHE_DEFAULT_TIMEOUT': 86400
 })
-TIMEOUT = 86400
 
 
 def get_data():
@@ -31,7 +31,7 @@ def get_data():
     carbon_offsets = carbon_data.Query.carbonOffsets(
         orderBy=carbon_data.CarbonOffset.lastUpdate,
         orderDirection='desc',
-        first=999
+        first=500
     )
 
     df_bridged = sg.query_df([
@@ -49,7 +49,7 @@ def get_data():
     ])
 
     carbon_offsets = carbon_data.Query.retires(
-        first=999
+        first=500
     )
 
     df_retired = sg.query_df([
@@ -75,7 +75,7 @@ def get_data_pool():
         'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon')
 
     carbon_offsets = carbon_data.Query.deposits(
-        first=999
+        first=500
     )
 
     df_deposited = sg.query_df([
@@ -86,7 +86,7 @@ def get_data_pool():
     ])
 
     carbon_offsets = carbon_data.Query.redeems(
-        first=999
+        first=500
     )
 
     df_redeemed = sg.query_df([
@@ -99,7 +99,7 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize(timeout=TIMEOUT)
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()

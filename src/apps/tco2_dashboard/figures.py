@@ -47,7 +47,9 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph):
 
 def sub_plots_vintage(df, last_df, title_indicator, title_graph):
     df = df[df["Vintage"] != ""].reset_index()
+    df = df[~df["Vintage"].isna()].reset_index()
     last_df = last_df[last_df["Vintage"] != ""].reset_index()
+    last_df = last_df[~last_df["Vintage"].isna()].reset_index()
     fig = make_subplots(
         rows=2,
         cols=1,
