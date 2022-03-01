@@ -25,6 +25,6 @@ services:
       - path: /
     instance_count: 1
     instance_size_slug: basic-xxs
-    name: yield-offset
-    run_command: gunicorn --worker-tmp-dir /dev/shm src.apps.yield_offset.app:server
+    name: tco2_dashboard
+    run_command: gunicorn --worker-tmp-dir /dev/shm src.apps.tco2_dashboard.app:server
     source_dir: /
