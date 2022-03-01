@@ -26,7 +26,8 @@ app = dash.Dash(
 # Configure cache
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'FileSystemCache',
-    'CACHE_DIR': '/tmp/cache-directory'
+    'CACHE_DIR': '/tmp/cache-directory',
+    'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
 
