@@ -112,7 +112,7 @@ def map(df, title):
     return fig
 
 
-def total_volume(df):
+def total_volume(df, title):
     fig = make_subplots(
         rows=2,
         cols=1,
@@ -125,7 +125,7 @@ def total_volume(df):
     fig.add_trace(go.Indicator(
         mode="number",
         value=sum(df['Quantity']),
-        title=dict(text="Credits tokenized (total)", font=dict(size=12)),
+        title=dict(text=title, font=dict(size=12)),
         number=dict(suffix=" tCO2", font=dict(size=24)),
         domain={'x': [0.25, .75], 'y': [0.6, 1]}))
 
