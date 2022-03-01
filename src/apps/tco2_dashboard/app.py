@@ -26,7 +26,8 @@ app = dash.Dash(
 # Configure cache
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'FileSystemCache',
-    'CACHE_DIR': '/tmp/cache-directory'
+    'CACHE_DIR': '/tmp/cache-directory',
+    'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
 
@@ -105,7 +106,7 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize(timeout=CACHE_TIMEOUT)
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
