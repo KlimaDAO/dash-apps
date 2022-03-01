@@ -16,22 +16,24 @@ from flask_caching import Cache
 app = dash.Dash(title="KlimaDAO Tokenized Carbon Dashboard", suppress_callback_exceptions=True,
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache-directory'
+    'CACHE_TYPE': 'FileSystemCache',
+    'CACHE_DIR': '/tmp/cache-directory'
 })
-TIMEOUT = 86400
+CACHE_TIMEOUT = 86400
+
+CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
+MAX_RECORDS = 999
 
 
 def get_data():
 
     sg = Subgrounds()
-    carbon_data = sg.load_subgraph(
-        'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon')
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
     carbon_offsets = carbon_data.Query.carbonOffsets(
         orderBy=carbon_data.CarbonOffset.lastUpdate,
         orderDirection='desc',
-        first=999
+        first=MAX_RECORDS
     )
 
     df_bridged = sg.query_df([
@@ -49,7 +51,7 @@ def get_data():
     ])
 
     carbon_offsets = carbon_data.Query.retires(
-        first=999
+        first=MAX_RECORDS
     )
 
     df_retired = sg.query_df([
@@ -71,11 +73,10 @@ def get_data():
 def get_data_pool():
 
     sg = Subgrounds()
-    carbon_data = sg.load_subgraph(
-        'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon')
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
     carbon_offsets = carbon_data.Query.deposits(
-        first=999
+        first=MAX_RECORDS
     )
 
     df_deposited = sg.query_df([
@@ -86,7 +87,7 @@ def get_data_pool():
     ])
 
     carbon_offsets = carbon_data.Query.redeems(
-        first=999
+        first=MAX_RECORDS
     )
 
     df_redeemed = sg.query_df([
@@ -99,7 +100,7 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=CACHE_TIMEOUT)
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -230,13 +231,13 @@ def generate_layout():
         "bottom": 0,
         "width": "16rem",
         "padding": "2rem 1rem",
-        "background-color": '#232B2B',
-        "font-size": 20
+        "backgroundColor": '#232B2B',
+        "fontSize": 20
     }
 
     CONTENT_STYLE = {
-        "margin-left": "18rem",
-        "margin-right": "2rem",
+        "marginLeft": "18rem",
+        "marginRight": "2rem",
         "padding": "2rem 1rem",
     }
 
@@ -244,7 +245,7 @@ def generate_layout():
         [
             dbc.Col(html.Img(src='assets/KlimaDAO-Logo.png',
                     width=200, height=200), width=12),
-            html.H3("Dashboards", style={'text-align': 'center'}),
+            html.H3("Dashboards", style={'textAlign': 'center'}),
             html.Hr(),
             dbc.Nav(
                 [

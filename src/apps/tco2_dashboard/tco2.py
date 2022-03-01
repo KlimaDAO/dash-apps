@@ -10,7 +10,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dbc.Card([
                     dbc.CardHeader(
                         html.H1("Toucan Carbon Credits Dashboard", className='page-title'))
-                ]), width=9, style={'padding-top': '30px'})
+                ]), width=9, style={'paddingTop': '30px'})
         ),
 
         dbc.Row([
@@ -30,7 +30,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum()-df_retired["Quantity"].sum())), className="card-text")
             ]), width=4),
-        ], style={'padding-top': '60px'}),
+        ], style={'paddingTop': '60px'}),
 
         dbc.Row([
             dbc.Col([
@@ -88,7 +88,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                     ])
                 ])
             ])
-        ], style={'padding-top': '60px'}),
+        ], style={'paddingTop': '60px'}),
 
 
         dbc.Row([
@@ -106,7 +106,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dcc.Graph(id="volume plot")
             ]), width=6),
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Vintage", className="card-title"),
+                html.H5("Distribution of Vintage Start Dates", className="card-title"),
                 dcc.Graph(id="vintage plot")
             ]), width=6),
         ]),
@@ -114,7 +114,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Region", className="card-title"),
+                html.H5("Region of Origin", className="card-title"),
                 dcc.Graph(id="map")
             ]), width=12),
             dbc.Col(),
@@ -123,12 +123,12 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Methodology", className="card-title"),
+                html.H5("Distribution of Methodologies", className="card-title"),
                 html.Div(id="fig_total_metho")
             ]), width=12),
             dbc.Col(),
         ]),
 
-        dbc.Row([], style={'padding-top': '96px'})
+        dbc.Row([], style={'paddingTop': '96px'})
     ]
     return content_tco2

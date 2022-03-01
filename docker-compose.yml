@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  tco2-dashboard:
+    build:
+      context: ./
+    working_dir: /src
+    entrypoint: python
+    command: ["-m", "src.apps.tco2_dashboard.app"]
+    ports:
+      - 8050:8050
+    volumes:
+      - ./:/src
