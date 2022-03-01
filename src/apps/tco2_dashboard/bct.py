@@ -10,7 +10,7 @@ def create_content_bct(bct_deposited, bct_redeemed, fig_deposited_over_time, fig
                 dbc.Card([
                     dbc.CardHeader(
                         html.H1("Toucan Protocol : Base Carbon Tonne Pool", className='page-title'))
-                ]), width=12, style={'padding-top': '30px'})),
+                ]), width=12, style={'paddingTop': '30px'})),
         dbc.Row([
             dbc.Col(
                 dbc.Card([
@@ -29,7 +29,7 @@ def create_content_bct(bct_deposited, bct_redeemed, fig_deposited_over_time, fig
                     html.H5("BCT tokens retired", className="card-title"),
                     dbc.CardBody("Coming soon", className="card-text")
                 ]), width=4),
-        ], style={'padding-top': '60px'}),
+        ], style={'paddingTop': '60px'}),
         dbc.Row([
             dbc.Col([
                 dbc.Card([
