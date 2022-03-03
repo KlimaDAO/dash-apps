@@ -223,7 +223,7 @@ def eligible_pool_pie_chart(df, pool_key):
         df = df[df["Vintage"] >= 2012].reset_index()
     labels = [pool_key, f'NON_{pool_key}']
     BCT = df[f'{pool_key} Quantity'].sum()
-    Non_BCT = df['Total Quantity'].sum()-BCT
+    Non_BCT = df['Total Quantity'].sum() - BCT
     values = [BCT, Non_BCT]
     fig_eligible = go.Figure()
     fig_eligible.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(

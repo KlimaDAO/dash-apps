@@ -9,23 +9,23 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("Toucan Carbon Credits Dashboard", className='page-title'))
-                ]), width=9, style={'paddingTop': '30px'})
+                        html.H1("State of Toucan Tokenized Carbon", className='page-title'))
+                ]), width=12, style={'textAlign': 'center'})
         ),
 
         dbc.Row([
             dbc.Col(dbc.Card([
-                html.H5("Bridged Tokenized Credits", className="card-title"),
+                html.H5("TCO2 Tonnes Bridged", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum())), className="card-text")
             ]), width=4),
             dbc.Col(dbc.Card([
-                html.H5("Retired Tokenized Credits", className="card-title"),
+                html.H5("TCO2 Tonnes Retired", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_retired["Quantity"].sum())), className="card-text")
             ]), width=4),
             dbc.Col(dbc.Card([
-                html.H5("Current Supply",
+                html.H5("TCO2 Tonnes Outstanding",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum()-df_retired["Quantity"].sum())), className="card-text")
@@ -35,25 +35,26 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5("Composition of Carbon Pool",
+                    html.H5("Breakdown of TCO2 Pooled",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_pool_pie_chart))
                 ], className="card-graph")
-            ], width=6),
-            dbc.Col([
-                dbc.Card([
-                    html.H5("Conversion to Eligible Ratio of a specific Carbon Pool",
-                            className="card-title"),
-                    dbc.CardBody([dbc.Row([
-                        dbc.Col(
-                            dcc.Dropdown(options=[{'label': 'BCT', 'value': 'BCT'},
-                                                  {'label': 'NCT', 'value': 'NCT'}], value='BCT',
-                                         id='pie_chart_summary', placeholder='Select Carbon Pool',
-                                         style=dict(font=dict(color='black'))), width=3),
-                        dbc.Col([dcc.Graph(id="eligible pie chart plot")], width=9)])
-                                  ])
-                ], className="card-graph")
-            ], width=6),
+            ], width=12),
+            # TODO: add methodology filter for NCT before re-enabling
+            # dbc.Col([
+            #     dbc.Card([
+            #         html.H5("Conversion to Eligible Ratio of a specific Carbon Pool",
+            #                 className="card-title"),
+            #         dbc.CardBody([dbc.Row([
+            #             dbc.Col(
+            #                 dcc.Dropdown(options=[{'label': 'BCT', 'value': 'BCT'},
+            #                                       {'label': 'NCT', 'value': 'NCT'}], value='BCT',
+            #                              id='pie_chart_summary', placeholder='Select Carbon Pool',
+            #                              style=dict(font=dict(color='black'))), width=3),
+            #             dbc.Col([dcc.Graph(id="eligible pie chart plot")], width=9)])
+            #                       ])
+            #     ], className="card-graph")
+            # ], width=6),
         ]),
 
         dbc.Row([
@@ -69,9 +70,9 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                                                                      'value': 'Last 7 Days Performance'},
                                                                     {'label': 'Last 30 Days Performance',
                                                                     'value': 'Last 30 Days Performance'},
-                                                                    {'label': 'Overall Performance',
-                                                                     'value': 'Overall Performance'}],
-                                                           value='Overall Performance', id='summary_type',
+                                                                    {'label': 'Lifetime Performance',
+                                                                     'value': 'Lifetime Performance'}],
+                                                           value='Lifetime Performance', id='summary_type',
                                                            placeholder='Select Summary Type')])
                             ])
                         ], width=6),
@@ -102,7 +103,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
 
         dbc.Row([
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Volume", className="card-title"),
+                html.H5("Volume Over Time", className="card-title"),
                 dcc.Graph(id="volume plot")
             ]), width=6),
             dbc.Col(dbc.Card([

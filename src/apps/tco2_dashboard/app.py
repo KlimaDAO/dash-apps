@@ -16,6 +16,8 @@ CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
 MAX_RECORDS = 999
 
+ORIGIN_MAP_TITLE_PREFIX = 'Origin of Credits'
+
 app = dash.Dash(
     __name__,
     title="KlimaDAO Tokenized Carbon Dashboard",
@@ -148,9 +150,9 @@ def generate_layout():
     fig_seven_day_vintage_retired = sub_plots_vintage(
         sd_pool_retired, last_sd_pool_retired, "Average Credit Vintage (7d)", "")
     fig_seven_day_map = map(
-        sd_pool, 'Where have the past 7-day credits originated from?')
+        sd_pool, ORIGIN_MAP_TITLE_PREFIX + 'Bridged in the Last 7 Days')
     fig_seven_day_map_retired = map(
-        sd_pool_retired, 'Where were the past 7-day retired credits originated from?')
+        sd_pool_retired, ORIGIN_MAP_TITLE_PREFIX + 'Retired in the Last 7 Days')
     fig_seven_day_metho = methodology_volume(sd_pool)
     fig_seven_day_metho_retired = methodology_volume(sd_pool_retired)
 
@@ -164,9 +166,9 @@ def generate_layout():
     fig_thirty_day_vintage_retired = sub_plots_vintage(
         td_pool_retired, last_td_pool_retired, "Average Credit Vintage (30d)", "")
     fig_thirty_day_map = map(
-        td_pool, 'Where have the past 30-day credits originated from?')
+        td_pool, ORIGIN_MAP_TITLE_PREFIX + 'Bridged in the Last 30 Days')
     fig_thirty_day_map_retired = map(
-        td_pool_retired, 'Where were the past 30-day retired credits originated from?')
+        td_pool_retired, ORIGIN_MAP_TITLE_PREFIX + 'Retired in the Last 7 Days')
     fig_thirty_day_metho = methodology_volume(td_pool)
     fig_thirty_day_metho_retired = methodology_volume(td_pool_retired)
 
@@ -176,9 +178,9 @@ def generate_layout():
         df_retired, "Credits retired (total)")
     fig_total_vintage = total_vintage(df)
     fig_total_vintage_retired = total_vintage(df_retired)
-    fig_total_map = map(df, 'Where have all the past credits originated from?')
+    fig_total_map = map(df, ORIGIN_MAP_TITLE_PREFIX + 'Bridged')
     fig_total_map_retired = map(
-        df_retired, 'Where were all the past retired credits originated from?')
+        df_retired, ORIGIN_MAP_TITLE_PREFIX + 'Retired')
     fig_total_metho = methodology_volume(df)
     fig_total_metho_retired = methodology_volume(df_retired)
 
@@ -249,15 +251,16 @@ def generate_layout():
 
     sidebar = html.Div(
         [
-            dbc.Col(html.Img(src='assets/KlimaDAO-Logo.png',
-                    width=200, height=200), width=12),
-            html.H3("Dashboards", style={'textAlign': 'center'}),
+            dbc.Col(html.Img(src='assets/KlimaDAO-Wordmark.png', width=200),
+                    width=12, style={'textAlign': 'center'}),
+            html.H3("Tokenized Carbon Dashboards", style={'textAlign': 'center'}),
             html.Hr(),
+            html.H4("Toucan Protocol", style={'textAlign': 'center'}),
             dbc.Nav(
                 [
-                    dbc.NavLink("TCO2", href="/", active="exact",
+                    dbc.NavLink("TCO2 Overview", href="/", active="exact",
                                 className="pill-nav"),
-                    dbc.NavLink("BCT", href="/BCT", active="exact"),
+                    dbc.NavLink("BCT Pool", href="/BCT", active="exact"),
                 ],
                 vertical=True,
                 pills=True,
@@ -307,14 +310,14 @@ def update_output_div(summary_type, TCO2_type):
                 fig_thirty_day_retired[2], dcc.Graph(
                     figure=fig_thirty_day_retired[3])
 
-    elif summary_type == 'Overall Performance':
+    elif summary_type == 'Lifetime Performance':
         if TCO2_type == 'Bridged':
             fig_total = cache.get("fig_total")
-            return "Overall Performance", fig_total[0], fig_total[1], fig_total[2],\
+            return "Lifetime Performance", fig_total[0], fig_total[1], fig_total[2],\
                 dcc.Graph(figure=fig_total[3])
         elif TCO2_type == 'Retired':
             fig_total_retired = cache.get("fig_total_retired")
-            return "Overall Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
+            return "Lifetime Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
                 dcc.Graph(figure=fig_total_retired[3])
 
 
