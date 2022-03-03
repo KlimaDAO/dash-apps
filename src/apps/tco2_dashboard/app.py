@@ -131,11 +131,11 @@ def generate_layout():
         df_retired)
     # drop duplicates data for Carbon Pool calculations
     df_carbon = drop_duplicates(df)
-    cache.add("df_carbon", df_carbon)
+    cache.set("df_carbon", df_carbon)
 
     # Summary
     fig_pool_pie_chart = pool_pie_chart(df_carbon)
-    cache.add("fig_pool_pie_chart", fig_pool_pie_chart)
+    cache.set("fig_pool_pie_chart", fig_pool_pie_chart)
 
     # Figures
     # 7-day-performance
@@ -197,13 +197,13 @@ def generate_layout():
     fig_total_retired = [fig_total_volume_retired, fig_total_vintage_retired,
                          fig_total_map_retired, fig_total_metho_retired]
 
-    cache.add("fig_seven_day", fig_seven_day)
-    cache.add("fig_seven_day_retired", fig_seven_day_retired)
-    cache.add("fig_thirty_day", fig_thirty_day)
-    cache.add("fig_thirty_day_retired", fig_thirty_day_retired)
-    cache.add("fig_total", fig_total)
-    cache.add("fig_total_retired", fig_total_retired)
-    cache.add("content_tco2", content_tco2)
+    cache.set("fig_seven_day", fig_seven_day)
+    cache.set("fig_seven_day_retired", fig_seven_day_retired)
+    cache.set("fig_thirty_day", fig_thirty_day)
+    cache.set("fig_thirty_day_retired", fig_thirty_day_retired)
+    cache.set("fig_total", fig_total)
+    cache.set("fig_total_retired", fig_total_retired)
+    cache.set("content_tco2", content_tco2)
 
     # --Carbon Pool Figures---
 
@@ -228,7 +228,7 @@ def generate_layout():
     content_bct = create_content_bct(
         bct_deposited, bct_redeemed, fig_deposited_over_time, fig_redeemed_over_time)
 
-    cache.add("content_bct", content_bct)
+    cache.set("content_bct", content_bct)
 
     SIDEBAR_STYLE = {
         "position": "fixed",
