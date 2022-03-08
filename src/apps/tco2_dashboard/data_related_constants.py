@@ -2,6 +2,7 @@
 rename_map = {
     'carbonOffsets_bridges_value': 'Quantity',
     'carbonOffsets_bridges_timestamp': 'Date',
+    'carbonOffsets_bridge': 'Bridge',
     'carbonOffsets_region': 'Region',
     'carbonOffsets_vintage': 'Vintage',
     'carbonOffsets_projectID': 'Project ID',
@@ -16,6 +17,7 @@ rename_map = {
 retires_rename_map = {
     'retires_value': 'Quantity',
     'retires_timestamp': 'Date',
+    'retires_offset_bridge': 'Bridge',
     'retires_offset_region': 'Region',
     'retires_offset_vintage': 'Vintage',
     'retires_offset_projectID': 'Project ID',

@@ -43,6 +43,12 @@ def black_list_manipulations(df):
     return df
 
 
+def bridge_manipulations(df, bridge):
+    # Filter dataframe based on bridge
+    df = df[df["Bridge"] == bridge].reset_index()
+    return df
+
+
 def region_manipulations(df):
     df['Region'] = df['Region'].replace('South Korea', 'Korea, Republic of')
     # Belize country credits are categorized under Latin America. Confirmed this with Verra Registry
