@@ -46,8 +46,8 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph):
 
 
 def sub_plots_vintage(df, last_df, title_indicator, title_graph):
-    df = df[df["Vintage"] != ""].reset_index()
-    last_df = last_df[last_df["Vintage"] != ""].reset_index()
+    df = df[df["Vintage"] != ""].reset_index(drop=True)
+    last_df = last_df[last_df["Vintage"] != ""].reset_index(drop=True)
     fig = make_subplots(
         rows=2,
         cols=1,
@@ -86,7 +86,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph):
 
 
 def map(df, title):
-    df = df[df["Region"] != ""].reset_index()
+    df = df[df["Region"] != ""].reset_index(drop=True)
     country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
                                 0].alpha_3 for country in df.Region.astype(str).unique() if country != 'nan'})
     country_volumes = df.groupby('Region')['Quantity'].sum(
@@ -147,8 +147,8 @@ def total_volume(df, title):
 
 
 def total_vintage(df):
-    df = df[df["Vintage"] != ""].reset_index()
-    df = df[~df["Vintage"].isna()].reset_index()
+    df = df[df["Vintage"] != ""].reset_index(drop=True)
+    df = df[~df["Vintage"].isna()].reset_index(drop=True)
     value = np.average(df['Vintage'], weights=df['Quantity'])
     fig = make_subplots(
         rows=2,
@@ -186,7 +186,7 @@ def total_vintage(df):
 
 
 def methodology_volume(df):
-    df = df[df['Methodology'] != ""].reset_index()
+    df = df[df['Methodology'] != ""].reset_index(drop=True)
     fig = px.bar(
         df.groupby('Methodology')['Quantity'].sum().to_frame().reset_index(),
         x='Methodology',

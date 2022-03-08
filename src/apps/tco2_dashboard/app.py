@@ -7,7 +7,8 @@ from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, to
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
 from .bct import create_content_bct
-from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool
+from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool, \
+    bridge_manipulations
 from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map
 from subgrounds.subgrounds import Subgrounds
 from flask_caching import Cache
@@ -46,6 +47,7 @@ def get_data():
 
     df_bridged = sg.query_df([
         carbon_offsets.tokenAddress,
+        carbon_offsets.bridge,
         carbon_offsets.region,
         carbon_offsets.vintage,
         carbon_offsets.projectID,
@@ -66,6 +68,7 @@ def get_data():
         carbon_offsets.value,
         carbon_offsets.timestamp,
         carbon_offsets.offset.tokenAddress,
+        carbon_offsets.offset.bridge,
         carbon_offsets.offset.region,
         carbon_offsets.offset.vintage,
         carbon_offsets.offset.projectID,
@@ -124,6 +127,9 @@ def generate_layout():
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
+    # Bridge manipulations
+    df = bridge_manipulations(df, "Toucan")
+    df_retired = bridge_manipulations(df_retired, "Toucan")
     # Region manipulations
     df = region_manipulations(df)
     df_retired = region_manipulations(df_retired)
