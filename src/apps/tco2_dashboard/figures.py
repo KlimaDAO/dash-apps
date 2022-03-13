@@ -6,6 +6,7 @@ from collections import defaultdict
 from .helpers import add_px_figure
 from plotly.subplots import make_subplots
 from .colors import colors
+import pandas as pd
 
 
 def sub_plots_volume(df, last_df, title_indicator, title_graph):
@@ -88,24 +89,26 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph):
 def map(df, title):
     df = df[df["Country"] != ""].reset_index(drop=True)
     country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
-                                0].alpha_3 for country in df.Region.astype(str).unique() if country != 'nan'})
+                                0].alpha_3 for country in df.Country.astype(str).unique() if country != 'nan'})
     country_volumes = df.groupby('Country')['Quantity'].sum(
     ).sort_values(ascending=False).to_frame().reset_index()
     country_volumes['Country Code'] = [country_index[country]
                                        for country in country_volumes['Country']]
+    country_volumes['text'] = country_volumes['Country Code'].astype(str)
     fig = px.choropleth(country_volumes, locations="Country Code",
                         color="Quantity",
                         hover_name='Country',
+                        # hover_data=['text'],
+                        # custom_data=['text'],
                         color_continuous_scale=px.colors.sequential.Plasma,
                         height=600)
+
+    # fig.update_traces(hovertemplate="I am adding this %{customdata}")
 
     fig.update_layout(height=300, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
                                            landcolor='darkgrey',
                                            subunitcolor='grey'), title=dict(
-        text=title,
-        x=0.5, font=dict(
-            color=colors['kg_color_sub2'],
-            size=24)),
+        text=title, x=0.5, font=dict(color=colors['kg_color_sub2'], size=24)),
         font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
         hoverlabel=dict(font_color='white', font_size=12), font_size=12,
         margin=dict(t=50, b=0, l=0, r=0))
@@ -247,3 +250,100 @@ def eligible_pool_pie_chart(df, pool_key):
                                paper_bgcolor=colors['bg_color'], font_color='white', font_size=12,
                                margin=dict(t=0, b=0, l=0, r=0))
     return fig_eligible
+
+
+def verra_vintage(df_verra, df_verra_toucan):
+    df_verra_toucan_grouped = df_verra_toucan.groupby(
+        'Vintage')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped = df_verra.groupby(
+        'Vintage')['Quantity'].sum().to_frame().reset_index()
+    df_verra_other_grouped = df_verra_grouped.merge(df_verra_toucan_grouped, how='left', left_on="Vintage",
+                                                    right_on='Vintage', suffixes=('', '_Toucan'))
+    df_verra_other_grouped['Quantity_Toucan'] = df_verra_other_grouped['Quantity_Toucan'].fillna(
+        0)
+    df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
+        df_verra_other_grouped['Quantity_Toucan']
+    df_verra_other_grouped = df_verra_other_grouped[['Vintage', 'Quantity']]
+    df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
+    df_verra_toucan_grouped['Type'] = 'Toucan Bridged Credit'
+    df_other_and_toucan = pd.concat(
+        [df_verra_toucan_grouped, df_verra_other_grouped]).reset_index()
+    fig = px.bar(df_other_and_toucan, x="Vintage",
+                 y="Quantity", color="Type", title="", height=300)
+    fig.update_layout(height=300, paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'],
+                      xaxis=dict(showgrid=False),
+                      yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=12)
+
+    return fig
+
+
+def verra_map(df_verra, df_verra_toucan, title):
+    df_verra_toucan_grouped = df_verra_toucan.groupby(
+        'Country')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped = df_verra.groupby(
+        'Country')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped = df_verra_grouped.merge(df_verra_toucan_grouped, how='left', left_on="Country",
+                                              right_on='Country', suffixes=('', '_Toucan'))
+    df_verra_grouped['Quantity_Toucan'] = df_verra_grouped['Quantity_Toucan'].fillna(
+        0)
+    df_verra_grouped['Ratio'] = df_verra_grouped['Quantity_Toucan'] / \
+        df_verra_grouped['Quantity']
+    df_verra_grouped = df_verra_grouped[df_verra_grouped['Ratio'] != 0]
+    df_verra_grouped['text'] = df_verra_grouped['Country'] + '<br>' + '<br>' + \
+        'Tokenized Credits = ' + df_verra_grouped['Quantity_Toucan'].map('{:,.0f}'.format).astype(str) + '<br>' +\
+        'Verra Issued Credits = ' + df_verra_grouped['Quantity'].map('{:,.0f}'.format).astype(str) + '<br>' +\
+        'Ratio = ' + \
+        df_verra_grouped['Ratio'].map('{:.4f}'.format).astype(str) + '<br>'
+    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
+        drop=True)
+    country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
+                                0].alpha_3 for country in df_verra_grouped.Country.astype(str).unique()
+        if country != 'nan'})
+    df_verra_grouped['Country Code'] = [country_index[country]
+                                        for country in df_verra_grouped['Country']]
+    fig = px.choropleth(df_verra_grouped, locations="Country Code",
+                        color="Ratio",
+                        hover_name='Country',
+                        custom_data=['text'],
+                        color_continuous_scale=px.colors.diverging.Picnic,
+                        height=600)
+
+    fig.update_traces(hovertemplate="%{customdata}")
+
+    fig.update_layout(height=300, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
+                                           landcolor='darkgrey',
+                                           subunitcolor='grey'), title=dict(
+        text=title, x=0.5, font=dict(color=colors['kg_color_sub2'], size=24)),
+        font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
+        hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+        margin=dict(t=50, b=0, l=0, r=0))
+    return fig
+
+
+def verra_project(df_verra, df_verra_toucan):
+    df_verra_toucan_grouped = df_verra_toucan.groupby(
+        'Project Type')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped = df_verra.groupby(
+        'Project Type')['Quantity'].sum().to_frame().reset_index()
+    df_verra_other_grouped = df_verra_grouped.merge(df_verra_toucan_grouped, how='left', left_on="Project Type",
+                                                    right_on='Project Type', suffixes=('', '_Toucan'))
+    df_verra_other_grouped['Quantity_Toucan'] = df_verra_other_grouped['Quantity_Toucan'].fillna(
+        0)
+    df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
+        df_verra_other_grouped['Quantity_Toucan']
+    df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
+    df_verra_toucan_grouped['Type'] = 'Toucan Bridged Credit'
+    df_other_and_toucan = pd.concat(
+        [df_verra_toucan_grouped, df_verra_other_grouped]).reset_index()
+    fig = px.treemap(df_other_and_toucan, path=[px.Constant("All Projects"), 'Project Type', 'Type'], values='Quantity',
+                     hover_data=['Type', 'Quantity'],
+                     height=300, title='')
+    fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
+                      texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
+                                                '%{percentEntry} of Entry', '%{percentRoot} of Root']))
+    fig.update_layout(paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'], font=dict(color='white'),
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      margin=dict(t=20, b=20, l=0, r=0))
+
+    return fig

@@ -1,9 +1,10 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
+from .figures import verra_vintage, verra_map, verra_project, pool_pie_chart
 
 
-def create_content_toucan(df, df_retired, fig_pool_pie_chart):
+def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
     content_tco2 = [
         dbc.Row(
             dbc.Col(
@@ -37,7 +38,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dbc.Card([
                     html.H5("Breakdown of TCO2 Pooled",
                             className="card-title"),
-                    dbc.CardBody(dcc.Graph(figure=fig_pool_pie_chart))
+                    dbc.CardBody(dcc.Graph(figure=pool_pie_chart(df_carbon)))
                 ], className="card-graph")
             ], width=12),
             # TODO: add methodology filter for NCT before re-enabling
@@ -55,6 +56,65 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             #                       ])
             #     ], className="card-graph")
             # ], width=6),
+        ]),
+
+        dbc.Row(
+            dbc.Col(
+                dbc.Card([
+                    dbc.CardHeader(
+                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis"))
+                ]), width=12, style={'textAlign': 'center'}),
+            style={'paddingTop': '60px'}
+        ),
+
+        dbc.Row([
+            dbc.Col(dbc.Card([
+                html.H5("Verra Registry credits ever Issued",
+                        className="card-title"),
+                dbc.CardBody("{:,}".format(
+                    int(df_verra["Quantity"].sum())), className="card-text")
+            ]), width=4),
+            dbc.Col(dbc.Card([
+                html.H5("Verra Registry credits Tokenized by Toucan",
+                        className="card-title"),
+                dbc.CardBody("{:,}".format(
+                    int(df_verra_toucan["Quantity"].sum())), className="card-text")
+            ]), width=4),
+            dbc.Col(dbc.Card([
+                html.H5("Percentage of Tokenized Credits",
+                        className="card-title"),
+                dbc.CardBody("{:.2%}".format(
+                    (df_verra_toucan["Quantity"].sum()/df_verra["Quantity"].sum())),
+                    className="card-text")
+            ]), width=4),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Vintage Start Dates", className="card-title"),
+                dcc.Graph(figure=verra_vintage(df_verra, df_verra_toucan))
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Region of Origin", className="card-title"),
+                dcc.Graph(figure=verra_map(df_verra, df_verra_toucan,
+                          "Ratio of Tokenized credits to Verra issued credits"))
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Project Types", className="card-title"),
+                dcc.Graph(figure=verra_project(df_verra, df_verra_toucan))
+            ]), width=12),
+            dbc.Col(),
         ]),
 
         dbc.Row([
@@ -107,7 +167,8 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                 dcc.Graph(id="volume plot")
             ]), width=6),
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Vintage Start Dates", className="card-title"),
+                html.H5("Distribution of Vintage Start Dates",
+                        className="card-title"),
                 dcc.Graph(id="vintage plot")
             ]), width=6),
         ]),
@@ -124,7 +185,8 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Distribution of Methodologies", className="card-title"),
+                html.H5("Distribution of Methodologies",
+                        className="card-title"),
                 dcc.Graph(id="methodology")
             ]), width=12),
             dbc.Col(),

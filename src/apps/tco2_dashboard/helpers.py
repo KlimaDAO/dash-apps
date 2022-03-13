@@ -49,16 +49,14 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-def merge_verra(df, df_verra, merge_columns):
+def merge_verra(df, df_verra_toucan, merge_columns):
     # Filter dataframe based on bridge
     df["Project ID Key"] = df["Project ID"].str[4:]
-    df_verra = df_verra[merge_columns]
-    df_verra = df_verra.query('Toucan')
-    df_verra = df_verra.reset_index(drop=True)
-    df_verra = df_verra.drop_duplicates(subset=['ID']).reset_index(drop=True)
+    df_verra_toucan = df_verra_toucan[merge_columns]
+    df_verra_toucan = df_verra_toucan.drop_duplicates(subset=['ID']).reset_index(drop=True)
     # df_verra = df_verra[(df_verra["Toucan"] is True)
     #                     ].reset_index(drop=True)
-    df = df.merge(df_verra, how='left', left_on="Project ID Key",
+    df = df.merge(df_verra_toucan, how='left', left_on="Project ID Key",
                   right_on='ID', suffixes=('', '_Verra'))
     return df
 
@@ -102,3 +100,14 @@ def filter_carbon_pool(df_deposited, df_redeemed, tokenadddress):
                                 == tokenadddress].reset_index()
 
     return df_deposited, df_redeemed
+
+
+def verra_manipulations(df_verra):
+    df_verra['Vintage'] = pd.to_datetime(
+            df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
+    df_verra['Quantity'] = df_verra['Quantity Issued']
+    df_verra.loc[df_verra['Retirement Details'].str.contains(
+        'TOUCAN').fillna(False), 'Toucan'] = True
+    df_verra['Toucan'] = df_verra['Toucan'].fillna(False)
+    df_verra_toucan = df_verra.query('Toucan')
+    return df_verra, df_verra_toucan

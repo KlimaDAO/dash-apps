@@ -4,21 +4,21 @@ import pandas as pd
 from dash import html, Input, Output, callback
 from dash import dcc
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, pool_pie_chart, eligible_pool_pie_chart
+    methodology_volume, project_volume, eligible_pool_pie_chart
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
 from .bct import create_content_bct
 from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool, \
-    bridge_manipulations, merge_verra
+    bridge_manipulations, merge_verra, verra_manipulations
 from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map, \
     verra_rename_map, merge_columns
 from subgrounds.subgrounds import Subgrounds
 from flask_caching import Cache
 import requests
 
-CACHE_TIMEOUT = 10000
+CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
-MAX_RECORDS = 400
+MAX_RECORDS = 999
 
 ORIGIN_MAP_TITLE_PREFIX = 'Origin of Credits'
 
@@ -37,7 +37,6 @@ cache = Cache(app.server, config={
 })
 
 
-@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -85,7 +84,6 @@ def get_data():
     return df_bridged, df_retired
 
 
-@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -116,30 +114,27 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize()
 def get_verra_data():
     r = requests.post(
         'https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv',
         json={"program": "VCS", "issuanceTypeCodes": ['ISSUE']})
     df_verra = pd.DataFrame(r.json()['value']).rename(columns=verra_rename_map)
-    df_verra.loc[df_verra['Retirement Details'].str.contains(
-        'TOUCAN').fillna(False), 'Toucan'] = True
-    df_verra['Toucan'] = df_verra['Toucan'].fillna(False)
     return df_verra
 
 
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
-    print(df)
     df_deposited, df_redeemed = get_data_pool()
     df_verra = get_verra_data()
+    df_verra, df_verra_toucan = verra_manipulations(df_verra)
     # -----TCO2_Figures-----
 
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
     # merge Verra Data
-    df = merge_verra(df, df_verra, merge_columns)
+    df = merge_verra(df, df_verra_toucan, merge_columns)
     df_retired = merge_verra(df_retired, df_verra, merge_columns)
     # datetime manipulations
     df = date_manipulations(df)
@@ -162,8 +157,6 @@ def generate_layout():
     cache.set("df_carbon", df_carbon)
 
     # Summary
-    fig_pool_pie_chart = pool_pie_chart(df_carbon)
-    cache.set("fig_pool_pie_chart", fig_pool_pie_chart)
 
     # Figures
     # 7-day-performance
@@ -216,7 +209,7 @@ def generate_layout():
     fig_total_project = project_volume(df)
     fig_total_project_retired = project_volume(df_retired)
 
-    content_tco2 = create_content_toucan(df, df_retired, fig_pool_pie_chart)
+    content_tco2 = create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan)
 
     fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
                      fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
