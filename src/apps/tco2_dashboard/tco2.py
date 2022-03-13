@@ -125,7 +125,16 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col(dbc.Card([
                 html.H5("Distribution of Methodologies", className="card-title"),
-                html.Div(id="fig_total_metho")
+                dcc.Graph(id="methodology")
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Projects", className="card-title"),
+                dcc.Graph(id="projects")
             ]), width=12),
             dbc.Col(),
         ]),

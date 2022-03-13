@@ -49,6 +49,20 @@ def bridge_manipulations(df, bridge):
     return df
 
 
+def merge_verra(df, df_verra, merge_columns):
+    # Filter dataframe based on bridge
+    df["Project ID Key"] = df["Project ID"].str[4:]
+    df_verra = df_verra[merge_columns]
+    df_verra = df_verra.query('Toucan')
+    df_verra = df_verra.reset_index(drop=True)
+    df_verra = df_verra.drop_duplicates(subset=['ID']).reset_index(drop=True)
+    # df_verra = df_verra[(df_verra["Toucan"] is True)
+    #                     ].reset_index(drop=True)
+    df = df.merge(df_verra, how='left', left_on="Project ID Key",
+                  right_on='ID', suffixes=('', '_Verra'))
+    return df
+
+
 def region_manipulations(df):
     df['Region'] = df['Region'].replace('South Korea', 'Korea, Republic of')
     # Belize country credits are categorized under Latin America. Confirmed this with Verra Registry

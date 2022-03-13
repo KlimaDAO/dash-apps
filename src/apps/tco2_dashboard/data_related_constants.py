@@ -40,3 +40,33 @@ deposits_rename_map = {
     'deposits_pool': 'Pool',
     'deposits_offset_region': 'Region',
 }
+
+verra_rename_map = {
+    'issuanceDate': 'Issuance Date',
+    'programObjectives': 'Sustainable Development Goals',
+    'instrumentType': 'Credit Type',
+    'vintageStart': 'Vintage Start',
+    'vintageEnd': 'Vintage End',
+    'reportingPeriodStart': 'Reporting Period Start',
+    'reportingPeriodEnd': 'Reporting Period End',
+    'resourceIdentifier': 'ID',
+    'resourceName': 'Name',
+    'region': 'Region',
+    'country': 'Country',
+    'protocolCategory': 'Project Type',
+    'protocol': 'Methodology',
+    'totalVintageQuantity': 'Total Vintage Quantity',
+    'quantity': 'Quantity Issued',
+    'serialNumbers': 'Serial Number',
+    'additionalCertifications': 'Additional Certifications',
+    'retiredCancelled': 'Is Cancelled',
+    'retireOrCancelDate': 'Retirement/Cancellation Date',
+    'retirementBeneficiary': 'Retirement Beneficiary',
+    'retirementReason': 'Retirement Reason',
+    'retirementDetails': 'Retirement Details',
+    'inputTypes': 'Input Type',
+    'holdingIdentifier': 'Holding ID'
+}
+
+merge_columns = ["ID", "Name", "Region", "Country",
+                 "Project Type", "Methodology", "Toucan"]

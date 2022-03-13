@@ -86,16 +86,16 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph):
 
 
 def map(df, title):
-    df = df[df["Region"] != ""].reset_index(drop=True)
+    df = df[df["Country"] != ""].reset_index(drop=True)
     country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
                                 0].alpha_3 for country in df.Region.astype(str).unique() if country != 'nan'})
-    country_volumes = df.groupby('Region')['Quantity'].sum(
+    country_volumes = df.groupby('Country')['Quantity'].sum(
     ).sort_values(ascending=False).to_frame().reset_index()
     country_volumes['Country Code'] = [country_index[country]
-                                       for country in country_volumes['Region']]
+                                       for country in country_volumes['Country']]
     fig = px.choropleth(country_volumes, locations="Country Code",
                         color="Quantity",
-                        hover_name='Region',
+                        hover_name='Country',
                         color_continuous_scale=px.colors.sequential.Plasma,
                         height=600)
 
@@ -197,6 +197,19 @@ def methodology_volume(df):
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
                       hoverlabel=dict(font_color='white', font_size=12), font_size=8)
+    return fig
+
+
+def project_volume(df):
+    fig = px.treemap(df, path=[px.Constant("All Projects"), 'Project Type', 'Country', 'Name'], values='Quantity',
+                     hover_data=['Name', 'Quantity'],
+                     height=300, title='')
+    fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
+                      texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
+                                                '%{percentEntry} of Entry', '%{percentRoot} of Root']))
+    fig.update_layout(paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'], font=dict(color='white'),
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      margin=dict(t=20, b=20, l=0, r=0))
     return fig
 
 
