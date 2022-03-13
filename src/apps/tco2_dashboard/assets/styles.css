@@ -1,23 +1,36 @@
+:root {
+  --gray: #1e90ff;
+  --dark-gray: #121212;
+  --white: #ffffff;
+  --green: #00CC33;
+  --blue: #536C9C;
+  --font-fam: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;;
+}
+
 body {
-    background: #121212;
-    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;;
+    background: var(--dark-gray);
+    font-family: var(--font-fam);
 }
 
 h1 {
-  color: #0c3;
+  color: var(--green);
 }
 
 h2 {
-    color: #0c3;
+  color: var(--green);
 }
 
 h3 {
-  color:#0c3;
+  color:var(--green);
 }
 
 
 h4 {
-  color:#0c3;
+  color:var(--green);
+}
+
+a {
+  color:var(--green);
 }
 
 .card {
@@ -25,7 +38,7 @@ h4 {
   /* border: 2px solid #00CC33; */
   box-sizing: border-box;
   border-radius: 15px;
-  color: white;
+  color: var(--white);
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
@@ -52,14 +65,17 @@ h4 {
   /* border: 2px solid #00CC33; */
   box-sizing: border-box;
   border-radius: 15px;
-  color: white;
+  color: var(--white);
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
   height: 400px;
 }
 
-
+.column-header-name {
+    font-family: var(--font-fam);
+    font-weight: bold;
+}
 
 /* input box */
 .Select-control {

@@ -1,20 +1,23 @@
 import dash_bootstrap_components as dbc
 import dash
-import pandas as pd
 from dash import html, Input, Output, callback
 from dash import dcc
+from flask_caching import Cache
+import pandas as pd
+import requests
+from subgrounds.subgrounds import Subgrounds
+
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
-from .bct import create_content_bct
-from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool, \
-    bridge_manipulations, merge_verra, verra_manipulations
-from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map, \
-    verra_rename_map, merge_columns
-from subgrounds.subgrounds import Subgrounds
-from flask_caching import Cache
-import requests
+from .pool import create_pool_content
+from .helpers import date_manipulations, filter_pool_quantity, region_manipulations, \
+                     subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
+                     merge_verra, verra_manipulations
+from .constants import rename_map, retires_rename_map, deposits_rename_map, \
+                       redeems_rename_map, BCT_ADDRESS, GRAY, \
+                       verra_rename_map, merge_columns
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
@@ -154,6 +157,7 @@ def generate_layout():
         df_retired)
     # drop duplicates data for Carbon Pool calculations
     df_carbon = drop_duplicates(df)
+    print(df_carbon.columns)
     cache.set("df_carbon", df_carbon)
 
     # Summary
@@ -246,14 +250,19 @@ def generate_layout():
 
     # Carbon pool filter
     bct_deposited, bct_redeemed = filter_carbon_pool(
-        df_deposited, df_redeemed, "0x2f800db0fdb5223b3c3f354886d907a671414a7f")
+        BCT_ADDRESS, df_deposited, df_redeemed
+    )
+
+    bct_carbon = filter_pool_quantity(df_carbon, "BCT Quantity")
 
     # Figures
     fig_deposited_over_time = deposited_over_time(bct_deposited)
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
 
-    content_bct = create_content_bct(
-        bct_deposited, bct_redeemed, fig_deposited_over_time, fig_redeemed_over_time)
+    content_bct = create_pool_content(
+        "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time
+    )
 
     cache.set("content_bct", content_bct)
 
@@ -264,7 +273,7 @@ def generate_layout():
         "bottom": 0,
         "width": "16rem",
         "padding": "2rem 1rem",
-        "backgroundColor": '#232B2B',
+        "backgroundColor": GRAY,
         "fontSize": 20
     }
 

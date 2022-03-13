@@ -1,4 +1,9 @@
 
+BCT_ADDRESS = '0x2f800db0fdb5223b3c3f354886d907a671414a7f'
+
+GRAY = '#232B2B'
+DARK_GRAY = '#343a40'
+
 rename_map = {
     'carbonOffsets_bridges_value': 'Quantity',
     'carbonOffsets_bridges_timestamp': 'Date',

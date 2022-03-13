@@ -93,21 +93,45 @@ def subsets(df):
     return sd_pool, last_sd_pool, td_pool, last_td_pool
 
 
-def filter_carbon_pool(df_deposited, df_redeemed, tokenadddress):
-    df_redeemed = df_redeemed[df_redeemed["Pool"]
-                              == tokenadddress].reset_index()
-    df_deposited = df_deposited[df_deposited["Pool"]
-                                == tokenadddress].reset_index()
-
-    return df_deposited, df_redeemed
+def filter_df_by_pool(df, pool_address):
+    return df[df["Pool"] == pool_address].reset_index()
 
 
 def verra_manipulations(df_verra):
     df_verra['Vintage'] = pd.to_datetime(
-            df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
+        df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
     df_verra['Quantity'] = df_verra['Quantity Issued']
     df_verra.loc[df_verra['Retirement Details'].str.contains(
         'TOUCAN').fillna(False), 'Toucan'] = True
     df_verra['Toucan'] = df_verra['Toucan'].fillna(False)
     df_verra_toucan = df_verra.query('Toucan')
     return df_verra, df_verra_toucan
+
+
+def filter_carbon_pool(pool_address, *dfs):
+    filtered = []
+    for df in dfs:
+        filtered.append(filter_df_by_pool(df, pool_address))
+
+    return dfs
+
+
+def filter_pool_quantity(df, quantity_column):
+    filtered = df[df[quantity_column] > 0]
+    filtered = filtered[[
+        'Project ID', 'Vintage', quantity_column, 'Region',
+        'Standard', 'Methodology', 'Token Address'
+    ]]
+
+    pat = r'VCS-(?P<id>\d+)'
+    repl = (
+        lambda m: '[VCS-' + m.group('id') + '](https://registry.verra.org/app/projectDetail/VCS/' + m.group('id') + ')'
+    )
+    filtered['Project ID'] = filtered['Project ID'].str.replace(pat, repl, regex=True)
+
+    filtered['Token Address'] = filtered['Token Address'].str.replace(
+        '(.*)',
+        lambda m: '[' + m.group(0) + '](https://polygonscan.com/address/' + m.group(0) + ')'
+    )
+
+    return filtered
