@@ -1,17 +1,20 @@
 import dash_bootstrap_components as dbc
 import dash
+import pandas as pd
 from dash import html, Input, Output, callback
 from dash import dcc
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, pool_pie_chart, eligible_pool_pie_chart
+    methodology_volume, project_volume, eligible_pool_pie_chart
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
 from .bct import create_content_bct
 from .helpers import date_manipulations, region_manipulations, subsets, drop_duplicates, filter_carbon_pool, \
-    bridge_manipulations
-from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map
+    bridge_manipulations, merge_verra, verra_manipulations
+from .data_related_constants import rename_map, retires_rename_map, deposits_rename_map, redeems_rename_map, \
+    verra_rename_map, merge_columns
 from subgrounds.subgrounds import Subgrounds
 from flask_caching import Cache
+import requests
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
@@ -111,16 +114,28 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
+def get_verra_data():
+    r = requests.post(
+        'https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv',
+        json={"program": "VCS", "issuanceTypeCodes": ['ISSUE']})
+    df_verra = pd.DataFrame(r.json()['value']).rename(columns=verra_rename_map)
+    return df_verra
+
+
 @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
-
+    df_verra = get_verra_data()
+    df_verra, df_verra_toucan = verra_manipulations(df_verra)
     # -----TCO2_Figures-----
 
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
+    # merge Verra Data
+    df = merge_verra(df, df_verra_toucan, merge_columns)
+    df_retired = merge_verra(df_retired, df_verra, merge_columns)
     # datetime manipulations
     df = date_manipulations(df)
     df_retired = date_manipulations(df_retired)
@@ -142,8 +157,6 @@ def generate_layout():
     cache.set("df_carbon", df_carbon)
 
     # Summary
-    fig_pool_pie_chart = pool_pie_chart(df_carbon)
-    cache.set("fig_pool_pie_chart", fig_pool_pie_chart)
 
     # Figures
     # 7-day-performance
@@ -161,6 +174,8 @@ def generate_layout():
         sd_pool_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired in the Last 7 Days')
     fig_seven_day_metho = methodology_volume(sd_pool)
     fig_seven_day_metho_retired = methodology_volume(sd_pool_retired)
+    fig_seven_day_project = project_volume(sd_pool)
+    fig_seven_day_project_retired = project_volume(sd_pool_retired)
 
     # 30-day-performance
     fig_thirty_day_volume = sub_plots_volume(
@@ -177,6 +192,8 @@ def generate_layout():
         td_pool_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired in the Last 7 Days')
     fig_thirty_day_metho = methodology_volume(td_pool)
     fig_thirty_day_metho_retired = methodology_volume(td_pool_retired)
+    fig_thirty_day_project = project_volume(td_pool)
+    fig_thirty_day_project_retired = project_volume(td_pool_retired)
 
     # Total
     fig_total_volume = total_volume(df, "Credits tokenized (total)")
@@ -189,21 +206,23 @@ def generate_layout():
         df_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired')
     fig_total_metho = methodology_volume(df)
     fig_total_metho_retired = methodology_volume(df_retired)
+    fig_total_project = project_volume(df)
+    fig_total_project_retired = project_volume(df_retired)
 
-    content_tco2 = create_content_toucan(df, df_retired, fig_pool_pie_chart)
+    content_tco2 = create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan)
 
     fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
-                     fig_seven_day_map, fig_seven_day_metho]
+                     fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
     fig_seven_day_retired = [fig_seven_day_volume_retired, fig_seven_day_vintage_retired,
-                             fig_seven_day_map_retired, fig_seven_day_metho_retired]
+                             fig_seven_day_map_retired, fig_seven_day_metho_retired, fig_seven_day_project_retired]
     fig_thirty_day = [fig_thirty_day_volume, fig_thirty_day_vintage,
-                      fig_thirty_day_map, fig_thirty_day_metho]
+                      fig_thirty_day_map, fig_thirty_day_metho, fig_thirty_day_project]
     fig_thirty_day_retired = [fig_thirty_day_volume_retired, fig_thirty_day_vintage_retired,
-                              fig_thirty_day_map_retired, fig_thirty_day_metho_retired]
+                              fig_thirty_day_map_retired, fig_thirty_day_metho_retired, fig_thirty_day_project_retired]
     fig_total = [fig_total_volume, fig_total_vintage,
-                 fig_total_map, fig_total_metho]
+                 fig_total_map, fig_total_metho, fig_total_project]
     fig_total_retired = [fig_total_volume_retired, fig_total_vintage_retired,
-                         fig_total_map_retired, fig_total_metho_retired]
+                         fig_total_map_retired, fig_total_metho_retired, fig_total_project_retired]
 
     cache.set("fig_seven_day", fig_seven_day)
     cache.set("fig_seven_day_retired", fig_seven_day_retired)
@@ -259,7 +278,8 @@ def generate_layout():
         [
             dbc.Col(html.Img(src='assets/KlimaDAO-Wordmark.png', width=200),
                     width=12, style={'textAlign': 'center'}),
-            html.H3("Tokenized Carbon Dashboards", style={'textAlign': 'center'}),
+            html.H3("Tokenized Carbon Dashboards",
+                    style={'textAlign': 'center'}),
             html.Hr(),
             html.H4("Toucan Protocol", style={'textAlign': 'center'}),
             dbc.Nav(
@@ -289,7 +309,8 @@ app.layout = generate_layout
     Output(component_id='volume plot', component_property='figure'),
     Output(component_id='vintage plot', component_property='figure'),
     Output(component_id='map', component_property='figure'),
-    Output(component_id="fig_total_metho", component_property='children'),
+    Output(component_id="methodology", component_property='figure'),
+    Output(component_id="projects", component_property='figure'),
     Input(component_id='summary_type', component_property='value'),
     Input(component_id='bridged_or_retired', component_property='value')
 )
@@ -298,33 +319,31 @@ def update_output_div(summary_type, TCO2_type):
         if TCO2_type == 'Bridged':
             fig_seven_day = cache.get("fig_seven_day")
             return "Last 7 Days Performance", fig_seven_day[0], fig_seven_day[1], fig_seven_day[2], \
-                dcc.Graph(figure=fig_seven_day[3])
+                fig_seven_day[3], fig_seven_day[4]
         elif TCO2_type == 'Retired':
             fig_seven_day_retired = cache.get("fig_seven_day_retired")
             return "Last 7 Days Performance", fig_seven_day_retired[0], fig_seven_day_retired[1], \
-                fig_seven_day_retired[2], dcc.Graph(
-                    figure=fig_seven_day_retired[3])
+                fig_seven_day_retired[2], fig_seven_day_retired[3], fig_seven_day_retired[4]
 
     elif summary_type == 'Last 30 Days Performance':
         if TCO2_type == 'Bridged':
             fig_thirty_day = cache.get("fig_thirty_day")
             return "Last 30 Days Performance", fig_thirty_day[0], fig_thirty_day[1], fig_thirty_day[2], \
-                dcc.Graph(figure=fig_thirty_day[3])
+                fig_thirty_day[3], fig_thirty_day[4]
         elif TCO2_type == 'Retired':
             fig_thirty_day_retired = cache.get("fig_thirty_day_retired")
             return "Last 30 Days Performance", fig_thirty_day_retired[0], fig_thirty_day_retired[1], \
-                fig_thirty_day_retired[2], dcc.Graph(
-                    figure=fig_thirty_day_retired[3])
+                fig_thirty_day_retired[2], fig_thirty_day_retired[3], fig_thirty_day_retired[4]
 
     elif summary_type == 'Lifetime Performance':
         if TCO2_type == 'Bridged':
             fig_total = cache.get("fig_total")
             return "Lifetime Performance", fig_total[0], fig_total[1], fig_total[2],\
-                dcc.Graph(figure=fig_total[3])
+                fig_total[3], fig_total[4]
         elif TCO2_type == 'Retired':
             fig_total_retired = cache.get("fig_total_retired")
             return "Lifetime Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
-                dcc.Graph(figure=fig_total_retired[3])
+                fig_total_retired[3], fig_total_retired[4]
 
 
 @callback(
