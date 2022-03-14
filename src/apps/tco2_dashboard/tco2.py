@@ -19,18 +19,18 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
                 html.H5("TCO2 Tonnes Bridged", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum())), className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
             dbc.Col(dbc.Card([
                 html.H5("TCO2 Tonnes Retired", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_retired["Quantity"].sum())), className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
             dbc.Col(dbc.Card([
                 html.H5("TCO2 Tonnes Outstanding",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum()-df_retired["Quantity"].sum())), className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
         ], style={'paddingTop': '60px'}),
 
         dbc.Row([
@@ -55,7 +55,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
             #             dbc.Col([dcc.Graph(id="eligible pie chart plot")], width=9)])
             #                       ])
             #     ], className="card-graph")
-            # ], width=6),
+            # ], lg=6, md=12),
         ]),
 
         dbc.Row(
@@ -73,20 +73,20 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_verra["Quantity"].sum())), className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
             dbc.Col(dbc.Card([
                 html.H5("Verra Registry credits Tokenized by Toucan",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_verra_toucan["Quantity"].sum())), className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
             dbc.Col(dbc.Card([
                 html.H5("Percentage of Tokenized Credits",
                         className="card-title"),
                 dbc.CardBody("{:.2%}".format(
                     (df_verra_toucan["Quantity"].sum()/df_verra["Quantity"].sum())),
                     className="card-text")
-            ]), md=4, sm=12),
+            ]), lg=4, md=12),
         ]),
 
         dbc.Row([
@@ -141,7 +141,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
                                                                value='Lifetime Performance', id='summary_type',
                                                                placeholder='Select Summary Type')])
                                 ])
-                            ], md=6, sm=12),
+                            ], lg=6, md=12),
                             dbc.Col([
                                 dbc.Card([
                                     dbc.CardHeader(
@@ -151,7 +151,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
                                                                value='Bridged', id='bridged_or_retired',
                                                                placeholder='Select Summary Type')])
                                 ])
-                            ], md=6, sm=12),
+                            ], lg=6, md=12),
                         ])
                     ])
                 ]),
@@ -165,7 +165,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
             dbc.Col(dbc.Card([
                 dbc.CardBody(html.H2(id="Last X Days"),
                              style={'textAlign': 'center'})
-            ]), md=6, sm=12),
+            ]), lg=6, md=12),
             dbc.Col(),
         ]),
 
@@ -173,12 +173,12 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
             dbc.Col(dbc.Card([
                 html.H5("Volume Over Time", className="card-title"),
                 dcc.Graph(id="volume plot")
-            ]), md=6, sm=12),
+            ]), lg=6, md=12),
             dbc.Col(dbc.Card([
                 html.H5("Distribution of Vintage Start Dates",
                         className="card-title"),
                 dcc.Graph(id="vintage plot")
-            ]), md=6, sm=12),
+            ]), lg=6, md=12),
         ]),
 
         dbc.Row([
