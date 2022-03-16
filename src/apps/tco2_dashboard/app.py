@@ -158,7 +158,6 @@ def generate_layout():
         df_retired)
     # drop duplicates data for Carbon Pool calculations
     df_carbon = drop_duplicates(df)
-    print(df_carbon.columns)
     cache.set("df_carbon", df_carbon)
 
     # Summary

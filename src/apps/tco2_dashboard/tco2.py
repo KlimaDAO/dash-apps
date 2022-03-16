@@ -102,9 +102,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Region of Origin", className="card-title"),
-                html.H5("Ratio of Tokenized credits to Verra issued credits", style={
-                        'text-align': 'center', 'color': '#66E185'}),
+                html.H5("Credits Tokenized vs. Credits Issued by Origin", className="card-title"),
                 dcc.Graph(figure=verra_map(df_verra, df_verra_toucan
                                            ))
             ]), width=12),
@@ -184,7 +182,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Origin of Credits", className="card-title"),
+                html.H5("Origin of Tokenized Credits", className="card-title"),
                 dcc.Graph(id="map")
             ]), width=12),
             dbc.Col(),
