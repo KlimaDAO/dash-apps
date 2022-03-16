@@ -1,40 +1,39 @@
 :root {
-  --gray: #232B2B;
-  --dark-gray: #121212;
+  --gray: #2a2a2a;
+  --dark-gray: #202020;
   --white: #ffffff;
   --green: #00CC33;
   --blue: #536C9C;
-  --font-fam: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;;
+  --font-fam: Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
 }
 
 body {
-    background: var(--dark-gray);
+    background: var(--gray);
     font-family: var(--font-fam);
 }
 
 h1 {
-  color: var(--green);
+  color: var(--white);
 }
 
 h2 {
-  color: var(--green);
+  color: var(--white);
 }
 
 h3 {
-  color:var(--green);
+  color: var(--white);
 }
 
-
 h4 {
-  color:var(--green);
+  color: var(--white);
 }
 
 a {
-  color:var(--green);
+  color: var(--green);
 }
 
 .card {
-  background: var(--gray);
+  background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
   box-sizing: border-box;
   border-radius: 15px;
@@ -61,7 +60,7 @@ a {
 }
 
 .card-graph {
-  background: var(--gray);
+  background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
   box-sizing: border-box;
   border-radius: 15px;
@@ -128,30 +127,30 @@ color: white;
 .nav-pills a{
   display: inline-block;
   box-sizing: border-box;
-  color: white;
+  color: #9c9c9c;
   text-align: center;
   padding: 14px;
   text-decoration: none;
   /* font-size: 32px; */
-  border-radius: 15px;
+  border-radius: 0.8rem;
 }
 
 /* Change the color of links on mouse-over */
 .nav-pills a:hover {
-  background-color: dimgray;
-  color: white;
+  background-color: #262626;
+  color: #ddd;
 }
 
 /* Add a color to the active/current link */
 .nav-pills .nav-link.active {
-  background-color: black;
-  color: white;
+  background-color: var(--gray);
+  color: var(--green);
 }
 
 #sidebar {
   text-align: center;
   padding: 2rem 1rem;
-  background-color: var(--gray);
+  background-color: var(--dark-gray);
   font-size: 20;
   /* width: 16rem; */
   color: white;
@@ -188,7 +187,7 @@ color: white;
     left: 0;
     bottom: 0;
     width: 16rem;
-    background-color: var(--gray);
+    background-color: var(--dark-gray);
     text-align: left;
   }
 
