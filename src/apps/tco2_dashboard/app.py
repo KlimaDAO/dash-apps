@@ -21,7 +21,7 @@ from .constants import rename_map, retires_rename_map, deposits_rename_map, \
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
-MAX_RECORDS = 999
+MAX_RECORDS = 1000000
 
 app = dash.Dash(
     __name__,

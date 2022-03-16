@@ -5,5 +5,5 @@ millify
 orjson
 pycountry==22.1.10
 pytest
-subgrounds==0.0.7
+subgrounds==0.0.8
 web3
