@@ -1,6 +1,6 @@
 import dash_bootstrap_components as dbc
 import dash
-from dash import html, Input, Output, callback
+from dash import html, Input, Output, callback, State
 from dash import dcc
 from flask_caching import Cache
 import pandas as pd
@@ -13,23 +13,24 @@ from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
 from .pool import create_pool_content
 from .helpers import date_manipulations, filter_pool_quantity, region_manipulations, \
-                     subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
-                     merge_verra, verra_manipulations
+    subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
+    merge_verra, verra_manipulations
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
-                       redeems_rename_map, BCT_ADDRESS, GRAY, \
-                       verra_rename_map, merge_columns
+    redeems_rename_map, BCT_ADDRESS, \
+    verra_rename_map, merge_columns
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
 MAX_RECORDS = 999
 
-ORIGIN_MAP_TITLE_PREFIX = 'Origin of Credits'
-
 app = dash.Dash(
     __name__,
     title="KlimaDAO Tokenized Carbon Dashboard",
     suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.BOOTSTRAP]
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+    ]
 )
 
 # Configure cache
@@ -173,9 +174,9 @@ def generate_layout():
     fig_seven_day_vintage_retired = sub_plots_vintage(
         sd_pool_retired, last_sd_pool_retired, "Average Credit Vintage (7d)", "")
     fig_seven_day_map = map(
-        sd_pool, ORIGIN_MAP_TITLE_PREFIX + ' Bridged in the Last 7 Days')
+        sd_pool)
     fig_seven_day_map_retired = map(
-        sd_pool_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired in the Last 7 Days')
+        sd_pool_retired)
     fig_seven_day_metho = methodology_volume(sd_pool)
     fig_seven_day_metho_retired = methodology_volume(sd_pool_retired)
     fig_seven_day_project = project_volume(sd_pool)
@@ -191,9 +192,9 @@ def generate_layout():
     fig_thirty_day_vintage_retired = sub_plots_vintage(
         td_pool_retired, last_td_pool_retired, "Average Credit Vintage (30d)", "")
     fig_thirty_day_map = map(
-        td_pool, ORIGIN_MAP_TITLE_PREFIX + ' Bridged in the Last 30 Days')
+        td_pool)
     fig_thirty_day_map_retired = map(
-        td_pool_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired in the Last 7 Days')
+        td_pool_retired)
     fig_thirty_day_metho = methodology_volume(td_pool)
     fig_thirty_day_metho_retired = methodology_volume(td_pool_retired)
     fig_thirty_day_project = project_volume(td_pool)
@@ -205,15 +206,16 @@ def generate_layout():
         df_retired, "Credits retired (total)")
     fig_total_vintage = total_vintage(df)
     fig_total_vintage_retired = total_vintage(df_retired)
-    fig_total_map = map(df, ORIGIN_MAP_TITLE_PREFIX + ' Bridged')
+    fig_total_map = map(df)
     fig_total_map_retired = map(
-        df_retired, ORIGIN_MAP_TITLE_PREFIX + ' Retired')
+        df_retired)
     fig_total_metho = methodology_volume(df)
     fig_total_metho_retired = methodology_volume(df_retired)
     fig_total_project = project_volume(df)
     fig_total_project_retired = project_volume(df_retired)
 
-    content_tco2 = create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan)
+    content_tco2 = create_content_toucan(
+        df, df_retired, df_carbon, df_verra, df_verra_toucan)
 
     fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
                      fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
@@ -266,45 +268,52 @@ def generate_layout():
 
     cache.set("content_bct", content_bct)
 
-    SIDEBAR_STYLE = {
-        "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "bottom": 0,
-        "width": "16rem",
-        "padding": "2rem 1rem",
-        "backgroundColor": GRAY,
-        "fontSize": 20
-    }
-
-    CONTENT_STYLE = {
-        "marginLeft": "18rem",
-        "marginRight": "2rem",
-        "padding": "2rem 1rem",
-    }
-
-    sidebar = html.Div(
+    sidebar_toggle = dbc.Row(
         [
-            dbc.Col(html.Img(src='assets/KlimaDAO-Wordmark.png', width=200),
-                    width=12, style={'textAlign': 'center'}),
-            html.H3("Tokenized Carbon Dashboards",
-                    style={'textAlign': 'center'}),
-            html.Hr(),
-            html.H4("Toucan Protocol", style={'textAlign': 'center'}),
-            dbc.Nav(
-                [
-                    dbc.NavLink("TCO2 Overview", href="/", active="exact",
-                                className="pill-nav"),
-                    dbc.NavLink("BCT Pool", href="/BCT", active="exact"),
-                ],
-                vertical=True,
-                pills=True,
+            dbc.Col(
+                html.Button(
+                    html.Span(className="navbar-toggler-icon"),
+                    className="navbar-toggler",
+                    style={
+                        "border-color": "rgba(0,0,0,.1)",
+                    },
+                    id="toggle",
+                ),
+                width="auto", align="center",
             ),
-        ],
-        style=SIDEBAR_STYLE,
+        ]
     )
 
-    content = html.Div(id="page-content", children=[], style=CONTENT_STYLE)
+    sidebar_header = html.Div([dbc.Col(html.Img(src='assets/KlimaDAO-Wordmark.png', width=200),
+                                       width=12, style={'textAlign': 'center'}),
+                               html.H3("Tokenized Carbon Dashboards",
+                                       style={'textAlign': 'center'}),
+                               ],
+                              id="logo_title")
+    sidebar = html.Div(
+        [sidebar_header,
+            sidebar_toggle,
+            dbc.Collapse(children=[
+                dbc.Nav(
+                    [html.Hr(),
+                        html.H4("Toucan Protocol", style={
+                                'textAlign': 'center'}),
+                        dbc.NavLink("TCO2 Overview", href="/", active="exact",
+                                    className="pill-nav", id="button-tco2", n_clicks=0),
+                        dbc.NavLink("BCT Pool", href="/BCT", active="exact",
+                                    id="button-bct", n_clicks=0),
+                     ],
+                    vertical=True,
+                    pills=True,
+                )],
+                id="collapse",
+            ),
+         ],
+        id="sidebar",
+    )
+
+    content = html.Div(id="page-content", children=[],
+                       )
 
     layout = html.Div([dcc.Location(id="url"), sidebar, content])
     return layout
@@ -384,6 +393,19 @@ def render_page_content(pathname):
             html.P(f"The pathname {pathname} was not recognised..."),
         ]
     )
+
+
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("toggle", "n_clicks"),
+     Input("button-tco2", "n_clicks"),
+     Input("button-bct", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, n_tco2, n_bct, is_open):
+    if n or n_tco2 or n_bct:
+        return not is_open
+    return is_open
 
 
 # For Gunicorn to reference
