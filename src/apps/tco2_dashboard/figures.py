@@ -86,7 +86,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph):
     return fig
 
 
-def map(df, title):
+def map(df):
     df = df[df["Country"] != ""].reset_index(drop=True)
     country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
                                 0].alpha_3 for country in df.Country.astype(str).unique() if country != 'nan'})
@@ -103,15 +103,13 @@ def map(df, title):
                         color_continuous_scale=px.colors.sequential.Plasma,
                         height=600)
 
-    # fig.update_traces(hovertemplate="I am adding this %{customdata}")
-
     fig.update_layout(height=300, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
                                            landcolor='darkgrey',
-                                           subunitcolor='grey'), title=dict(
-        text=title, x=0.5, font=dict(color=colors['kg_color_sub2'], size=24)),
-        font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
-        hoverlabel=dict(font_color='white', font_size=12), font_size=12,
-        margin=dict(t=50, b=0, l=0, r=0))
+                                           subunitcolor='grey'),
+                      font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=8,
+                      margin=dict(t=50, b=0, l=0, r=0),
+                      coloraxis_colorbar=dict(thickness=10, len=0.6))
     return fig
 
 
@@ -199,7 +197,8 @@ def methodology_volume(df):
     fig.update_layout(height=300, paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'],
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=8)
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=8,
+                      margin=dict(t=0, b=0, l=0, r=0))
     return fig
 
 
@@ -211,7 +210,7 @@ def project_volume(df):
                       texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
                                                 '%{percentEntry} of Entry', '%{percentRoot} of Root']))
     fig.update_layout(paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'], font=dict(color='white'),
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
                       margin=dict(t=20, b=20, l=0, r=0))
     return fig
 
@@ -226,8 +225,9 @@ def pool_pie_chart(df):
     fig.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
         color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
     fig.update_layout(height=300,
-                      paper_bgcolor=colors['bg_color'], font_color='white', font_size=12,
-                      margin=dict(t=0, b=0, l=0, r=0))
+                      paper_bgcolor=colors['bg_color'], font_color='white', font_size=8,
+                      margin=dict(t=0, b=0, l=0, r=0),
+                      legend=dict(x=1, font=dict(size=8)))
 
     return fig
 
@@ -273,12 +273,15 @@ def verra_vintage(df_verra, df_verra_toucan):
     fig.update_layout(height=300, paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'],
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=12)
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      legend=dict(title="", orientation="h", yanchor="bottom",
+                                  y=1.02, xanchor="right", x=1
+                                  ))
 
     return fig
 
 
-def verra_map(df_verra, df_verra_toucan, title):
+def verra_map(df_verra, df_verra_toucan):
     df_verra_toucan_grouped = df_verra_toucan.groupby(
         'Country')['Quantity'].sum().to_frame().reset_index()
     df_verra_grouped = df_verra.groupby(
@@ -307,17 +310,17 @@ def verra_map(df_verra, df_verra_toucan, title):
                         hover_name='Country',
                         custom_data=['text'],
                         color_continuous_scale=px.colors.diverging.Picnic,
-                        height=600)
+                        height=300)
 
     fig.update_traces(hovertemplate="%{customdata}")
 
     fig.update_layout(height=300, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
                                            landcolor='darkgrey',
-                                           subunitcolor='grey'), title=dict(
-        text=title, x=0.5, font=dict(color=colors['kg_color_sub2'], size=24)),
-        font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
-        hoverlabel=dict(font_color='white', font_size=12), font_size=12,
-        margin=dict(t=50, b=0, l=0, r=0))
+                                           subunitcolor='grey'),
+                      font_color='white', dragmode=False, paper_bgcolor=colors['bg_color'],  hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=8,
+                      margin=dict(t=50, b=0, l=0, r=0),
+                      coloraxis_colorbar=dict(thickness=10, len=0.6))
     return fig
 
 
@@ -343,7 +346,7 @@ def verra_project(df_verra, df_verra_toucan):
                       texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
                                                 '%{percentEntry} of Entry', '%{percentRoot} of Root']))
     fig.update_layout(paper_bgcolor=colors['bg_color'], plot_bgcolor=colors['bg_color'], font=dict(color='white'),
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
                       margin=dict(t=20, b=20, l=0, r=0))
 
     return fig
