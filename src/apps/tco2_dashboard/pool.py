@@ -20,18 +20,18 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, detail_df, 
                     html.H5(f"Cumulative Tonnes of {bridge_ticker} Deposited", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(deposited["Quantity"].sum())), className="card-text")
-                ]), md=4, sm=12),
+                ]), lg=4, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5(f"Tonnes of {bridge_ticker} Redeemed", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(redeemed["Quantity"].sum())), className="card-text")
-                ]), md=4, sm=12),
+                ]), lg=4, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5(f"Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
                     dbc.CardBody("Coming soon", className="card-text")
-                ]), md=4, sm=12),
+                ]), lg=4, md=12),
         ], style={'paddingTop': '60px'}),
         dbc.Row([
             dbc.Col([
@@ -40,21 +40,21 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, detail_df, 
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_deposited_over_time))
                 ], className="card-graph")
-            ], md=4, sm=12),
+            ], lg=4, md=12),
             dbc.Col([
                     dbc.Card([
                         html.H5(f"Cumulative Tonnes of {bridge_ticker} Redeemed Over Time",
                                 className="card-title"),
                         dbc.CardBody(dcc.Graph(figure=fig_redeemed_over_time))
                     ], className="card-graph")
-                    ], md=4, sm=12),
+                    ], lg=4, md=12),
             dbc.Col([
                     dbc.Card([
                         html.H5(f"Tonnes Retired from {pool_ticker} Over Time",
                                 className="card-title"),
                         dbc.CardBody("Coming soon", className="card-text")
                     ], className="card-graph"),
-                    ], md=4, sm=12)
+                    ], lg=4, md=12)
         ]),
         dbc.Row([
             dbc.Col([

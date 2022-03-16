@@ -284,12 +284,15 @@ def generate_layout():
         ]
     )
 
-    sidebar_header = html.Div([dbc.Col(html.Img(src='assets/KlimaDAO-Wordmark.png', width=200),
-                                       width=12, style={'textAlign': 'center'}),
-                               html.H3("Tokenized Carbon Dashboards",
-                                       style={'textAlign': 'center'}),
-                               ],
-                              id="logo_title")
+    sidebar_header = html.Div([dbc.Col(
+        html.A([
+            html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
+        ], href='https://www.klimadao.finance/'),
+        width=12, style={'textAlign': 'center'}),
+        html.H3("Tokenized Carbon Dashboards",
+                style={'textAlign': 'center'}),
+    ], id="logo_title")
+
     sidebar = html.Div(
         [sidebar_header,
             sidebar_toggle,

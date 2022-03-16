@@ -119,8 +119,8 @@ def filter_carbon_pool(pool_address, *dfs):
 def filter_pool_quantity(df, quantity_column):
     filtered = df[df[quantity_column] > 0]
     filtered = filtered[[
-        'Project ID', 'Vintage', quantity_column, 'Region',
-        'Standard', 'Methodology', 'Token Address'
+        'Project ID', 'Vintage', quantity_column, 'Region', 'Name', 'Project Type',
+        'Methodology', 'Token Address'
     ]]
 
     pat = r'VCS-(?P<id>\d+)'

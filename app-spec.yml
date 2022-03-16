@@ -1,6 +1,9 @@
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
+domains:
+- domain: carbon.klimadao.finance
+  type: PRIMARY
 envs:
   - key: POLYGONSCAN_API_KEY
     scope: RUN_AND_BUILD_TIME
@@ -20,6 +23,8 @@ services:
       tag: ${GITHUB_SHA}
     health_check:
       http_path: /
+      initial_delay_seconds: 30
+      timeout_seconds: 600
     http_port: 8050
     routes:
       - path: /
