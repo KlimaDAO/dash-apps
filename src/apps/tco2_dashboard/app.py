@@ -164,54 +164,68 @@ def generate_layout():
 
     # Figures
     # 7-day-performance
+    zero_bridging_evt_text = "There haven't been any bridging events in the last 7 days"
+    zero_retiring_evt_text = "There haven't been any retiring events in the last 7 days"
     fig_seven_day_volume = sub_plots_volume(
-        sd_pool, last_sd_pool, title_indicator="Credits Bridged (7d)", title_graph="")
+        sd_pool, last_sd_pool, "Credits Bridged (7d)", "", zero_bridging_evt_text)
     fig_seven_day_volume_retired = sub_plots_volume(
-        sd_pool_retired, last_sd_pool_retired, "Credits Retired (7d)", "")
+        sd_pool_retired, last_sd_pool_retired, "Credits Retired (7d)", "", zero_retiring_evt_text)
     fig_seven_day_vintage = sub_plots_vintage(
-        sd_pool, last_sd_pool, "Average Credit Vintage (7d)", "")
+        sd_pool, last_sd_pool, "Average Credit Vintage (7d)", "", zero_bridging_evt_text)
     fig_seven_day_vintage_retired = sub_plots_vintage(
-        sd_pool_retired, last_sd_pool_retired, "Average Credit Vintage (7d)", "")
+        sd_pool_retired, last_sd_pool_retired, "Average Credit Vintage (7d)", "",
+        zero_retiring_evt_text)
     fig_seven_day_map = map(
-        sd_pool)
+        sd_pool, zero_bridging_evt_text)
     fig_seven_day_map_retired = map(
-        sd_pool_retired)
-    fig_seven_day_metho = methodology_volume(sd_pool)
-    fig_seven_day_metho_retired = methodology_volume(sd_pool_retired)
-    fig_seven_day_project = project_volume(sd_pool)
-    fig_seven_day_project_retired = project_volume(sd_pool_retired)
+        sd_pool_retired, zero_retiring_evt_text)
+    fig_seven_day_metho = methodology_volume(sd_pool, zero_bridging_evt_text)
+    fig_seven_day_metho_retired = methodology_volume(
+        sd_pool_retired, zero_retiring_evt_text)
+    fig_seven_day_project = project_volume(sd_pool, zero_bridging_evt_text)
+    fig_seven_day_project_retired = project_volume(
+        sd_pool_retired, zero_retiring_evt_text)
 
     # 30-day-performance
+    zero_bridging_evt_text = "There haven't been any bridging events in the last 30 days"
+    zero_retiring_evt_text = "There haven't been any retiring events in the last 30 days"
     fig_thirty_day_volume = sub_plots_volume(
-        td_pool, last_td_pool, "Credits Bridged (30d)", "")
+        td_pool, last_td_pool, "Credits Bridged (30d)", "", zero_bridging_evt_text)
     fig_thirty_day_volume_retired = sub_plots_volume(
-        td_pool_retired, last_td_pool_retired, "Credits Retired (30d)", "")
+        td_pool_retired, last_td_pool_retired, "Credits Retired (30d)", "", zero_retiring_evt_text)
     fig_thirty_day_vintage = sub_plots_vintage(
-        td_pool, last_td_pool, "Average Credit Vintage (30d)", "")
+        td_pool, last_td_pool, "Average Credit Vintage (30d)", "", zero_bridging_evt_text)
     fig_thirty_day_vintage_retired = sub_plots_vintage(
-        td_pool_retired, last_td_pool_retired, "Average Credit Vintage (30d)", "")
-    fig_thirty_day_map = map(
-        td_pool)
-    fig_thirty_day_map_retired = map(
-        td_pool_retired)
-    fig_thirty_day_metho = methodology_volume(td_pool)
-    fig_thirty_day_metho_retired = methodology_volume(td_pool_retired)
-    fig_thirty_day_project = project_volume(td_pool)
-    fig_thirty_day_project_retired = project_volume(td_pool_retired)
+        td_pool_retired, last_td_pool_retired, "Average Credit Vintage (30d)", "", zero_retiring_evt_text)
+    fig_thirty_day_map = map(td_pool, zero_bridging_evt_text)
+    fig_thirty_day_map_retired = map(td_pool_retired, zero_retiring_evt_text)
+    fig_thirty_day_metho = methodology_volume(
+        td_pool, zero_bridging_evt_text)
+    fig_thirty_day_metho_retired = methodology_volume(
+        td_pool_retired, zero_retiring_evt_text)
+    fig_thirty_day_project = project_volume(td_pool, zero_bridging_evt_text)
+    fig_thirty_day_project_retired = project_volume(
+        td_pool_retired, zero_retiring_evt_text)
 
     # Total
-    fig_total_volume = total_volume(df, "Credits tokenized (total)")
+    zero_bridging_evt_text = "There haven't been any bridging events"
+    zero_retiring_evt_text = "There haven't been any retiring events"
+    fig_total_volume = total_volume(
+        df, "Credits tokenized (total)", zero_bridging_evt_text)
     fig_total_volume_retired = total_volume(
-        df_retired, "Credits retired (total)")
-    fig_total_vintage = total_vintage(df)
-    fig_total_vintage_retired = total_vintage(df_retired)
-    fig_total_map = map(df)
+        df_retired, "Credits retired (total)", zero_retiring_evt_text)
+    fig_total_vintage = total_vintage(df, zero_bridging_evt_text)
+    fig_total_vintage_retired = total_vintage(
+        df_retired, zero_retiring_evt_text)
+    fig_total_map = map(df, zero_bridging_evt_text)
     fig_total_map_retired = map(
-        df_retired)
-    fig_total_metho = methodology_volume(df)
-    fig_total_metho_retired = methodology_volume(df_retired)
-    fig_total_project = project_volume(df)
-    fig_total_project_retired = project_volume(df_retired)
+        df_retired, zero_retiring_evt_text)
+    fig_total_metho = methodology_volume(df, zero_bridging_evt_text)
+    fig_total_metho_retired = methodology_volume(
+        df_retired, zero_retiring_evt_text)
+    fig_total_project = project_volume(df, zero_bridging_evt_text)
+    fig_total_project_retired = project_volume(
+        df_retired, zero_retiring_evt_text)
 
     content_tco2 = create_content_toucan(
         df, df_retired, df_carbon, df_verra, df_verra_toucan)
