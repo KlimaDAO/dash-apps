@@ -25,7 +25,7 @@ MAX_RECORDS = 1000000
 
 app = dash.Dash(
     __name__,
-    title="KlimaDAO Tokenized Carbon Dashboard",
+    title="KlimaDAO Tokenized Carbon Dashboard | Beta",
     suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     meta_tags=[
@@ -302,7 +302,7 @@ def generate_layout():
             html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
         ], href='https://www.klimadao.finance/'),
         width=12, style={'textAlign': 'center'}),
-        html.H3("Tokenized Carbon Dashboards",
+        html.H3("Tokenized Carbon Dashboards Beta",
                 style={'textAlign': 'center'}),
     ], id="logo_title")
 
