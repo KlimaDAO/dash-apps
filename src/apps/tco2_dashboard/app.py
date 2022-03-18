@@ -141,8 +141,8 @@ def generate_layout():
     df = merge_verra(df, df_verra_toucan, merge_columns)
     df_retired = merge_verra(df_retired, df_verra, merge_columns)
     # datetime manipulations
-    df = date_manipulations(df)
-    df_retired = date_manipulations(df_retired)
+    df = date_manipulations(df, "Toucan")
+    df_retired = date_manipulations(df_retired, "Toucan")
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
@@ -257,8 +257,8 @@ def generate_layout():
     df_deposited = df_deposited.rename(columns=deposits_rename_map)
     df_redeemed = df_redeemed.rename(columns=redeems_rename_map)
     # datetime manipulations
-    df_deposited = date_manipulations(df_deposited)
-    df_redeemed = date_manipulations(df_redeemed)
+    df_deposited = date_manipulations(df_deposited, "")
+    df_redeemed = date_manipulations(df_redeemed, "")
     # Blacklist manipulations
     # df_deposited = black_list_manipulations(df_deposited)
     # df_redeemed = black_list_manipulations(df_redeemed)
