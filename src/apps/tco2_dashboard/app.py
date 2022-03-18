@@ -164,8 +164,8 @@ def generate_layout():
 
     # Figures
     # 7-day-performance
-    zero_bridging_evt_text = "There haven't been any bridging events in the last 7 days"
-    zero_retiring_evt_text = "There haven't been any retiring events in the last 7 days"
+    zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 7 days"
+    zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 7 days"
     fig_seven_day_volume = sub_plots_volume(
         sd_pool, last_sd_pool, "Credits Bridged (7d)", "", zero_bridging_evt_text)
     fig_seven_day_volume_retired = sub_plots_volume(
@@ -187,8 +187,8 @@ def generate_layout():
         sd_pool_retired, zero_retiring_evt_text)
 
     # 30-day-performance
-    zero_bridging_evt_text = "There haven't been any bridging events in the last 30 days"
-    zero_retiring_evt_text = "There haven't been any retiring events in the last 30 days"
+    zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 30 days"
+    zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 30 days"
     fig_thirty_day_volume = sub_plots_volume(
         td_pool, last_td_pool, "Credits Bridged (30d)", "", zero_bridging_evt_text)
     fig_thirty_day_volume_retired = sub_plots_volume(
@@ -208,8 +208,8 @@ def generate_layout():
         td_pool_retired, zero_retiring_evt_text)
 
     # Total
-    zero_bridging_evt_text = "There haven't been any bridging events"
-    zero_retiring_evt_text = "There haven't been any retiring events"
+    zero_bridging_evt_text = "There haven't been any<br>bridging events"
+    zero_retiring_evt_text = "There haven't been any<br>retiring events"
     fig_total_volume = total_volume(
         df, "Credits tokenized (total)", zero_bridging_evt_text)
     fig_total_volume_retired = total_volume(
