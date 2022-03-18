@@ -79,6 +79,7 @@ a {
 /* input box */
 .Select-control {
   background-color: black;
+  color: white;
 }
 
 
@@ -86,7 +87,7 @@ a {
 .Select-value-label {
   color: white !important;
   background-color: black !important;
-  font-size: 12px;
+  font-size: 8px;
 }
 
 .Select--single > .Select-control .Select-value, .Select-placeholder {
@@ -99,7 +100,7 @@ a {
 .VirtualizedSelectOption {
   background-color: black;
   color: white;
-
+  font-size: 8px;
 }
 
 
@@ -213,5 +214,16 @@ color: white;
   #page-content {
     margin-left: 18rem;
     margin-right: 2rem;
+  }
+  /* dropdown menu options */
+  .VirtualizedSelectOption {
+  background-color: black;
+  color: white;
+  font-size: 12px;
+  }
+  .Select-value-label {
+    color: white !important;
+    background-color: black !important;
+    font-size: 12px;
   }
 }
