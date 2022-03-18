@@ -41,7 +41,6 @@ cache = Cache(app.server, config={
 })
 
 
-@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -89,7 +88,6 @@ def get_data():
     return df_bridged, df_retired
 
 
-@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -120,7 +118,6 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize()
 def get_verra_data():
     r = requests.post(
         'https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv',
@@ -129,7 +126,7 @@ def get_verra_data():
     return df_verra
 
 
-# @cache.memoize()
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
