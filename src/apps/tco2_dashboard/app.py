@@ -6,21 +6,25 @@ from flask_caching import Cache
 import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
+from ...util import get_eth_web3, load_abi
 
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, eligible_pool_pie_chart
+    methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .tco2 import create_content_toucan
 from .pool import create_pool_content
+from .mco2 import create_content_moss
 from .helpers import date_manipulations, filter_pool_quantity, region_manipulations, \
     subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
-    merge_verra, verra_manipulations
+    merge_verra, verra_manipulations, mco2_verra_manipulations
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
     redeems_rename_map, BCT_ADDRESS, \
-    verra_rename_map, merge_columns
+    verra_rename_map, merge_columns, mco2_verra_rename_map, MCO2_ADDRESS
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
+MCO2_VERRA_URL = \
+        'http://raw.githubusercontent.com/originalpkbims/dash-apps/main/src/apps/tco2_dashboard/mco2_verra_data.csv'
 MAX_RECORDS = 1000000
 
 app = dash.Dash(
@@ -126,17 +130,35 @@ def get_verra_data():
     return df_verra
 
 
+def get_mco2_verra_data():
+    df_mco2_bridged = pd.read_csv(MCO2_VERRA_URL, thousands=',')
+    return df_mco2_bridged
+
+
+web3 = get_eth_web3()
+
+
+def get_mco2_contract_data():
+    ERC20_ABI = load_abi('erc20.json')
+    mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
+    decimals = 10 ** mco2_contract.functions.decimals().call()
+    total_supply = mco2_contract.functions.totalSupply().call() // decimals
+    return total_supply
+
+
 @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
     df_verra = get_verra_data()
     df_verra, df_verra_toucan = verra_manipulations(df_verra)
+    df_mco2_bridged = get_mco2_verra_data()
+    mco2_current_supply = get_mco2_contract_data()
     # -----TCO2_Figures-----
-
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
+    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
     # merge Verra Data
     df = merge_verra(df, df_verra_toucan, merge_columns)
     df_retired = merge_verra(df_retired, df_verra, merge_columns)
@@ -159,8 +181,6 @@ def generate_layout():
     # drop duplicates data for Carbon Pool calculations
     df_carbon = drop_duplicates(df)
     cache.set("df_carbon", df_carbon)
-
-    # Summary
 
     # Figures
     # 7-day-performance
@@ -251,6 +271,16 @@ def generate_layout():
     cache.set("fig_total_retired", fig_total_retired)
     cache.set("content_tco2", content_tco2)
 
+    # --MCO2 Figures--
+    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
+    df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
+    fig_mco2_total_vintage = total_vintage(
+        df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume_mco2(df, zero_bridging_evt_text)
+    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project,
+                                       mco2_current_supply)
+    cache.set("content_mco2", content_mco2)
+
     # --Carbon Pool Figures---
 
     # rename_columns
@@ -318,6 +348,10 @@ def generate_layout():
                                     className="pill-nav", id="button-tco2", n_clicks=0),
                         dbc.NavLink("BCT Pool", href="/BCT", active="exact",
                                     id="button-bct", n_clicks=0),
+                        html.H4("Moss Protocol", style={
+                                'textAlign': 'center'}),
+                        dbc.NavLink("MCO2 Overview", href="/MCO2", active="exact",
+                                    id="button-mco2", n_clicks=0),
                      ],
                     vertical=True,
                     pills=True,
@@ -401,6 +435,10 @@ def render_page_content(pathname):
         content_bct = cache.get("content_bct")
         return content_bct
 
+    elif pathname == "/MCO2":
+        content_mco2 = cache.get("content_mco2")
+        return content_mco2
+
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
@@ -415,11 +453,12 @@ def render_page_content(pathname):
     Output("collapse", "is_open"),
     [Input("toggle", "n_clicks"),
      Input("button-tco2", "n_clicks"),
-     Input("button-bct", "n_clicks")],
+     Input("button-bct", "n_clicks"),
+     Input("button-mco2", "n_clicks")],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, n_tco2, n_bct, is_open):
-    if n or n_tco2 or n_bct:
+def toggle_collapse(n, n_tco2, n_bct, n_mco2, is_open):
+    if n or n_tco2 or n_bct or n_mco2:
         return not is_open
     return is_open
 

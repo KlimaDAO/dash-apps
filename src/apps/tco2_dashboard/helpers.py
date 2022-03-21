@@ -93,9 +93,7 @@ def subsets(df):
 
     # 7-day, last 7-day, 30-day and last 30 day time
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    print(current_time)
     seven_day_start = current_time - dt.timedelta(days=7)
-    print(seven_day_start)
     last_seven_day_start = seven_day_start - dt.timedelta(days=7)
     thirty_day_start = current_time - dt.timedelta(days=30)
     last_thirty_day_start = thirty_day_start - dt.timedelta(days=30)
@@ -129,6 +127,24 @@ def verra_manipulations(df_verra):
     return df_verra, df_verra_toucan
 
 
+def mco2_verra_manipulations(df_mco2_bridged):
+    df_mco2_bridged = df_mco2_bridged[[
+        "Project ID", "Vintage", "Quantity", "Project Type", "Name"]]
+    df_mco2_bridged["Vintage"] = pd.to_datetime(
+        df_mco2_bridged["Vintage"].str[6:10]).dt.tz_localize(None).dt.year
+    df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
+    df_mco2_bridged["Project ID"] = 'VCS-' + \
+        df_mco2_bridged["Project ID"].astype(str)
+
+    pat = r'VCS-(?P<id>\d+)'
+    repl = (
+        lambda m: '[VCS-' + m.group(
+            'id') + '](https://registry.verra.org/app/projectDetail/VCS/' + m.group('id') + ')')
+    df_mco2_bridged['Project ID'] = df_mco2_bridged['Project ID'].astype(str).str.replace(
+        pat, repl, regex=True)
+    return df_mco2_bridged
+
+
 def filter_carbon_pool(pool_address, *dfs):
     filtered = []
     for df in dfs:
@@ -140,10 +156,9 @@ def filter_carbon_pool(pool_address, *dfs):
 def filter_pool_quantity(df, quantity_column):
     filtered = df[df[quantity_column] > 0]
     filtered = filtered[[
-        'Project ID', 'Vintage', quantity_column, 'Region', 'Name', 'Project Type',
+        'Project ID', 'Vintage', quantity_column, 'Country', 'Name', 'Project Type',
         'Methodology', 'Token Address'
     ]]
-
     pat = r'VCS-(?P<id>\d+)'
     repl = (
         lambda m: '[VCS-' + m.group(

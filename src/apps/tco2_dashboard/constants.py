@@ -3,6 +3,7 @@ BCT_ADDRESS = '0x2f800db0fdb5223b3c3f354886d907a671414a7f'
 GRAY = '#232B2B'
 DARK_GRAY = '#343a40'
 FIGURE_BG_COLOR = '#202020'
+MCO2_ADDRESS = '0xfC98e825A2264D890F9a1e68ed50E1526abCcacD'
 
 rename_map = {
     'carbonOffsets_bridges_value': 'Quantity',
@@ -75,3 +76,9 @@ verra_rename_map = {
 
 merge_columns = ["ID", "Name", "Region", "Country",
                  "Project Type", "Methodology", "Toucan"]
+
+
+mco2_verra_rename_map = {
+    'Project Name': 'Name',
+    'Quantity of Credits': 'Quantity',
+}
