@@ -3,6 +3,9 @@ BCT_ADDRESS = '0x2f800db0fdb5223b3c3f354886d907a671414a7f'
 GRAY = '#232B2B'
 DARK_GRAY = '#343a40'
 FIGURE_BG_COLOR = '#202020'
+MCO2_ADDRESS = '0xfC98e825A2264D890F9a1e68ed50E1526abCcacD'
+VERRA_FALLBACK_NOTE = "Note: Off-Chain Verra Registry data is not updated, we are temporarily using fallback data"
+VERRA_FALLBACK_URL = 'https://prod-klimadao-data.nyc3.digitaloceanspaces.com/verra_registry_fallback_data.csv'
 
 rename_map = {
     'carbonOffsets_bridges_value': 'Quantity',
@@ -75,3 +78,16 @@ verra_rename_map = {
 
 merge_columns = ["ID", "Name", "Region", "Country",
                  "Project Type", "Methodology", "Toucan"]
+
+
+verra_columns = ['Issuance Date', 'Sustainable Development Goals',
+                 'Credit Type', 'Vintage Start', 'Vintage End', 'Reporting Period Start', 'Reporting Period End', 'ID',
+                 'Name', 'Region', 'Country', 'Project Type', 'Methodology', 'Total Vintage Quantity',
+                 'Quantity Issued', 'Serial Number', 'Additional Certifications',
+                 'Is Cancelled', 'Retirement/Cancellation Date', 'Retirement Beneficiary', 'Retirement Reason',
+                 'Retirement Details', 'Input Type', 'Holding ID']
+
+mco2_verra_rename_map = {
+    'Project Name': 'Name',
+    'Quantity of Credits': 'Quantity',
+}
