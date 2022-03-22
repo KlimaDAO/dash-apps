@@ -4,7 +4,30 @@ import dash_bootstrap_components as dbc
 from .figures import verra_vintage, verra_map, verra_project, pool_pie_chart
 
 
-def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
+def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan, verra_fallback_note):
+
+    if verra_fallback_note != "":
+        on_vs_off_chain_row = dbc.Row(
+            dbc.Col(
+                dbc.Card([
+                    dbc.CardHeader(
+                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis")),
+                    dbc.CardFooter(
+                        verra_fallback_note,
+                        id="fallback_indicator")
+                ]), width=12, style={'textAlign': 'center'}),
+            style={'paddingTop': '60px'}
+        )
+    else:
+        on_vs_off_chain_row = dbc.Row(
+            dbc.Col(
+                dbc.Card([
+                    dbc.CardHeader(
+                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis")),
+                ]), width=12, style={'textAlign': 'center'}),
+            style={'paddingTop': '60px'}
+        )
+
     content_tco2 = [
         dbc.Row(
             dbc.Col(
@@ -58,14 +81,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan):
             # ], lg=6, md=12),
         ]),
 
-        dbc.Row(
-            dbc.Col(
-                dbc.Card([
-                    dbc.CardHeader(
-                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis"))
-                ]), width=12, style={'textAlign': 'center'}),
-            style={'paddingTop': '60px'}
-        ),
+        on_vs_off_chain_row,
 
         dbc.Row([
             dbc.Col(dbc.Card([

@@ -65,7 +65,8 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, detail_df, 
                         [{"name": i, "id": i, "presentation": "markdown"} for i in detail_df.columns],
                         id='tbl',
                         style_header={
-                            'backgroundColor': GRAY
+                            'backgroundColor': GRAY,
+                            'text-align': 'center'
                         },
                         style_data={
                             'backgroundColor': DARK_GRAY

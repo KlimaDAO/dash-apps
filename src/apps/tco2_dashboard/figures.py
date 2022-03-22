@@ -282,6 +282,28 @@ def project_volume(df, zero_evt_text):
     return fig
 
 
+def project_volume_mco2(df, zero_evt_text):
+    df = df[df['Project Type'] != "missing"].reset_index(drop=True)
+    if not(df.empty):
+        fig = px.treemap(df, path=[px.Constant("All Projects"), 'Project Type', 'Name'], values='Quantity',
+                         hover_data=['Name', 'Quantity'],
+                         height=300, title='')
+        fig.update_traces(textfont=dict(color='white'),
+                          textinfo="label+value+percent parent+percent entry+percent root",
+                          texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
+                                                    '%{percentEntry} of Entry', '%{percentRoot} of Root']))
+        fig.update_layout(paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, font=dict(color='white'),
+                          hoverlabel=dict(font_color='white', font_size=8), font_size=12,
+                          margin=dict(t=20, b=20, l=0, r=0))
+    else:
+        fig = go.Figure()
+        fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
+                          xaxis=dict(visible=False), yaxis=dict(visible=False),
+                          annotations=[dict(text=zero_evt_text,
+                                            font=dict(color='white'), showarrow=False)])
+    return fig
+
+
 def pool_pie_chart(df):
     labels = ['BCT', 'NCT', 'Not Pooled']
     BCT = df['BCT Quantity'].sum()
