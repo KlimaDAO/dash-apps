@@ -307,7 +307,6 @@ def generate_layout():
     bct_deposited, bct_redeemed = filter_carbon_pool(
         BCT_ADDRESS, df_deposited, df_redeemed
     )
-
     bct_carbon = filter_pool_quantity(df_carbon, "BCT Quantity")
 
     # Figures

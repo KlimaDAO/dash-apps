@@ -113,7 +113,8 @@ def subsets(df):
 
 
 def filter_df_by_pool(df, pool_address):
-    return df[df["Pool"] == pool_address].reset_index()
+    df = df[df["Pool"] == pool_address].reset_index()
+    return df
 
 
 def verra_manipulations(df_verra):
@@ -150,7 +151,7 @@ def filter_carbon_pool(pool_address, *dfs):
     for df in dfs:
         filtered.append(filter_df_by_pool(df, pool_address))
 
-    return dfs
+    return filtered
 
 
 def filter_pool_quantity(df, quantity_column):
