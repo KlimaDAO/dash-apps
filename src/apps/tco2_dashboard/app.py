@@ -123,7 +123,7 @@ def get_data_pool():
 
 def get_verra_data():
     use_fallback_data = False
-    update_fallback_data = True
+    update_fallback_data = False
     if use_fallback_data:
         fallback_note = VERRA_FALLBACK_NOTE
         df_verra = read_csv('verra_data.csv')
@@ -286,7 +286,7 @@ def generate_layout():
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
-    fig_mco2_total_project = project_volume_mco2(df, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume_mco2(df_mco2_bridged, zero_bridging_evt_text)
     content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project,
                                        mco2_current_supply)
     cache.set("content_mco2", content_mco2)

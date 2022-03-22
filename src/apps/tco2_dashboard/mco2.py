@@ -5,6 +5,8 @@ from .constants import GRAY, DARK_GRAY
 
 
 def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project, current_supply):
+    df_grouped = df_mco2_bridged.groupby(['Project ID', 'Project Type', 'Name', 'Vintage'])[
+        'Quantity'].sum().to_frame().reset_index()
     content_mco2 = [
         dbc.Row(
             dbc.Col(
@@ -63,10 +65,12 @@ def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5('MCO2 Composition Details', className="card-title"),
+                    html.H5('MCO2 Composition Details',
+                            className="card-title"),
                     dash_table.DataTable(
-                        df_mco2_bridged.to_dict('records'),
-                        [{"name": i, "id": i, "presentation": "markdown"} for i in df_mco2_bridged.columns],
+                        df_grouped.to_dict('records'),
+                        [{"name": i, "id": i, "presentation": "markdown"}
+                            for i in df_mco2_bridged.columns],
                         id='tbl',
                         style_header={
                             'backgroundColor': GRAY,
