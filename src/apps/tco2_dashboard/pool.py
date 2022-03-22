@@ -23,7 +23,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, detail_df, 
                 ]), lg=4, md=12),
             dbc.Col(
                 dbc.Card([
-                    html.H5(f"Tonnes of {bridge_ticker} Redeemed", className="card-title"),
+                    html.H5(f"Cumulative Tonnes of {bridge_ticker} Redeemed", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(redeemed["Quantity"].sum())), className="card-text")
                 ]), lg=4, md=12),
@@ -65,7 +65,8 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, detail_df, 
                         [{"name": i, "id": i, "presentation": "markdown"} for i in detail_df.columns],
                         id='tbl',
                         style_header={
-                            'backgroundColor': GRAY
+                            'backgroundColor': GRAY,
+                            'text-align': 'center'
                         },
                         style_data={
                             'backgroundColor': DARK_GRAY
