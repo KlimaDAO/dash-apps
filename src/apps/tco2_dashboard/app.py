@@ -466,8 +466,8 @@ def render_page_content(pathname):
         return content_bct
 
     elif pathname == "/NCT":
-        content_bct = cache.get("content_nct")
-        return content_bct
+        content_nct = cache.get("content_nct")
+        return content_nct
 
     elif pathname == "/MCO2":
         content_mco2 = cache.get("content_mco2")
