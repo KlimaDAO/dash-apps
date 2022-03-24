@@ -12,7 +12,7 @@ def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of MOSS Tokenized Carbon", className='page-title'))
+                        html.H1("State of Moss Tokenized Carbon", className='page-title'))
                 ]), width=12, style={'textAlign': 'center'})
         ),
 

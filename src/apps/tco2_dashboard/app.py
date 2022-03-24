@@ -20,7 +20,7 @@ from .helpers import date_manipulations, filter_pool_quantity, region_manipulati
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
     redeems_rename_map, BCT_ADDRESS, \
     verra_rename_map, merge_columns, mco2_verra_rename_map, MCO2_ADDRESS, verra_columns, \
-    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL
+    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
@@ -300,13 +300,15 @@ def generate_layout():
     # df_deposited = black_list_manipulations(df_deposited)
     # df_redeemed = black_list_manipulations(df_redeemed)
 
+    # --BCT---
+
     # Carbon pool filter
     bct_deposited, bct_redeemed = filter_carbon_pool(
         BCT_ADDRESS, df_deposited, df_redeemed
     )
     bct_carbon = filter_pool_quantity(df_carbon, "BCT Quantity")
 
-    # Figures
+    # BCT Figures
     fig_deposited_over_time = deposited_over_time(bct_deposited)
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
 
@@ -316,6 +318,26 @@ def generate_layout():
     )
 
     cache.set("content_bct", content_bct)
+
+    # --NCT--
+
+    # Carbon pool filter
+    nct_deposited, nct_redeemed = filter_carbon_pool(
+        NCT_ADDRESS, df_deposited, df_redeemed
+    )
+
+    nct_carbon = filter_pool_quantity(df_carbon, "NCT Quantity")
+
+    # NCT Figures
+    fig_deposited_over_time = deposited_over_time(nct_deposited)
+    fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
+
+    content_nct = create_pool_content(
+        "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time
+    )
+
+    cache.set("content_nct", content_nct)
 
     sidebar_toggle = dbc.Row(
         [
@@ -354,6 +376,8 @@ def generate_layout():
                                     className="pill-nav", id="button-tco2", n_clicks=0),
                         dbc.NavLink("BCT Pool", href="/BCT", active="exact",
                                     id="button-bct", n_clicks=0),
+                        dbc.NavLink("NCT Pool", href="/NCT", active="exact",
+                                    id="button-nct", n_clicks=0),
                         html.H4("Moss Protocol", style={
                                 'textAlign': 'center'}),
                         dbc.NavLink("MCO2 Overview", href="/MCO2", active="exact",
@@ -441,6 +465,10 @@ def render_page_content(pathname):
         content_bct = cache.get("content_bct")
         return content_bct
 
+    elif pathname == "/NCT":
+        content_nct = cache.get("content_nct")
+        return content_nct
+
     elif pathname == "/MCO2":
         content_mco2 = cache.get("content_mco2")
         return content_mco2
@@ -460,11 +488,12 @@ def render_page_content(pathname):
     [Input("toggle", "n_clicks"),
      Input("button-tco2", "n_clicks"),
      Input("button-bct", "n_clicks"),
+     Input("button-nct", "n_clicks"),
      Input("button-mco2", "n_clicks")],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, n_tco2, n_bct, n_mco2, is_open):
-    if n or n_tco2 or n_bct or n_mco2:
+def toggle_collapse(n, n_tco2, n_bct, n_nct, n_mco2, is_open):
+    if n or n_tco2 or n_bct or n_nct or n_mco2:
         return not is_open
     return is_open
 
