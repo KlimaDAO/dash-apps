@@ -6,11 +6,14 @@ from flask_caching import Cache
 import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
-from ...util import get_eth_web3, load_abi
+from pycoingecko import CoinGeckoAPI
 
+from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2
+    methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2, \
+    historical_prices
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
+from .top_level_page import create_top_level_content
 from .tco2 import create_content_toucan
 from .pool import create_pool_content
 from .mco2 import create_content_moss
@@ -25,6 +28,7 @@ from .constants import rename_map, retires_rename_map, deposits_rename_map, \
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
 MAX_RECORDS = 1000000
+PRICE_DAYS = 5000
 
 app = dash.Dash(
     __name__,
@@ -133,7 +137,8 @@ def get_verra_data():
             r = requests.post(
                 'https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv',
                 json={"program": "VCS", "issuanceTypeCodes": ['ISSUE']})
-            df_verra = pd.DataFrame(r.json()['value']).rename(columns=verra_rename_map)
+            df_verra = pd.DataFrame(r.json()['value']).rename(
+                columns=verra_rename_map)
         except requests.exceptions.RequestException as err:
             print(err)
             fallback_note = VERRA_FALLBACK_NOTE
@@ -153,6 +158,30 @@ def get_mco2_contract_data():
     return total_supply
 
 
+cg = CoinGeckoAPI()
+token_cg_dict = {
+    'BCT': {'address': BCT_ADDRESS, 'id': 'polygon-pos'},
+    'NCT': {'address': NCT_ADDRESS, 'id': 'polygon-pos'},
+    'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum'},
+}
+
+
+def get_prices():
+    df_prices = pd.DataFrame()
+    for i in token_cg_dict.keys():
+        data = cg.get_coin_market_chart_from_contract_address_by_id(
+            id=token_cg_dict[i]['id'], vs_currency='usd', contract_address=token_cg_dict[i]['address'], days=PRICE_DAYS)
+        df = pd.DataFrame(data['prices'], columns=['Date', f'{i}_Price'])
+        df['Date'] = pd.to_datetime(df['Date'], unit='ms')
+        df['Date'] = df['Date'].dt.floor('D')
+        if df_prices.empty:
+            df_prices = df
+        else:
+            df_prices = df_prices.merge(df, how='outer', on='Date')
+        df_prices = df_prices.sort_values(by='Date', ascending=False)
+    return df_prices
+
+
 @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
@@ -161,6 +190,8 @@ def generate_layout():
     df_verra, df_verra_toucan = verra_manipulations(df_verra)
     df_mco2_bridged = read_csv('mco2_verra_data.csv')
     mco2_current_supply = get_mco2_contract_data()
+    df_prices = get_prices()
+
     # -----TCO2_Figures-----
     # rename_columns
     df = df.rename(columns=rename_map)
@@ -283,7 +314,8 @@ def generate_layout():
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
-    fig_mco2_total_project = project_volume_mco2(df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume_mco2(
+        df_mco2_bridged, zero_bridging_evt_text)
     content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project,
                                        mco2_current_supply)
     cache.set("content_mco2", content_mco2)
@@ -339,6 +371,19 @@ def generate_layout():
 
     cache.set("content_nct", content_nct)
 
+    # ----Top Level Page---
+
+    token_cg_dict['BCT']['Current_Supply'] = bct_deposited["Quantity"].sum(
+    ) - bct_redeemed["Quantity"].sum()
+    token_cg_dict['NCT']['Current_Supply'] = nct_deposited["Quantity"].sum(
+    ) - nct_redeemed["Quantity"].sum()
+    token_cg_dict['MCO2']['Current_Supply'] = mco2_current_supply
+
+    fig_historical_prices = historical_prices(token_cg_dict, df_prices)
+    content_top_level = create_top_level_content(
+        token_cg_dict, df_prices, fig_historical_prices)
+    cache.set("content_top_level", content_top_level)
+
     sidebar_toggle = dbc.Row(
         [
             dbc.Col(
@@ -370,9 +415,11 @@ def generate_layout():
             dbc.Collapse(children=[
                 dbc.Nav(
                     [html.Hr(),
+                        dbc.NavLink(html.H4("Top Level Summary"), href="/", active="exact",
+                                    id="button-top_level", n_clicks=0,),
                         html.H4("Toucan Protocol", style={
                                 'textAlign': 'center'}),
-                        dbc.NavLink("TCO2 Overview", href="/", active="exact",
+                        dbc.NavLink("TCO2 Overview", href="/TCO2", active="exact",
                                     className="pill-nav", id="button-tco2", n_clicks=0),
                         dbc.NavLink("BCT Pool", href="/BCT", active="exact",
                                     id="button-bct", n_clicks=0),
@@ -458,6 +505,10 @@ def update_eligible_pie_chart(pool_key):
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
+        content_top_level = cache.get("content_top_level")
+        return content_top_level
+
+    elif pathname == "/TCO2":
         content_tco2 = cache.get("content_tco2")
         return content_tco2
 
@@ -486,14 +537,15 @@ def render_page_content(pathname):
 @app.callback(
     Output("collapse", "is_open"),
     [Input("toggle", "n_clicks"),
+     Input("button-top_level", "n_clicks"),
      Input("button-tco2", "n_clicks"),
      Input("button-bct", "n_clicks"),
      Input("button-nct", "n_clicks"),
      Input("button-mco2", "n_clicks")],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, n_tco2, n_bct, n_nct, n_mco2, is_open):
-    if n or n_tco2 or n_bct or n_nct or n_mco2:
+def toggle_collapse(n, n_top_level, n_tco2, n_bct, n_nct, n_mco2, is_open):
+    if n or n_top_level or n_tco2 or n_bct or n_nct or n_mco2:
         return not is_open
     return is_open
 

@@ -24,9 +24,9 @@ h3 {
   color: var(--white);
 }
 
-h4 {
+/* h4 {
   color: var(--white);
-}
+} */
 
 a {
   color: var(--green);
@@ -231,12 +231,13 @@ color: white;
     display: block;
   }
   #collapse {
-    display: block;
+    display: block !important;
+    overflow: visible !important;
   }
 
-  #collapse *:first-child {
+  /* #collapse *:first-child {
     margin-top: 0;
-  }
+  } */
 
   #page-content {
     margin-left: 18rem;

@@ -317,6 +317,7 @@ def pool_pie_chart(df):
                       paper_bgcolor=FIGURE_BG_COLOR, font_color='white', font_size=8,
                       margin=dict(t=0, b=0, l=0, r=0),
                       legend=dict(x=1, font=dict(size=8)))
+    fig.update_traces(textposition='inside')
 
     return fig
 
@@ -438,4 +439,23 @@ def verra_project(df_verra, df_verra_toucan):
                       hoverlabel=dict(font_color='white', font_size=8), font_size=12,
                       margin=dict(t=20, b=20, l=0, r=0))
 
+    return fig
+
+
+def historical_prices(token_cg_dict, df_prices):
+    fig = go.Figure()
+    for i in token_cg_dict.keys():
+        col_name = f"{i}_Price"
+        filtered_df = df_prices[~df_prices[col_name].isna()]
+        fig.add_trace(go.Scatter(x=filtered_df['Date'], y=filtered_df[col_name],
+                                 mode='lines',
+                                 name=i
+                                 )
+                      )
+    fig.update_layout(height=300, font=dict(color='white'),
+                      xaxis_title='Date', yaxis_title='Price',
+                      paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, xaxis=dict(
+                          showgrid=False), yaxis=dict(showgrid=False),
+                      margin=dict(t=20, b=20, l=0, r=0),
+                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12))
     return fig
