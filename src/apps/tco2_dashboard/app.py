@@ -11,7 +11,7 @@ from pycoingecko import CoinGeckoAPI
 from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2, \
-    historical_prices
+    historical_prices, bridges_pie_chart
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .top_level_page import create_top_level_content
 from .tco2 import create_content_toucan
@@ -47,7 +47,7 @@ cache = Cache(app.server, config={
     'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
-
+@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -94,7 +94,7 @@ def get_data():
 
     return df_bridged, df_retired
 
-
+@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -124,7 +124,7 @@ def get_data_pool():
 
     return df_deposited, df_redeemed
 
-
+@cache.memoize()
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -149,7 +149,7 @@ def get_verra_data():
 
 web3 = get_eth_web3()
 
-
+@cache.memoize()
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
     mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
@@ -160,12 +160,12 @@ def get_mco2_contract_data():
 
 cg = CoinGeckoAPI()
 token_cg_dict = {
-    'BCT': {'address': BCT_ADDRESS, 'id': 'polygon-pos'},
-    'NCT': {'address': NCT_ADDRESS, 'id': 'polygon-pos'},
-    'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum'},
+    'BCT': {'address': BCT_ADDRESS, 'id': 'polygon-pos', 'Full Name': 'Base Carbon Tonne'},
+    'NCT': {'address': NCT_ADDRESS, 'id': 'polygon-pos', 'Full Name': 'Nature Carbon Tonne'},
+    'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum', 'Full Name': 'Moss Carbon Credit'},
 }
 
-
+@cache.memoize()
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -182,7 +182,7 @@ def get_prices():
     return df_prices
 
 
-@cache.memoize()
+# @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -379,9 +379,15 @@ def generate_layout():
     ) - nct_redeemed["Quantity"].sum()
     token_cg_dict['MCO2']['Current_Supply'] = mco2_current_supply
 
+    bridges_info_dict = {
+    'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum()},
+    'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum()}
+}
+    fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
     fig_historical_prices = historical_prices(token_cg_dict, df_prices)
     content_top_level = create_top_level_content(
-        token_cg_dict, df_prices, fig_historical_prices)
+       token_cg_dict, bridges_info_dict, df_prices, df_verra, fig_historical_prices,
+       fig_bridges_pie_chart)
     cache.set("content_top_level", content_top_level)
 
     sidebar_toggle = dbc.Row(

@@ -322,6 +322,21 @@ def pool_pie_chart(df):
     return fig
 
 
+def bridges_pie_chart(bridges_info_dict):
+    labels = list(bridges_info_dict.keys())
+    values = [d['Tokenized Quantity'] for d in bridges_info_dict.values()]
+    fig = go.Figure()
+    fig.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
+        color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
+    fig.update_layout(height=300,
+                      paper_bgcolor=FIGURE_BG_COLOR, font_color='white', font_size=8,
+                      margin=dict(t=0, b=0, l=0, r=0),
+                      legend=dict(x=1, font=dict(size=12)))
+    fig.update_traces(textposition='inside')
+
+    return fig
+
+
 def eligible_pool_pie_chart(df, pool_key):
     if pool_key == "BCT":
         df = df[df["Vintage"] >= 2008].reset_index()
