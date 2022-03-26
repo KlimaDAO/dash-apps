@@ -47,7 +47,7 @@ cache = Cache(app.server, config={
     'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
-@cache.memoize()
+
 def get_data():
 
     sg = Subgrounds()
@@ -94,7 +94,7 @@ def get_data():
 
     return df_bridged, df_retired
 
-@cache.memoize()
+
 def get_data_pool():
 
     sg = Subgrounds()
@@ -124,7 +124,7 @@ def get_data_pool():
 
     return df_deposited, df_redeemed
 
-@cache.memoize()
+
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -149,7 +149,7 @@ def get_verra_data():
 
 web3 = get_eth_web3()
 
-@cache.memoize()
+
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
     mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
@@ -165,7 +165,7 @@ token_cg_dict = {
     'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum', 'Full Name': 'Moss Carbon Credit'},
 }
 
-@cache.memoize()
+
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -182,7 +182,7 @@ def get_prices():
     return df_prices
 
 
-# @cache.memoize()
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -310,14 +310,20 @@ def generate_layout():
     cache.set("content_tco2", content_tco2)
 
     # --MCO2 Figures--
+    zero_bridging_evt_text = "There haven't been any<br>bridging events"
     df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
+    df_mco2_bridged["Project ID"] = 'VCS-' + \
+        df_mco2_bridged["Project ID"].astype(str)
+    df_mco2_bridged = merge_verra(
+        df_mco2_bridged, df_verra, merge_columns=["ID", "Country"])
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_map = map(df_mco2_bridged, zero_bridging_evt_text)
     fig_mco2_total_project = project_volume_mco2(
         df_mco2_bridged, zero_bridging_evt_text)
-    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project,
-                                       mco2_current_supply)
+    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map,
+                                       fig_mco2_total_project, mco2_current_supply)
     cache.set("content_mco2", content_mco2)
 
     # --Carbon Pool Figures---
@@ -373,21 +379,21 @@ def generate_layout():
 
     # ----Top Level Page---
 
-    token_cg_dict['BCT']['Current_Supply'] = bct_deposited["Quantity"].sum(
+    token_cg_dict['BCT']['Current Supply'] = bct_deposited["Quantity"].sum(
     ) - bct_redeemed["Quantity"].sum()
-    token_cg_dict['NCT']['Current_Supply'] = nct_deposited["Quantity"].sum(
+    token_cg_dict['NCT']['Current Supply'] = nct_deposited["Quantity"].sum(
     ) - nct_redeemed["Quantity"].sum()
-    token_cg_dict['MCO2']['Current_Supply'] = mco2_current_supply
+    token_cg_dict['MCO2']['Current Supply'] = mco2_current_supply
 
     bridges_info_dict = {
-    'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum()},
-    'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum()}
-}
+        'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum()},
+        'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum()}
+    }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
     fig_historical_prices = historical_prices(token_cg_dict, df_prices)
     content_top_level = create_top_level_content(
-       token_cg_dict, bridges_info_dict, df_prices, df_verra, fig_historical_prices,
-       fig_bridges_pie_chart)
+        token_cg_dict, bridges_info_dict, df_prices, df_verra, fig_historical_prices,
+        fig_bridges_pie_chart)
     cache.set("content_top_level", content_top_level)
 
     sidebar_toggle = dbc.Row(

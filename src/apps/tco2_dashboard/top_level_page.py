@@ -21,7 +21,7 @@ def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_ver
             dbc.Card([
                 html.H5("Current Supply", className="card-title"),
                 dbc.CardBody("{:,}".format(
-                    int(token_cg_dict[i]["Current_Supply"])), className="card-text")
+                    int(token_cg_dict[i]["Current Supply"])), className="card-text")
             ]), width=12)
 
         pool_card = dbc.Col([
