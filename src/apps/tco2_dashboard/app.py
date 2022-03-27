@@ -11,7 +11,7 @@ from pycoingecko import CoinGeckoAPI
 from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2, \
-    historical_prices, bridges_pie_chart
+    historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .top_level_page import create_top_level_content
 from .tco2 import create_content_toucan
@@ -286,7 +286,7 @@ def generate_layout():
         df_retired, zero_retiring_evt_text)
 
     content_tco2 = create_content_toucan(
-        df, df_retired, df_carbon, df_verra, df_verra_toucan, verra_fallback_note)
+        df, df_retired, df_carbon)
 
     fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
                      fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
@@ -386,14 +386,20 @@ def generate_layout():
     token_cg_dict['MCO2']['Current Supply'] = mco2_current_supply
 
     bridges_info_dict = {
-        'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum()},
-        'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum()}
+        'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum(),
+                   'Dataframe': df_verra_toucan},
+        'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum(),
+                 'Dataframe': df_mco2_bridged}
     }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
     fig_historical_prices = historical_prices(token_cg_dict, df_prices)
+    fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
+    fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
+    fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
     content_top_level = create_top_level_content(
         token_cg_dict, bridges_info_dict, df_prices, df_verra, fig_historical_prices,
-        fig_bridges_pie_chart)
+        fig_bridges_pie_chart, fig_on_vs_off_vintage, fig_on_vs_off_map, fig_on_vs_off_project,
+        verra_fallback_note)
     cache.set("content_top_level", content_top_level)
 
     sidebar_toggle = dbc.Row(

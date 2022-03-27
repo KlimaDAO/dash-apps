@@ -137,7 +137,7 @@ def map(df, zero_evt_text):
                                                subunitcolor='grey'),
                           font_color='white', dragmode=False, paper_bgcolor=FIGURE_BG_COLOR,  hovermode='x unified',
                           hoverlabel=dict(font_color='white', font_size=12), font_size=8,
-                          margin=dict(t=50, b=0, l=0, r=0),
+                          margin=dict(t=0, b=0, l=0, r=0),
                           coloraxis_colorbar=dict(thickness=10, len=0.6))
     else:
         fig = go.Figure()
@@ -265,6 +265,7 @@ def project_volume(df, zero_evt_text):
     if not(df.empty):
         fig = px.treemap(df, path=[px.Constant("All Projects"), 'Project Type', 'Country', 'Name'], values='Quantity',
                          hover_data=['Name', 'Quantity'],
+                         color_discrete_sequence=px.colors.qualitative.Antique,
                          height=300, title='')
         fig.update_traces(textfont=dict(color='white'),
                           textinfo="label+value+percent parent+percent entry+percent root",
@@ -287,6 +288,7 @@ def project_volume_mco2(df, zero_evt_text):
     if not(df.empty):
         fig = px.treemap(df, path=[px.Constant("All Projects"), 'Project Type', 'Name'], values='Quantity',
                          hover_data=['Name', 'Quantity'],
+                         color_discrete_sequence=px.colors.qualitative.Antique,
                          height=300, title='')
         fig.update_traces(textfont=dict(color='white'),
                           textinfo="label+value+percent parent+percent entry+percent root",
@@ -446,6 +448,7 @@ def verra_project(df_verra, df_verra_toucan):
         [df_verra_toucan_grouped, df_verra_other_grouped]).reset_index()
     fig = px.treemap(df_other_and_toucan, path=[px.Constant("All Projects"), 'Project Type', 'Type'], values='Quantity',
                      hover_data=['Type', 'Quantity'],
+                     color_discrete_sequence=px.colors.qualitative.Antique,
                      height=300, title='')
     fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
                       texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
@@ -473,4 +476,149 @@ def historical_prices(token_cg_dict, df_prices):
                           showgrid=False), yaxis=dict(showgrid=False),
                       margin=dict(t=20, b=20, l=0, r=0),
                       hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12))
+    return fig
+
+
+def on_vs_off_vintage(df_verra, bridges_info_dict):
+    df_verra_grouped = df_verra.groupby(
+        'Vintage')['Quantity'].sum().to_frame().reset_index()
+    df_verra_other_grouped = pd.DataFrame()
+    dfs = []
+    for i in bridges_info_dict.keys():
+        df = bridges_info_dict[i]["Dataframe"]
+        df = df.groupby(
+            'Vintage')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Bridged Credits'
+        dfs.append(df)
+        if df_verra_other_grouped.empty:
+            df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Vintage",
+                                                            right_on='Vintage', suffixes=('', f"_{i}"))
+        else:
+            df_verra_other_grouped = df_verra_other_grouped.merge(df, how='left', left_on="Vintage",
+                                                                  right_on='Vintage', suffixes=('', f"_{i}"))
+        df_verra_other_grouped[f'Quantity_{i}'] = df_verra_other_grouped[f'Quantity_{i}'].fillna(
+            0)
+        df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
+            df_verra_other_grouped[f'Quantity_{i}']
+        df_verra_other_grouped = df_verra_other_grouped[[
+            'Vintage', 'Quantity']]
+        df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
+
+    df_other_and_bridges = pd.concat(
+        dfs + [df_verra_other_grouped]).reset_index()
+    fig = px.bar(df_other_and_bridges, x="Vintage",
+                 y="Quantity", color="Type", title="", height=300)
+    fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
+                      xaxis=dict(showgrid=False),
+                      yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      legend=dict(title="", orientation="h", yanchor="bottom",
+                                  y=1.02, xanchor="right", x=1
+                                  ))
+
+    return fig
+
+
+def on_vs_off_map(df_verra, bridges_info_dict):
+    df_verra_grouped = df_verra.groupby(
+        'Country')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped["Text_Bridges"] = ""
+    df_verra_grouped["Quantity_Bridges"] = 0
+    for i in bridges_info_dict.keys():
+        df = bridges_info_dict[i]["Dataframe"]
+        df = df.groupby(
+            'Country')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Bridged Credit'
+        df_verra_grouped = df_verra_grouped.merge(df, how='left', left_on="Country",
+                                                  right_on='Country', suffixes=('', f"_{i}"))
+        df_verra_grouped[f'Quantity_{i}'] = df_verra_grouped[f'Quantity_{i}'].fillna(
+            0)
+        df_verra_grouped["Quantity_Bridges"] = df_verra_grouped["Quantity_Bridges"] + \
+            df_verra_grouped[f'Quantity_{i}']
+        df_verra_grouped["Text_Bridges"] = df_verra_grouped["Text_Bridges"] + \
+            f'{i} Bridged Credits = ' + \
+            df_verra_grouped[f'Quantity_{i}'].map(
+                '{:,.0f}'.format).astype(str) + '<br>'
+    df_verra_grouped["Percentage"] = ((df_verra_grouped["Quantity_Bridges"] /
+                                       df_verra_grouped['Quantity'])*100).round(decimals=4)
+    df_verra_grouped['text'] = df_verra_grouped['Country'] + '<br>' + '<br>' + \
+        df_verra_grouped["Text_Bridges"] + \
+        'Total Tokenized Credits = ' + df_verra_grouped['Quantity_Bridges'].map('{:,.0f}'.format).astype(str) + \
+        '<br>' +\
+        'Verra Issued Credits = ' + df_verra_grouped['Quantity'].map('{:,.0f}'.format).astype(str) + '<br>' +\
+        'Percentage = ' + \
+        df_verra_grouped['Percentage'].astype(str) + '%' + '<br>'
+    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
+        drop=True)
+    country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
+                                0].alpha_3 for country in df_verra_grouped.Country.astype(str).unique()
+        if country != 'nan'})
+    df_verra_grouped['Country Code'] = [country_index[country]
+                                        for country in df_verra_grouped['Country']]
+
+    cut_bins = [-np.inf, 0, 2, 5, 10, 100]
+    bin_labels = ["0", "(0-2]", "(2-5]", "(5-10]", "(10-100]"]
+    df_verra_grouped["Percentage Bins"] = pd.cut(
+        df_verra_grouped["Percentage"], bins=cut_bins, labels=bin_labels)
+    df_verra_grouped = df_verra_grouped.sort_values(by=["Percentage"])
+
+    fig = px.choropleth(df_verra_grouped, locations="Country Code",
+                        color="Percentage Bins",
+                        hover_name='Country',
+                        custom_data=['text'],
+                        color_discrete_sequence=px.colors.sequential.Plasma_r,
+                        height=300)
+
+    fig.update_traces(hovertemplate="%{customdata}")
+
+    fig.update_layout(height=300, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
+                                           landcolor='darkgrey',
+                                           subunitcolor='grey'),
+                      font_color='white', dragmode=False, paper_bgcolor=FIGURE_BG_COLOR,  hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=8,
+                      margin=dict(t=0, b=0, l=0, r=0),
+                      legend=dict(font=dict(size=8), tracegroupgap=0,
+                      title="Percentange <br>     Bins", y=0.5))
+    return fig
+
+
+def on_vs_off_project(df_verra, bridges_info_dict):
+    df_verra_grouped = df_verra.groupby(
+        'Project Type')['Quantity'].sum().to_frame().reset_index()
+    df_verra_other_grouped = pd.DataFrame()
+    dfs = []
+    for i in bridges_info_dict.keys():
+        df = bridges_info_dict[i]["Dataframe"]
+        df = df.groupby(
+            'Project Type')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Bridged Credits'
+        dfs.append(df)
+        if df_verra_other_grouped.empty:
+            df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Project Type",
+                                                            right_on='Project Type', suffixes=('', f"_{i}"))
+        else:
+            df_verra_other_grouped = df_verra_other_grouped.merge(df, how='left', left_on="Project Type",
+                                                                  right_on='Project Type', suffixes=('', f"_{i}"))
+        df_verra_other_grouped[f'Quantity_{i}'] = df_verra_other_grouped[f'Quantity_{i}'].fillna(
+            0)
+        df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
+            df_verra_other_grouped[f'Quantity_{i}']
+        df_verra_other_grouped = df_verra_other_grouped[[
+            'Project Type', 'Quantity']]
+        df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
+
+    df_other_and_bridges = pd.concat(
+        dfs + [df_verra_other_grouped]).reset_index()
+    fig = px.treemap(df_other_and_bridges, path=[px.Constant("All Projects"), 'Project Type', 'Type'],
+                     values='Quantity',
+                     color_discrete_sequence=px.colors.qualitative.Antique,
+                     hover_data=['Type', 'Quantity'],
+                     height=300, title='')
+    fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
+                      texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
+                                                '%{percentEntry} of Entry', '%{percentRoot} of Root']))
+    fig.update_layout(paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, font=dict(color='white'),
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
+                      margin=dict(t=20, b=20, l=0, r=0))
+
     return fig
