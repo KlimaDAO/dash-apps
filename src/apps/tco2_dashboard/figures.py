@@ -578,7 +578,7 @@ def on_vs_off_map(df_verra, bridges_info_dict):
                       hoverlabel=dict(font_color='white', font_size=8), font_size=8,
                       margin=dict(t=0, b=0, l=0, r=0),
                       legend=dict(font=dict(size=8), tracegroupgap=0,
-                      title="Percentange <br>     Bins", y=0.5))
+                      title="Percentage <br>     Bins", y=0.5))
     return fig
 
 

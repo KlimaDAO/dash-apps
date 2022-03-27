@@ -10,7 +10,7 @@ from pycoingecko import CoinGeckoAPI
 
 from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2, \
+    methodology_volume, project_volume, eligible_pool_pie_chart,\
     historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
 from .top_level_page import create_top_level_content
@@ -315,15 +315,16 @@ def generate_layout():
     df_mco2_bridged["Project ID"] = 'VCS-' + \
         df_mco2_bridged["Project ID"].astype(str)
     df_mco2_bridged = merge_verra(
-        df_mco2_bridged, df_verra, merge_columns=["ID", "Country"])
+        df_mco2_bridged, df_verra, merge_columns=["ID", "Country", "Methodology"])
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
     fig_mco2_total_map = map(df_mco2_bridged, zero_bridging_evt_text)
-    fig_mco2_total_project = project_volume_mco2(
+    fig_mco2_total_metho = methodology_volume(df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume(
         df_mco2_bridged, zero_bridging_evt_text)
     content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map,
-                                       fig_mco2_total_project, mco2_current_supply)
+                                       fig_mco2_total_metho, fig_mco2_total_project, mco2_current_supply)
     cache.set("content_mco2", content_mco2)
 
     # --Carbon Pool Figures---
