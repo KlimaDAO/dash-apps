@@ -1,3 +1,4 @@
+from datetime import datetime
 import dash_bootstrap_components as dbc
 import dash
 from dash import html, Input, Output, callback, State
@@ -6,11 +7,15 @@ from flask_caching import Cache
 import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
-from ...util import get_eth_web3, load_abi
+from pycoingecko import CoinGeckoAPI
 
+from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, eligible_pool_pie_chart, project_volume_mco2
+    methodology_volume, project_volume, eligible_pool_pie_chart,\
+    historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time
+from .offchain_vs_onchain import create_offchain_vs_onchain_content
+from .onchain_pool_comp import create_onchain_pool_comp_content
 from .tco2 import create_content_toucan
 from .pool import create_pool_content
 from .mco2 import create_content_moss
@@ -25,6 +30,7 @@ from .constants import rename_map, retires_rename_map, deposits_rename_map, \
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
 MAX_RECORDS = 1000000
+PRICE_DAYS = 5000
 
 app = dash.Dash(
     __name__,
@@ -133,7 +139,8 @@ def get_verra_data():
             r = requests.post(
                 'https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv',
                 json={"program": "VCS", "issuanceTypeCodes": ['ISSUE']})
-            df_verra = pd.DataFrame(r.json()['value']).rename(columns=verra_rename_map)
+            df_verra = pd.DataFrame(r.json()['value']).rename(
+                columns=verra_rename_map)
         except requests.exceptions.RequestException as err:
             print(err)
             fallback_note = VERRA_FALLBACK_NOTE
@@ -153,6 +160,30 @@ def get_mco2_contract_data():
     return total_supply
 
 
+cg = CoinGeckoAPI()
+token_cg_dict = {
+    'BCT': {'address': BCT_ADDRESS, 'id': 'polygon-pos', 'Full Name': 'Base Carbon Tonne'},
+    'NCT': {'address': NCT_ADDRESS, 'id': 'polygon-pos', 'Full Name': 'Nature Carbon Tonne'},
+    'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum', 'Full Name': 'Moss Carbon Credit'},
+}
+
+
+def get_prices():
+    df_prices = pd.DataFrame()
+    for i in token_cg_dict.keys():
+        data = cg.get_coin_market_chart_from_contract_address_by_id(
+            id=token_cg_dict[i]['id'], vs_currency='usd', contract_address=token_cg_dict[i]['address'], days=PRICE_DAYS)
+        df = pd.DataFrame(data['prices'], columns=['Date', f'{i}_Price'])
+        df['Date'] = pd.to_datetime(df['Date'], unit='ms')
+        df['Date'] = df['Date'].dt.floor('D')
+        if df_prices.empty:
+            df_prices = df
+        else:
+            df_prices = df_prices.merge(df, how='outer', on='Date')
+        df_prices = df_prices.sort_values(by='Date', ascending=False)
+    return df_prices
+
+
 @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
@@ -161,6 +192,9 @@ def generate_layout():
     df_verra, df_verra_toucan = verra_manipulations(df_verra)
     df_mco2_bridged = read_csv('mco2_verra_data.csv')
     mco2_current_supply = get_mco2_contract_data()
+    df_prices = get_prices()
+    curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+
     # -----TCO2_Figures-----
     # rename_columns
     df = df.rename(columns=rename_map)
@@ -255,7 +289,7 @@ def generate_layout():
         df_retired, zero_retiring_evt_text)
 
     content_tco2 = create_content_toucan(
-        df, df_retired, df_carbon, df_verra, df_verra_toucan, verra_fallback_note)
+        df, df_retired, df_carbon)
 
     fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
                      fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
@@ -279,13 +313,23 @@ def generate_layout():
     cache.set("content_tco2", content_tco2)
 
     # --MCO2 Figures--
+    zero_bridging_evt_text = "There haven't been any<br>bridging events"
     df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
+    df_mco2_bridged["Project ID"] = 'VCS-' + \
+        df_mco2_bridged["Project ID"].astype(str)
+    df_mco2_bridged = merge_verra(
+        df_mco2_bridged, df_verra, merge_columns=["ID", "Country", "Methodology"])
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
-    fig_mco2_total_project = project_volume_mco2(df_mco2_bridged, zero_bridging_evt_text)
-    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project,
-                                       mco2_current_supply)
+    fig_mco2_total_map = map(df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_metho = methodology_volume(
+        df_mco2_bridged, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume(
+        df_mco2_bridged, zero_bridging_evt_text)
+    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map,
+                                       fig_mco2_total_metho, fig_mco2_total_project, mco2_current_supply)
+
     cache.set("content_mco2", content_mco2)
 
     # --Carbon Pool Figures---
@@ -314,8 +358,7 @@ def generate_layout():
 
     content_bct = create_pool_content(
         "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time
-    )
+        fig_deposited_over_time, fig_redeemed_over_time)
 
     cache.set("content_bct", content_bct)
 
@@ -334,10 +377,42 @@ def generate_layout():
 
     content_nct = create_pool_content(
         "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time
-    )
+        fig_deposited_over_time, fig_redeemed_over_time)
 
     cache.set("content_nct", content_nct)
+
+    # ----Top Level Page---
+
+    token_cg_dict['BCT']['Current Supply'] = bct_deposited["Quantity"].sum(
+    ) - bct_redeemed["Quantity"].sum()
+    token_cg_dict['NCT']['Current Supply'] = nct_deposited["Quantity"].sum(
+    ) - nct_redeemed["Quantity"].sum()
+    token_cg_dict['MCO2']['Current Supply'] = mco2_current_supply
+
+    bridges_info_dict = {
+        'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum(),
+                   'Dataframe': df_verra_toucan},
+        'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum(),
+                 'Dataframe': df_mco2_bridged}
+    }
+    fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
+    fig_historical_prices = historical_prices(token_cg_dict, df_prices)
+    fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
+    fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
+    fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
+
+    # ---offchain vs onchain---
+
+    content_offchain_vs_onchain = create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
+                                                                     fig_bridges_pie_chart, fig_on_vs_off_vintage,
+                                                                     fig_on_vs_off_map, fig_on_vs_off_project,
+                                                                     verra_fallback_note)
+    cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
+
+    # --- onchain carbon pool comparison ---
+    content_onchain_pool_comp = create_onchain_pool_comp_content(
+        token_cg_dict, df_prices, fig_historical_prices)
+    cache.set("content_onchain_pool_comp", content_onchain_pool_comp)
 
     sidebar_toggle = dbc.Row(
         [
@@ -355,11 +430,12 @@ def generate_layout():
         ]
     )
 
-    sidebar_header = html.Div([dbc.Col(
-        html.A([
-            html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
-        ], href='https://www.klimadao.finance/'),
-        width=12, style={'textAlign': 'center'}),
+    sidebar_header = html.Div([
+        dbc.Col(
+            html.A([
+                html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
+            ], href='https://www.klimadao.finance/'),
+            width=12, style={'textAlign': 'center'}),
         html.H3("Tokenized Carbon Dashboards Beta",
                 style={'textAlign': 'center'}),
     ], id="logo_title")
@@ -370,9 +446,15 @@ def generate_layout():
             dbc.Collapse(children=[
                 dbc.Nav(
                     [html.Hr(),
+                        html.H4("Top Level Summary", style={
+                                'textAlign': 'center'}),
+                        dbc.NavLink("Off-Chain vs. On-Chain Carbon Market", href="/", active="exact",
+                                    id="button-off_vs_on_chain", n_clicks=0,),
+                        dbc.NavLink("On-Chain Carbon Pool Comparison", href="/CarbonPools", active="exact",
+                                    id="button-onchain_pool_comp", n_clicks=0,),
                         html.H4("Toucan Protocol", style={
                                 'textAlign': 'center'}),
-                        dbc.NavLink("TCO2 Overview", href="/", active="exact",
+                        dbc.NavLink("TCO2 Overview", href="/TCO2", active="exact",
                                     className="pill-nav", id="button-tco2", n_clicks=0),
                         dbc.NavLink("BCT Pool", href="/BCT", active="exact",
                                     id="button-bct", n_clicks=0),
@@ -392,8 +474,10 @@ def generate_layout():
         id="sidebar",
     )
 
-    content = html.Div(id="page-content", children=[],
-                       )
+    content = html.Div([html.H6(f"Last Updated: {curr_time_str} UTC",
+                                id="lastupdated_indictor"),
+                        html.Div(id="page-content", children=[]),
+                        ], id='static-content')
 
     layout = html.Div([dcc.Location(id="url"), sidebar, content])
     return layout
@@ -458,6 +542,14 @@ def update_eligible_pie_chart(pool_key):
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
+        content_offchain_vs_onchain = cache.get("content_offchain_vs_onchain")
+        return content_offchain_vs_onchain
+
+    elif pathname == "/CarbonPools":
+        content_onchain_pool_comp = cache.get("content_onchain_pool_comp")
+        return content_onchain_pool_comp
+
+    elif pathname == "/TCO2":
         content_tco2 = cache.get("content_tco2")
         return content_tco2
 
@@ -486,14 +578,16 @@ def render_page_content(pathname):
 @app.callback(
     Output("collapse", "is_open"),
     [Input("toggle", "n_clicks"),
+     Input("button-off_vs_on_chain", "n_clicks"),
+     Input("button-onchain_pool_comp", "n_clicks"),
      Input("button-tco2", "n_clicks"),
      Input("button-bct", "n_clicks"),
      Input("button-nct", "n_clicks"),
      Input("button-mco2", "n_clicks")],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, n_tco2, n_bct, n_nct, n_mco2, is_open):
-    if n or n_tco2 or n_bct or n_nct or n_mco2:
+def toggle_collapse(n, n_off_vs_on, n_all_carbon_pools, n_tco2, n_bct, n_nct, n_mco2, is_open):
+    if n or n_off_vs_on or n_all_carbon_pools or n_tco2 or n_bct or n_nct or n_mco2:
         return not is_open
     return is_open
 

@@ -1,32 +1,10 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
-from .figures import verra_vintage, verra_map, verra_project, pool_pie_chart
+from .figures import pool_pie_chart
 
 
-def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan, verra_fallback_note):
-
-    if verra_fallback_note != "":
-        on_vs_off_chain_row = dbc.Row(
-            dbc.Col(
-                dbc.Card([
-                    dbc.CardHeader(
-                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis")),
-                    dbc.CardFooter(
-                        verra_fallback_note,
-                        id="fallback_indicator")
-                ]), width=12, style={'textAlign': 'center'}),
-            style={'paddingTop': '60px'}
-        )
-    else:
-        on_vs_off_chain_row = dbc.Row(
-            dbc.Col(
-                dbc.Card([
-                    dbc.CardHeader(
-                        html.H2("Off-Chain Verra Credits vs On-Chain Verra Credits Analysis")),
-                ]), width=12, style={'textAlign': 'center'}),
-            style={'paddingTop': '60px'}
-        )
+def create_content_toucan(df, df_retired, df_carbon):
 
     content_tco2 = [
         dbc.Row(
@@ -79,60 +57,6 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan, 
             #                       ])
             #     ], className="card-graph")
             # ], lg=6, md=12),
-        ]),
-
-        on_vs_off_chain_row,
-
-        dbc.Row([
-            dbc.Col(dbc.Card([
-                html.H5("Verra Registry credits ever Issued",
-                        className="card-title"),
-                dbc.CardBody("{:,}".format(
-                    int(df_verra["Quantity"].sum())), className="card-text")
-            ]), lg=4, md=12),
-            dbc.Col(dbc.Card([
-                html.H5("Verra Registry credits Tokenized by Toucan",
-                        className="card-title"),
-                dbc.CardBody("{:,}".format(
-                    int(df_verra_toucan["Quantity"].sum())), className="card-text")
-            ]), lg=4, md=12),
-            dbc.Col(dbc.Card([
-                html.H5("Percentage of Tokenized Credits",
-                        className="card-title"),
-                dbc.CardBody("{:.2%}".format(
-                    (df_verra_toucan["Quantity"].sum()/df_verra["Quantity"].sum())),
-                    className="card-text")
-            ]), lg=4, md=12),
-        ]),
-
-        dbc.Row([
-            dbc.Col(),
-            dbc.Col(dbc.Card([
-                html.H5("Distribution of Vintage Start Dates",
-                        className="card-title"),
-                dcc.Graph(figure=verra_vintage(df_verra, df_verra_toucan))
-            ]), width=12),
-            dbc.Col(),
-        ]),
-
-        dbc.Row([
-            dbc.Col(),
-            dbc.Col(dbc.Card([
-                html.H5("Credits Tokenized vs. Credits Issued by Origin", className="card-title"),
-                dcc.Graph(figure=verra_map(df_verra, df_verra_toucan
-                                           ))
-            ]), width=12),
-            dbc.Col(),
-        ]),
-
-        dbc.Row([
-            dbc.Col(),
-            dbc.Col(dbc.Card([
-                html.H5("Distribution of Project Types",
-                        className="card-title"),
-                dcc.Graph(figure=verra_project(df_verra, df_verra_toucan))
-            ]), width=12),
-            dbc.Col(),
         ]),
 
         dbc.Row([
@@ -198,7 +122,7 @@ def create_content_toucan(df, df_retired, df_carbon, df_verra, df_verra_toucan, 
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                html.H5("Origin of Tokenized Credits", className="card-title"),
+                html.H5("Origin of Credits", className="card-title"),
                 dcc.Graph(id="map")
             ]), width=12),
             dbc.Col(),

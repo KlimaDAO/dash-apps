@@ -26,6 +26,7 @@ h3 {
 
 h4 {
   color: var(--white);
+  margin-top: 0.1rem;
 }
 
 a {
@@ -173,7 +174,7 @@ color: white;
   margin-top: 1rem;
 }
 
-#page-content {
+#static-content {
   padding: 2rem 1rem;
 }
 
@@ -204,6 +205,13 @@ color: white;
   margin-top: 2rem;
 }
 
+#lastupdated_indictor{
+  font-style: italic;
+  font-size: x-small;
+  color: white;
+  text-align: right;
+}
+
 #fallback_indicator{
   font-style: italic;
 }
@@ -231,17 +239,19 @@ color: white;
     display: block;
   }
   #collapse {
-    display: block;
+    display: block !important;
+    overflow: visible !important;
   }
 
-  #collapse *:first-child {
+  /* #collapse *:first-child {
     margin-top: 0;
-  }
+  } */
 
-  #page-content {
+  #static-content {
     margin-left: 18rem;
     margin-right: 2rem;
   }
+
   /* dropdown menu options */
   .VirtualizedSelectOption {
   background-color: black;

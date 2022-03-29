@@ -4,8 +4,9 @@ import dash_bootstrap_components as dbc
 from .constants import GRAY, DARK_GRAY
 
 
-def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_project, current_supply):
-    df_grouped = df_mco2_bridged.groupby(['Project ID', 'Project Type', 'Name', 'Vintage'])[
+def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map, fig_mco2_total_metho,
+                        fig_mco2_total_project, current_supply):
+    df_grouped = df_mco2_bridged.groupby(['Project ID', 'Country', 'Methodology', 'Project Type', 'Name', 'Vintage'])[
         'Quantity'].sum().to_frame().reset_index()
     content_mco2 = [
         dbc.Row(
@@ -54,6 +55,24 @@ def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_
             dbc.Col(),
         ]),
 
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Origin of Tokenized Credits",
+                        className="card-title"),
+                dcc.Graph(figure=fig_mco2_total_map)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Methodologies",
+                        className="card-title"),
+                dcc.Graph(figure=fig_mco2_total_metho)
+            ]), width=12),
+            dbc.Col(),
+        ]),
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([

@@ -69,14 +69,15 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-def merge_verra(df, df_verra_toucan, merge_columns):
-    df["Project ID Key"] = df["Project ID"].str[4:]
-    df_verra_toucan["ID"] = df_verra_toucan["ID"].astype(str)
-    df_verra_toucan = df_verra_toucan[merge_columns]
-    df_verra_toucan = df_verra_toucan.drop_duplicates(
+def merge_verra(df, df_verra, merge_columns):
+    df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
+    df_verra["ID"] = df_verra["ID"].astype(str)
+    df_verra = df_verra[merge_columns]
+    df_verra = df_verra.drop_duplicates(
         subset=['ID']).reset_index(drop=True)
-    df = df.merge(df_verra_toucan, how='left', left_on="Project ID Key",
+    df = df.merge(df_verra, how='left', left_on="Project ID Key",
                   right_on='ID', suffixes=('', '_Verra'))
+
     return df
 
 
@@ -130,13 +131,10 @@ def verra_manipulations(df_verra):
 
 def mco2_verra_manipulations(df_mco2_bridged):
     df_mco2_bridged = df_mco2_bridged[[
-        "Project ID", "Vintage", "Quantity", "Project Type", "Name"]]
+        "Project ID", "Vintage", "Quantity", "Country", "Methodology", "Project Type", "Name"]]
     df_mco2_bridged["Vintage"] = pd.to_datetime(
         df_mco2_bridged["Vintage"].str[6:10]).dt.tz_localize(None).dt.year
     df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
-    df_mco2_bridged["Project ID"] = 'VCS-' + \
-        df_mco2_bridged["Project ID"].astype(str)
-
     pat = r'VCS-(?P<id>\d+)'
     repl = (
         lambda m: '[VCS-' + m.group(
