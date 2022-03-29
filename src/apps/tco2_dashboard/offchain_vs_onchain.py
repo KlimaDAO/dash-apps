@@ -3,9 +3,9 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 
-def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_verra,
-                             fig_historical_prices, fig_bridges_pie_chart, fig_on_vs_off_vintage,
-                             fig_on_vs_off_map, fig_on_vs_off_project, verra_fallback_note):
+def create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
+                                       fig_bridges_pie_chart, fig_on_vs_off_vintage,
+                                       fig_on_vs_off_map, fig_on_vs_off_project, verra_fallback_note):
 
     if verra_fallback_note != "":
         header = dbc.Row(
@@ -29,43 +29,17 @@ def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_ver
 
     sum_total_tokenized = sum(d['Tokenized Quantity']
                               for d in bridges_info_dict.values())
-    pool_cards = []
-    for i in token_cg_dict.keys():
-        price_col = dbc.Col(
-            dbc.Card([
-                html.H5("Price", className="card-title"),
-                dbc.CardBody("${:.2f}".format(
-                    df_prices[f"{i}_Price"].iloc[0]), className="card-text")
-            ]), width=12)
-
-        current_supply_col = dbc.Col(
-            dbc.Card([
-                html.H5("Current Supply", className="card-title"),
-                dbc.CardBody("{:,}".format(
-                    int(token_cg_dict[i]["Current Supply"])), className="card-text")
-            ]), width=12)
-
-        pool_card = dbc.Col([
-            dbc.Card([
-                dbc.CardHeader(html.H5(token_cg_dict[i]["Full Name"])),
-                price_col,
-                current_supply_col
-            ])
-        ], lg=(12/len(token_cg_dict.keys())), md=12)
-
-        pool_cards.append(pool_card)
-
     content = [
         header,
         dbc.Row([
             dbc.Col(dbc.Card([
-                html.H5("Verra Registry credits ever Issued",
+                html.H5("Verra Registry Credits Ever Issued",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_verra["Quantity"].sum())), className="card-text")
             ]), lg=4, md=12),
             dbc.Col(dbc.Card([
-                html.H5("Verra Registry credits ever Tokenized",
+                html.H5("Verra Registry Credits Ever Tokenized",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(sum_total_tokenized)), className="card-text")
@@ -82,7 +56,7 @@ def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_ver
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5("Breakdown of Tokenized credits by Bridges",
+                    html.H5("Breakdown of Tokenized Credits by Bridges",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_bridges_pie_chart))
                 ], className="card-graph")
@@ -91,7 +65,7 @@ def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_ver
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5("Distribution of Vintage Start Dates",
+                    html.H5("Credits Tokenized vs. Credits Issued by Vintage Start Dates",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_on_vs_off_vintage))
                 ], className="card-graph")
@@ -115,28 +89,5 @@ def create_top_level_content(token_cg_dict, bridges_info_dict, df_prices, df_ver
                 ], className="card-graph")
             ], width=12),
         ]),
-
-        dbc.Row(
-            dbc.Col(
-                dbc.Card([
-                    dbc.CardHeader(
-                        html.H1("State of Carbon Pools", className='page-title'))
-                ]), width=12, style={'textAlign': 'center'}
-            ),
-            style={'paddingTop': '60px'}),
-
-        dbc.Row(
-            pool_cards
-        ),
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    html.H5("Historical Price Chart",
-                            className="card-title"),
-                    dbc.CardBody(dcc.Graph(figure=fig_historical_prices))
-                ], className="card-graph")
-            ], width=12),
-        ]),
-
     ]
     return content

@@ -24,9 +24,10 @@ h3 {
   color: var(--white);
 }
 
-/* h4 {
+h4 {
   color: var(--white);
-} */
+  margin-top: 0.1rem;
+}
 
 a {
   color: var(--green);
@@ -173,7 +174,7 @@ color: white;
   margin-top: 1rem;
 }
 
-#page-content {
+#static-content {
   padding: 2rem 1rem;
 }
 
@@ -202,6 +203,13 @@ color: white;
   -webkit-animation: spinner-border 0.75s linear infinite;
   animation: spinner-border 0.75s linear infinite;
   margin-top: 2rem;
+}
+
+#lastupdated_indictor{
+  font-style: italic;
+  font-size: x-small;
+  color: white;
+  text-align: right;
 }
 
 #fallback_indicator{
@@ -239,10 +247,11 @@ color: white;
     margin-top: 0;
   } */
 
-  #page-content {
+  #static-content {
     margin-left: 18rem;
     margin-right: 2rem;
   }
+
   /* dropdown menu options */
   .VirtualizedSelectOption {
   background-color: black;
