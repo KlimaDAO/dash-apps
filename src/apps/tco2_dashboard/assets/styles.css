@@ -26,7 +26,7 @@ h3 {
 
 h4 {
   color: var(--white);
-  margin-top: 0.5rem;
+  /* margin-top: 0.5rem; */
 }
 
 hr {
@@ -34,6 +34,7 @@ hr {
   width: 100%;
   height: 0.15rem;
   opacity: 100;
+  margin: 0rem;
 }
 
 hr:not([size]) {
@@ -42,6 +43,7 @@ hr:not([size]) {
 
 a {
   color: var(--green);
+  text-decoration: none;
 }
 
 .card {
@@ -138,7 +140,7 @@ color: white;
 }
 
 .nav-pills a{
-  font-size: 16px;
+  font-size: 14.5px;
   line-height: 1.5rem;
   font-weight: 500;
   display: flex;
@@ -146,7 +148,7 @@ color: white;
   align-items: center;
   text-align: left;
   color:#9c9c9c;
-  gap: 1.6rem;
+  gap: 1rem;
   padding: 0.4rem;
   border-radius: 0.8rem;
   width: 100%;
@@ -172,87 +174,13 @@ color: white;
 }
 
   /* Change the color of links on mouse-over */
-  .nav-pills .nav-link.active .icon-container-2lines {
-  background-color: var(--green);
-  color: white;
-  }
-
-  /* Change the color of links on mouse-over */
   .nav-pills .nav-link.active .image-icons {
     filter: grayscale(0%);
-  }
-
-.material-icons {
-  font-size: 2rem;
-  color: white;
 }
 
-.image-icons{
-  filter: grayscale(100%);
-  width: 2rem;
-  height: 2rem;
-}
-
-.icon-title{
-  width: 75%;
-}
-
-.icon-container{
-  align-items: center;
-  justify-content: center;
-  margin-top: 0rem;
-  height: 2.8rem;
-  width: 2.8rem;
-  display: flex;
-  border-radius: 0.6rem;
-  background-color: #262626;;
-}
-
-.icon-container-2lines{
-  align-items: center;
-  justify-content: center;
-  height: 2.8rem;
-  width: 2.8rem;
-  display: flex;
-  border-radius: 0.6rem;
-  background-color: #262626;;
-}
-
-#sidebar {
-  text-align: center;
-  padding: 1rem 2rem;
-  background-color: var(--dark-gray);
-  font-size: 20;
-  color: white;
-}
-
-#sidebar h2 {
-  text-align: left;
-  margin-bottom: 0;
-}
-
-.logo_title {
-  display: block;
-}
-
-.dashboard-title {
-  margin-bottom: 1rem;
-}
-
-#sidebar_header {
-  display: none;
-}
-
-/* #collapse *:first-child {
-  margin-top: 0rem;
-} */
-
-#static-content {
-  padding: 2rem 1rem;
-}
-
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(192, 192, 192, 0.3)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .moss-logo {
+    filter: grayscale(0%);
 }
 
 ._dash-loading {
@@ -289,53 +217,210 @@ color: white;
   font-style: italic;
 }
 
-@media (min-width: 48em) {
-  #sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 21rem;
-    background-color: var(--dark-gray);
+.sidebar {
+  position: fixed;
+  padding: 1rem 2rem;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 20rem;
+  background-color: var(--dark-gray);
+  gap: 1.6rem;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-height: 100vh;
+  flex-direction: column;
+  height: 100%;
+  display: flex;
+}
+
+.sidebar_mobile{
+  display: none;
+}
+
+.toggler-row{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.klima-logo{
+  width: 180px;
+}
+
+.dashboard-title {
+  margin-bottom: 0rem;
+}
+
+.icon-container{
+  align-items: center;
+  justify-content: center;
+  margin-top: 0rem;
+  height: 2.8rem;
+  width: 2.8rem;
+  display: flex;
+  border-radius: 0.6rem;
+  background-color: #262626;;
+}
+
+.collapse offcanvas offcanvas-start show{
+  display: visible;
+}
+
+.material-icons {
+  font-size: 2rem;
+  color: white;
+}
+
+.image-icons{
+  filter: grayscale(100%);
+  width: 2rem;
+  height: 2rem;
+}
+
+.moss-logo{
+  filter: grayscale(100%);
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.icon-title{
+  width: 70%;
+}
+
+#logo_title {
+  display: block;
+}
+
+.klima-logo{
+  width: 250px;
+}
+
+#toggle {
+  display: none;
+}
+
+#sidebar_header {
+  display: block;
+}
+
+#collapse {
+  display: none;
+}
+
+#static-content {
+  margin-left: 23rem;
+  margin-right: 1rem;
+}
+
+/* dropdown menu options */
+.VirtualizedSelectOption {
+background-color: black;
+color: white;
+font-size: 12px;
+}
+.Select-value-label {
+  color: white !important;
+  background-color: black !important;
+  font-size: 12px;
+}
+
+#static-content {
+  padding: 2rem 0rem;
+}
+
+@media (max-width: 48em) {
+
+  #static-content {
+    margin-left: 0rem;
+    margin-right: 0rem;
+  }
+  .sidebar{
+    display: none;
+  }
+
+  .sidebar_mobile{
+    display: block;
+  }
+  
+  .offcanvas-body {
+    position: relative;
+    display: flex;
     gap: 1.6rem;
     overflow-x: hidden;
     overflow-y: scroll;
     max-height: 100vh;
     flex-direction: column;
     height: 100%;
+    padding: 1rem 2rem;
   }
 
-  #logo_title {
+  .offcanvas {
+    background-color: var(--dark-gray);
+    font-size: 1.4rem;
+    color: white;
+    width: 72%;
+  }
+
+  #collapse{
     display: block;
+  }
+  
+  .nav-pills a{
+    font-size: 12px;
+  }
+
+  .navbar-toggler{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 3.2rem;
+    width: 3.2rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: var(--dark-gray);
   }
 
   #toggle {
+    display: flex;
+  }
+
+  .klima-logo{
+    width: 180px;
+  }
+  
+  .icon-container{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 2.8rem;
+    width: 2.8rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: #262626;;
+  }
+
+
+  .material-icons {
+    font-size: 2rem;
+    color: white;
+  }
+  
+  .image-icons{
+    filter: grayscale(100%);
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .offcanvas-header {
     display: none;
   }
-
-  #sidebar_header {
+  
+  .logo_title {
     display: block;
   }
-  #collapse {
-    display: block !important;
-    overflow: visible !important;
-  }
-
-  #static-content {
-    margin-left: 22rem;
-    margin-right: 1rem;
-  }
-
-  /* dropdown menu options */
-  .VirtualizedSelectOption {
-  background-color: black;
-  color: white;
-  font-size: 12px;
-  }
-  .Select-value-label {
-    color: white !important;
-    background-color: black !important;
-    font-size: 12px;
-  }
+  
  
 }

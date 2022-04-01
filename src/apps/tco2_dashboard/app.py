@@ -420,11 +420,8 @@ def generate_layout():
         [
             dbc.Col(
                 html.Button(
-                    html.Span(className="navbar-toggler-icon"),
+                    html.Span('menu', className="material-icons"),
                     className="navbar-toggler",
-                    style={
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
                     id="toggle",
                 ),
                 width="auto", align="center",
@@ -432,101 +429,201 @@ def generate_layout():
         ]
     )
 
-    sidebar_header = html.Div([
-        dbc.Col(
-            html.A([
-                html.Img(src='assets/KlimaDAO-Wordmark-2.png', width=250)
-            ], href='https://www.klimadao.finance/'),
-            width=12, style={'textAlign': 'start'}),
+    sidebar_header = [
+        html.A([
+            html.Img(src='assets/KlimaDAO-Wordmark-2.png',
+                     className="klima-logo")
+        ], href='https://www.klimadao.finance/',
+            style={"padding": "0px"}),
         html.Hr(),
         html.H3("Tokenized Carbon Dashboards Beta",
                 style={'textAlign': 'start'}, className="dashboard-title"),
-        html.Hr(),
-    ], className="logo_title")
+        html.Hr(style={'margin-bottom': '1.5rem'}),
+    ]
 
     sidebar = html.Div(
-        [sidebar_header,
-            sidebar_toggle,
-            dbc.Collapse(children=[
-                dbc.Nav(
-                    [
-                        html.H4("Top Level Summary", style={
-                                'textAlign': 'left'}),
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Span('link', className="material-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        'Off-Chain vs. On-Chain Carbon Market',
-                                        className='icon-title')
-                                    ], href="/", active="exact",
-                                    id="button-off_vs_on_chain", n_clicks=0,),
+        [
+            dbc.Nav(
+                sidebar_header +
+                [
+                    html.H4("Top Level Summary", style={
+                        'textAlign': 'left'}),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Span(
+                                'link', className="material-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            'Off-Chain vs. On-Chain Carbon Market',
+                            className='icon-title')
+                    ], href="/", active="exact",
+                    ),
 
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Span('balance', className="material-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        "On-Chain Carbon Pool Comparison",
-                                        className='icon-title')
-                                    ], href="/CarbonPools", active="exact",
-                                    id="button-onchain_pool_comp", n_clicks=0,),
-
-                        html.H4("Toucan Protocol", style={
-                                'textAlign': 'left'}),
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Img(src='assets/TCO2-Logo.png',
-                                                 className="image-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        "TCO2 Overview")
-                                    ], href="/TCO2", active="exact", id="button-tco2", n_clicks=0),
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Img(src='assets/BCT-Logo.png',
-                                                 className="image-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        "BCT Pool")
-                                    ], href="/BCT", active="exact",
-                                    id="button-bct", n_clicks=0),
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Img(src='assets/NCT-Logo.png',
-                                                 className="image-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        "NCT Pool")
-                                    ], href="/NCT", active="exact",
-                                    id="button-nct", n_clicks=0),
-                        html.H4("Moss Protocol", style={
-                                'textAlign': 'left'}),
-                        dbc.NavLink([
-                                    html.Div(
-                                        html.Img(src='assets/MCO2-Logo.png',
-                                                 className="image-icons"),
-                                        className='icon-container'),
-                                    html.Span(
-                                        "MCO2 Overview")
-                                    ], href="/MCO2", active="exact",
-                                    id="button-mco2", n_clicks=0),
-                        html.Hr(),
-                     ],
-                    vertical=True,
-                    pills=True,
-                    style={'gap': '1rem'}
-                )],
-                id="collapse",
-            ),
-         ],
-        id="sidebar",
+                    dbc.NavLink([
+                        html.Div(
+                            html.Span(
+                                'balance', className="material-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "On-Chain Carbon Pool Comparison",
+                            className='icon-title')
+                    ], href="/CarbonPools", active="exact",
+                    ),
+                    html.Hr(style={"margin-top": "1.5rem"}),
+                    html.A(html.H4("Toucan Protocol", style={
+                        'textAlign': 'left'}),
+                        href='https://toucan.earth/'),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/TCO2-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "TCO2 Overview")
+                    ], href="/TCO2", active="exact"
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/BCT-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "BCT Pool")
+                    ], href="/BCT", active="exact",
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/NCT-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "NCT Pool")
+                    ], href="/NCT", active="exact",
+                    ),
+                    html.Hr(style={"margin-top": "1.5rem"}),
+                    html.A(html.H4("Moss", style={
+                        'textAlign': 'left'}),
+                        href='https://mco2token.moss.earth/'),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/MCO2-Logo.png',
+                                     className="moss-logo"),
+                            className='icon-container'),
+                        html.Span(
+                            "MCO2 Overview")
+                    ], href="/MCO2", active="exact",
+                    ),
+                    html.Hr(style={"margin-top": "3rem"}),
+                ],
+                vertical=True,
+                pills=True,
+                style={'gap': '1rem'}
+            )],
+        className="sidebar",
     )
 
-    content = html.Div([html.H6(f"Last Updated: {curr_time_str} UTC",
-                                id="lastupdated_indictor"),
-                        html.Div(id="page-content", children=[]),
-                        ], id='static-content')
+    sidebar_mobile = html.Div(
+        [
+            dbc.Offcanvas([
+                dbc.Nav(sidebar_header +
+                        [
+                            html.H4("Top Level Summary", style={
+                                'textAlign': 'left'}),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Span(
+                                        'link', className="material-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    'Off-Chain vs. On-Chain Carbon Market',
+                                    className='icon-title')
+                            ], href="/", active="exact",
+                                id="button-off_vs_on_chain", n_clicks=0,
+                            ),
+
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Span(
+                                        'balance', className="material-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "On-Chain Carbon Pool Comparison",
+                                    className='icon-title')
+                            ], href="/CarbonPools", active="exact",
+                                id="button-onchain_pool_comp", n_clicks=0,
+                            ),
+                            html.Hr(style={"margin-top": "1.5rem"}),
+                            html.A(html.H4("Toucan Protocol", style={
+                                'textAlign': 'left'}),
+                                href='https://toucan.earth/'),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/TCO2-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "TCO2 Overview")
+                            ], href="/TCO2", active="exact", id="button-tco2", n_clicks=0
+                            ),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/BCT-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "BCT Pool")
+                            ], href="/BCT", active="exact",
+                                id="button-bct", n_clicks=0
+                            ),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/NCT-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "NCT Pool")
+                            ], href="/NCT", active="exact",
+                                id="button-nct", n_clicks=0
+                            ),
+                            html.Hr(style={"margin-top": "1.5rem"}),
+                            html.A(html.H4("Moss", style={
+                                'textAlign': 'left'}),
+                                href='https://mco2token.moss.earth/'),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/MCO2-Logo.png',
+                                             className="moss-logo"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "MCO2 Overview")
+                            ], href="/MCO2", active="exact",
+                                id="button-mco2", n_clicks=0),
+                            html.Hr(style={"margin-top": "3rem"}),
+                        ],
+                        vertical=True,
+                        pills=True,
+                        style={'gap': '1rem'}
+                        )],
+                id="collapse",
+                className="collapse",
+                is_open=False,
+            ),
+        ],
+        className="sidebar_mobile",
+    )
+
+    content = html.Div([dbc.Row([
+        dbc.Col(sidebar_toggle, width=3,
+                style={"padding": "0px"}),
+        dbc.Col(),
+        dbc.Col(html.H6(f"Last Updated: {curr_time_str} UTC",
+                        id="lastupdated_indictor"), width=6,
+                style={"padding": "0px"}),
+    ], className="toggler-row"),
+        sidebar_mobile,
+        html.Div(id="page-content", children=[],
+                 style={'padding-top': '5px'},
+                 )], id='static-content')
 
     layout = html.Div([dcc.Location(id="url"), sidebar, content])
     return layout
