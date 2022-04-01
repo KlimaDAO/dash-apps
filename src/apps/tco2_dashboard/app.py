@@ -439,8 +439,8 @@ def generate_layout():
             ], href='https://www.klimadao.finance/'),
             width=12, style={'textAlign': 'start'}),
         html.H3("Tokenized Carbon Dashboards Beta",
-                style={'textAlign': 'start'}),
-    ], id="logo_title")
+                style={'textAlign': 'start'}, className="dashboard-title"),
+    ], className="logo_title")
 
     sidebar = html.Div(
         [sidebar_header,
@@ -453,18 +453,20 @@ def generate_layout():
                         dbc.NavLink([
                                     html.Div(
                                         html.Span('link', className="material-icons"),
-                                        className='icon-container-2lines'),
+                                        className='icon-container'),
                                     html.Span(
-                                        'Off-Chain vs. On-Chain Carbon Market')
+                                        'Off-Chain vs. On-Chain Carbon Market',
+                                        className='icon-title')
                                     ], href="/", active="exact",
                                     id="button-off_vs_on_chain", n_clicks=0,),
 
                         dbc.NavLink([
                                     html.Div(
                                         html.Span('balance', className="material-icons"),
-                                        className='icon-container-2lines'),
+                                        className='icon-container'),
                                     html.Span(
-                                        "On-Chain Carbon Pool Comparison")
+                                        "On-Chain Carbon Pool Comparison",
+                                        className='icon-title')
                                     ], href="/CarbonPools", active="exact",
                                     id="button-onchain_pool_comp", n_clicks=0,),
 
