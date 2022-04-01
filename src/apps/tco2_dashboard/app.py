@@ -51,7 +51,7 @@ cache = Cache(app.server, config={
     'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
-
+@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -98,7 +98,7 @@ def get_data():
 
     return df_bridged, df_retired
 
-
+@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -128,7 +128,7 @@ def get_data_pool():
 
     return df_deposited, df_redeemed
 
-
+@cache.memoize()
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -153,7 +153,7 @@ def get_verra_data():
 
 web3 = get_eth_web3()
 
-
+@cache.memoize()
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
     mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
@@ -169,7 +169,7 @@ token_cg_dict = {
     'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum', 'Full Name': 'Moss Carbon Credit'},
 }
 
-
+@cache.memoize()
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -186,7 +186,7 @@ def get_prices():
     return df_prices
 
 
-@cache.memoize()
+# @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -435,11 +435,13 @@ def generate_layout():
     sidebar_header = html.Div([
         dbc.Col(
             html.A([
-                html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
+                html.Img(src='assets/KlimaDAO-Wordmark-2.png', width=250)
             ], href='https://www.klimadao.finance/'),
             width=12, style={'textAlign': 'start'}),
+        html.Hr(),
         html.H3("Tokenized Carbon Dashboards Beta",
                 style={'textAlign': 'start'}, className="dashboard-title"),
+        html.Hr(),
     ], className="logo_title")
 
     sidebar = html.Div(
@@ -447,7 +449,7 @@ def generate_layout():
             sidebar_toggle,
             dbc.Collapse(children=[
                 dbc.Nav(
-                    [html.Hr(),
+                    [
                         html.H4("Top Level Summary", style={
                                 'textAlign': 'left'}),
                         dbc.NavLink([
