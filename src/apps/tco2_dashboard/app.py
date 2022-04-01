@@ -31,12 +31,14 @@ CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
+GOOGLE_API_ICONS = {
+    'href': "https://fonts.googleapis.com/icon?family=Material+Icons", 'rel': "stylesheet"}
 
 app = dash.Dash(
     __name__,
     title="KlimaDAO Tokenized Carbon Dashboard | Beta",
     suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.BOOTSTRAP, GOOGLE_API_ICONS],
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"}
     ]
@@ -435,9 +437,9 @@ def generate_layout():
             html.A([
                 html.Img(src='assets/KlimaDAO-Wordmark.png', width=200)
             ], href='https://www.klimadao.finance/'),
-            width=12, style={'textAlign': 'center'}),
+            width=12, style={'textAlign': 'start'}),
         html.H3("Tokenized Carbon Dashboards Beta",
-                style={'textAlign': 'center'}),
+                style={'textAlign': 'start'}),
     ], id="logo_title")
 
     sidebar = html.Div(
@@ -447,26 +449,69 @@ def generate_layout():
                 dbc.Nav(
                     [html.Hr(),
                         html.H4("Top Level Summary", style={
-                                'textAlign': 'center'}),
-                        dbc.NavLink("Off-Chain vs. On-Chain Carbon Market", href="/", active="exact",
+                                'textAlign': 'left'}),
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Span('link', className="material-icons"),
+                                        className='icon-container-2lines'),
+                                    html.Span(
+                                        'Off-Chain vs. On-Chain Carbon Market')
+                                    ], href="/", active="exact",
                                     id="button-off_vs_on_chain", n_clicks=0,),
-                        dbc.NavLink("On-Chain Carbon Pool Comparison", href="/CarbonPools", active="exact",
+
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Span('balance', className="material-icons"),
+                                        className='icon-container-2lines'),
+                                    html.Span(
+                                        "On-Chain Carbon Pool Comparison")
+                                    ], href="/CarbonPools", active="exact",
                                     id="button-onchain_pool_comp", n_clicks=0,),
+
                         html.H4("Toucan Protocol", style={
-                                'textAlign': 'center'}),
-                        dbc.NavLink("TCO2 Overview", href="/TCO2", active="exact",
-                                    className="pill-nav", id="button-tco2", n_clicks=0),
-                        dbc.NavLink("BCT Pool", href="/BCT", active="exact",
+                                'textAlign': 'left'}),
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Img(src='assets/TCO2-Logo.png',
+                                                 className="image-icons"),
+                                        className='icon-container'),
+                                    html.Span(
+                                        "TCO2 Overview")
+                                    ], href="/TCO2", active="exact", id="button-tco2", n_clicks=0),
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Img(src='assets/BCT-Logo.png',
+                                                 className="image-icons"),
+                                        className='icon-container'),
+                                    html.Span(
+                                        "BCT Pool")
+                                    ], href="/BCT", active="exact",
                                     id="button-bct", n_clicks=0),
-                        dbc.NavLink("NCT Pool", href="/NCT", active="exact",
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Img(src='assets/NCT-Logo.png',
+                                                 className="image-icons"),
+                                        className='icon-container'),
+                                    html.Span(
+                                        "NCT Pool")
+                                    ], href="/NCT", active="exact",
                                     id="button-nct", n_clicks=0),
                         html.H4("Moss Protocol", style={
-                                'textAlign': 'center'}),
-                        dbc.NavLink("MCO2 Overview", href="/MCO2", active="exact",
+                                'textAlign': 'left'}),
+                        dbc.NavLink([
+                                    html.Div(
+                                        html.Img(src='assets/MCO2-Logo.png',
+                                                 className="image-icons"),
+                                        className='icon-container'),
+                                    html.Span(
+                                        "MCO2 Overview")
+                                    ], href="/MCO2", active="exact",
                                     id="button-mco2", n_clicks=0),
+                        html.Hr(),
                      ],
                     vertical=True,
                     pills=True,
+                    style={'gap': '1rem'}
                 )],
                 id="collapse",
             ),

@@ -127,15 +127,20 @@ color: white;
 }
 
 .nav-pills a{
-  display: inline-block;
+  font-size: 16px;
+  line-height: 1.5rem;
+  font-weight: 500;
+  display: flex;
   box-sizing: border-box;
-  color: #9c9c9c;
-  text-align: center;
-  padding: 14px;
-  text-decoration: none;
-  /* font-size: 32px; */
+  align-items: center;
+  text-align: left;
+  color:#9c9c9c;
+  gap: 1.6rem;
+  padding: 0.4rem;
   border-radius: 0.8rem;
+  width: 100%;
 }
+
 
 /* Change the color of links on mouse-over */
 .nav-pills a:hover {
@@ -146,7 +151,56 @@ color: white;
 /* Add a color to the active/current link */
 .nav-pills .nav-link.active {
   background-color: var(--gray);
-  color: var(--green);
+  color: var(--white);
+}
+
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .icon-container {
+  background-color: var(--green);
+  color: white;
+}
+
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .icon-container-2lines {
+  background-color: var(--green);
+  color: white;
+  }
+
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .image-icons {
+    filter: grayscale(0%);
+  }
+
+.material-icons {
+  font-size: 2rem;
+  color: white;
+}
+
+.image-icons{
+  filter: grayscale(100%);
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon-container{
+  align-items: center;
+  justify-content: center;
+  margin-top: 0rem;
+  height: 2.8rem;
+  width: 2.8rem;
+  display: flex;
+  border-radius: 0.6rem;
+  background-color: #262626;;
+}
+
+.icon-container-2lines{
+  align-items: center;
+  justify-content: center;
+  height: 44.8px;
+  width: 44.8px;
+  display: flex;
+  border-radius: 0.6rem;
+  background-color: #262626;;
 }
 
 #sidebar {
@@ -154,7 +208,6 @@ color: white;
   padding: 2rem 1rem;
   background-color: var(--dark-gray);
   font-size: 20;
-  /* width: 16rem; */
   color: white;
 }
 
@@ -171,7 +224,7 @@ color: white;
 }
 
 #collapse *:first-child {
-  margin-top: 1rem;
+  margin-top: 0rem;
 }
 
 #static-content {
@@ -222,9 +275,14 @@ color: white;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 16rem;
+    width: 18rem;
     background-color: var(--dark-gray);
-    text-align: left;
+    gap: 1.6rem;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-height: 100vh;
+    flex-direction: column;
+    height: 100%;
   }
 
   #logo_title {
@@ -243,12 +301,12 @@ color: white;
     overflow: visible !important;
   }
 
-  /* #collapse *:first-child {
-    margin-top: 0;
-  } */
+  #collapse *:first-child {
+    margin-top: 0rem;
+  }
 
   #static-content {
-    margin-left: 18rem;
+    margin-left: 20rem;
     margin-right: 2rem;
   }
 
@@ -263,4 +321,15 @@ color: white;
     background-color: black !important;
     font-size: 12px;
   }
+
+  .icon-container-2lines{
+    align-items: center;
+    justify-content: center;
+    height: 44.8px;
+    width: 64px;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: #262626;;
+  }
+  
 }
