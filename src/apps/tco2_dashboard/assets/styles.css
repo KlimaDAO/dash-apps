@@ -26,11 +26,24 @@ h3 {
 
 h4 {
   color: var(--white);
-  margin-top: 0.1rem;
+  /* margin-top: 0.5rem; */
+}
+
+hr {
+  background-color: var(--gray);
+  width: 100%;
+  height: 0.15rem;
+  opacity: 100;
+  margin: 0rem;
+}
+
+hr:not([size]) {
+  height: 0.15rem;
 }
 
 a {
   color: var(--green);
+  text-decoration: none;
 }
 
 .card {
@@ -127,15 +140,20 @@ color: white;
 }
 
 .nav-pills a{
-  display: inline-block;
+  font-size: 14.5px;
+  line-height: 1.5rem;
+  font-weight: 500;
+  display: flex;
   box-sizing: border-box;
-  color: #9c9c9c;
-  text-align: center;
-  padding: 14px;
-  text-decoration: none;
-  /* font-size: 32px; */
+  align-items: center;
+  text-align: left;
+  color:#9c9c9c;
+  gap: 1rem;
+  padding: 0.4rem;
   border-radius: 0.8rem;
+  width: 100%;
 }
+
 
 /* Change the color of links on mouse-over */
 .nav-pills a:hover {
@@ -146,40 +164,23 @@ color: white;
 /* Add a color to the active/current link */
 .nav-pills .nav-link.active {
   background-color: var(--gray);
-  color: var(--green);
+  color: var(--white);
 }
 
-#sidebar {
-  text-align: center;
-  padding: 2rem 1rem;
-  background-color: var(--dark-gray);
-  font-size: 20;
-  /* width: 16rem; */
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .icon-container {
+  background-color: var(--green);
   color: white;
 }
 
-#sidebar h2 {
-  text-align: left;
-  margin-bottom: 0;
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .image-icons {
+    filter: grayscale(0%);
 }
 
-#logo_title {
-  display: block;
-}
-#sidebar_header {
-  display: none;
-}
-
-#collapse *:first-child {
-  margin-top: 1rem;
-}
-
-#static-content {
-  padding: 2rem 1rem;
-}
-
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(192, 192, 192, 0.3)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  /* Change the color of links on mouse-over */
+  .nav-pills .nav-link.active .moss-logo {
+    filter: grayscale(0%);
 }
 
 ._dash-loading {
@@ -216,51 +217,210 @@ color: white;
   font-style: italic;
 }
 
-@media (min-width: 48em) {
-  #sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 16rem;
-    background-color: var(--dark-gray);
-    text-align: left;
-  }
+.sidebar {
+  position: fixed;
+  padding: 1rem 2rem;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 20rem;
+  background-color: var(--dark-gray);
+  gap: 1.6rem;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-height: 100vh;
+  flex-direction: column;
+  height: 100%;
+  display: flex;
+}
 
-  #logo_title {
-    display: block;
-  }
+.sidebar_mobile{
+  display: none;
+}
 
-  #toggle {
+.toggler-row{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.klima-logo{
+  width: 180px;
+}
+
+.dashboard-title {
+  margin-bottom: 0rem;
+}
+
+.icon-container{
+  align-items: center;
+  justify-content: center;
+  margin-top: 0rem;
+  height: 2.8rem;
+  width: 2.8rem;
+  display: flex;
+  border-radius: 0.6rem;
+  background-color: #262626;;
+}
+
+.collapse offcanvas offcanvas-start show{
+  display: visible;
+}
+
+.material-icons {
+  font-size: 2rem;
+  color: white;
+}
+
+.image-icons{
+  filter: grayscale(100%);
+  width: 2rem;
+  height: 2rem;
+}
+
+.moss-logo{
+  filter: grayscale(100%);
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.icon-title{
+  width: 70%;
+}
+
+#logo_title {
+  display: block;
+}
+
+.klima-logo{
+  width: 250px;
+}
+
+#toggle {
+  display: none;
+}
+
+#sidebar_header {
+  display: block;
+}
+
+#collapse {
+  display: none;
+}
+
+#static-content {
+  margin-left: 23rem;
+  margin-right: 1rem;
+}
+
+/* dropdown menu options */
+.VirtualizedSelectOption {
+background-color: black;
+color: white;
+font-size: 12px;
+}
+.Select-value-label {
+  color: white !important;
+  background-color: black !important;
+  font-size: 12px;
+}
+
+#static-content {
+  padding: 2rem 0rem;
+}
+
+@media (max-width: 48em) {
+
+  #static-content {
+    margin-left: 0rem;
+    margin-right: 0rem;
+  }
+  .sidebar{
     display: none;
   }
 
-  #sidebar_header {
+  .sidebar_mobile{
     display: block;
   }
-  #collapse {
-    display: block !important;
-    overflow: visible !important;
+  
+  .offcanvas-body {
+    position: relative;
+    display: flex;
+    gap: 1.6rem;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-height: 100vh;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem 2rem;
   }
 
-  /* #collapse *:first-child {
-    margin-top: 0;
-  } */
-
-  #static-content {
-    margin-left: 18rem;
-    margin-right: 2rem;
+  .offcanvas {
+    background-color: var(--dark-gray);
+    font-size: 1.4rem;
+    color: white;
+    width: 72%;
   }
 
-  /* dropdown menu options */
-  .VirtualizedSelectOption {
-  background-color: black;
-  color: white;
-  font-size: 12px;
+  #collapse{
+    display: block;
   }
-  .Select-value-label {
-    color: white !important;
-    background-color: black !important;
+  
+  .nav-pills a{
     font-size: 12px;
   }
+
+  .navbar-toggler{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 3.2rem;
+    width: 3.2rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: var(--dark-gray);
+  }
+
+  #toggle {
+    display: flex;
+  }
+
+  .klima-logo{
+    width: 180px;
+  }
+  
+  .icon-container{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 2.8rem;
+    width: 2.8rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: #262626;;
+  }
+
+
+  .material-icons {
+    font-size: 2rem;
+    color: white;
+  }
+  
+  .image-icons{
+    filter: grayscale(100%);
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .offcanvas-header {
+    display: none;
+  }
+  
+  .logo_title {
+    display: block;
+  }
+  
+ 
 }
