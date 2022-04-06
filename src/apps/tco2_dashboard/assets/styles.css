@@ -217,6 +217,11 @@ color: white;
   font-style: italic;
 }
 
+#klima_retire_note{
+  font-style: italic;
+  font-size: 0.5rem;
+}
+
 .sidebar {
   position: fixed;
   padding: 1rem 2rem;

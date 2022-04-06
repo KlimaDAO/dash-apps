@@ -53,6 +53,5 @@ def create_onchain_pool_comp_content(token_cg_dict, df_prices, fig_historical_pr
                 ], className="card-graph")
             ], width=12),
         ]),
-
     ]
     return content
