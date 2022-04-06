@@ -479,6 +479,30 @@ def historical_prices(token_cg_dict, df_prices):
     return fig
 
 
+def pool_retired_chart(token_cg_dict, df_pool_retired):
+    fig = go.Figure()
+    for i in token_cg_dict.keys():
+        pool_address = token_cg_dict[i]['address']
+        filtered_df = df_pool_retired
+        filtered_df[f'Quantity_{i}'] = filtered_df['Quantity']
+        filtered_df.loc[filtered_df['Pool'] != pool_address, f'Quantity_{i}'] = 0
+        filtered_df = filtered_df.sort_values(by="Date", ascending=True)
+        filtered_df[f'Quantity_{i}'] = filtered_df[f'Quantity_{i}'].cumsum()
+        fig.add_trace(go.Scatter(x=filtered_df['Date'], y=filtered_df[f'Quantity_{i}'],
+                                 mode='lines',
+                                 name=i,
+                                 stackgroup='one'
+                                 )
+                      )
+    fig.update_layout(height=300, font=dict(color='white'),
+                      xaxis_title='Date', yaxis_title='Quantity',
+                      paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, xaxis=dict(
+                          showgrid=False), yaxis=dict(showgrid=False),
+                      margin=dict(t=20, b=20, l=0, r=0),
+                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12))
+    return fig
+
+
 def on_vs_off_vintage(df_verra, bridges_info_dict):
     df_verra_grouped = df_verra.groupby(
         'Vintage')['Quantity'].sum().to_frame().reset_index()

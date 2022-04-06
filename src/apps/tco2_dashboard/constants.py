@@ -4,7 +4,9 @@ GRAY = '#232B2B'
 DARK_GRAY = '#343a40'
 FIGURE_BG_COLOR = '#202020'
 MCO2_ADDRESS = '0xfC98e825A2264D890F9a1e68ed50E1526abCcacD'
+MCO2_ADDRESS_MATIC = '0xaa7dbd1598251f856c12f63557a4c4397c253cea'
 VERRA_FALLBACK_NOTE = "Note: Off-Chain Verra Registry data is not updated, we are temporarily using fallback data"
+KLIMA_RETIRED_NOTE = "Note: This only includes Retired Tonnes coming through the KlimaDAO retirement aggregator tool"
 VERRA_FALLBACK_URL = 'https://prod-klimadao-data.nyc3.digitaloceanspaces.com/verra_registry_fallback_data.csv'
 
 rename_map = {
@@ -47,6 +49,12 @@ deposits_rename_map = {
     'deposits_timestamp': 'Date',
     'deposits_pool': 'Pool',
     'deposits_offset_region': 'Region',
+}
+
+pool_retires_rename_map = {
+    'klimaRetires_amount': 'Quantity',
+    'klimaRetires_timestamp': 'Date',
+    'klimaRetires_pool': 'Pool',
 }
 
 verra_rename_map = {

@@ -29,7 +29,7 @@ def drop_duplicates(df):
     return df
 
 
-def date_manipulations(df, bridge):
+def date_manipulations(df):
     if "Vintage" in df.columns:
         df["Vintage"] = pd.to_datetime(
             df["Vintage"], unit='s').dt.tz_localize(None).dt.year
@@ -48,8 +48,6 @@ def date_manipulations(df, bridge):
     for i in df.columns:
         if i in qty_lst:
             df[i] = df[i].fillna(0)
-        elif i == "Bridge":
-            df["Bridge"] = df["Bridge"].fillna(bridge)
         else:
             df[i] = df[i].fillna("missing")
             df[i] = df[i].replace("", "missing")
@@ -114,7 +112,8 @@ def subsets(df):
 
 
 def filter_df_by_pool(df, pool_address):
-    df = df[df["Pool"] == pool_address].reset_index()
+    df["Pool"] = df["Pool"].str.lower()
+    df = df[(df["Pool"] == pool_address)].reset_index()
     return df
 
 

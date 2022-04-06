@@ -13,7 +13,7 @@ from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart,\
     historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
-from .figures_carbon_pool import deposited_over_time, redeemed_over_time
+from .figures_carbon_pool import deposited_over_time, redeemed_over_time, retired_over_time
 from .offchain_vs_onchain import create_offchain_vs_onchain_content
 from .onchain_pool_comp import create_onchain_pool_comp_content
 from .tco2 import create_content_toucan
@@ -23,12 +23,12 @@ from .helpers import date_manipulations, filter_pool_quantity, region_manipulati
     subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
     merge_verra, verra_manipulations, mco2_verra_manipulations, read_csv
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
-    redeems_rename_map, BCT_ADDRESS, \
+    redeems_rename_map, pool_retires_rename_map, BCT_ADDRESS, \
     verra_rename_map, merge_columns, mco2_verra_rename_map, MCO2_ADDRESS, verra_columns, \
-    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS
+    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS, KLIMA_RETIRED_NOTE
 
 CACHE_TIMEOUT = 86400
-CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon'
+CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon'
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
@@ -129,6 +129,24 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
+def get_data_pool_retired():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+
+    klimaretires = carbon_data.Query.klimaRetires(
+        first=MAX_RECORDS
+    )
+
+    df_pool_retired = sg.query_df([
+        klimaretires.timestamp,
+        klimaretires.pool,
+        klimaretires.amount,
+    ])
+
+    return df_pool_retired
+
+
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -190,6 +208,7 @@ def get_prices():
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
+    df_pool_retired = get_data_pool_retired()
     df_verra, verra_fallback_note = get_verra_data()
     df_verra, df_verra_toucan = verra_manipulations(df_verra)
     df_mco2_bridged = read_csv('mco2_verra_data.csv')
@@ -205,15 +224,15 @@ def generate_layout():
     # merge Verra Data
     df = merge_verra(df, df_verra_toucan, merge_columns)
     df_retired = merge_verra(df_retired, df_verra, merge_columns)
-    # datetime manipulations
-    df = date_manipulations(df, "Toucan")
-    df_retired = date_manipulations(df_retired, "Toucan")
-    # Blacklist manipulations
-    # df = black_list_manipulations(df)
-    # df_retired = black_list_manipulations(df_retired)
     # Bridge manipulations
     df = bridge_manipulations(df, "Toucan")
     df_retired = bridge_manipulations(df_retired, "Toucan")
+    # datetime manipulations
+    df = date_manipulations(df)
+    df_retired = date_manipulations(df_retired)
+    # Blacklist manipulations
+    # df = black_list_manipulations(df)
+    # df_retired = black_list_manipulations(df_retired)
     # Region manipulations
     df = region_manipulations(df)
     df_retired = region_manipulations(df_retired)
@@ -339,47 +358,54 @@ def generate_layout():
     # rename_columns
     df_deposited = df_deposited.rename(columns=deposits_rename_map)
     df_redeemed = df_redeemed.rename(columns=redeems_rename_map)
-    # datetime manipulations
-    df_deposited = date_manipulations(df_deposited, "")
-    df_redeemed = date_manipulations(df_redeemed, "")
+
     # Blacklist manipulations
     # df_deposited = black_list_manipulations(df_deposited)
     # df_redeemed = black_list_manipulations(df_redeemed)
 
+    # rename_columns
+    df_pool_retired = df_pool_retired.rename(columns=pool_retires_rename_map)
+    # datetime manipulations
+    df_pool_retired = date_manipulations(df_pool_retired)
     # --BCT---
 
     # Carbon pool filter
-    bct_deposited, bct_redeemed = filter_carbon_pool(
-        BCT_ADDRESS, df_deposited, df_redeemed
+    bct_deposited, bct_redeemed, bct_retired = filter_carbon_pool(
+        BCT_ADDRESS, df_deposited, df_redeemed, df_pool_retired
     )
+    bct_deposited = date_manipulations(bct_deposited)
+    bct_redeemed = date_manipulations(bct_redeemed)
     bct_carbon = filter_pool_quantity(df_carbon, "BCT Quantity")
 
     # BCT Figures
     fig_deposited_over_time = deposited_over_time(bct_deposited)
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
+    fig_retired_over_time = retired_over_time(BCT_ADDRESS, 'BCT', df_pool_retired)
 
     content_bct = create_pool_content(
-        "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time)
+        "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_retired, bct_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
 
     cache.set("content_bct", content_bct)
 
     # --NCT--
 
     # Carbon pool filter
-    nct_deposited, nct_redeemed = filter_carbon_pool(
-        NCT_ADDRESS, df_deposited, df_redeemed
+    nct_deposited, nct_redeemed, nct_retired = filter_carbon_pool(
+        NCT_ADDRESS, df_deposited, df_redeemed, df_pool_retired
     )
-
+    nct_deposited = date_manipulations(nct_deposited)
+    nct_redeemed = date_manipulations(nct_redeemed)
     nct_carbon = filter_pool_quantity(df_carbon, "NCT Quantity")
 
     # NCT Figures
     fig_deposited_over_time = deposited_over_time(nct_deposited)
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
+    fig_retired_over_time = retired_over_time(NCT_ADDRESS, 'NCT', df_pool_retired)
 
     content_nct = create_pool_content(
-        "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time)
+        "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_retired, nct_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
 
     cache.set("content_nct", content_nct)
 
@@ -398,7 +424,6 @@ def generate_layout():
                  'Dataframe': df_mco2_bridged}
     }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
-    fig_historical_prices = historical_prices(token_cg_dict, df_prices)
     fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
     fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
     fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
@@ -412,6 +437,7 @@ def generate_layout():
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # --- onchain carbon pool comparison ---
+    fig_historical_prices = historical_prices(token_cg_dict, df_prices)
     content_onchain_pool_comp = create_onchain_pool_comp_content(
         token_cg_dict, df_prices, fig_historical_prices)
     cache.set("content_onchain_pool_comp", content_onchain_pool_comp)

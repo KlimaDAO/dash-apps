@@ -46,6 +46,10 @@ a {
   text-decoration: none;
 }
 
+.card-body{
+  padding-bottom: 0px;
+}
+
 .card {
   background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
@@ -55,6 +59,18 @@ a {
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
+}
+
+.card-pool-summary {
+  background: var(--dark-gray);
+  /* border: 2px solid #00CC33; */
+  box-sizing: border-box;
+  border-radius: 15px;
+  color: var(--white);
+  padding: 20px;
+  margin: 10px 10px 10px 10px;
+  padding-top: 20px;
+  height: 200px;
 }
 
 .card-title{
@@ -82,7 +98,7 @@ a {
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
-  height: 400px;
+  height: 450px;
 }
 
 .column-header-name {
@@ -215,6 +231,12 @@ color: white;
 
 #fallback_indicator{
   font-style: italic;
+}
+
+#klima_retire_note{
+  font-style: italic;
+  font-size: 0.7rem;
+  padding: 0px;
 }
 
 .sidebar {
