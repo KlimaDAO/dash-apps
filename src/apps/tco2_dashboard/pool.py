@@ -22,22 +22,22 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                         f"Cumulative Tonnes of {bridge_ticker} Deposited", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(deposited["Quantity"].sum())), className="card-text")
-                ]), lg=4, md=12),
+                ], className="card-pool-summary"), lg=4, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5(
                         f"Cumulative Tonnes of {bridge_ticker} Redeemed", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(redeemed["Quantity"].sum())), className="card-text")
-                ]), lg=4, md=12),
+                ], className="card-pool-summary"), lg=4, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5(
-                        f"Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
+                        f"Cumulative Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
                     dbc.CardBody("{:,}".format(
                         int(retired["Quantity"].sum())), className="card-text"),
                     dbc.CardFooter(retire_note, id="klima_retire_note")
-                ]), lg=4, md=12),
+                ], className="card-pool-summary"), lg=4, md=12),
         ], style={'paddingTop': '60px'}),
         dbc.Row([
             dbc.Col([
@@ -56,11 +56,11 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                     ], lg=4, md=12),
             dbc.Col([
                     dbc.Card([
-                        html.H5(f"Tonnes Retired from {pool_ticker} Over Time",
+                        html.H5(f"Cumulative Tonnes Retired from {pool_ticker} Over Time",
                                 className="card-title"),
                         dbc.CardBody(dcc.Graph(figure=fig_retired_over_time)),
                         dbc.CardFooter(retire_note, id="klima_retire_note")
-                    ]),
+                    ], className="card-graph")
                     ], lg=4, md=12)
         ]),
         dbc.Row([
