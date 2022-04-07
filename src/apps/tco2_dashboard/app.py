@@ -1,4 +1,6 @@
 from datetime import datetime
+import os
+
 import dash_bootstrap_components as dbc
 import dash
 from dash import html, Input, Output, callback, State
@@ -34,11 +36,20 @@ PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
     'href': "https://fonts.googleapis.com/icon?family=Material+Icons", 'rel': "stylesheet"}
 
+# Configure plausible.io tracking script
+external_scripts = [
+    {
+        'src': 'https://plausible.io/js/script.js',
+        'data-domain': 'carbon.klimadao.finance'
+    }
+] if os.environ.get('ENV') == 'Production' else []
+
 app = dash.Dash(
     __name__,
     title="KlimaDAO Tokenized Carbon Dashboard | Beta",
     suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.BOOTSTRAP, GOOGLE_API_ICONS],
+    external_scripts=external_scripts,
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"}
     ]
