@@ -5,6 +5,9 @@ domains:
 - domain: carbon.klimadao.finance
   type: PRIMARY
 envs:
+  - key: ENV
+    scope: RUN_TIME
+    value: ${ENV}
   - key: POLYGONSCAN_API_KEY
     scope: RUN_AND_BUILD_TIME
     type: SECRET
