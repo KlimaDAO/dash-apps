@@ -180,15 +180,19 @@ def get_verra_data():
     return df_verra, fallback_note
 
 
-web3 = get_eth_web3()
+web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
 
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
-    mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
-    decimals = 10 ** mco2_contract.functions.decimals().call()
-    total_supply = mco2_contract.functions.totalSupply().call() // decimals
-    return total_supply
+    if web3 is not None:
+        mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
+        decimals = 10 ** mco2_contract.functions.decimals().call()
+        total_supply = mco2_contract.functions.totalSupply().call() // decimals
+        return total_supply
+    else:
+        # If web3 is not connected, just return an invalid value
+        return -1
 
 
 cg = CoinGeckoAPI()
