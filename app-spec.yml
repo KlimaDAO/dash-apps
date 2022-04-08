@@ -26,8 +26,11 @@ services:
       tag: ${GITHUB_SHA}
     health_check:
       http_path: /
-      initial_delay_seconds: 30
+      initial_delay_seconds: 60
       timeout_seconds: 600
+      period_seconds: 20
+      success_threshold: 1
+      failure_threshold: 20
     http_port: 8050
     routes:
       - path: /
