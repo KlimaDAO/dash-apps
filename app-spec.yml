@@ -4,6 +4,7 @@ alerts:
 domains:
 - domain: carbon.klimadao.finance
   type: PRIMARY
+  minimum_tls_version: "1.2"
 envs:
   - key: ENV
     scope: RUN_TIME
