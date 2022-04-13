@@ -15,6 +15,7 @@ def deposited_over_time(df):
 
 
 def redeemed_over_time(df):
+    # if not(df.empty):
     df = df.sort_values(by="Date", ascending=True)
     df["Quantity"] = df["Quantity"].cumsum()
     fig = px.area(df, x="Date", y="Quantity")
@@ -22,6 +23,12 @@ def redeemed_over_time(df):
                       xaxis=dict(showgrid=False), yaxis=dict(showgrid=False), hovermode='x unified',
                       hoverlabel=dict(font_color='white', font_size=12), font_size=8,
                       margin=dict(t=0, b=0, l=0, r=0))
+    # else:
+    #     fig = go.Figure()
+    #     fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
+    #                       xaxis=dict(visible=False), yaxis=dict(visible=False),
+    #                       annotations=[dict(text="There haven't been any<br>redemption events",
+    #                                         font=dict(color='white'), showarrow=False)])
     return fig
 
 

@@ -115,8 +115,8 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
 
 
 def map(df, zero_evt_text):
-    df = df[df["Country"] != "missing"].reset_index(drop=True)
     if not(df.empty):
+        df = df[df["Country"] != "missing"].reset_index(drop=True)
         country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
                                     0].alpha_3 for country in df.Country.astype(str).unique() if country != 'nan'})
         country_volumes = df.groupby('Country')['Quantity'].sum(
@@ -306,12 +306,11 @@ def project_volume_mco2(df, zero_evt_text):
     return fig
 
 
-def pool_pie_chart(df):
-    labels = ['BCT', 'NCT', 'Not Pooled']
-    BCT = df['BCT Quantity'].sum()
-    NCT = df['NCT Quantity'].sum()
-    TCO2 = df['Total Quantity'].sum()-BCT-NCT
-    values = [BCT, NCT, TCO2]
+def pool_pie_chart(df, labels):
+    values = [df[f'{i} Quantity'].sum() for i in labels]
+    not_pool_qty = df['Total Quantity'].sum()-sum(values)
+    values = values + [not_pool_qty]
+    labels = labels + ['Not Pooled']
     fig = go.Figure()
     fig.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
         color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
