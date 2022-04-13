@@ -170,6 +170,9 @@ color: white;
   width: 100%;
 }
 
+.nav-pills .nav-link {
+  border-radius: 0.4rem;
+}
 
 /* Change the color of links on mouse-over */
 .nav-pills a:hover {
@@ -280,10 +283,10 @@ color: white;
   align-items: center;
   justify-content: center;
   margin-top: 0rem;
-  height: 2.8rem;
-  width: 2.8rem;
+  height: 38px;
+  width: 38px;
   display: flex;
-  border-radius: 0.6rem;
+  border-radius: 0.4rem;
   background-color: #262626;;
 }
 
@@ -292,20 +295,20 @@ color: white;
 }
 
 .material-icons {
-  font-size: 2rem;
+  font-size: 20px;
   color: white;
 }
 
 .image-icons{
   filter: grayscale(100%);
-  width: 2rem;
-  height: 2rem;
+  width: 20px;
+  height: 20px;
 }
 
 .moss-logo{
   filter: grayscale(100%);
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 23px;
+  height: 23px;
 }
 
 .icon-title{
@@ -333,7 +336,7 @@ color: white;
 }
 
 #static-content {
-  margin-left: 23rem;
+  margin-left: 21rem;
   margin-right: 1rem;
 }
 
@@ -412,30 +415,7 @@ font-size: 12px;
   .klima-logo{
     width: 180px;
   }
-  
-  .icon-container{
-    align-items: center;
-    justify-content: center;
-    margin-top: 0rem;
-    height: 2.8rem;
-    width: 2.8rem;
-    display: flex;
-    border-radius: 0.6rem;
-    background-color: #262626;;
-  }
-
-
-  .material-icons {
-    font-size: 2rem;
-    color: white;
-  }
-  
-  .image-icons{
-    filter: grayscale(100%);
-    width: 2rem;
-    height: 2rem;
-  }
-  
+    
   .offcanvas-header {
     display: none;
   }

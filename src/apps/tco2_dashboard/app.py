@@ -65,7 +65,6 @@ cache = Cache(app.server, config={
 })
 
 
-@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -121,7 +120,6 @@ def get_data():
     return df_bridged, df_retired
 
 
-@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -152,7 +150,6 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize()
 def get_data_pool_retired():
 
     sg = Subgrounds()
@@ -171,7 +168,6 @@ def get_data_pool_retired():
     return df_pool_retired
 
 
-@cache.memoize()
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -197,7 +193,6 @@ def get_verra_data():
 web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
 
-@cache.memoize()
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
     if web3 is not None:
@@ -218,7 +213,6 @@ token_cg_dict = {
 }
 
 
-@cache.memoize()
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -235,7 +229,7 @@ def get_prices():
     return df_prices
 
 
-# @cache.memoize()
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -352,11 +346,13 @@ def generate_layout():
     fig_seven_day_tc = [fig_seven_day_volume_tc, fig_seven_day_vintage_tc,
                         fig_seven_day_map_tc, fig_seven_day_metho_tc, fig_seven_day_project_tc]
     fig_seven_day_retired_tc = [fig_seven_day_volume_retired_tc, fig_seven_day_vintage_retired_tc,
-                                fig_seven_day_map_retired_tc, fig_seven_day_metho_retired_tc, fig_seven_day_project_retired_tc]
+                                fig_seven_day_map_retired_tc, fig_seven_day_metho_retired_tc,
+                                fig_seven_day_project_retired_tc]
     fig_thirty_day_tc = [fig_thirty_day_volume_tc, fig_thirty_day_vintage_tc,
                          fig_thirty_day_map_tc, fig_thirty_day_metho_tc, fig_thirty_day_project_tc]
     fig_thirty_day_retired_tc = [fig_thirty_day_volume_retired_tc, fig_thirty_day_vintage_retired_tc,
-                                 fig_thirty_day_map_retired_tc, fig_thirty_day_metho_retired_tc, fig_thirty_day_project_retired_tc]
+                                 fig_thirty_day_map_retired_tc, fig_thirty_day_metho_retired_tc,
+                                 fig_thirty_day_project_retired_tc]
     fig_total_tc = [fig_total_volume_tc, fig_total_vintage_tc,
                     fig_total_map_tc, fig_total_metho_tc, fig_total_project_tc]
     fig_total_retired_tc = [fig_total_volume_retired_tc, fig_total_vintage_retired_tc,
@@ -468,11 +464,13 @@ def generate_layout():
     fig_seven_day_c3t = [fig_seven_day_volume_c3t, fig_seven_day_vintage_c3t,
                          fig_seven_day_map_c3t, fig_seven_day_metho_c3t, fig_seven_day_project_c3t]
     fig_seven_day_retired_c3t = [fig_seven_day_volume_retired_c3t, fig_seven_day_vintage_retired_c3t,
-                                 fig_seven_day_map_retired_c3t, fig_seven_day_metho_retired_c3t, fig_seven_day_project_retired_c3t]
+                                 fig_seven_day_map_retired_c3t, fig_seven_day_metho_retired_c3t,
+                                 fig_seven_day_project_retired_c3t]
     fig_thirty_day_c3t = [fig_thirty_day_volume_c3t, fig_thirty_day_vintage_c3t,
                           fig_thirty_day_map_c3t, fig_thirty_day_metho_c3t, fig_thirty_day_project_c3t]
     fig_thirty_day_retired_c3t = [fig_thirty_day_volume_retired_c3t, fig_thirty_day_vintage_retired_c3t,
-                                  fig_thirty_day_map_retired_c3t, fig_thirty_day_metho_retired_c3t, fig_thirty_day_project_retired_c3t]
+                                  fig_thirty_day_map_retired_c3t, fig_thirty_day_metho_retired_c3t,
+                                  fig_thirty_day_project_retired_c3t]
     fig_total_c3t = [fig_total_volume_c3t, fig_total_vintage_c3t,
                      fig_total_map_c3t, fig_total_metho_c3t, fig_total_project_c3t]
     fig_total_retired_c3t = [fig_total_volume_retired_c3t, fig_total_vintage_retired_c3t,
@@ -710,7 +708,7 @@ def generate_layout():
                     dbc.NavLink([
                         html.Div(
                             html.Img(src='assets/BCT-Logo.png',
-                                     className="image-icons"),
+                                     className="moss-logo"),
                             className='icon-container'),
                         html.Span(
                             "BCT Pool")
@@ -719,7 +717,7 @@ def generate_layout():
                     dbc.NavLink([
                         html.Div(
                             html.Img(src='assets/NCT-Logo.png',
-                                     className="image-icons"),
+                                     className="moss-logo"),
                             className='icon-container'),
                         html.Span(
                             "NCT Pool")
@@ -773,7 +771,7 @@ def generate_layout():
                 ],
                 vertical=True,
                 pills=True,
-                style={'gap': '1rem'}
+                style={'gap': '0.5rem'}
             )],
         className="sidebar",
     )
@@ -824,7 +822,7 @@ def generate_layout():
                             dbc.NavLink([
                                 html.Div(
                                     html.Img(src='assets/BCT-Logo.png',
-                                             className="image-icons"),
+                                             className="moss-logo"),
                                     className='icon-container'),
                                 html.Span(
                                     "BCT Pool")
@@ -834,7 +832,7 @@ def generate_layout():
                             dbc.NavLink([
                                 html.Div(
                                     html.Img(src='assets/NCT-Logo.png',
-                                             className="image-icons"),
+                                             className="moss-logo"),
                                     className='icon-container'),
                                 html.Span(
                                     "NCT Pool")
@@ -891,7 +889,7 @@ def generate_layout():
                         ],
                         vertical=True,
                         pills=True,
-                        style={'gap': '1rem'}
+                        style={'gap': '0.5rem'}
                         )],
                 id="collapse",
                 className="collapse",
@@ -931,7 +929,7 @@ app.layout = generate_layout
     Input(component_id='summary_type', component_property='value'),
     Input(component_id='bridged_or_retired', component_property='value')
 )
-def update_output_div(summary_type, TCO2_type):
+def update_output_div_tc(summary_type, TCO2_type):
     if summary_type == 'Last 7 Days Performance':
         if TCO2_type == 'Bridged':
             fig_seven_day = cache.get("fig_seven_day_tc")
@@ -973,7 +971,7 @@ def update_output_div(summary_type, TCO2_type):
     Input(component_id='summary_type_c3t', component_property='value'),
     Input(component_id='bridged_or_retired_c3t', component_property='value')
 )
-def update_output_div(summary_type, C3T_type):
+def update_output_div_c3(summary_type, C3T_type):
     if summary_type == 'Last 7 Days Performance':
         if C3T_type == 'Bridged':
             fig_seven_day = cache.get("fig_seven_day_c3t")
