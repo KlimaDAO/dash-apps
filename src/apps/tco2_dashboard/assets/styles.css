@@ -50,6 +50,10 @@ a {
   padding-bottom: 0px;
 }
 
+.card-header {
+  border-bottom: 0px;
+}
+
 .card {
   background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
@@ -59,6 +63,7 @@ a {
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
+  border: 0px;
 }
 
 .card-pool-summary {
@@ -74,7 +79,7 @@ a {
 }
 
 .card-title{
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .card-text{
@@ -83,6 +88,10 @@ a {
   justify-content: center;
 }
 
+.card-text.card-body{
+  padding-right: 0px;
+  padding-left: 0px;
+}
 
 .page-title {
   margin: 5px 5px 5px 5px;
@@ -226,9 +235,8 @@ color: white;
 }
 
 #lastupdated_indictor{
-  font-style: italic;
   font-size: x-small;
-  color: white;
+  color: #9c9c9c;
   text-align: right;
 }
 
@@ -354,6 +362,11 @@ font-size: 12px;
 
 #static-content {
   padding: 2rem 0rem;
+}
+
+p {
+  padding: 0.4rem;
+  margin-bottom: 0rem;
 }
 
 @media (max-width: 48em) {

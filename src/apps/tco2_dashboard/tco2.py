@@ -39,7 +39,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                     html.H5("Breakdown of TCO2 Pooled",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_pool_pie_chart))
-                ], className="card-graph")
+                ])
             ], width=12),
             # TODO: add methodology filter for NCT before re-enabling
             # dbc.Col([

@@ -47,10 +47,10 @@ def create_onchain_pool_comp_content(token_cg_dict, df_prices, fig_historical_pr
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5("Historical Price Chart",
+                    html.H5("Historical Price",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_historical_prices))
-                ], className="card-graph")
+                ])
             ], width=12),
         ]),
     ]

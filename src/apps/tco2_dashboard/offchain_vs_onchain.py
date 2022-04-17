@@ -59,7 +59,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
                     html.H5("Breakdown of Tokenized Credits by Bridges",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_bridges_pie_chart))
-                ], className="card-graph")
+                ])
             ], width=12),
         ]),
         dbc.Row([
@@ -68,7 +68,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
                     html.H5("Credits Tokenized vs. Credits Issued by Vintage Start Dates",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_on_vs_off_vintage))
-                ], className="card-graph")
+                ])
             ], width=12),
         ]),
         dbc.Row([
@@ -77,7 +77,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
                     html.H5("Credits Tokenized vs. Credits Issued by Origin",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_on_vs_off_map))
-                ], className="card-graph")
+                ])
             ], width=12),
         ]),
         dbc.Row([
@@ -86,7 +86,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
                     html.H5("Credits Tokenized vs. Credits Issued by Project Type",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_on_vs_off_project))
-                ], className="card-graph")
+                ])
             ], width=12),
         ]),
     ]
