@@ -228,7 +228,7 @@ def get_prices():
         df_prices = df_prices.sort_values(by='Date', ascending=False)
     return df_prices
 
-cache.clear()
+
 @cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
