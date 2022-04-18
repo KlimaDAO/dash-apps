@@ -26,7 +26,7 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
                 mode="number+delta",
                 value=sum(df['Quantity']),
                 title=dict(text=title_indicator, font=dict(size=12)),
-                number=dict(suffix=" tCO2", font=dict(size=24)),
+                number=dict(suffix="", font=dict(size=24)),
                 delta={'position': "bottom", 'reference': sum(
                     last_df['Quantity']), 'relative': True, 'valueformat': '.1%'},
                 domain={'x': [0.25, .75], 'y': [0.6, 1]}))
@@ -35,7 +35,7 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
                 mode="number",
                 value=sum(df['Quantity']),
                 title=dict(text=title_indicator, font=dict(size=12)),
-                number=dict(suffix=" tCO2", font=dict(size=24)),
+                number=dict(suffix="", font=dict(size=24)),
                 domain={'x': [0.25, .75], 'y': [0.6, 1]}))
 
         add_px_figure(
@@ -51,7 +51,7 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                           xaxis=dict(title_text="Date", showgrid=False),
                           yaxis=dict(title_text="Volume", showgrid=False), font_size=12,
-                          hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12),)
+                          hovermode='x unified', hoverlabel=dict(font_color='white', font_size=8),)
     else:
         fig = go.Figure()
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
@@ -104,7 +104,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                           xaxis=dict(title_text="Vintage", showgrid=False),
                           yaxis=dict(title_text="Volume", showgrid=False), font_size=12, hovermode='x unified',
-                          hoverlabel=dict(font_color='white', font_size=12))
+                          hoverlabel=dict(font_color='white', font_size=8))
     else:
         fig = go.Figure()
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
@@ -136,7 +136,7 @@ def map(df, zero_evt_text):
                                                landcolor='darkgrey',
                                                subunitcolor='grey'),
                           font_color='white', dragmode=False, paper_bgcolor=FIGURE_BG_COLOR,  hovermode='x unified',
-                          hoverlabel=dict(font_color='white', font_size=12), font_size=8,
+                          hoverlabel=dict(font_color='white', font_size=8), font_size=8,
                           margin=dict(t=50, b=0, l=0, r=0),
                           coloraxis_colorbar=dict(thickness=10, len=0.6))
     else:
@@ -164,7 +164,7 @@ def total_volume(df, title, zero_evt_text):
             mode="number",
             value=sum(df['Quantity']),
             title=dict(text=title, font=dict(size=12)),
-            number=dict(suffix=" tCO2", font=dict(size=24)),
+            number=dict(suffix="", font=dict(size=24)),
             domain={'x': [0.25, .75], 'y': [0.6, 1]}))
 
         add_px_figure(
@@ -180,7 +180,7 @@ def total_volume(df, title, zero_evt_text):
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                           xaxis=dict(title_text="Date", showgrid=False),
                           yaxis=dict(title_text="Volume", showgrid=False),  hovermode='x unified',
-                          hoverlabel=dict(font_color='white', font_size=12), font_size=12)
+                          hoverlabel=dict(font_color='white', font_size=8), font_size=12)
     else:
         fig = go.Figure()
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
@@ -225,7 +225,7 @@ def total_vintage(df, zero_evt_text):
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                           xaxis=dict(title_text="Vintage", showgrid=False),
                           yaxis=dict(title_text="Volume", showgrid=False),  hovermode='x unified',
-                          hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                          hoverlabel=dict(font_color='white', font_size=8), font_size=12,
                           )
     else:
         fig = go.Figure()
@@ -250,7 +250,7 @@ def methodology_volume(df, zero_evt_text):
         fig.update_layout(height=360, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                           xaxis=dict(showgrid=False),
                           yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                          hoverlabel=dict(font_color='white', font_size=12), font_size=8,
+                          hoverlabel=dict(font_color='white', font_size=8), font_size=8,
                           margin=dict(t=50, b=0, l=0, r=0))
     else:
         fig = go.Figure()
@@ -274,7 +274,7 @@ def project_volume(df, zero_evt_text):
                                                     '%{percentEntry} of Entry', '%{percentRoot} of Root']))
         fig.update_layout(paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, font=dict(color='white'),
                           hoverlabel=dict(font_color='white', font_size=8), font_size=12,
-                          margin=dict(t=20, b=20, l=0, r=0))
+                          margin=dict(t=50, b=20, l=0, r=0))
     else:
         fig = go.Figure()
         fig.update_layout(height=300, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
@@ -314,7 +314,7 @@ def pool_pie_chart(df, labels):
     labels = labels + ['Not Pooled']
     fig = go.Figure()
     fig.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
-        color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
+        color='white', size=12), hoverlabel=dict(font_color='white', font_size=8), hole=.3))
     fig.update_layout(height=360,
                       paper_bgcolor=FIGURE_BG_COLOR, font_color='white', font_size=8,
                       margin=dict(t=50, b=0, l=0, r=0),
@@ -350,7 +350,7 @@ def eligible_pool_pie_chart(df, pool_key):
     values = [BCT, Non_BCT]
     fig_eligible = go.Figure()
     fig_eligible.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
-        color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
+        color='white', size=12), hoverlabel=dict(font_color='white', font_size=8), hole=.3))
     fig_eligible.update_traces(marker=dict(colors=['red', 'green']))
 
     fig_eligible.update_layout(height=300,
@@ -380,7 +380,7 @@ def verra_vintage(df_verra, df_verra_toucan):
     fig.update_layout(height=360, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                      hoverlabel=dict(font_color='white', font_size=12), font_size=12,
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
                       legend=dict(title="", orientation="h", yanchor="bottom",
                                   y=1.02, xanchor="right", x=1
                                   ))
@@ -475,7 +475,7 @@ def historical_prices(token_cg_dict, df_prices):
                       paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, xaxis=dict(
                           showgrid=False), yaxis=dict(showgrid=False),
                       margin=dict(t=50, b=20, l=0, r=0),
-                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12))
+                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=8))
     return fig
 
 
@@ -499,7 +499,7 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
                       paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, xaxis=dict(
                           showgrid=False), yaxis=dict(showgrid=False),
                       margin=dict(t=20, b=20, l=0, r=0),
-                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=12))
+                      hovermode='x unified', hoverlabel=dict(font_color='white', font_size=8))
     return fig
 
 
@@ -536,7 +536,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
     fig.update_layout(height=360, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
                       xaxis=dict(showgrid=False),
                       yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
-                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=8,
                       legend=dict(title="", orientation="h", yanchor="bottom",
                                   y=1.02, xanchor="right", x=1
                                   ),

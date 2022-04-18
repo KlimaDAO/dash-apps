@@ -64,7 +64,7 @@ cache = Cache(app.server, config={
     'CACHE_DEFAULT_TIMEOUT': CACHE_TIMEOUT
 })
 
-@cache.memoize()
+
 def get_data():
 
     sg = Subgrounds()
@@ -119,7 +119,7 @@ def get_data():
 
     return df_bridged, df_retired
 
-@cache.memoize()
+
 def get_data_pool():
 
     sg = Subgrounds()
@@ -149,7 +149,7 @@ def get_data_pool():
 
     return df_deposited, df_redeemed
 
-@cache.memoize()
+
 def get_data_pool_retired():
 
     sg = Subgrounds()
@@ -167,7 +167,7 @@ def get_data_pool_retired():
 
     return df_pool_retired
 
-@cache.memoize()
+
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -192,7 +192,7 @@ def get_verra_data():
 
 web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
-@cache.memoize()
+
 def get_mco2_contract_data():
     ERC20_ABI = load_abi('erc20.json')
     if web3 is not None:
@@ -212,7 +212,7 @@ token_cg_dict = {
     'MCO2': {'address': MCO2_ADDRESS, 'id': 'ethereum', 'Full Name': 'Moss Carbon Credit'},
 }
 
-@cache.memoize()
+
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -228,8 +228,8 @@ def get_prices():
         df_prices = df_prices.sort_values(by='Date', ascending=False)
     return df_prices
 
-
-# @cache.memoize()
+cache.clear()
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -535,10 +535,19 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
     fig_retired_over_time = retired_over_time(
         BCT_ADDRESS, 'BCT', df_pool_retired)
+    zero_bridging_evt_text = "The BCT Pool is empty"
+    fig_bct_total_vintage = total_vintage(
+        bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_map = map(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_metho = methodology_volume(
+        bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_project = project_volume(
+        bct_carbon, zero_bridging_evt_text)
 
     content_bct = create_pool_content(
         "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_retired, bct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, fig_bct_total_vintage,
+        fig_bct_total_map, fig_bct_total_metho, fig_bct_total_project, KLIMA_RETIRED_NOTE)
 
     cache.set("content_bct", content_bct)
 
@@ -557,16 +566,27 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
     fig_retired_over_time = retired_over_time(
         NCT_ADDRESS, 'NCT', df_pool_retired)
+    zero_bridging_evt_text = "The NCT Pool is empty"
+    fig_nct_total_vintage = total_vintage(
+        nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_map = map(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_metho = methodology_volume(
+        nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_project = project_volume(
+        nct_carbon, zero_bridging_evt_text)
 
     content_nct = create_pool_content(
         "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_retired, nct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, fig_nct_total_vintage,
+        fig_nct_total_map, fig_nct_total_metho, fig_nct_total_project, KLIMA_RETIRED_NOTE)
 
     cache.set("content_nct", content_nct)
 
     # --UBO---
 
     # Carbon pool filter
+    df_carbon_c3t["Project ID"] = 'VCS-' + \
+        df_carbon_c3t["Project ID"].astype(str)
     ubo_deposited, ubo_redeemed = filter_carbon_pool(
         UBO_ADDRESS, df_deposited, df_redeemed
     )
@@ -574,13 +594,22 @@ def generate_layout():
     ubo_redeemed = date_manipulations(ubo_redeemed)
     ubo_carbon = filter_pool_quantity(df_carbon_c3t, "UBO Quantity")
 
-    # BCT Figures
+    # UBO Figures
     fig_deposited_over_time = deposited_over_time(ubo_deposited)
     fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
+    zero_bridging_evt_text = "The UBO Pool is empty"
+    fig_ubo_total_vintage = total_vintage(
+        ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_map = map(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_metho = methodology_volume(
+        ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_project = project_volume(
+        ubo_carbon, zero_bridging_evt_text)
 
     content_ubo = create_pool_content(
         "UBO", "Universal Base Offset", ubo_deposited, ubo_redeemed, None, ubo_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, None, KLIMA_RETIRED_NOTE,
+        fig_deposited_over_time, fig_redeemed_over_time, None, fig_ubo_total_vintage,
+        fig_ubo_total_map, fig_ubo_total_metho, fig_ubo_total_project, KLIMA_RETIRED_NOTE,
         bridge_name="C3", bridge_ticker="C3T")
 
     cache.set("content_ubo", content_ubo)
@@ -593,15 +622,24 @@ def generate_layout():
     )
     nbo_deposited = date_manipulations(nbo_deposited)
     nbo_redeemed = date_manipulations(nbo_redeemed)
-    nbo_carbon = filter_pool_quantity(df_carbon_c3t, "UBO Quantity")
+    nbo_carbon = filter_pool_quantity(df_carbon_c3t, "NBO Quantity")
 
-    # BCT Figures
+    # NBO Figures
     fig_deposited_over_time = deposited_over_time(nbo_deposited)
     fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
+    zero_bridging_evt_text = "The NBO Pool is empty"
+    fig_nbo_total_vintage = total_vintage(
+        nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_map = map(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_metho = methodology_volume(
+        nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_project = project_volume(
+        nbo_carbon, zero_bridging_evt_text)
 
     content_nbo = create_pool_content(
-        "UBO", "Universal Base Offset", nbo_deposited, nbo_redeemed, None, nbo_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, None, KLIMA_RETIRED_NOTE,
+        "NBO", "Nature Base Offset", nbo_deposited, nbo_redeemed, None, nbo_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time, None, fig_nbo_total_vintage,
+        fig_nbo_total_map, fig_nbo_total_metho, fig_nbo_total_project, KLIMA_RETIRED_NOTE,
         bridge_name="C3", bridge_ticker="C3T")
 
     cache.set("content_nbo", content_nbo)

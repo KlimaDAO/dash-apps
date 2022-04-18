@@ -6,7 +6,8 @@ from .constants import GRAY, DARK_GRAY
 
 
 def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, detail_df, fig_deposited_over_time,
-                        fig_redeemed_over_time, fig_retired_over_time, retire_note, bridge_name="Toucan",
+                        fig_redeemed_over_time, fig_retired_over_time, fig_total_vintage, fig_total_map,
+                        fig_total_metho, fig_total_project, retire_note, bridge_name="Toucan",
                         bridge_ticker="TCO2"):
 
     if retired is None:
@@ -89,6 +90,53 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                     retired_graph
                     ], lg=4, md=12)
         ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                dbc.CardBody(html.H2(f'Deep Dive into {pool_ticker}'),
+                             style={'textAlign': 'center'})
+            ]), lg=6, md=12),
+            dbc.Col(),
+        ], style={'paddingTop': '60px'}),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Vintage Start Dates",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_vintage)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Origin of Tokenized Credits",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_map)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Methodologies",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_metho)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Projects", className="card-title"),
+                dcc.Graph(figure=fig_total_project)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
         dbc.Row([
             dbc.Col([
                 dbc.Card([

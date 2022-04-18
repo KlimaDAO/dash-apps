@@ -158,6 +158,9 @@ border-color: var(--primary);
 box-shadow: none;
 }
 
+.Select.is-open > .Select-control {
+  background-color: black;
+}
 
 /* this colors the input box text and x  of multi dropdown*/
 .Select--multi .Select-value {
