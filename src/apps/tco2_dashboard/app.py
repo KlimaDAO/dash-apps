@@ -656,7 +656,9 @@ def generate_layout():
         'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum(),
                    'Dataframe': df_verra_toucan},
         'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum(),
-                 'Dataframe': df_mco2_bridged}
+                 'Dataframe': df_mco2_bridged},
+        'C3': {'Tokenized Quantity': df_c3t["Quantity"].sum(),
+               'Dataframe': df_c3t}
     }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
     fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)

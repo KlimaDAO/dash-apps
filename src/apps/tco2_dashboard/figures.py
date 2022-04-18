@@ -510,6 +510,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
     dfs = []
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
+        df = df[df["Vintage"] != "missing"]
         df = df.groupby(
             'Vintage')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Bridged Credits'
@@ -552,6 +553,7 @@ def on_vs_off_map(df_verra, bridges_info_dict):
     df_verra_grouped["Quantity_Bridges"] = 0
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
+        df = df[df["Country"] != "missing"]
         df = df.groupby(
             'Country')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Bridged Credit'
@@ -615,6 +617,7 @@ def on_vs_off_project(df_verra, bridges_info_dict):
     dfs = []
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
+        df = df[df["Project Type"] != "missing"]
         df = df.groupby(
             'Project Type')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Bridged Credits'
