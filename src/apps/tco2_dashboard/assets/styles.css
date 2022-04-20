@@ -50,6 +50,10 @@ a {
   padding-bottom: 0px;
 }
 
+.card-header {
+  border-bottom: 0px;
+}
+
 .card {
   background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
@@ -59,6 +63,7 @@ a {
   padding: 20px;
   margin: 10px 10px 10px 10px;
   padding-top: 20px;
+  border: 0px;
 }
 
 .card-pool-summary {
@@ -74,7 +79,7 @@ a {
 }
 
 .card-title{
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .card-text{
@@ -83,6 +88,10 @@ a {
   justify-content: center;
 }
 
+.card-text.card-body{
+  padding-right: 0px;
+  padding-left: 0px;
+}
 
 .page-title {
   margin: 5px 5px 5px 5px;
@@ -149,6 +158,9 @@ border-color: var(--primary);
 box-shadow: none;
 }
 
+.Select.is-open > .Select-control {
+  background-color: black;
+}
 
 /* this colors the input box text and x  of multi dropdown*/
 .Select--multi .Select-value {
@@ -170,6 +182,9 @@ color: white;
   width: 100%;
 }
 
+.nav-pills .nav-link {
+  border-radius: 0.4rem;
+}
 
 /* Change the color of links on mouse-over */
 .nav-pills a:hover {
@@ -223,9 +238,8 @@ color: white;
 }
 
 #lastupdated_indictor{
-  font-style: italic;
   font-size: x-small;
-  color: white;
+  color: #9c9c9c;
   text-align: right;
 }
 
@@ -280,10 +294,10 @@ color: white;
   align-items: center;
   justify-content: center;
   margin-top: 0rem;
-  height: 2.8rem;
-  width: 2.8rem;
+  height: 38px;
+  width: 38px;
   display: flex;
-  border-radius: 0.6rem;
+  border-radius: 0.4rem;
   background-color: #262626;;
 }
 
@@ -292,20 +306,20 @@ color: white;
 }
 
 .material-icons {
-  font-size: 2rem;
+  font-size: 20px;
   color: white;
 }
 
 .image-icons{
   filter: grayscale(100%);
-  width: 2rem;
-  height: 2rem;
+  width: 20px;
+  height: 20px;
 }
 
 .moss-logo{
   filter: grayscale(100%);
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 23px;
+  height: 23px;
 }
 
 .icon-title{
@@ -333,7 +347,7 @@ color: white;
 }
 
 #static-content {
-  margin-left: 23rem;
+  margin-left: 21rem;
   margin-right: 1rem;
 }
 
@@ -351,6 +365,11 @@ font-size: 12px;
 
 #static-content {
   padding: 2rem 0rem;
+}
+
+p {
+  padding: 0.4rem;
+  margin-bottom: 0rem;
 }
 
 @media (max-width: 48em) {
@@ -412,30 +431,7 @@ font-size: 12px;
   .klima-logo{
     width: 180px;
   }
-  
-  .icon-container{
-    align-items: center;
-    justify-content: center;
-    margin-top: 0rem;
-    height: 2.8rem;
-    width: 2.8rem;
-    display: flex;
-    border-radius: 0.6rem;
-    background-color: #262626;;
-  }
-
-
-  .material-icons {
-    font-size: 2rem;
-    color: white;
-  }
-  
-  .image-icons{
-    filter: grayscale(100%);
-    width: 2rem;
-    height: 2rem;
-  }
-  
+    
   .offcanvas-header {
     display: none;
   }

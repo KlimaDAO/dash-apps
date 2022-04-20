@@ -30,27 +30,27 @@ def drop_duplicates(df):
 
 
 def date_manipulations(df):
-    if "Vintage" in df.columns:
-        df["Vintage"] = pd.to_datetime(
-            df["Vintage"], unit='s').dt.tz_localize(None).dt.year
-    df["Date"] = pd.to_datetime(df["Date"], unit='s').dt.tz_localize(
-        None).dt.floor('D').dt.date
-    datelist = pd.date_range(start=df["Date"].min()+pd.DateOffset(-1),
-                             end=pd.to_datetime('today'), freq='d')
-    df_date = pd.DataFrame()
-    df_date["Date_continous"] = datelist
-    df_date["Date_continous"] = pd.to_datetime(df_date["Date_continous"],  unit='s').dt.tz_localize(
-        None).dt.floor('D').dt.date
-    df = df.merge(df_date, how='right', left_on='Date',
-                  right_on='Date_continous').reset_index(drop=True)
-    df["Date"] = df["Date_continous"]
-    qty_lst = ['Quantity', 'NCT Quantity', 'BCT Quantity', 'Total Quantity']
-    for i in df.columns:
-        if i in qty_lst:
-            df[i] = df[i].fillna(0)
-        else:
-            df[i] = df[i].fillna("missing")
-            df[i] = df[i].replace("", "missing")
+    if not(df.empty):
+        if "Vintage" in df.columns:
+            df["Vintage"] = pd.to_datetime(
+                df["Vintage"], unit='s').dt.tz_localize(None).dt.year
+        df["Date"] = pd.to_datetime(df["Date"], unit='s').dt.tz_localize(
+            None).dt.floor('D').dt.date
+        datelist = pd.date_range(start=df["Date"].min()+pd.DateOffset(-1),
+                                 end=pd.to_datetime('today'), freq='d')
+        df_date = pd.DataFrame()
+        df_date["Date_continous"] = datelist
+        df_date["Date_continous"] = pd.to_datetime(df_date["Date_continous"],  unit='s').dt.tz_localize(
+            None).dt.floor('D').dt.date
+        df = df.merge(df_date, how='right', left_on='Date',
+                      right_on='Date_continous').reset_index(drop=True)
+        df["Date"] = df["Date_continous"]
+        for i in df.columns:
+            if "Quantity" in i:
+                df[i] = df[i].fillna(0)
+            else:
+                df[i] = df[i].fillna("missing")
+                df[i] = df[i].replace("", "missing")
     return df
 
 
@@ -67,12 +67,14 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-def merge_verra(df, df_verra, merge_columns):
+def merge_verra(df, df_verra, merge_columns, drop_columns):
     df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
     df_verra["ID"] = df_verra["ID"].astype(str)
     df_verra = df_verra[merge_columns]
     df_verra = df_verra.drop_duplicates(
         subset=['ID']).reset_index(drop=True)
+    if drop_columns:
+        df = df.drop(columns=drop_columns)
     df = df.merge(df_verra, how='left', left_on="Project ID Key",
                   right_on='ID', suffixes=('', '_Verra'))
 
@@ -153,8 +155,9 @@ def filter_carbon_pool(pool_address, *dfs):
 
 def filter_pool_quantity(df, quantity_column):
     filtered = df[df[quantity_column] > 0]
+    filtered["Quantity"] = filtered[quantity_column]
     filtered = filtered[[
-        'Project ID', 'Vintage', quantity_column, 'Country', 'Name', 'Project Type',
+        'Project ID', 'Vintage', 'Quantity', 'Country', 'Name', 'Project Type',
         'Methodology', 'Token Address'
     ]]
     pat = r'VCS-(?P<id>\d+)'

@@ -1,5 +1,7 @@
 BCT_ADDRESS = '0x2f800db0fdb5223b3c3f354886d907a671414a7f'
 NCT_ADDRESS = '0xd838290e877e0188a4a44700463419ed96c16107'
+UBO_ADDRESS = '0x2b3ecb0991af0498ece9135bcd04013d7993110c'
+NBO_ADDRESS = '0x6bca3b77c1909ce1a4ba1a20d1103bde8d222e48'
 GRAY = '#232B2B'
 DARK_GRAY = '#343a40'
 FIGURE_BG_COLOR = '#202020'
@@ -18,9 +20,14 @@ rename_map = {
     'carbonOffsets_projectID': 'Project ID',
     'carbonOffsets_standard': 'Standard',
     'carbonOffsets_methodology': 'Methodology',
+    'carbonOffsets_country': 'Country',
+    'carbonOffsets_category': 'Project Type',
+    'carbonOffsets_name': 'Name',
     'carbonOffsets_tokenAddress': 'Token Address',
     'carbonOffsets_balanceBCT': 'BCT Quantity',
     'carbonOffsets_balanceNCT': 'NCT Quantity',
+    'carbonOffsets_balanceUBO': 'UBO Quantity',
+    'carbonOffsets_balanceNBO': 'NBO Quantity',
     'carbonOffsets_totalBridged': 'Total Quantity',
 }
 
@@ -33,6 +40,9 @@ retires_rename_map = {
     'retires_offset_projectID': 'Project ID',
     'retires_offset_standard': 'Standard',
     'retires_offset_methodology': 'Methodology',
+    'retires_offset_country': 'Country',
+    'retires_offset_category': 'Project Type',
+    'retires_offset_name': 'Name',
     'retires_offset_tokenAddress': 'Token Address',
     'retires_offset_totalRetired': 'Total Quantity',
 }

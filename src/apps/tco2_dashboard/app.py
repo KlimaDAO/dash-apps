@@ -13,12 +13,13 @@ from pycoingecko import CoinGeckoAPI
 
 from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
-    methodology_volume, project_volume, eligible_pool_pie_chart,\
+    methodology_volume, project_volume, eligible_pool_pie_chart, pool_pie_chart,\
     historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time, retired_over_time
 from .offchain_vs_onchain import create_offchain_vs_onchain_content
 from .onchain_pool_comp import create_onchain_pool_comp_content
 from .tco2 import create_content_toucan
+from .c3t import create_content_c3t
 from .pool import create_pool_content
 from .mco2 import create_content_moss
 from .helpers import date_manipulations, filter_pool_quantity, region_manipulations, \
@@ -27,7 +28,8 @@ from .helpers import date_manipulations, filter_pool_quantity, region_manipulati
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
     redeems_rename_map, pool_retires_rename_map, BCT_ADDRESS, \
     verra_rename_map, merge_columns, mco2_verra_rename_map, MCO2_ADDRESS, verra_columns, \
-    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS, KLIMA_RETIRED_NOTE
+    VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS, KLIMA_RETIRED_NOTE, UBO_ADDRESS, \
+    NBO_ADDRESS
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon'
@@ -82,8 +84,13 @@ def get_data():
         carbon_offsets.projectID,
         carbon_offsets.standard,
         carbon_offsets.methodology,
+        carbon_offsets.country,
+        carbon_offsets.category,
+        carbon_offsets.name,
         carbon_offsets.balanceBCT,
         carbon_offsets.balanceNCT,
+        carbon_offsets.balanceUBO,
+        carbon_offsets.balanceNBO,
         carbon_offsets.totalBridged,
         carbon_offsets.bridges.value,
         carbon_offsets.bridges.timestamp
@@ -104,6 +111,9 @@ def get_data():
         carbon_offsets.offset.standard,
         carbon_offsets.offset.methodology,
         carbon_offsets.offset.standard,
+        carbon_offsets.offset.country,
+        carbon_offsets.offset.category,
+        carbon_offsets.offset.name,
         carbon_offsets.offset.totalRetired,
     ])
 
@@ -231,130 +241,257 @@ def generate_layout():
     df_prices = get_prices()
     curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
-    # -----TCO2_Figures-----
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
-    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
-    # merge Verra Data
-    df = merge_verra(df, df_verra_toucan, merge_columns)
-    df_retired = merge_verra(df_retired, df_verra, merge_columns)
+    # -----TCO2_Figures----
     # Bridge manipulations
-    df = bridge_manipulations(df, "Toucan")
-    df_retired = bridge_manipulations(df_retired, "Toucan")
+    df_tc = bridge_manipulations(df, "Toucan")
+    df_retired_tc = bridge_manipulations(df_retired, "Toucan")
+    # merge Verra Data
+    df_tc = merge_verra(df_tc, df_verra_toucan, merge_columns, [
+                        'Name', 'Country', 'Project Type'])
+    df_retired_tc = merge_verra(df_retired_tc, df_verra, merge_columns, [
+                                'Name', 'Country', 'Project Type'])
     # datetime manipulations
-    df = date_manipulations(df)
-    df_retired = date_manipulations(df_retired)
+    df_tc = date_manipulations(df_tc)
+    df_retired_tc = date_manipulations(df_retired_tc)
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
     # Region manipulations
-    df = region_manipulations(df)
-    df_retired = region_manipulations(df_retired)
+    df_tc = region_manipulations(df_tc)
+    df_retired_tc = region_manipulations(df_retired_tc)
     # 7 day and 30 day subsets
-    sd_pool, last_sd_pool, td_pool, last_td_pool = subsets(df)
-    sd_pool_retired, last_sd_pool_retired, td_pool_retired, last_td_pool_retired = subsets(
-        df_retired)
+    sd_pool_tc, last_sd_pool_tc, td_pool_tc, last_td_pool_tc = subsets(df_tc)
+    sd_pool_retired_tc, last_sd_pool_retired_tc, td_pool_retired_tc, last_td_pool_retired_tc = subsets(
+        df_retired_tc)
     # drop duplicates data for Carbon Pool calculations
-    df_carbon = drop_duplicates(df)
-    cache.set("df_carbon", df_carbon)
+    df_carbon_tc = drop_duplicates(df_tc)
+    cache.set("df_carbon_tc", df_carbon_tc)
 
     # Figures
     # 7-day-performance
     zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 7 days"
     zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 7 days"
-    fig_seven_day_volume = sub_plots_volume(
-        sd_pool, last_sd_pool, "Credits Bridged (7d)", "", zero_bridging_evt_text)
-    fig_seven_day_volume_retired = sub_plots_volume(
-        sd_pool_retired, last_sd_pool_retired, "Credits Retired (7d)", "", zero_retiring_evt_text)
-    fig_seven_day_vintage = sub_plots_vintage(
-        sd_pool, last_sd_pool, "Average Credit Vintage (7d)", "", zero_bridging_evt_text)
-    fig_seven_day_vintage_retired = sub_plots_vintage(
-        sd_pool_retired, last_sd_pool_retired, "Average Credit Vintage (7d)", "",
+    fig_seven_day_volume_tc = sub_plots_volume(
+        sd_pool_tc, last_sd_pool_tc, "Credits Bridged (7d)", "", zero_bridging_evt_text)
+    fig_seven_day_volume_retired_tc = sub_plots_volume(
+        sd_pool_retired_tc, last_sd_pool_retired_tc, "Credits Retired (7d)", "", zero_retiring_evt_text)
+    fig_seven_day_vintage_tc = sub_plots_vintage(
+        sd_pool_tc, last_sd_pool_tc, "Average Credit Vintage (7d)", "", zero_bridging_evt_text)
+    fig_seven_day_vintage_retired_tc = sub_plots_vintage(
+        sd_pool_retired_tc, last_sd_pool_retired_tc, "Average Credit Vintage (7d)", "",
         zero_retiring_evt_text)
-    fig_seven_day_map = map(
-        sd_pool, zero_bridging_evt_text)
-    fig_seven_day_map_retired = map(
-        sd_pool_retired, zero_retiring_evt_text)
-    fig_seven_day_metho = methodology_volume(sd_pool, zero_bridging_evt_text)
-    fig_seven_day_metho_retired = methodology_volume(
-        sd_pool_retired, zero_retiring_evt_text)
-    fig_seven_day_project = project_volume(sd_pool, zero_bridging_evt_text)
-    fig_seven_day_project_retired = project_volume(
-        sd_pool_retired, zero_retiring_evt_text)
+    fig_seven_day_map_tc = map(
+        sd_pool_tc, zero_bridging_evt_text)
+    fig_seven_day_map_retired_tc = map(
+        sd_pool_retired_tc, zero_retiring_evt_text)
+    fig_seven_day_metho_tc = methodology_volume(
+        sd_pool_tc, zero_bridging_evt_text)
+    fig_seven_day_metho_retired_tc = methodology_volume(
+        sd_pool_retired_tc, zero_retiring_evt_text)
+    fig_seven_day_project_tc = project_volume(
+        sd_pool_tc, zero_bridging_evt_text)
+    fig_seven_day_project_retired_tc = project_volume(
+        sd_pool_retired_tc, zero_retiring_evt_text)
 
     # 30-day-performance
     zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 30 days"
     zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 30 days"
-    fig_thirty_day_volume = sub_plots_volume(
-        td_pool, last_td_pool, "Credits Bridged (30d)", "", zero_bridging_evt_text)
-    fig_thirty_day_volume_retired = sub_plots_volume(
-        td_pool_retired, last_td_pool_retired, "Credits Retired (30d)", "", zero_retiring_evt_text)
-    fig_thirty_day_vintage = sub_plots_vintage(
-        td_pool, last_td_pool, "Average Credit Vintage (30d)", "", zero_bridging_evt_text)
-    fig_thirty_day_vintage_retired = sub_plots_vintage(
-        td_pool_retired, last_td_pool_retired, "Average Credit Vintage (30d)", "", zero_retiring_evt_text)
-    fig_thirty_day_map = map(td_pool, zero_bridging_evt_text)
-    fig_thirty_day_map_retired = map(td_pool_retired, zero_retiring_evt_text)
-    fig_thirty_day_metho = methodology_volume(
-        td_pool, zero_bridging_evt_text)
-    fig_thirty_day_metho_retired = methodology_volume(
-        td_pool_retired, zero_retiring_evt_text)
-    fig_thirty_day_project = project_volume(td_pool, zero_bridging_evt_text)
-    fig_thirty_day_project_retired = project_volume(
-        td_pool_retired, zero_retiring_evt_text)
+    fig_thirty_day_volume_tc = sub_plots_volume(
+        td_pool_tc, last_td_pool_tc, "Credits Bridged (30d)", "", zero_bridging_evt_text)
+    fig_thirty_day_volume_retired_tc = sub_plots_volume(
+        td_pool_retired_tc, last_td_pool_retired_tc, "Credits Retired (30d)", "", zero_retiring_evt_text)
+    fig_thirty_day_vintage_tc = sub_plots_vintage(
+        td_pool_tc, last_td_pool_tc, "Average Credit Vintage (30d)", "", zero_bridging_evt_text)
+    fig_thirty_day_vintage_retired_tc = sub_plots_vintage(
+        td_pool_retired_tc, last_td_pool_retired_tc, "Average Credit Vintage (30d)", "", zero_retiring_evt_text)
+    fig_thirty_day_map_tc = map(td_pool_tc, zero_bridging_evt_text)
+    fig_thirty_day_map_retired_tc = map(
+        td_pool_retired_tc, zero_retiring_evt_text)
+    fig_thirty_day_metho_tc = methodology_volume(
+        td_pool_tc, zero_bridging_evt_text)
+    fig_thirty_day_metho_retired_tc = methodology_volume(
+        td_pool_retired_tc, zero_retiring_evt_text)
+    fig_thirty_day_project_tc = project_volume(
+        td_pool_tc, zero_bridging_evt_text)
+    fig_thirty_day_project_retired_tc = project_volume(
+        td_pool_retired_tc, zero_retiring_evt_text)
 
     # Total
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     zero_retiring_evt_text = "There haven't been any<br>retiring events"
-    fig_total_volume = total_volume(
-        df, "Credits tokenized (total)", zero_bridging_evt_text)
-    fig_total_volume_retired = total_volume(
-        df_retired, "Credits retired (total)", zero_retiring_evt_text)
-    fig_total_vintage = total_vintage(df, zero_bridging_evt_text)
-    fig_total_vintage_retired = total_vintage(
-        df_retired, zero_retiring_evt_text)
-    fig_total_map = map(df, zero_bridging_evt_text)
-    fig_total_map_retired = map(
-        df_retired, zero_retiring_evt_text)
-    fig_total_metho = methodology_volume(df, zero_bridging_evt_text)
-    fig_total_metho_retired = methodology_volume(
-        df_retired, zero_retiring_evt_text)
-    fig_total_project = project_volume(df, zero_bridging_evt_text)
-    fig_total_project_retired = project_volume(
-        df_retired, zero_retiring_evt_text)
+    fig_total_volume_tc = total_volume(
+        df_tc, "Credits tokenized (total)", zero_bridging_evt_text)
+    fig_total_volume_retired_tc = total_volume(
+        df_retired_tc, "Credits retired (total)", zero_retiring_evt_text)
+    fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
+    fig_total_vintage_retired_tc = total_vintage(
+        df_retired_tc, zero_retiring_evt_text)
+    fig_total_map_tc = map(df_tc, zero_bridging_evt_text)
+    fig_total_map_retired_tc = map(
+        df_retired_tc, zero_retiring_evt_text)
+    fig_total_metho_tc = methodology_volume(df_tc, zero_bridging_evt_text)
+    fig_total_metho_retired_tc = methodology_volume(
+        df_retired_tc, zero_retiring_evt_text)
+    fig_total_project_tc = project_volume(df_tc, zero_bridging_evt_text)
+    fig_total_project_retired_tc = project_volume(
+        df_retired_tc, zero_retiring_evt_text)
 
+    fig_pool_pie_chart_tc = pool_pie_chart(df_carbon_tc, ['BCT', 'NCT'])
     content_tco2 = create_content_toucan(
-        df, df_retired, df_carbon)
+        df_tc, df_retired_tc, fig_pool_pie_chart_tc)
 
-    fig_seven_day = [fig_seven_day_volume, fig_seven_day_vintage,
-                     fig_seven_day_map, fig_seven_day_metho, fig_seven_day_project]
-    fig_seven_day_retired = [fig_seven_day_volume_retired, fig_seven_day_vintage_retired,
-                             fig_seven_day_map_retired, fig_seven_day_metho_retired, fig_seven_day_project_retired]
-    fig_thirty_day = [fig_thirty_day_volume, fig_thirty_day_vintage,
-                      fig_thirty_day_map, fig_thirty_day_metho, fig_thirty_day_project]
-    fig_thirty_day_retired = [fig_thirty_day_volume_retired, fig_thirty_day_vintage_retired,
-                              fig_thirty_day_map_retired, fig_thirty_day_metho_retired, fig_thirty_day_project_retired]
-    fig_total = [fig_total_volume, fig_total_vintage,
-                 fig_total_map, fig_total_metho, fig_total_project]
-    fig_total_retired = [fig_total_volume_retired, fig_total_vintage_retired,
-                         fig_total_map_retired, fig_total_metho_retired, fig_total_project_retired]
+    fig_seven_day_tc = [fig_seven_day_volume_tc, fig_seven_day_vintage_tc,
+                        fig_seven_day_map_tc, fig_seven_day_metho_tc, fig_seven_day_project_tc]
+    fig_seven_day_retired_tc = [fig_seven_day_volume_retired_tc, fig_seven_day_vintage_retired_tc,
+                                fig_seven_day_map_retired_tc, fig_seven_day_metho_retired_tc,
+                                fig_seven_day_project_retired_tc]
+    fig_thirty_day_tc = [fig_thirty_day_volume_tc, fig_thirty_day_vintage_tc,
+                         fig_thirty_day_map_tc, fig_thirty_day_metho_tc, fig_thirty_day_project_tc]
+    fig_thirty_day_retired_tc = [fig_thirty_day_volume_retired_tc, fig_thirty_day_vintage_retired_tc,
+                                 fig_thirty_day_map_retired_tc, fig_thirty_day_metho_retired_tc,
+                                 fig_thirty_day_project_retired_tc]
+    fig_total_tc = [fig_total_volume_tc, fig_total_vintage_tc,
+                    fig_total_map_tc, fig_total_metho_tc, fig_total_project_tc]
+    fig_total_retired_tc = [fig_total_volume_retired_tc, fig_total_vintage_retired_tc,
+                            fig_total_map_retired_tc, fig_total_metho_retired_tc, fig_total_project_retired_tc]
 
-    cache.set("fig_seven_day", fig_seven_day)
-    cache.set("fig_seven_day_retired", fig_seven_day_retired)
-    cache.set("fig_thirty_day", fig_thirty_day)
-    cache.set("fig_thirty_day_retired", fig_thirty_day_retired)
-    cache.set("fig_total", fig_total)
-    cache.set("fig_total_retired", fig_total_retired)
+    cache.set("fig_seven_day_tc", fig_seven_day_tc)
+    cache.set("fig_seven_day_retired_tc", fig_seven_day_retired_tc)
+    cache.set("fig_thirty_day_tc", fig_thirty_day_tc)
+    cache.set("fig_thirty_day_retired_tc", fig_thirty_day_retired_tc)
+    cache.set("fig_total_tc", fig_total_tc)
+    cache.set("fig_total_retired_tc", fig_total_retired_tc)
     cache.set("content_tco2", content_tco2)
 
+    # -----C3_Figures----
+    # Bridge manipulations
+    df_c3t = bridge_manipulations(df, "C3")
+    df_retired_c3t = bridge_manipulations(df_retired, "C3")
+    # datetime manipulations
+    df_c3t = date_manipulations(df_c3t)
+    df_retired_c3t = date_manipulations(df_retired_c3t)
+    # Blacklist manipulations
+    # df = black_list_manipulations(df)
+    # df_retired = black_list_manipulations(df_retired)
+    # Region manipulations
+    df_c3t = region_manipulations(df_c3t)
+    df_retired_c3t = region_manipulations(df_retired_c3t)
+    # 7 day and 30 day subsets
+    sd_pool_c3t, last_sd_pool_c3t, td_pool_c3t, last_td_pool_c3t = subsets(
+        df_c3t)
+    sd_pool_retired_c3t, last_sd_pool_retired_c3t, td_pool_retired_c3t, last_td_pool_retired_c3t = subsets(
+        df_retired_c3t)
+    # drop duplicates data for Carbon Pool calculations
+    df_carbon_c3t = drop_duplicates(df_c3t)
+    cache.set("df_carbon_c3t", df_carbon_c3t)
+
+    # Figures
+    # 7-day-performance
+    zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 7 days"
+    zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 7 days"
+    fig_seven_day_volume_c3t = sub_plots_volume(
+        sd_pool_c3t, last_sd_pool_c3t, "Credits Bridged (7d)", "", zero_bridging_evt_text)
+    fig_seven_day_volume_retired_c3t = sub_plots_volume(
+        sd_pool_retired_c3t, last_sd_pool_retired_c3t, "Credits Retired (7d)", "", zero_retiring_evt_text)
+    fig_seven_day_vintage_c3t = sub_plots_vintage(
+        sd_pool_c3t, last_sd_pool_c3t, "Average Credit Vintage (7d)", "", zero_bridging_evt_text)
+    fig_seven_day_vintage_retired_c3t = sub_plots_vintage(
+        sd_pool_retired_c3t, last_sd_pool_retired_c3t, "Average Credit Vintage (7d)", "",
+        zero_retiring_evt_text)
+    fig_seven_day_map_c3t = map(
+        sd_pool_c3t, zero_bridging_evt_text)
+    fig_seven_day_map_retired_c3t = map(
+        sd_pool_retired_c3t, zero_retiring_evt_text)
+    fig_seven_day_metho_c3t = methodology_volume(
+        sd_pool_c3t, zero_bridging_evt_text)
+    fig_seven_day_metho_retired_c3t = methodology_volume(
+        sd_pool_retired_c3t, zero_retiring_evt_text)
+    fig_seven_day_project_c3t = project_volume(
+        sd_pool_c3t, zero_bridging_evt_text)
+    fig_seven_day_project_retired_c3t = project_volume(
+        sd_pool_retired_c3t, zero_retiring_evt_text)
+
+    # 30-day-performance
+    zero_bridging_evt_text = "There haven't been any bridging events<br>in the last 30 days"
+    zero_retiring_evt_text = "There haven't been any retiring events<br>in the last 30 days"
+    fig_thirty_day_volume_c3t = sub_plots_volume(
+        td_pool_c3t, last_td_pool_c3t, "Credits Bridged (30d)", "", zero_bridging_evt_text)
+    fig_thirty_day_volume_retired_c3t = sub_plots_volume(
+        td_pool_retired_c3t, last_td_pool_retired_c3t, "Credits Retired (30d)", "", zero_retiring_evt_text)
+    fig_thirty_day_vintage_c3t = sub_plots_vintage(
+        td_pool_c3t, last_td_pool_c3t, "Average Credit Vintage (30d)", "", zero_bridging_evt_text)
+    fig_thirty_day_vintage_retired_c3t = sub_plots_vintage(
+        td_pool_retired_c3t, last_td_pool_retired_c3t, "Average Credit Vintage (30d)", "", zero_retiring_evt_text)
+    fig_thirty_day_map_c3t = map(td_pool_c3t, zero_bridging_evt_text)
+    fig_thirty_day_map_retired_c3t = map(
+        td_pool_retired_c3t, zero_retiring_evt_text)
+    fig_thirty_day_metho_c3t = methodology_volume(
+        td_pool_c3t, zero_bridging_evt_text)
+    fig_thirty_day_metho_retired_c3t = methodology_volume(
+        td_pool_retired_c3t, zero_retiring_evt_text)
+    fig_thirty_day_project_c3t = project_volume(
+        td_pool_c3t, zero_bridging_evt_text)
+    fig_thirty_day_project_retired_c3t = project_volume(
+        td_pool_retired_c3t, zero_retiring_evt_text)
+
+    # Total
+    zero_bridging_evt_text = "There haven't been any<br>bridging events"
+    zero_retiring_evt_text = "There haven't been any<br>retiring events"
+    fig_total_volume_c3t = total_volume(
+        df_c3t, "Credits tokenized (total)", zero_bridging_evt_text)
+    fig_total_volume_retired_c3t = total_volume(
+        df_retired_c3t, "Credits retired (total)", zero_retiring_evt_text)
+    fig_total_vintage_c3t = total_vintage(df_c3t, zero_bridging_evt_text)
+    fig_total_vintage_retired_c3t = total_vintage(
+        df_retired_c3t, zero_retiring_evt_text)
+    fig_total_map_c3t = map(df_c3t, zero_bridging_evt_text)
+    fig_total_map_retired_c3t = map(
+        df_retired_c3t, zero_retiring_evt_text)
+    fig_total_metho_c3t = methodology_volume(df_c3t, zero_bridging_evt_text)
+    fig_total_metho_retired_c3t = methodology_volume(
+        df_retired_c3t, zero_retiring_evt_text)
+    fig_total_project_c3t = project_volume(df_c3t, zero_bridging_evt_text)
+    fig_total_project_retired_c3t = project_volume(
+        df_retired_c3t, zero_retiring_evt_text)
+    fig_pool_pie_chart_c3t = pool_pie_chart(df_carbon_c3t, ['UBO', 'NBO'])
+
+    content_c3t = create_content_c3t(
+        df_c3t, df_retired_c3t, fig_pool_pie_chart_c3t)
+
+    fig_seven_day_c3t = [fig_seven_day_volume_c3t, fig_seven_day_vintage_c3t,
+                         fig_seven_day_map_c3t, fig_seven_day_metho_c3t, fig_seven_day_project_c3t]
+    fig_seven_day_retired_c3t = [fig_seven_day_volume_retired_c3t, fig_seven_day_vintage_retired_c3t,
+                                 fig_seven_day_map_retired_c3t, fig_seven_day_metho_retired_c3t,
+                                 fig_seven_day_project_retired_c3t]
+    fig_thirty_day_c3t = [fig_thirty_day_volume_c3t, fig_thirty_day_vintage_c3t,
+                          fig_thirty_day_map_c3t, fig_thirty_day_metho_c3t, fig_thirty_day_project_c3t]
+    fig_thirty_day_retired_c3t = [fig_thirty_day_volume_retired_c3t, fig_thirty_day_vintage_retired_c3t,
+                                  fig_thirty_day_map_retired_c3t, fig_thirty_day_metho_retired_c3t,
+                                  fig_thirty_day_project_retired_c3t]
+    fig_total_c3t = [fig_total_volume_c3t, fig_total_vintage_c3t,
+                     fig_total_map_c3t, fig_total_metho_c3t, fig_total_project_c3t]
+    fig_total_retired_c3t = [fig_total_volume_retired_c3t, fig_total_vintage_retired_c3t,
+                             fig_total_map_retired_c3t, fig_total_metho_retired_c3t, fig_total_project_retired_c3t]
+
+    cache.set("fig_seven_day_c3t", fig_seven_day_c3t)
+    cache.set("fig_seven_day_retired_c3t", fig_seven_day_retired_c3t)
+    cache.set("fig_thirty_day_c3t", fig_thirty_day_c3t)
+    cache.set("fig_thirty_day_retired_c3t", fig_thirty_day_retired_c3t)
+    cache.set("fig_total_c3t", fig_total_c3t)
+    cache.set("fig_total_retired_c3t", fig_total_retired_c3t)
+    cache.set("content_c3t", content_c3t)
+
     # --MCO2 Figures--
+    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
     df_mco2_bridged["Project ID"] = 'VCS-' + \
         df_mco2_bridged["Project ID"].astype(str)
     df_mco2_bridged = merge_verra(
-        df_mco2_bridged, df_verra, merge_columns=["ID", "Country", "Methodology"])
+        df_mco2_bridged, df_verra, ["ID", "Country", "Methodology"], None)
     df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
     fig_mco2_total_vintage = total_vintage(
         df_mco2_bridged, zero_bridging_evt_text)
@@ -382,6 +519,7 @@ def generate_layout():
     df_pool_retired = df_pool_retired.rename(columns=pool_retires_rename_map)
     # datetime manipulations
     df_pool_retired = date_manipulations(df_pool_retired)
+
     # --BCT---
 
     # Carbon pool filter
@@ -390,16 +528,26 @@ def generate_layout():
     )
     bct_deposited = date_manipulations(bct_deposited)
     bct_redeemed = date_manipulations(bct_redeemed)
-    bct_carbon = filter_pool_quantity(df_carbon, "BCT Quantity")
+    bct_carbon = filter_pool_quantity(df_carbon_tc, "BCT Quantity")
 
     # BCT Figures
     fig_deposited_over_time = deposited_over_time(bct_deposited)
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
-    fig_retired_over_time = retired_over_time(BCT_ADDRESS, 'BCT', df_pool_retired)
+    fig_retired_over_time = retired_over_time(
+        BCT_ADDRESS, 'BCT', df_pool_retired)
+    zero_bridging_evt_text = "The BCT Pool is empty"
+    fig_bct_total_vintage = total_vintage(
+        bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_map = map(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_metho = methodology_volume(
+        bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_project = project_volume(
+        bct_carbon, zero_bridging_evt_text)
 
     content_bct = create_pool_content(
         "BCT", "Base Carbon Tonne", bct_deposited, bct_redeemed, bct_retired, bct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, fig_bct_total_vintage,
+        fig_bct_total_map, fig_bct_total_metho, fig_bct_total_project, KLIMA_RETIRED_NOTE)
 
     cache.set("content_bct", content_bct)
 
@@ -411,18 +559,90 @@ def generate_layout():
     )
     nct_deposited = date_manipulations(nct_deposited)
     nct_redeemed = date_manipulations(nct_redeemed)
-    nct_carbon = filter_pool_quantity(df_carbon, "NCT Quantity")
+    nct_carbon = filter_pool_quantity(df_carbon_tc, "NCT Quantity")
 
     # NCT Figures
     fig_deposited_over_time = deposited_over_time(nct_deposited)
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
-    fig_retired_over_time = retired_over_time(NCT_ADDRESS, 'NCT', df_pool_retired)
+    fig_retired_over_time = retired_over_time(
+        NCT_ADDRESS, 'NCT', df_pool_retired)
+    zero_bridging_evt_text = "The NCT Pool is empty"
+    fig_nct_total_vintage = total_vintage(
+        nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_map = map(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_metho = methodology_volume(
+        nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_project = project_volume(
+        nct_carbon, zero_bridging_evt_text)
 
     content_nct = create_pool_content(
         "NCT", "Nature Carbon Tonne", nct_deposited, nct_redeemed, nct_retired, nct_carbon,
-        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, KLIMA_RETIRED_NOTE)
+        fig_deposited_over_time, fig_redeemed_over_time, fig_retired_over_time, fig_nct_total_vintage,
+        fig_nct_total_map, fig_nct_total_metho, fig_nct_total_project, KLIMA_RETIRED_NOTE)
 
     cache.set("content_nct", content_nct)
+
+    # --UBO---
+
+    # Carbon pool filter
+    df_carbon_c3t["Project ID"] = 'VCS-' + \
+        df_carbon_c3t["Project ID"].astype(str)
+    ubo_deposited, ubo_redeemed = filter_carbon_pool(
+        UBO_ADDRESS, df_deposited, df_redeemed
+    )
+    ubo_deposited = date_manipulations(ubo_deposited)
+    ubo_redeemed = date_manipulations(ubo_redeemed)
+    ubo_carbon = filter_pool_quantity(df_carbon_c3t, "UBO Quantity")
+
+    # UBO Figures
+    fig_deposited_over_time = deposited_over_time(ubo_deposited)
+    fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
+    zero_bridging_evt_text = "The UBO Pool is empty"
+    fig_ubo_total_vintage = total_vintage(
+        ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_map = map(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_metho = methodology_volume(
+        ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_project = project_volume(
+        ubo_carbon, zero_bridging_evt_text)
+
+    content_ubo = create_pool_content(
+        "UBO", "Universal Base Offset", ubo_deposited, ubo_redeemed, None, ubo_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time, None, fig_ubo_total_vintage,
+        fig_ubo_total_map, fig_ubo_total_metho, fig_ubo_total_project, KLIMA_RETIRED_NOTE,
+        bridge_name="C3", bridge_ticker="C3T")
+
+    cache.set("content_ubo", content_ubo)
+
+    # --NBO---
+
+    # Carbon pool filter
+    nbo_deposited, nbo_redeemed = filter_carbon_pool(
+        NBO_ADDRESS, df_deposited, df_redeemed
+    )
+    nbo_deposited = date_manipulations(nbo_deposited)
+    nbo_redeemed = date_manipulations(nbo_redeemed)
+    nbo_carbon = filter_pool_quantity(df_carbon_c3t, "NBO Quantity")
+
+    # NBO Figures
+    fig_deposited_over_time = deposited_over_time(nbo_deposited)
+    fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
+    zero_bridging_evt_text = "The NBO Pool is empty"
+    fig_nbo_total_vintage = total_vintage(
+        nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_map = map(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_metho = methodology_volume(
+        nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_project = project_volume(
+        nbo_carbon, zero_bridging_evt_text)
+
+    content_nbo = create_pool_content(
+        "NBO", "Nature Base Offset", nbo_deposited, nbo_redeemed, None, nbo_carbon,
+        fig_deposited_over_time, fig_redeemed_over_time, None, fig_nbo_total_vintage,
+        fig_nbo_total_map, fig_nbo_total_metho, fig_nbo_total_project, KLIMA_RETIRED_NOTE,
+        bridge_name="C3", bridge_ticker="C3T")
+
+    cache.set("content_nbo", content_nbo)
 
     # ----Top Level Page---
 
@@ -436,7 +656,9 @@ def generate_layout():
         'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum(),
                    'Dataframe': df_verra_toucan},
         'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum(),
-                 'Dataframe': df_mco2_bridged}
+                 'Dataframe': df_mco2_bridged},
+        'C3': {'Tokenized Quantity': df_c3t["Quantity"].sum(),
+               'Dataframe': df_c3t}
     }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
     fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
@@ -506,7 +728,7 @@ def generate_layout():
                                 'balance', className="material-icons"),
                             className='icon-container'),
                         html.Span(
-                            "On-Chain Carbon Pool Comparison",
+                            "On-Chain Carbon Pools",
                             className='icon-title')
                     ], href="/CarbonPools", active="exact",
                     ),
@@ -526,7 +748,7 @@ def generate_layout():
                     dbc.NavLink([
                         html.Div(
                             html.Img(src='assets/BCT-Logo.png',
-                                     className="image-icons"),
+                                     className="moss-logo"),
                             className='icon-container'),
                         html.Span(
                             "BCT Pool")
@@ -535,7 +757,7 @@ def generate_layout():
                     dbc.NavLink([
                         html.Div(
                             html.Img(src='assets/NCT-Logo.png',
-                                     className="image-icons"),
+                                     className="moss-logo"),
                             className='icon-container'),
                         html.Span(
                             "NCT Pool")
@@ -554,11 +776,42 @@ def generate_layout():
                             "MCO2 Overview")
                     ], href="/MCO2", active="exact",
                     ),
+                    html.Hr(style={"margin-top": "1.5rem"}),
+                    html.A(html.H4("C3", style={
+                        'textAlign': 'left'}),
+                        href='https://www.c3.app/'),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "C3T Overview")
+                    ], href="/C3T", active="exact"
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3-UBO-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "UBO Pool")
+                    ], href="/UBO", active="exact",
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3-NBO-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "NBO Pool")
+                    ], href="/NBO", active="exact",
+                    ),
                     html.Hr(style={"margin-top": "3rem"}),
                 ],
                 vertical=True,
                 pills=True,
-                style={'gap': '1rem'}
+                style={'gap': '0.5rem'}
             )],
         className="sidebar",
     )
@@ -588,7 +841,7 @@ def generate_layout():
                                         'balance', className="material-icons"),
                                     className='icon-container'),
                                 html.Span(
-                                    "On-Chain Carbon Pool Comparison",
+                                    "On-Chain Carbon Pools",
                                     className='icon-title')
                             ], href="/CarbonPools", active="exact",
                                 id="button-onchain_pool_comp", n_clicks=0,
@@ -609,7 +862,7 @@ def generate_layout():
                             dbc.NavLink([
                                 html.Div(
                                     html.Img(src='assets/BCT-Logo.png',
-                                             className="image-icons"),
+                                             className="moss-logo"),
                                     className='icon-container'),
                                 html.Span(
                                     "BCT Pool")
@@ -619,7 +872,7 @@ def generate_layout():
                             dbc.NavLink([
                                 html.Div(
                                     html.Img(src='assets/NCT-Logo.png',
-                                             className="image-icons"),
+                                             className="moss-logo"),
                                     className='icon-container'),
                                 html.Span(
                                     "NCT Pool")
@@ -639,11 +892,44 @@ def generate_layout():
                                     "MCO2 Overview")
                             ], href="/MCO2", active="exact",
                                 id="button-mco2", n_clicks=0),
+                            html.Hr(style={"margin-top": "1.5rem"}),
+                            html.A(html.H4("C3", style={
+                                'textAlign': 'left'}),
+                                href='https://www.c3.app/'),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "C3T Overview")
+                            ], href="/C3T", active="exact",
+                                id="button-c3t", n_clicks=0),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3-UBO-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "UBO Pool")
+                            ], href="/UBO", active="exact",
+                                id="button-ubo", n_clicks=0
+                            ),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3-NBO-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "NBO Pool")
+                            ], href="/NBO", active="exact",
+                                id="button-nbo", n_clicks=0
+                            ),
                             html.Hr(style={"margin-top": "3rem"}),
                         ],
                         vertical=True,
                         pills=True,
-                        style={'gap': '1rem'}
+                        style={'gap': '0.5rem'}
                         )],
                 id="collapse",
                 className="collapse",
@@ -683,34 +969,76 @@ app.layout = generate_layout
     Input(component_id='summary_type', component_property='value'),
     Input(component_id='bridged_or_retired', component_property='value')
 )
-def update_output_div(summary_type, TCO2_type):
+def update_output_div_tc(summary_type, TCO2_type):
     if summary_type == 'Last 7 Days Performance':
         if TCO2_type == 'Bridged':
-            fig_seven_day = cache.get("fig_seven_day")
+            fig_seven_day = cache.get("fig_seven_day_tc")
             return "Last 7 Days Performance", fig_seven_day[0], fig_seven_day[1], fig_seven_day[2], \
                 fig_seven_day[3], fig_seven_day[4]
         elif TCO2_type == 'Retired':
-            fig_seven_day_retired = cache.get("fig_seven_day_retired")
+            fig_seven_day_retired = cache.get("fig_seven_day_retired_tc")
             return "Last 7 Days Performance", fig_seven_day_retired[0], fig_seven_day_retired[1], \
                 fig_seven_day_retired[2], fig_seven_day_retired[3], fig_seven_day_retired[4]
 
     elif summary_type == 'Last 30 Days Performance':
         if TCO2_type == 'Bridged':
-            fig_thirty_day = cache.get("fig_thirty_day")
+            fig_thirty_day = cache.get("fig_thirty_day_tc")
             return "Last 30 Days Performance", fig_thirty_day[0], fig_thirty_day[1], fig_thirty_day[2], \
                 fig_thirty_day[3], fig_thirty_day[4]
         elif TCO2_type == 'Retired':
-            fig_thirty_day_retired = cache.get("fig_thirty_day_retired")
+            fig_thirty_day_retired = cache.get("fig_thirty_day_retired_tc")
             return "Last 30 Days Performance", fig_thirty_day_retired[0], fig_thirty_day_retired[1], \
                 fig_thirty_day_retired[2], fig_thirty_day_retired[3], fig_thirty_day_retired[4]
 
     elif summary_type == 'Lifetime Performance':
         if TCO2_type == 'Bridged':
-            fig_total = cache.get("fig_total")
+            fig_total = cache.get("fig_total_tc")
             return "Lifetime Performance", fig_total[0], fig_total[1], fig_total[2],\
                 fig_total[3], fig_total[4]
         elif TCO2_type == 'Retired':
-            fig_total_retired = cache.get("fig_total_retired")
+            fig_total_retired = cache.get("fig_total_retired_tc")
+            return "Lifetime Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
+                fig_total_retired[3], fig_total_retired[4]
+
+
+@callback(
+    Output(component_id='Last X Days_c3t', component_property='children'),
+    Output(component_id='volume plot_c3t', component_property='figure'),
+    Output(component_id='vintage plot_c3t', component_property='figure'),
+    Output(component_id='map_c3t', component_property='figure'),
+    Output(component_id="methodology_c3t", component_property='figure'),
+    Output(component_id="projects_c3t", component_property='figure'),
+    Input(component_id='summary_type_c3t', component_property='value'),
+    Input(component_id='bridged_or_retired_c3t', component_property='value')
+)
+def update_output_div_c3(summary_type, C3T_type):
+    if summary_type == 'Last 7 Days Performance':
+        if C3T_type == 'Bridged':
+            fig_seven_day = cache.get("fig_seven_day_c3t")
+            return "Last 7 Days Performance", fig_seven_day[0], fig_seven_day[1], fig_seven_day[2], \
+                fig_seven_day[3], fig_seven_day[4]
+        elif C3T_type == 'Retired':
+            fig_seven_day_retired = cache.get("fig_seven_day_retired_c3t")
+            return "Last 7 Days Performance", fig_seven_day_retired[0], fig_seven_day_retired[1], \
+                fig_seven_day_retired[2], fig_seven_day_retired[3], fig_seven_day_retired[4]
+
+    elif summary_type == 'Last 30 Days Performance':
+        if C3T_type == 'Bridged':
+            fig_thirty_day = cache.get("fig_thirty_day_c3t")
+            return "Last 30 Days Performance", fig_thirty_day[0], fig_thirty_day[1], fig_thirty_day[2], \
+                fig_thirty_day[3], fig_thirty_day[4]
+        elif C3T_type == 'Retired':
+            fig_thirty_day_retired = cache.get("fig_thirty_day_retired_c3t")
+            return "Last 30 Days Performance", fig_thirty_day_retired[0], fig_thirty_day_retired[1], \
+                fig_thirty_day_retired[2], fig_thirty_day_retired[3], fig_thirty_day_retired[4]
+
+    elif summary_type == 'Lifetime Performance':
+        if C3T_type == 'Bridged':
+            fig_total = cache.get("fig_total_c3t")
+            return "Lifetime Performance", fig_total[0], fig_total[1], fig_total[2],\
+                fig_total[3], fig_total[4]
+        elif C3T_type == 'Retired':
+            fig_total_retired = cache.get("fig_total_retired_c3t")
             return "Lifetime Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
                 fig_total_retired[3], fig_total_retired[4]
 
@@ -752,6 +1080,18 @@ def render_page_content(pathname):
         content_mco2 = cache.get("content_mco2")
         return content_mco2
 
+    elif pathname == "/C3T":
+        content_c3t = cache.get("content_c3t")
+        return content_c3t
+
+    elif pathname == "/UBO":
+        content_ubo = cache.get("content_ubo")
+        return content_ubo
+
+    elif pathname == "/NBO":
+        content_nbo = cache.get("content_nbo")
+        return content_nbo
+
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
@@ -770,11 +1110,16 @@ def render_page_content(pathname):
      Input("button-tco2", "n_clicks"),
      Input("button-bct", "n_clicks"),
      Input("button-nct", "n_clicks"),
-     Input("button-mco2", "n_clicks")],
+     Input("button-mco2", "n_clicks"),
+     Input("button-c3t", "n_clicks"),
+     Input("button-ubo", "n_clicks"),
+     Input("button-nbo", "n_clicks"), ],
     [State("collapse", "is_open")],
 )
-def toggle_collapse(n, n_off_vs_on, n_all_carbon_pools, n_tco2, n_bct, n_nct, n_mco2, is_open):
-    if n or n_off_vs_on or n_all_carbon_pools or n_tco2 or n_bct or n_nct or n_mco2:
+def toggle_collapse(n, n_off_vs_on, n_all_carbon_pools, n_tco2, n_bct, n_nct, n_mco2, n_c3t,
+                    n_ubo, n_nbo, is_open):
+    if n or n_off_vs_on or n_all_carbon_pools or n_tco2 or n_bct or n_nct or n_mco2 or n_c3t or \
+            n_ubo or n_nbo:
         return not is_open
     return is_open
 

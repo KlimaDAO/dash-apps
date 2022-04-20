@@ -3,30 +3,30 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 
-def create_content_toucan(df, df_retired, fig_pool_pie_chart):
+def create_content_c3t(df, df_retired, fig_pool_pie_chart):
 
-    content_tco2 = [
+    content_c3t = [
         dbc.Row(
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Toucan Tokenized Carbon", className='page-title'))
+                        html.H1("State of C3 Tokenized Carbon", className='page-title'))
                 ]), width=12, style={'textAlign': 'center'})
         ),
 
         dbc.Row([
             dbc.Col(dbc.Card([
-                html.H5("TCO2 Tonnes Bridged", className="card-title"),
+                html.H5("C3T Tonnes Bridged", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum())), className="card-text")
             ]), lg=4, md=12),
             dbc.Col(dbc.Card([
-                html.H5("TCO2 Tonnes Retired", className="card-title"),
+                html.H5("C3T Tonnes Retired", className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df_retired["Quantity"].sum())), className="card-text")
             ]), lg=4, md=12),
             dbc.Col(dbc.Card([
-                html.H5("TCO2 Tonnes Outstanding",
+                html.H5("C3T Tonnes Outstanding",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
                     int(df["Quantity"].sum()-df_retired["Quantity"].sum())), className="card-text")
@@ -36,10 +36,10 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    html.H5("Breakdown of TCO2 Pooled",
+                    html.H5("Breakdown of C3T Pooled",
                             className="card-title"),
                     dbc.CardBody(dcc.Graph(figure=fig_pool_pie_chart))
-                ])
+                ], className="card-graph")
             ], width=12),
             # TODO: add methodology filter for NCT before re-enabling
             # dbc.Col([
@@ -62,7 +62,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H2("Deep Dive into TCO2")),
+                    dbc.CardHeader(html.H2("Deep Dive into C3T")),
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col([
@@ -75,7 +75,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                                                                         'value': 'Last 30 Days Performance'},
                                                                         {'label': 'Lifetime Performance',
                                                                         'value': 'Lifetime Performance'}],
-                                                               value='Lifetime Performance', id='summary_type',
+                                                               value='Lifetime Performance', id='summary_type_c3t',
                                                                placeholder='Select Summary Type')])
                                 ])
                             ], lg=6, md=12),
@@ -85,7 +85,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                                         html.H5("Bridged or Retired TCO2s?", className="card-title"),),
                                     dbc.CardBody([dcc.Dropdown(options=[{'label': 'Bridged', 'value': 'Bridged'},
                                                                         {'label': 'Retired', 'value': 'Retired'}],
-                                                               value='Bridged', id='bridged_or_retired',
+                                                               value='Bridged', id='bridged_or_retired_c3t',
                                                                placeholder='Select Summary Type')])
                                 ])
                             ], lg=6, md=12),
@@ -100,7 +100,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col(),
             dbc.Col(dbc.Card([
-                dbc.CardBody(html.H2(id="Last X Days"),
+                dbc.CardBody(html.H2(id="Last X Days_c3t"),
                              style={'textAlign': 'center'})
             ]), lg=6, md=12),
             dbc.Col(),
@@ -109,12 +109,12 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
         dbc.Row([
             dbc.Col(dbc.Card([
                 html.H5("Volume Over Time", className="card-title"),
-                dcc.Graph(id="volume plot")
+                dcc.Graph(id="volume plot_c3t")
             ]), lg=6, md=12),
             dbc.Col(dbc.Card([
                 html.H5("Distribution of Vintage Start Dates",
                         className="card-title"),
-                dcc.Graph(id="vintage plot")
+                dcc.Graph(id="vintage plot_c3t")
             ]), lg=6, md=12),
         ]),
 
@@ -122,7 +122,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col(dbc.Card([
                 html.H5("Origin of Credits", className="card-title"),
-                dcc.Graph(id="map")
+                dcc.Graph(id="map_c3t")
             ]), width=12),
             dbc.Col(),
         ]),
@@ -132,7 +132,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(dbc.Card([
                 html.H5("Distribution of Methodologies",
                         className="card-title"),
-                dcc.Graph(id="methodology")
+                dcc.Graph(id="methodology_c3t")
             ]), width=12),
             dbc.Col(),
         ]),
@@ -141,11 +141,11 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col(dbc.Card([
                 html.H5("Distribution of Projects", className="card-title"),
-                dcc.Graph(id="projects")
+                dcc.Graph(id="projects_c3t")
             ]), width=12),
             dbc.Col(),
         ]),
 
         dbc.Row([], style={'paddingTop': '96px'})
     ]
-    return content_tco2
+    return content_c3t

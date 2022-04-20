@@ -6,8 +6,51 @@ from .constants import GRAY, DARK_GRAY
 
 
 def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, detail_df, fig_deposited_over_time,
-                        fig_redeemed_over_time, fig_retired_over_time, retire_note, bridge_name="Toucan",
+                        fig_redeemed_over_time, fig_retired_over_time, fig_total_vintage, fig_total_map,
+                        fig_total_metho, fig_total_project, retire_note, bridge_name="Toucan",
                         bridge_ticker="TCO2"):
+
+    if retired is None:
+        retired_card = dbc.Card([
+            html.H5(
+                f"Cumulative Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
+            dbc.CardBody("Coming soon", className="card-text"),
+        ], className="card-pool-summary")
+        retired_graph = dbc.Card([
+            html.H5(f"Cumulative Tonnes Retired from {pool_ticker} Over Time",
+                    className="card-title"),
+            dbc.CardBody("Coming soon", className="card-text"),
+        ], className="card-graph")
+    else:
+        retired_card = dbc.Card([
+            html.H5(
+                f"Cumulative Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
+            dbc.CardBody("{:,}".format(
+                int(retired["Quantity"].sum())), className="card-text"),
+            dbc.CardFooter(retire_note, id="klima_retire_note")
+        ], className="card-pool-summary")
+
+        retired_graph = dbc.Card([
+            html.H5(f"Cumulative Tonnes Retired from {pool_ticker} Over Time",
+                    className="card-title"),
+            dbc.CardBody(dcc.Graph(figure=fig_retired_over_time)),
+            dbc.CardFooter(retire_note, id="klima_retire_note")
+        ], className="card-graph")
+
+    if redeemed["Quantity"].sum() == 0 or redeemed.empty:
+        redeemed_graph = dbc.Card([
+            html.H5(f"Cumulative Tonnes of {bridge_ticker} Redeemed Over Time",
+                    className="card-title"),
+            dbc.CardBody("0",
+                         className="card-text"),
+        ], className="card-graph")
+    else:
+        redeemed_graph = dbc.Card([
+            html.H5(f"Cumulative Tonnes of {bridge_ticker} Redeemed Over Time",
+                    className="card-title"),
+            dbc.CardBody(dcc.Graph(figure=fig_redeemed_over_time))
+        ], className="card-graph")
+
     content = [
         dbc.Row(
             dbc.Col(
@@ -30,14 +73,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                     dbc.CardBody("{:,}".format(
                         int(redeemed["Quantity"].sum())), className="card-text")
                 ], className="card-pool-summary"), lg=4, md=12),
-            dbc.Col(
-                dbc.Card([
-                    html.H5(
-                        f"Cumulative Tonnes of {bridge_ticker} Retired from {pool_ticker}", className="card-title"),
-                    dbc.CardBody("{:,}".format(
-                        int(retired["Quantity"].sum())), className="card-text"),
-                    dbc.CardFooter(retire_note, id="klima_retire_note")
-                ], className="card-pool-summary"), lg=4, md=12),
+            dbc.Col(retired_card, lg=4, md=12),
         ], style={'paddingTop': '60px'}),
         dbc.Row([
             dbc.Col([
@@ -48,21 +84,59 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                 ], className="card-graph")
             ], lg=4, md=12),
             dbc.Col([
-                    dbc.Card([
-                        html.H5(f"Cumulative Tonnes of {bridge_ticker} Redeemed Over Time",
-                                className="card-title"),
-                        dbc.CardBody(dcc.Graph(figure=fig_redeemed_over_time))
-                    ], className="card-graph")
+                    redeemed_graph
                     ], lg=4, md=12),
             dbc.Col([
-                    dbc.Card([
-                        html.H5(f"Cumulative Tonnes Retired from {pool_ticker} Over Time",
-                                className="card-title"),
-                        dbc.CardBody(dcc.Graph(figure=fig_retired_over_time)),
-                        dbc.CardFooter(retire_note, id="klima_retire_note")
-                    ], className="card-graph")
+                    retired_graph
                     ], lg=4, md=12)
         ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                dbc.CardBody(html.H2(f'Deep Dive into {pool_ticker}'),
+                             style={'textAlign': 'center'})
+            ]), lg=6, md=12),
+            dbc.Col(),
+        ], style={'paddingTop': '60px'}),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Vintage Start Dates",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_vintage)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Origin of Tokenized Credits",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_map)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Methodologies",
+                        className="card-title"),
+                dcc.Graph(figure=fig_total_metho)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Distribution of Projects", className="card-title"),
+                dcc.Graph(figure=fig_total_project)
+            ]), width=12),
+            dbc.Col(),
+        ]),
+
         dbc.Row([
             dbc.Col([
                 dbc.Card([
