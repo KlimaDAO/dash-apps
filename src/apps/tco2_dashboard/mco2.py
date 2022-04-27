@@ -4,8 +4,11 @@ import dash_bootstrap_components as dbc
 from .constants import GRAY, DARK_GRAY
 
 
-def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map, fig_mco2_total_metho,
-                        fig_mco2_total_project, current_supply):
+def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume, fig_mco2_total_vintage,
+                        fig_mco2_total_map, fig_mco2_total_metho,
+                        fig_mco2_total_project):
+    df_mco2_bridged = df_mco2_bridged[[
+        'Project ID', 'Vintage', 'Quantity', 'Country', 'Name', 'Project Type', 'Methodology']]
     df_grouped = df_mco2_bridged.groupby(['Project ID', 'Country', 'Methodology', 'Project Type', 'Name', 'Vintage'])[
         'Quantity'].sum().to_frame().reset_index()
     content_mco2 = [
@@ -26,13 +29,13 @@ def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_
             dbc.Col(dbc.Card([
                 html.H5("MCO2 Tonnes Retired", className="card-title"),
                 dbc.CardBody("{:,}".format(
-                    int(df_mco2_bridged["Quantity"].sum() - current_supply)), className="card-text")
+                    int(df_mco2_retired["Quantity"].sum())), className="card-text")
             ]), lg=4, md=12),
             dbc.Col(dbc.Card([
                 html.H5("MCO2 Tonnes Outstanding",
                         className="card-title"),
                 dbc.CardBody("{:,}".format(
-                    int(current_supply)), className="card-text")
+                    int(df_mco2_bridged["Quantity"].sum() - df_mco2_retired["Quantity"].sum())), className="card-text")
             ]), lg=4, md=12),
         ], style={'paddingTop': '60px'}),
 
@@ -44,6 +47,16 @@ def create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_
             ]), lg=6, md=12),
             dbc.Col(),
         ], style={'paddingTop': '60px'}),
+
+        dbc.Row([
+            dbc.Col(),
+            dbc.Col(dbc.Card([
+                html.H5("Cumulative Tonnes Bridged Over Time",
+                        className="card-title"),
+                dcc.Graph(figure=fig_mco2_total_volume)
+            ]), width=12),
+            dbc.Col(),
+        ]),
 
         dbc.Row([
             dbc.Col(),

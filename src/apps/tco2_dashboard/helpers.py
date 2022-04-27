@@ -54,6 +54,28 @@ def date_manipulations(df):
     return df
 
 
+def date_manipulations_verra(df):
+    if not(df.empty):
+        df["Date"] = pd.to_datetime(df["Date"], unit='s').dt.tz_localize(
+            None).dt.floor('D').dt.date
+        datelist = pd.date_range(start=df["Date"].min()+pd.DateOffset(-1),
+                                 end=pd.to_datetime('today'), freq='d')
+        df_date = pd.DataFrame()
+        df_date["Date_continous"] = datelist
+        df_date["Date_continous"] = pd.to_datetime(df_date["Date_continous"],  unit='s').dt.tz_localize(
+            None).dt.floor('D').dt.date
+        df = df.merge(df_date, how='right', left_on='Date',
+                      right_on='Date_continous').reset_index(drop=True)
+        df["Date"] = df["Date_continous"]
+        for i in df.columns:
+            if "Quantity" in i:
+                df[i] = df[i].fillna(0)
+            else:
+                df[i] = df[i].fillna("missing")
+                df[i] = df[i].replace("", "missing")
+    return df
+
+
 def black_list_manipulations(df):
     # Dropping rows where Region = "", these tokenized carbon credits are black-listed
     # Black listed because their methodology = "AM0001"
@@ -73,12 +95,23 @@ def merge_verra(df, df_verra, merge_columns, drop_columns):
     df_verra = df_verra[merge_columns]
     df_verra = df_verra.drop_duplicates(
         subset=['ID']).reset_index(drop=True)
-    if drop_columns:
-        df = df.drop(columns=drop_columns)
+    for i in drop_columns:
+        if i in df.columns:
+            df = df.drop(columns=i)
     df = df.merge(df_verra, how='left', left_on="Project ID Key",
                   right_on='ID', suffixes=('', '_Verra'))
 
     return df
+
+# def merge_verra_mco2(df, df_verra, merge_columns, drop_columns):
+#     # df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
+#     df_verra = df_verra[merge_columns]
+#     for i in drop_columns:
+#         if i in df.columns:
+#             df = df.drop(columns=i)
+#     df = df.merge(df_verra, how='left', left_on="Serial Number",
+#                   right_on='Serial Number', suffixes=('', '_Verra'))
+#     return df
 
 
 def region_manipulations(df):
@@ -120,21 +153,47 @@ def filter_df_by_pool(df, pool_address):
 
 
 def verra_manipulations(df_verra):
+    df_verra['Vintage'] = df_verra['Vintage Start']
     df_verra['Vintage'] = pd.to_datetime(
         df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
     df_verra['Quantity'] = df_verra['Quantity Issued']
+    df_verra['Retirement/Cancellation Date'] = pd.to_datetime(
+        df_verra['Retirement/Cancellation Date'])
+    df_verra['Date'] = df_verra['Retirement/Cancellation Date']
     df_verra.loc[df_verra['Retirement Details'].str.contains(
         'TOUCAN').fillna(False), 'Toucan'] = True
     df_verra['Toucan'] = df_verra['Toucan'].fillna(False)
+    df_verra.loc[df_verra['Retirement Details'].str.contains(
+        'C3T').fillna(False), 'C3'] = True
+    df_verra['C3'] = df_verra['C3'].fillna(False)
+    df_verra_c3 = df_verra.query('C3')
     df_verra_toucan = df_verra.query('Toucan')
-    return df_verra, df_verra_toucan
+    return df_verra, df_verra_toucan, df_verra_c3
+
+
+def verra_retired(df_verra, df_bridged_mco2):
+    df_verra['Issuance Date'] = pd.to_datetime(df_verra['Issuance Date'])
+    df_verra['Retirement/Cancellation Date'] = pd.to_datetime(
+        df_verra['Retirement/Cancellation Date'])
+    df_verra['Days to Retirement'] = (
+        df_verra['Retirement/Cancellation Date'] - df_verra['Issuance Date']).dt.days
+    df_verra.loc[df_verra['Days to Retirement'] > 0, 'Status'] = 'Retired'
+    df_verra['Status'] = df_verra['Status'].fillna('Available')
+    lst_sn = list(df_bridged_mco2['Serial Number'])
+    df_verra.loc[df_verra['Serial Number'].isin(lst_sn), 'Moss'] = True
+    df_verra['Moss'] = df_verra['Moss'].fillna(False)
+    df_verra_retired = df_verra.query('~Toucan & ~C3 & ~Moss')
+    df_verra_retired = df_verra_retired[df_verra_retired['Status'] == 'Retired']
+    df_verra_retired = df_verra_retired.reset_index(drop=True)
+    return df_verra_retired
 
 
 def mco2_verra_manipulations(df_mco2_bridged):
-    df_mco2_bridged = df_mco2_bridged[[
-        "Project ID", "Vintage", "Quantity", "Country", "Methodology", "Project Type", "Name"]]
-    df_mco2_bridged["Vintage"] = pd.to_datetime(
-        df_mco2_bridged["Vintage"].str[6:10]).dt.tz_localize(None).dt.year
+    df_mco2_bridged = df_mco2_bridged[df_mco2_bridged['Project ID'] != 'missing']
+    # df_mco2_bridged = df_mco2_bridged[[
+    #     "Project ID", "Vintage", "Quantity", "Country", "Methodology", "Project Type", "Name"]]
+    # df_mco2_bridged["Vintage"] = pd.to_datetime(
+    #     df_mco2_bridged["Vintage"].astype(str)).dt.tz_localize(None).dt.year
     df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
     pat = r'VCS-(?P<id>\d+)'
     repl = (
@@ -208,3 +267,14 @@ def read_from_json(filename):
         data = json.load(json_file)
         data = json.loads(data)
     return data
+
+
+def adjust_mco2_bridges(df, df_tx):
+    df_tx = df_tx[['Date', 'Tx Address']]
+    df = df.merge(df_tx, how='left', left_on='Original Tx Address',
+                  right_on='Tx Address', suffixes=('', '_new')).reset_index(drop=True)
+    df.loc[df["Original Tx Address"] != '0x0000000000000000000000000000000000000000000000000000000000000000', 'Date'] \
+        = df.loc[df["Original Tx Address"] !=
+                 '0x0000000000000000000000000000000000000000000000000000000000000000', 'Date_new']
+    df = df.drop(columns=['Tx Address', 'Date_new'])
+    return df
