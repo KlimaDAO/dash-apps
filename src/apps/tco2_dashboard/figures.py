@@ -596,7 +596,7 @@ def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
         #     df_verra_other_grouped[f'Quantity_{i}']
         # df_verra_other_grouped = df_verra_other_grouped[[
         #     'Vintage', 'Quantity']]
-    df_verra_grouped['Type'] = 'Offchain Retired VCUs'
+    df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
 
     df_other_and_bridges = pd.concat(
         dfs + [df_verra_grouped]).reset_index()
@@ -742,7 +742,7 @@ def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
                       hoverlabel=dict(font_color='white', font_size=8), font_size=8,
                       margin=dict(t=20, b=20, l=0, r=0),
                       legend=dict(font=dict(size=8), tracegroupgap=0,
-                      title=" Percentage On-Chain <br> Retired Credits", y=0.5))
+                      title=" Percentage On-Chain <br>    Retired Credits", y=0.5))
     return fig
 
 
@@ -752,12 +752,14 @@ def on_vs_off_project(df_verra, bridges_info_dict):
         'Project Type')['Quantity'].sum().to_frame().reset_index()
     df_verra_other_grouped = pd.DataFrame()
     dfs = []
+    colors = {}
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
         df = df[df["Project Type"] != "missing"]
         df = df.groupby(
             'Project Type')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Bridged VCUs'
+        colors[f'{i} Bridged VCUs'] = '#00CC33'
         dfs.append(df)
         if df_verra_other_grouped.empty:
             df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Project Type",
@@ -772,12 +774,15 @@ def on_vs_off_project(df_verra, bridges_info_dict):
         df_verra_other_grouped = df_verra_other_grouped[[
             'Project Type', 'Quantity']]
         df_verra_other_grouped['Type'] = 'Rest of Issued VCUs'
-
+    colors['Rest of Issued VCUs'] = '#536C9C'
+    colors['(?)'] = '#6E6E6E'
     df_other_and_bridges = pd.concat(
         dfs + [df_verra_other_grouped]).reset_index()
     fig = px.treemap(df_other_and_bridges, path=[px.Constant("All Projects"), 'Project Type', 'Type'],
                      values='Quantity',
-                     color_discrete_sequence=px.colors.qualitative.Antique,
+                     color_discrete_map=colors,
+                     #  color_discrete_sequence=px.colors.qualitative.Antique,
+                     color='Type',
                      hover_data=['Type', 'Quantity'],
                      height=480, title='')
     fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
@@ -795,6 +800,7 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
     df_verra_grouped = df_verra_retired.groupby(
         'Project Type')['Quantity'].sum().to_frame().reset_index()
     # df_verra_other_grouped = pd.DataFrame()
+    colors = {}
     dfs = []
     for i in retires_info_dict.keys():
         df = retires_info_dict[i]["Dataframe"]
@@ -802,6 +808,7 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
         df = df.groupby(
             'Project Type')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Retired VCUs'
+        colors[f'{i} Retired VCUs'] = '#00CC33'
         dfs.append(df)
         # if df_verra_other_grouped.empty:
         #     df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Project Type",
@@ -816,12 +823,15 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
         # df_verra_other_grouped = df_verra_other_grouped[[
         #     'Project Type', 'Quantity']]
     df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
-
+    colors['Off-Chain Retired VCUs'] = '#536C9C'
+    colors['(?)'] = '#6E6E6E'
     df_other_and_bridges = pd.concat(
         dfs + [df_verra_grouped]).reset_index()
     fig = px.treemap(df_other_and_bridges, path=[px.Constant("All Projects"), 'Project Type', 'Type'],
                      values='Quantity',
-                     color_discrete_sequence=px.colors.qualitative.Antique,
+                     color_discrete_map=colors,
+                     #  color_discrete_sequence=px.colors.qualitative.Antique,
+                     color='Type',
                      hover_data=['Type', 'Quantity'],
                      height=480, title='')
     fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",

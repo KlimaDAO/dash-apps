@@ -113,7 +113,8 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
             dbc.Col(),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H2("Deep Dive into Off-Chain vs On-Chain Comparison")),
+                    dbc.CardHeader(
+                        html.H2("Deep Dive into Off-Chain vs On-Chain Carbon Credits")),
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col([
@@ -158,7 +159,9 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
                 dbc.Card([
                     html.H5(id='on_vs_off_vintage_title',
                             className="card-title"),
-                    dbc.CardBody(dcc.Graph(id='on_vs_off_vintage_plot'))
+                    dbc.CardBody(dcc.Graph(id='on_vs_off_vintage_plot')),
+                    dbc.CardFooter(id='on_vs_off_vintage_footer',
+                                   className='on_vs_off_footers'),
                 ])
             ], width=12),
         ]),
@@ -167,7 +170,9 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
                 dbc.Card([
                     html.H5(id='on_vs_off_origin_title',
                             className="card-title"),
-                    dbc.CardBody(dcc.Graph(id='on_vs_off_origin_plot'))
+                    dbc.CardBody(dcc.Graph(id='on_vs_off_origin_plot')),
+                    dbc.CardFooter(id='on_vs_off_origin_footer',
+                                   className='on_vs_off_footers'),
                 ])
             ], width=12),
         ]),
@@ -176,7 +181,9 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
                 dbc.Card([
                     html.H5(id='on_vs_off_project_title',
                             className="card-title"),
-                    dbc.CardBody(dcc.Graph(id='on_vs_off_project_plot'))
+                    dbc.CardBody(dcc.Graph(id='on_vs_off_project_plot')),
+                    dbc.CardFooter(id='on_vs_off_project_footer',
+                                   className='on_vs_off_footers'),
                 ])
             ], width=12),
         ]),

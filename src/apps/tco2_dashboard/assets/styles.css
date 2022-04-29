@@ -253,6 +253,13 @@ color: white;
   padding: 0px;
 }
 
+.on_vs_off_footers{
+  border: 0px;
+  font-style: italic;
+  font-size: 0.7rem;
+  padding: 0px;
+}
+
 .sidebar {
   position: fixed;
   padding: 1rem 2rem;

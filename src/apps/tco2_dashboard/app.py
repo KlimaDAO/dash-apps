@@ -1197,6 +1197,12 @@ def update_output_div_c3(summary_type, C3T_type):
     Output(component_id='on_vs_off_vintage_plot', component_property='figure'),
     Output(component_id="on_vs_off_origin_plot", component_property='figure'),
     Output(component_id="on_vs_off_project_plot", component_property='figure'),
+    Output(component_id='on_vs_off_vintage_footer',
+           component_property='children'),
+    Output(component_id='on_vs_off_origin_footer',
+           component_property='children'),
+    Output(component_id='on_vs_off_project_footer',
+           component_property='children'),
     Input(component_id='issued_or_retired', component_property='value')
 )
 def update_output_on_vs_off(type):
@@ -1207,14 +1213,16 @@ def update_output_on_vs_off(type):
         return titles_on_vs_off_issued[0], titles_on_vs_off_issued[1], titles_on_vs_off_issued[2], \
             titles_on_vs_off_issued[3], titles_on_vs_off_issued[4], \
             fig_on_vs_off_issued[0], fig_on_vs_off_issued[1], fig_on_vs_off_issued[2], \
-            fig_on_vs_off_issued[3], fig_on_vs_off_issued[4]
+            fig_on_vs_off_issued[3], fig_on_vs_off_issued[4], None, None, None
     elif type == 'Retired':
+        moss_note = 'Note: Project metadata of Moss Retired VCUs is unavailable'
         titles_on_vs_off_retired = cache.get("titles_on_vs_off_retired")
         fig_on_vs_off_retired = cache.get("fig_on_vs_off_retired")
         return titles_on_vs_off_retired[0], titles_on_vs_off_retired[1], \
             titles_on_vs_off_retired[2], titles_on_vs_off_retired[3], titles_on_vs_off_retired[4], \
             fig_on_vs_off_retired[0], fig_on_vs_off_retired[1], \
-            fig_on_vs_off_retired[2], fig_on_vs_off_retired[3], fig_on_vs_off_retired[4]
+            fig_on_vs_off_retired[2], fig_on_vs_off_retired[3], fig_on_vs_off_retired[4], \
+            moss_note, moss_note, moss_note
 
 
 @callback(
