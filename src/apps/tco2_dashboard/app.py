@@ -11,7 +11,7 @@ import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
 
-from ...util import get_eth_web3, load_abi
+# from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart, pool_pie_chart,\
     historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project,\
@@ -69,7 +69,6 @@ cache = Cache(app.server, config={
 })
 
 
-@cache.memoize()
 def get_data():
 
     sg = Subgrounds()
@@ -125,7 +124,6 @@ def get_data():
     return df_bridged, df_retired
 
 
-@cache.memoize()
 def get_data_pool():
 
     sg = Subgrounds()
@@ -156,7 +154,6 @@ def get_data_pool():
     return df_deposited, df_redeemed
 
 
-@cache.memoize()
 def get_data_pool_retired():
 
     sg = Subgrounds()
@@ -193,20 +190,6 @@ def get_mco2_data():
         carbon_offsets.originaltx,
     ])
 
-    # carbon_offsets = carbon_data.Query.batchCalls(
-    #     first=MAX_RECORDS
-    # )
-    # df_bridged_calls = sg.query_df([
-    #     carbon_offsets.id,
-    #     carbon_offsets.serialNumber,
-    #     carbon_offsets.timestamp,
-    #     carbon_offsets.tokenAddress,
-    #     carbon_offsets.vintage,
-    #     carbon_offsets.projectID,
-    #     carbon_offsets.value,
-    #     carbon_offsets.originaltx,
-    # ])
-
     carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
     carbon_offsets = carbon_data.Query.bridges(
         first=MAX_RECORDS
@@ -240,7 +223,6 @@ def get_mco2_data():
     return df_bridged, df_bridged_tx, df_retired
 
 
-@cache.memoize()
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -263,20 +245,19 @@ def get_verra_data():
     return df_verra, fallback_note
 
 
-web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
+# web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
 
-@cache.memoize()
-def get_mco2_contract_data():
-    ERC20_ABI = load_abi('erc20.json')
-    if web3 is not None:
-        mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
-        decimals = 10 ** mco2_contract.functions.decimals().call()
-        total_supply = mco2_contract.functions.totalSupply().call() // decimals
-        return total_supply
-    else:
-        # If web3 is not connected, just return an invalid value
-        return -1
+# def get_mco2_contract_data():
+#     ERC20_ABI = load_abi('erc20.json')
+#     if web3 is not None:
+#         mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
+#         decimals = 10 ** mco2_contract.functions.decimals().call()
+#         total_supply = mco2_contract.functions.totalSupply().call() // decimals
+#         return total_supply
+#     else:
+#         # If web3 is not connected, just return an invalid value
+#         return -1
 
 
 cg = CoinGeckoAPI()
@@ -287,7 +268,6 @@ token_cg_dict = {
 }
 
 
-@cache.memoize()
 def get_prices():
     df_prices = pd.DataFrame()
     for i in token_cg_dict.keys():
@@ -304,7 +284,7 @@ def get_prices():
     return df_prices
 
 
-# @cache.memoize()
+@cache.memoize()
 def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -312,8 +292,6 @@ def generate_layout():
     df_bridged_mco2, df_bridged_tx_mco2, df_retired_mco2 = get_mco2_data()
     df_verra, verra_fallback_note = get_verra_data()
     df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
-    # df_mco2_bridged = read_csv('mco2_verra_data.csv')
-    mco2_current_supply = get_mco2_contract_data()
     df_prices = get_prices()
     curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
@@ -567,8 +545,6 @@ def generate_layout():
     df_verra_retired = verra_retired(df_verra, df_bridged_mco2)
     df_retired_mco2 = df_retired_mco2.rename(columns=retires_rename_map)
     df_bridged_tx_mco2 = df_bridged_tx_mco2.rename(columns=bridges_rename_map)
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_colwidth', None)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
     df_bridged_mco2["Project ID"] = 'VCS-' + \
         df_bridged_mco2["Project ID"].astype(str)
@@ -581,11 +557,8 @@ def generate_layout():
     df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
     df_retired_mco2 = date_manipulations(df_retired_mco2)
-    print(df_bridged_mco2)
-    print(df_retired_mco2)
+
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
-    # fig_mco2_total_volume = total_volume(
-    #     df_bridged_mco2, "Credits bridged (total)", zero_bridging_evt_text)
     fig_mco2_total_volume = deposited_over_time(
         df_bridged_mco2)
     fig_mco2_total_vintage = total_vintage(
@@ -602,7 +575,6 @@ def generate_layout():
 
     cache.set("content_mco2", content_mco2)
 
-    # Stopped here
     # --Carbon Pool Figures---
 
     # rename_columns
@@ -748,7 +720,8 @@ def generate_layout():
     ) - bct_redeemed["Quantity"].sum()
     token_cg_dict['NCT']['Current Supply'] = nct_deposited["Quantity"].sum(
     ) - nct_redeemed["Quantity"].sum()
-    token_cg_dict['MCO2']['Current Supply'] = mco2_current_supply
+    token_cg_dict['MCO2']['Current Supply'] = df_bridged_mco2["Quantity"].sum(
+    ) - df_retired_mco2["Quantity"].sum()
 
     bridges_info_dict = {
         'Toucan': {'Dataframe': date_manipulations_verra(df_verra_toucan)},

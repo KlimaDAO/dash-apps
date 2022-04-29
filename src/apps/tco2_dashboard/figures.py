@@ -575,7 +575,6 @@ def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
     df_verra_retired = df_verra_retired[df_verra_retired["Vintage"] != "missing"]
     df_verra_grouped = df_verra_retired.groupby(
         'Vintage')['Quantity'].sum().to_frame().reset_index()
-    # df_verra_other_grouped = pd.DataFrame()
     dfs = []
     for i in retires_info_dict.keys():
         df = retires_info_dict[i]["Dataframe"]
@@ -584,18 +583,6 @@ def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
             'Vintage')['Quantity'].sum().to_frame().reset_index()
         df['Type'] = f'{i} Retired VCUs'
         dfs.append(df)
-        # if df_verra_other_grouped.empty:
-        #     df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Vintage",
-        #                                                     right_on='Vintage', suffixes=('', f"_{i}"))
-        # else:
-        #     df_verra_other_grouped = df_verra_other_grouped.merge(df, how='left', left_on="Vintage",
-        #                                                           right_on='Vintage', suffixes=('', f"_{i}"))
-        # df_verra_other_grouped[f'Quantity_{i}'] = df_verra_other_grouped[f'Quantity_{i}'].fillna(
-        #     0)
-        # df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
-        #     df_verra_other_grouped[f'Quantity_{i}']
-        # df_verra_other_grouped = df_verra_other_grouped[[
-        #     'Vintage', 'Quantity']]
     df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
 
     df_other_and_bridges = pd.concat(
@@ -799,7 +786,6 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
     df_verra_retired = df_verra_retired[df_verra_retired["Project Type"] != "missing"]
     df_verra_grouped = df_verra_retired.groupby(
         'Project Type')['Quantity'].sum().to_frame().reset_index()
-    # df_verra_other_grouped = pd.DataFrame()
     colors = {}
     dfs = []
     for i in retires_info_dict.keys():
@@ -810,18 +796,6 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
         df['Type'] = f'{i} Retired VCUs'
         colors[f'{i} Retired VCUs'] = '#00CC33'
         dfs.append(df)
-        # if df_verra_other_grouped.empty:
-        #     df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Project Type",
-        #                                                     right_on='Project Type', suffixes=('', f"_{i}"))
-        # else:
-        #     df_verra_other_grouped = df_verra_other_grouped.merge(df, how='left', left_on="Project Type",
-        #                                                           right_on='Project Type', suffixes=('', f"_{i}"))
-        # df_verra_other_grouped[f'Quantity_{i}'] = df_verra_other_grouped[f'Quantity_{i}'].fillna(
-        #     0)
-        # df_verra_other_grouped['Quantity'] = df_verra_other_grouped['Quantity'] - \
-        #     df_verra_other_grouped[f'Quantity_{i}']
-        # df_verra_other_grouped = df_verra_other_grouped[[
-        #     'Project Type', 'Quantity']]
     df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
     colors['Off-Chain Retired VCUs'] = '#536C9C'
     colors['(?)'] = '#6E6E6E'

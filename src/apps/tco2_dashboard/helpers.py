@@ -190,10 +190,6 @@ def verra_retired(df_verra, df_bridged_mco2):
 
 def mco2_verra_manipulations(df_mco2_bridged):
     df_mco2_bridged = df_mco2_bridged[df_mco2_bridged['Project ID'] != 'missing']
-    # df_mco2_bridged = df_mco2_bridged[[
-    #     "Project ID", "Vintage", "Quantity", "Country", "Methodology", "Project Type", "Name"]]
-    # df_mco2_bridged["Vintage"] = pd.to_datetime(
-    #     df_mco2_bridged["Vintage"].astype(str)).dt.tz_localize(None).dt.year
     df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
     pat = r'VCS-(?P<id>\d+)'
     repl = (
