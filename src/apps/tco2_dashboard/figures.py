@@ -326,7 +326,8 @@ def pool_pie_chart(df, labels):
 
 def bridges_pie_chart(bridges_info_dict):
     labels = list(bridges_info_dict.keys())
-    values = [d['Tokenized Quantity'] for d in bridges_info_dict.values()]
+    values = [d['Dataframe']["Quantity"].sum()
+              for d in bridges_info_dict.values()]
     fig = go.Figure()
     fig.add_trace(go.Pie(labels=labels, values=values,  textinfo='percent', textfont=dict(
         color='white', size=12), hoverlabel=dict(font_color='white', font_size=12), hole=.3))
@@ -485,7 +486,8 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
         pool_address = token_cg_dict[i]['address']
         filtered_df = df_pool_retired
         filtered_df[f'Quantity_{i}'] = filtered_df['Quantity']
-        filtered_df.loc[filtered_df['Pool'] != pool_address, f'Quantity_{i}'] = 0
+        filtered_df.loc[filtered_df['Pool'] !=
+                        pool_address, f'Quantity_{i}'] = 0
         filtered_df = filtered_df.sort_values(by="Date", ascending=True)
         filtered_df[f'Quantity_{i}'] = filtered_df[f'Quantity_{i}'].cumsum()
         fig.add_trace(go.Scatter(x=filtered_df['Date'], y=filtered_df[f'Quantity_{i}'],
@@ -503,7 +505,30 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
     return fig
 
 
+def tokenized_volume(bridges_info_dict):
+    fig = go.Figure()
+    for i in bridges_info_dict.keys():
+        df = bridges_info_dict[i]["Dataframe"]
+        df = df.sort_values(by="Date", ascending=True)
+        df["Quantity"] = df["Quantity"].cumsum()
+        df['Type'] = f'{i} Bridged Credits'
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['Quantity'],
+                                 mode='lines',
+                                 name=i,
+                                 stackgroup='one'
+                                 )
+                      )
+        fig.update_layout(height=300, font=dict(color='white'),
+                          xaxis_title='Date', yaxis_title='Quantity',
+                          paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, xaxis=dict(
+                          showgrid=False), yaxis=dict(showgrid=False),
+                          margin=dict(t=20, b=20, l=0, r=0),
+                          hovermode='x unified', hoverlabel=dict(font_color='white', font_size=8))
+    return fig
+
+
 def on_vs_off_vintage(df_verra, bridges_info_dict):
+    df_verra = df_verra[df_verra["Vintage"] != "missing"]
     df_verra_grouped = df_verra.groupby(
         'Vintage')['Quantity'].sum().to_frame().reset_index()
     df_verra_other_grouped = pd.DataFrame()
@@ -513,7 +538,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
         df = df[df["Vintage"] != "missing"]
         df = df.groupby(
             'Vintage')['Quantity'].sum().to_frame().reset_index()
-        df['Type'] = f'{i} Bridged Credits'
+        df['Type'] = f'{i} Bridged VCUs'
         dfs.append(df)
         if df_verra_other_grouped.empty:
             df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Vintage",
@@ -527,7 +552,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
             df_verra_other_grouped[f'Quantity_{i}']
         df_verra_other_grouped = df_verra_other_grouped[[
             'Vintage', 'Quantity']]
-        df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
+        df_verra_other_grouped['Type'] = 'Rest of Issued VCUs'
 
     df_other_and_bridges = pd.concat(
         dfs + [df_verra_other_grouped]).reset_index()
@@ -546,7 +571,39 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
     return fig
 
 
+def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
+    df_verra_retired = df_verra_retired[df_verra_retired["Vintage"] != "missing"]
+    df_verra_grouped = df_verra_retired.groupby(
+        'Vintage')['Quantity'].sum().to_frame().reset_index()
+    dfs = []
+    for i in retires_info_dict.keys():
+        df = retires_info_dict[i]["Dataframe"]
+        df = df[df["Vintage"] != "missing"]
+        df = df.groupby(
+            'Vintage')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Retired VCUs'
+        dfs.append(df)
+    df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
+
+    df_other_and_bridges = pd.concat(
+        dfs + [df_verra_grouped]).reset_index()
+    fig = px.bar(df_other_and_bridges, x="Vintage",
+                 y="Quantity", color="Type", title="", height=300)
+    fig.update_traces(marker_line_width=0)
+    fig.update_layout(height=360, paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR,
+                      xaxis=dict(showgrid=False),
+                      yaxis=dict(showgrid=False), font_color='white', hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=8,
+                      legend=dict(title="", orientation="h", yanchor="bottom",
+                                  y=1.02, xanchor="right", x=1
+                                  ),
+                      margin=dict(t=80, b=20, l=0, r=0))
+
+    return fig
+
+
 def on_vs_off_map(df_verra, bridges_info_dict):
+    df_verra = df_verra[df_verra["Country"] != "missing"]
     df_verra_grouped = df_verra.groupby(
         'Country')['Quantity'].sum().to_frame().reset_index()
     df_verra_grouped["Text_Bridges"] = ""
@@ -556,7 +613,7 @@ def on_vs_off_map(df_verra, bridges_info_dict):
         df = df[df["Country"] != "missing"]
         df = df.groupby(
             'Country')['Quantity'].sum().to_frame().reset_index()
-        df['Type'] = f'{i} Bridged Credit'
+        df['Type'] = f'{i} Bridged VCUs'
         df_verra_grouped = df_verra_grouped.merge(df, how='left', left_on="Country",
                                                   right_on='Country', suffixes=('', f"_{i}"))
         df_verra_grouped[f'Quantity_{i}'] = df_verra_grouped[f'Quantity_{i}'].fillna(
@@ -564,14 +621,14 @@ def on_vs_off_map(df_verra, bridges_info_dict):
         df_verra_grouped["Quantity_Bridges"] = df_verra_grouped["Quantity_Bridges"] + \
             df_verra_grouped[f'Quantity_{i}']
         df_verra_grouped["Text_Bridges"] = df_verra_grouped["Text_Bridges"] + \
-            f'{i} Bridged Credits = ' + \
+            f'{i} Bridged VCUs = ' + \
             df_verra_grouped[f'Quantity_{i}'].map(
                 '{:,.0f}'.format).astype(str) + '<br>'
     df_verra_grouped["Percentage"] = ((df_verra_grouped["Quantity_Bridges"] /
                                        df_verra_grouped['Quantity'])*100).round(decimals=4)
     df_verra_grouped['text'] = df_verra_grouped['Country'] + '<br>' + '<br>' + \
         df_verra_grouped["Text_Bridges"] + \
-        'Total Tokenized Credits = ' + df_verra_grouped['Quantity_Bridges'].map('{:,.0f}'.format).astype(str) + \
+        'Total Tokenized VCUs = ' + df_verra_grouped['Quantity_Bridges'].map('{:,.0f}'.format).astype(str) + \
         '<br>' +\
         'Verra Issued Credits = ' + df_verra_grouped['Quantity'].map('{:,.0f}'.format).astype(str) + '<br>' +\
         'Percentage = ' + \
@@ -610,17 +667,86 @@ def on_vs_off_map(df_verra, bridges_info_dict):
     return fig
 
 
+def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
+    df_verra_retired = df_verra_retired[df_verra_retired["Country"] != "missing"]
+    df_verra_grouped = df_verra_retired.groupby(
+        'Country')['Quantity'].sum().to_frame().reset_index()
+    df_verra_grouped["Text_Retires"] = ""
+    df_verra_grouped["Quantity_Retires"] = 0
+    for i in retires_info_dict.keys():
+        df = retires_info_dict[i]["Dataframe"]
+        df = df[df["Country"] != "missing"]
+        df = df.groupby(
+            'Country')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Retired VCUs'
+        df_verra_grouped = df_verra_grouped.merge(df, how='left', left_on="Country",
+                                                  right_on='Country', suffixes=('', f"_{i}"))
+        df_verra_grouped[f'Quantity_{i}'] = df_verra_grouped[f'Quantity_{i}'].fillna(
+            0)
+        df_verra_grouped["Quantity_Retires"] = df_verra_grouped["Quantity_Retires"] + \
+            df_verra_grouped[f'Quantity_{i}']
+        df_verra_grouped["Text_Retires"] = df_verra_grouped["Text_Retires"] + \
+            f'{i} Retired VCUs = ' + \
+            df_verra_grouped[f'Quantity_{i}'].map(
+                '{:,.0f}'.format).astype(str) + '<br>'
+    df_verra_grouped["Percentage"] = ((df_verra_grouped["Quantity_Retires"] /
+                                       (df_verra_grouped["Quantity_Retires"] +
+                                           df_verra_grouped['Quantity']))*100).round(decimals=4)
+    df_verra_grouped['text'] = df_verra_grouped['Country'] + '<br>' + '<br>' + \
+        df_verra_grouped["Text_Retires"] + \
+        'Total On-Chain Retired VCUs = ' + df_verra_grouped['Quantity_Retires'].map('{:,.0f}'.format).astype(str) + \
+        '<br>' +\
+        'Total Verra Retired Credits = ' + df_verra_grouped['Quantity'].map('{:,.0f}'.format).astype(str) + '<br>' +\
+        'Percentage = ' + \
+        df_verra_grouped['Percentage'].astype(str) + '%' + '<br>'
+    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
+        drop=True)
+    country_index = defaultdict(str, {country: pycountry.countries.search_fuzzy(country)[
+                                0].alpha_3 for country in df_verra_grouped.Country.astype(str).unique()
+        if country != 'nan'})
+    df_verra_grouped['Country Code'] = [country_index[country]
+                                        for country in df_verra_grouped['Country']]
+
+    cut_bins = [-np.inf, 0, 2, 5, 10, 100]
+    bin_labels = ["0", "(0-2]", "(2-5]", "(5-10]", "(10-100]"]
+    df_verra_grouped["Percentage Bins"] = pd.cut(
+        df_verra_grouped["Percentage"], bins=cut_bins, labels=bin_labels)
+    df_verra_grouped = df_verra_grouped.sort_values(by=["Percentage"])
+
+    fig = px.choropleth(df_verra_grouped, locations="Country Code",
+                        color="Percentage Bins",
+                        hover_name='Country',
+                        custom_data=['text'],
+                        color_discrete_sequence=px.colors.sequential.Plasma_r,
+                        height=300)
+
+    fig.update_traces(hovertemplate="%{customdata}")
+
+    fig.update_layout(height=360, geo=dict(bgcolor='rgba(0,0,0,0)', lakecolor='#4E5D6C',
+                                           landcolor='darkgrey',
+                                           subunitcolor='grey'),
+                      font_color='white', dragmode=False, paper_bgcolor=FIGURE_BG_COLOR,  hovermode='x unified',
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=8,
+                      margin=dict(t=20, b=20, l=0, r=0),
+                      legend=dict(font=dict(size=8), tracegroupgap=0,
+                      title=" Percentage On-Chain <br>    Retired Credits", y=0.5))
+    return fig
+
+
 def on_vs_off_project(df_verra, bridges_info_dict):
+    df_verra = df_verra[df_verra["Project Type"] != "missing"]
     df_verra_grouped = df_verra.groupby(
         'Project Type')['Quantity'].sum().to_frame().reset_index()
     df_verra_other_grouped = pd.DataFrame()
     dfs = []
+    colors = {}
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
         df = df[df["Project Type"] != "missing"]
         df = df.groupby(
             'Project Type')['Quantity'].sum().to_frame().reset_index()
-        df['Type'] = f'{i} Bridged Credits'
+        df['Type'] = f'{i} Bridged VCUs'
+        colors[f'{i} Bridged VCUs'] = '#00CC33'
         dfs.append(df)
         if df_verra_other_grouped.empty:
             df_verra_other_grouped = df_verra_grouped.merge(df, how='left', left_on="Project Type",
@@ -634,13 +760,52 @@ def on_vs_off_project(df_verra, bridges_info_dict):
             df_verra_other_grouped[f'Quantity_{i}']
         df_verra_other_grouped = df_verra_other_grouped[[
             'Project Type', 'Quantity']]
-        df_verra_other_grouped['Type'] = 'Rest of Issued VCU'
-
+        df_verra_other_grouped['Type'] = 'Rest of Issued VCUs'
+    colors['Rest of Issued VCUs'] = '#536C9C'
+    colors['(?)'] = '#6E6E6E'
     df_other_and_bridges = pd.concat(
         dfs + [df_verra_other_grouped]).reset_index()
     fig = px.treemap(df_other_and_bridges, path=[px.Constant("All Projects"), 'Project Type', 'Type'],
                      values='Quantity',
-                     color_discrete_sequence=px.colors.qualitative.Antique,
+                     color_discrete_map=colors,
+                     #  color_discrete_sequence=px.colors.qualitative.Antique,
+                     color='Type',
+                     hover_data=['Type', 'Quantity'],
+                     height=480, title='')
+    fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",
+                      texttemplate='<br>'.join(['%{label}', 'Quantity=%{value}', '%{percentParent} of Parent',
+                                                '%{percentEntry} of Entry', '%{percentRoot} of Root']))
+    fig.update_layout(paper_bgcolor=FIGURE_BG_COLOR, plot_bgcolor=FIGURE_BG_COLOR, font=dict(color='white'),
+                      hoverlabel=dict(font_color='white', font_size=8), font_size=12,
+                      margin=dict(t=20, b=20, l=0, r=0))
+
+    return fig
+
+
+def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
+    df_verra_retired = df_verra_retired[df_verra_retired["Project Type"] != "missing"]
+    df_verra_grouped = df_verra_retired.groupby(
+        'Project Type')['Quantity'].sum().to_frame().reset_index()
+    colors = {}
+    dfs = []
+    for i in retires_info_dict.keys():
+        df = retires_info_dict[i]["Dataframe"]
+        df = df[df["Project Type"] != "missing"]
+        df = df.groupby(
+            'Project Type')['Quantity'].sum().to_frame().reset_index()
+        df['Type'] = f'{i} Retired VCUs'
+        colors[f'{i} Retired VCUs'] = '#00CC33'
+        dfs.append(df)
+    df_verra_grouped['Type'] = 'Off-Chain Retired VCUs'
+    colors['Off-Chain Retired VCUs'] = '#536C9C'
+    colors['(?)'] = '#6E6E6E'
+    df_other_and_bridges = pd.concat(
+        dfs + [df_verra_grouped]).reset_index()
+    fig = px.treemap(df_other_and_bridges, path=[px.Constant("All Projects"), 'Project Type', 'Type'],
+                     values='Quantity',
+                     color_discrete_map=colors,
+                     #  color_discrete_sequence=px.colors.qualitative.Antique,
+                     color='Type',
                      hover_data=['Type', 'Quantity'],
                      height=480, title='')
     fig.update_traces(textfont=dict(color='white'), textinfo="label+value+percent parent+percent entry+percent root",

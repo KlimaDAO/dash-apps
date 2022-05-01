@@ -11,10 +11,11 @@ import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
 
-from ...util import get_eth_web3, load_abi
+# from ...util import get_eth_web3, load_abi
 from .figures import sub_plots_vintage, sub_plots_volume, map, total_vintage, total_volume, \
     methodology_volume, project_volume, eligible_pool_pie_chart, pool_pie_chart,\
-    historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project
+    historical_prices, bridges_pie_chart, on_vs_off_vintage, on_vs_off_map, on_vs_off_project,\
+    tokenized_volume, on_vs_off_vintage_retired, on_vs_off_map_retired, on_vs_off_project_retired
 from .figures_carbon_pool import deposited_over_time, redeemed_over_time, retired_over_time
 from .offchain_vs_onchain import create_offchain_vs_onchain_content
 from .onchain_pool_comp import create_onchain_pool_comp_content
@@ -24,15 +25,18 @@ from .pool import create_pool_content
 from .mco2 import create_content_moss
 from .helpers import date_manipulations, filter_pool_quantity, region_manipulations, \
     subsets, drop_duplicates, filter_carbon_pool, bridge_manipulations, \
-    merge_verra, verra_manipulations, mco2_verra_manipulations, read_csv
+    merge_verra, verra_manipulations, mco2_verra_manipulations, \
+    adjust_mco2_bridges, verra_retired, date_manipulations_verra
 from .constants import rename_map, retires_rename_map, deposits_rename_map, \
     redeems_rename_map, pool_retires_rename_map, BCT_ADDRESS, \
-    verra_rename_map, merge_columns, mco2_verra_rename_map, MCO2_ADDRESS, verra_columns, \
+    verra_rename_map, merge_columns, MCO2_ADDRESS, verra_columns, \
     VERRA_FALLBACK_NOTE, VERRA_FALLBACK_URL, NCT_ADDRESS, KLIMA_RETIRED_NOTE, UBO_ADDRESS, \
-    NBO_ADDRESS
+    NBO_ADDRESS, mco2_bridged_rename_map, bridges_rename_map
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon'
+CARBON_MOSS_ETH_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph'
+CARBON_ETH_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/originalpkbims/ethereum-bridged-carbon'
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
@@ -168,6 +172,57 @@ def get_data_pool_retired():
     return df_pool_retired
 
 
+def get_mco2_data():
+    sg = Subgrounds()
+
+    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
+    carbon_offsets = carbon_data.Query.batches(
+        first=MAX_RECORDS
+    )
+    df_bridged = sg.query_df([
+        carbon_offsets.id,
+        carbon_offsets.serialNumber,
+        carbon_offsets.timestamp,
+        carbon_offsets.tokenAddress,
+        carbon_offsets.vintage,
+        carbon_offsets.projectID,
+        carbon_offsets.value,
+        carbon_offsets.originaltx,
+    ])
+
+    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+    carbon_offsets = carbon_data.Query.bridges(
+        first=MAX_RECORDS
+    )
+    df_bridged_tx = sg.query_df([
+        carbon_offsets.value,
+        carbon_offsets.timestamp,
+        carbon_offsets.transaction.id,
+    ])
+
+    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+    carbon_offsets = carbon_data.Query.retires(
+        first=MAX_RECORDS
+    )
+    df_retired = sg.query_df([
+        carbon_offsets.value,
+        carbon_offsets.timestamp,
+        carbon_offsets.offset.tokenAddress,
+        carbon_offsets.offset.bridge,
+        carbon_offsets.offset.region,
+        carbon_offsets.offset.vintage,
+        carbon_offsets.offset.projectID,
+        carbon_offsets.offset.standard,
+        carbon_offsets.offset.methodology,
+        carbon_offsets.offset.standard,
+        carbon_offsets.offset.country,
+        carbon_offsets.offset.category,
+        carbon_offsets.offset.name,
+        carbon_offsets.offset.totalRetired,
+    ])
+    return df_bridged, df_bridged_tx, df_retired
+
+
 def get_verra_data():
     use_fallback_data = False
     if use_fallback_data:
@@ -190,19 +245,19 @@ def get_verra_data():
     return df_verra, fallback_note
 
 
-web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
+# web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
 
-def get_mco2_contract_data():
-    ERC20_ABI = load_abi('erc20.json')
-    if web3 is not None:
-        mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
-        decimals = 10 ** mco2_contract.functions.decimals().call()
-        total_supply = mco2_contract.functions.totalSupply().call() // decimals
-        return total_supply
-    else:
-        # If web3 is not connected, just return an invalid value
-        return -1
+# def get_mco2_contract_data():
+#     ERC20_ABI = load_abi('erc20.json')
+#     if web3 is not None:
+#         mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
+#         decimals = 10 ** mco2_contract.functions.decimals().call()
+#         total_supply = mco2_contract.functions.totalSupply().call() // decimals
+#         return total_supply
+#     else:
+#         # If web3 is not connected, just return an invalid value
+#         return -1
 
 
 cg = CoinGeckoAPI()
@@ -234,16 +289,16 @@ def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
     df_pool_retired = get_data_pool_retired()
+    df_bridged_mco2, df_bridged_tx_mco2, df_retired_mco2 = get_mco2_data()
     df_verra, verra_fallback_note = get_verra_data()
-    df_verra, df_verra_toucan = verra_manipulations(df_verra)
-    df_mco2_bridged = read_csv('mco2_verra_data.csv')
-    mco2_current_supply = get_mco2_contract_data()
+    df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     df_prices = get_prices()
     curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
+
     # -----TCO2_Figures----
     # Bridge manipulations
     df_tc = bridge_manipulations(df, "Toucan")
@@ -485,23 +540,38 @@ def generate_layout():
     cache.set("content_c3t", content_c3t)
 
     # --MCO2 Figures--
-    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
+
+    df_bridged_mco2 = df_bridged_mco2.rename(columns=mco2_bridged_rename_map)
+    df_verra_retired = verra_retired(df_verra, df_bridged_mco2)
+    df_retired_mco2 = df_retired_mco2.rename(columns=retires_rename_map)
+    df_bridged_tx_mco2 = df_bridged_tx_mco2.rename(columns=bridges_rename_map)
+    df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
+    df_bridged_mco2["Project ID"] = 'VCS-' + \
+        df_bridged_mco2["Project ID"].astype(str)
+    df_bridged_mco2 = merge_verra(df_bridged_mco2, df_verra, merge_columns+['Vintage Start'], [
+        'Name', 'Country', 'Project Type', 'Vintage'])
+    df_bridged_mco2["Vintage"] = df_bridged_mco2['Serial Number'].astype(
+        str).str[-15:-11].astype(int)
+    df_retired_mco2 = merge_verra(df_retired_mco2, df_verra, merge_columns, [
+        'Name', 'Country', 'Project Type'])
+    df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
+    df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
+    df_retired_mco2 = date_manipulations(df_retired_mco2)
+
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
-    df_mco2_bridged = df_mco2_bridged.rename(columns=mco2_verra_rename_map)
-    df_mco2_bridged["Project ID"] = 'VCS-' + \
-        df_mco2_bridged["Project ID"].astype(str)
-    df_mco2_bridged = merge_verra(
-        df_mco2_bridged, df_verra, ["ID", "Country", "Methodology"], None)
-    df_mco2_bridged = mco2_verra_manipulations(df_mco2_bridged)
+    fig_mco2_total_volume = deposited_over_time(
+        df_bridged_mco2)
     fig_mco2_total_vintage = total_vintage(
-        df_mco2_bridged, zero_bridging_evt_text)
-    fig_mco2_total_map = map(df_mco2_bridged, zero_bridging_evt_text)
+        df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_map = map(df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_metho = methodology_volume(
-        df_mco2_bridged, zero_bridging_evt_text)
+        df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_project = project_volume(
-        df_mco2_bridged, zero_bridging_evt_text)
-    content_mco2 = create_content_moss(df_mco2_bridged, fig_mco2_total_vintage, fig_mco2_total_map,
-                                       fig_mco2_total_metho, fig_mco2_total_project, mco2_current_supply)
+        df_bridged_mco2, zero_bridging_evt_text)
+    df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
+    content_mco2 = create_content_moss(df_bridged_mco2_summary, df_retired_mco2, fig_mco2_total_volume,
+                                       fig_mco2_total_vintage, fig_mco2_total_map,
+                                       fig_mco2_total_metho, fig_mco2_total_project)
 
     cache.set("content_mco2", content_mco2)
 
@@ -650,26 +720,68 @@ def generate_layout():
     ) - bct_redeemed["Quantity"].sum()
     token_cg_dict['NCT']['Current Supply'] = nct_deposited["Quantity"].sum(
     ) - nct_redeemed["Quantity"].sum()
-    token_cg_dict['MCO2']['Current Supply'] = mco2_current_supply
+    token_cg_dict['MCO2']['Current Supply'] = df_bridged_mco2["Quantity"].sum(
+    ) - df_retired_mco2["Quantity"].sum()
 
     bridges_info_dict = {
-        'Toucan': {'Tokenized Quantity': df_verra_toucan["Quantity"].sum(),
-                   'Dataframe': df_verra_toucan},
-        'Moss': {'Tokenized Quantity': df_mco2_bridged["Quantity"].sum(),
-                 'Dataframe': df_mco2_bridged},
-        'C3': {'Tokenized Quantity': df_c3t["Quantity"].sum(),
-               'Dataframe': df_c3t}
+        'Toucan': {'Dataframe': date_manipulations_verra(df_verra_toucan)},
+        'Moss': {'Dataframe': df_bridged_mco2},
+        'C3': {'Dataframe': date_manipulations_verra(df_verra_c3)}
+    }
+
+    retires_info_dict = {
+        'Toucan': {'Dataframe': df_retired_tc},
+        'Moss': {'Dataframe': df_retired_mco2},
+        'C3': {'Dataframe': df_retired_c3t}
     }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
+
+    # ---offchain vs onchain---
+    df_verra["Date"] = df_verra['Issuance Date']
+    df_verra = date_manipulations_verra(df_verra)
+    df_verra_retired = date_manipulations_verra(df_verra_retired)
+
+    # Issued Figures
+    fig_issued_over_time = deposited_over_time(df_verra)
+    fig_tokenized_over_time = tokenized_volume(bridges_info_dict)
     fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
     fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
     fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
 
-    # ---offchain vs onchain---
+    fig_on_vs_off_issued = [fig_issued_over_time, fig_tokenized_over_time,
+                            fig_on_vs_off_vintage, fig_on_vs_off_map, fig_on_vs_off_project]
+    titles_on_vs_off_issued = ["Cumulative Verra Registry Credits Issued Over Time",
+                               "Cumulative Verra Registry Credits Tokenized Over Time",
+                               "Credits Tokenized vs. Credits Issued by Vintage Start Dates",
+                               "Credits Tokenized vs. Credits Issued by Origin",
+                               "Credits Tokenized vs. Credits Issued by Project Type"]
 
-    content_offchain_vs_onchain = create_offchain_vs_onchain_content(bridges_info_dict, df_verra,
-                                                                     fig_bridges_pie_chart, fig_on_vs_off_vintage,
-                                                                     fig_on_vs_off_map, fig_on_vs_off_project,
+    cache.set("fig_on_vs_off_issued", fig_on_vs_off_issued)
+    cache.set("titles_on_vs_off_issued", titles_on_vs_off_issued)
+
+    # Retired Figures
+    fig_offchain_retired_over_time = deposited_over_time(df_verra_retired)
+    fig_onchain_retired_over_time = tokenized_volume(retires_info_dict)
+    fig_on_vs_off_vintage_retired = on_vs_off_vintage_retired(
+        df_verra_retired, retires_info_dict)
+    fig_on_vs_off_map_retired = on_vs_off_map_retired(
+        df_verra_retired, retires_info_dict)
+    fig_on_vs_off_project_retired = on_vs_off_project_retired(
+        df_verra_retired, retires_info_dict)
+
+    fig_on_vs_off_retired = [fig_offchain_retired_over_time, fig_onchain_retired_over_time,
+                             fig_on_vs_off_vintage_retired, fig_on_vs_off_map_retired, fig_on_vs_off_project_retired]
+    titles_on_vs_off_retired = ["Cumulative Off-Chain Verra Registry Credits Retired Over Time",
+                                "Cumulative On-Chain Verra Registry Credits Retired Over Time",
+                                "Off-Chain vs On-Chain Retired Credits by Vintage Start Dates",
+                                "Off-Chain vs On-Chain Retired Credits by Origin",
+                                "Off-Chain vs On-Chain Retired Credits by Project Type"]
+
+    cache.set("fig_on_vs_off_retired", fig_on_vs_off_retired)
+    cache.set("titles_on_vs_off_retired", titles_on_vs_off_retired)
+
+    content_offchain_vs_onchain = create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_verra,
+                                                                     df_verra_retired, fig_bridges_pie_chart,
                                                                      verra_fallback_note)
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
@@ -1041,6 +1153,49 @@ def update_output_div_c3(summary_type, C3T_type):
             fig_total_retired = cache.get("fig_total_retired_c3t")
             return "Lifetime Performance", fig_total_retired[0], fig_total_retired[1], fig_total_retired[2],\
                 fig_total_retired[3], fig_total_retired[4]
+
+
+@callback(
+    Output(component_id='offchain-volume-title',
+           component_property='children'),
+    Output(component_id='onchain-volume-title', component_property='children'),
+    Output(component_id='on_vs_off_vintage_title',
+           component_property='children'),
+    Output(component_id="on_vs_off_origin_title",
+           component_property='children'),
+    Output(component_id="on_vs_off_project_title",
+           component_property='children'),
+    Output(component_id='offchain-volume-plot', component_property='figure'),
+    Output(component_id='onchain-volume-plot', component_property='figure'),
+    Output(component_id='on_vs_off_vintage_plot', component_property='figure'),
+    Output(component_id="on_vs_off_origin_plot", component_property='figure'),
+    Output(component_id="on_vs_off_project_plot", component_property='figure'),
+    Output(component_id='on_vs_off_vintage_footer',
+           component_property='children'),
+    Output(component_id='on_vs_off_origin_footer',
+           component_property='children'),
+    Output(component_id='on_vs_off_project_footer',
+           component_property='children'),
+    Input(component_id='issued_or_retired', component_property='value')
+)
+def update_output_on_vs_off(type):
+
+    if type == 'Issued':
+        titles_on_vs_off_issued = cache.get("titles_on_vs_off_issued")
+        fig_on_vs_off_issued = cache.get("fig_on_vs_off_issued")
+        return titles_on_vs_off_issued[0], titles_on_vs_off_issued[1], titles_on_vs_off_issued[2], \
+            titles_on_vs_off_issued[3], titles_on_vs_off_issued[4], \
+            fig_on_vs_off_issued[0], fig_on_vs_off_issued[1], fig_on_vs_off_issued[2], \
+            fig_on_vs_off_issued[3], fig_on_vs_off_issued[4], None, None, None
+    elif type == 'Retired':
+        moss_note = 'Note: Project metadata of Moss Retired VCUs is unavailable'
+        titles_on_vs_off_retired = cache.get("titles_on_vs_off_retired")
+        fig_on_vs_off_retired = cache.get("fig_on_vs_off_retired")
+        return titles_on_vs_off_retired[0], titles_on_vs_off_retired[1], \
+            titles_on_vs_off_retired[2], titles_on_vs_off_retired[3], titles_on_vs_off_retired[4], \
+            fig_on_vs_off_retired[0], fig_on_vs_off_retired[1], \
+            fig_on_vs_off_retired[2], fig_on_vs_off_retired[3], fig_on_vs_off_retired[4], \
+            moss_note, moss_note, moss_note
 
 
 @callback(

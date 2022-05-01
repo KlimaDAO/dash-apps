@@ -31,6 +31,17 @@ rename_map = {
     'carbonOffsets_totalBridged': 'Total Quantity',
 }
 
+mco2_bridged_rename_map = {
+    'batches_id': 'ID',
+    'batches_serialNumber': 'Serial Number',
+    'batches_timestamp': 'Date',
+    'batches_tokenAddress': 'Token Address',
+    'batches_vintage': 'Vintage',
+    'batches_projectID': 'Project ID',
+    'batches_value': 'Quantity',
+    'batches_originaltx': 'Original Tx Address',
+}
+
 retires_rename_map = {
     'retires_value': 'Quantity',
     'retires_timestamp': 'Date',
@@ -46,6 +57,13 @@ retires_rename_map = {
     'retires_offset_tokenAddress': 'Token Address',
     'retires_offset_totalRetired': 'Total Quantity',
 }
+
+bridges_rename_map = {
+    'bridges_value': 'Quantity',
+    'bridges_timestamp': 'Date',
+    'bridges_transaction_id': 'Tx Address',
+}
+
 
 redeems_rename_map = {
     'redeems_value': 'Quantity',
