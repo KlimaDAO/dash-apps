@@ -10,6 +10,10 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                         fig_total_metho, fig_total_project, retire_note, bridge_name="Toucan",
                         bridge_ticker="TCO2"):
 
+    detail_df = detail_df[[
+        'Project ID', 'Token Address', 'PolygonScan', 'Quantity', 'Vintage', 'Country', 'Project Type',
+        'Methodology', 'Name',
+    ]]
     if retired is None:
         retired_card = dbc.Card([
             html.H5(
@@ -144,7 +148,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                             className="card-title"),
                     dash_table.DataTable(
                         detail_df.to_dict('records'),
-                        [{"name": i, "id": i, "presentation": "markdown"}
+                        [{"name": i, "id": i, 'type': 'text', "presentation": "markdown"}
                             for i in detail_df.columns],
                         id='tbl',
                         style_header={
@@ -154,9 +158,16 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                         style_data={
                             'backgroundColor': DARK_GRAY
                         },
+                        style_data_conditional=[{
+                            "if": {"state": "active"},
+                            "backgroundColor": "#202020",
+                            "border": "1px solid #2a2a2a",
+                            "color": "white",
+                        },
+                        ],
                         style_table={'overflowX': 'auto'},
                         page_size=20,
-                        sort_action='native'
+                        sort_action='native',
                     ),
                 ])
             ])
