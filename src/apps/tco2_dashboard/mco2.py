@@ -8,7 +8,7 @@ def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume,
                         fig_mco2_total_map, fig_mco2_total_metho,
                         fig_mco2_total_project):
     df_mco2_bridged = df_mco2_bridged[[
-        'Project ID', 'Vintage', 'Quantity', 'Country', 'Name', 'Project Type', 'Methodology']]
+        'Project ID', 'Quantity', 'Vintage', 'Country', 'Project Type', 'Methodology', 'Name']]
     df_grouped = df_mco2_bridged.groupby(['Project ID', 'Country', 'Methodology', 'Project Type', 'Name', 'Vintage'])[
         'Quantity'].sum().to_frame().reset_index()
     content_mco2 = [
@@ -112,6 +112,13 @@ def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume,
                             'backgroundColor': DARK_GRAY
                         },
                         style_table={'overflowX': 'auto'},
+                        style_data_conditional=[{
+                            "if": {"state": "active"},
+                            "backgroundColor": "#202020",
+                            "border": "1px solid #2a2a2a",
+                            "color": "white",
+                        },
+                        ],
                         page_size=20,
                         sort_action='native'
                     ),

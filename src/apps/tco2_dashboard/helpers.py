@@ -222,13 +222,8 @@ def filter_pool_quantity(df, quantity_column):
     )
     filtered['Project ID'] = filtered['Project ID'].str.replace(
         pat, repl, regex=True)
-
-    filtered['Token Address'] = filtered['Token Address'].str.replace(
-        '(.*)',
-        lambda m: '[' + m.group(0) +
-        '](https://polygonscan.com/address/' + m.group(0) + ')'
-    )
-
+    filtered['View on PolygonScan'] = '[' + 'Click Here' + \
+        '](https://polygonscan.com/address/' + filtered['Token Address'] + ')'
     return filtered
 
 

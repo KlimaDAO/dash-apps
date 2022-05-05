@@ -377,6 +377,7 @@ font-size: 12px;
 p {
   padding: 0.4rem;
   margin-bottom: 0rem;
+  text-align: center;
 }
 
 @media (max-width: 48em) {
