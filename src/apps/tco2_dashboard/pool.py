@@ -148,7 +148,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                             className="card-title"),
                     dash_table.DataTable(
                         detail_df.to_dict('records'),
-                        [{"name": i, "id": i, 'type': 'text', "presentation": "markdown"}
+                        [{"name": i, "id": i, "presentation": "markdown"}
                             for i in detail_df.columns],
                         id='tbl',
                         style_header={
