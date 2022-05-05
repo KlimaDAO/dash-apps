@@ -11,7 +11,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                         bridge_ticker="TCO2"):
 
     detail_df = detail_df[[
-        'Project ID', 'Token Address', 'PolygonScan', 'Quantity', 'Vintage', 'Country', 'Project Type',
+        'Project ID', 'Token Address', 'View on PolygonScan', 'Quantity', 'Vintage', 'Country', 'Project Type',
         'Methodology', 'Name',
     ]]
     if retired is None:
