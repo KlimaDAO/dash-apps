@@ -57,7 +57,25 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP, GOOGLE_API_ICONS],
     external_scripts=external_scripts,
     meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"},
+        {"property": "og:type", "content": "website"},
+        {"property": "og:site_name", "content": "KlimaDAO Carbon Dashboards"},
+        {"property": "og:title", "content": "State of Tokenized Carbon"},
+        {
+            "property": "og:description",
+            "content":
+            """
+            Data visualizations, analytics and detailed drilldowns
+            into the state of the on-chain carbon markets in the Ethereum ecosystem.
+            """
+        },
+        {
+            "property": "og:image",
+            "content": "https://www.klimadao.finance/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fdk34t4vc%2Fproduction%2F0be338e1930c5bf36101feaa7669c8330057779a-2156x1080.png&w=1920&q=75"  # noqa: E501
+        },
+        {"name": "twitter:card", "content": "summary_large_image"},
+        {"name": "twitter:site", "content": "@discord"},
+        {"name": "twitter:creator", "content": "@KlimaDAO"}
     ]
 )
 
