@@ -2,7 +2,7 @@ alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
 domains:
-- domain: carbon.klimadao.finance
+- domain: ${DIGITALOCEAN_APP_DOMAIN}
   type: PRIMARY
   minimum_tls_version: "1.2"
 envs:
@@ -36,7 +36,7 @@ services:
     routes:
       - path: /
     instance_count: 1
-    instance_size_slug: basic-xs
-    name: tco2-dashboard
+    instance_size_slug: basic-s
+    name: carbon-dashboard
     run_command: gunicorn --worker-tmp-dir /dev/shm --timeout 120 src.apps.tco2_dashboard.app:server
     source_dir: /

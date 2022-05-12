@@ -82,6 +82,7 @@ jobs:
       WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
       GITHUB_SHA: ${{ github.sha }}
       DIGITALOCEAN_APP_NAME: ${{ secrets.DIGITALOCEAN_APP_NAME }}
+      DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
       ENV: ${{ secrets.ENV }}
     steps:
       - name: Check out source repository
