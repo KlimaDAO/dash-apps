@@ -863,7 +863,51 @@ def generate_layout():
                     ], href="/CarbonPools", active="exact",
                     ),
                     html.Hr(style={"margin-top": "1.5rem"}),
-                    html.A(html.H4("Toucan Protocol", style={
+                    html.A(html.H4("C3", style={
+                        'textAlign': 'left'}),
+                        href='https://www.c3.app/'),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3_Logo_Cloud.png',
+                                     className="moss-logo"),
+                            className='icon-container'),
+                        html.Span(
+                            "C3T Overview")
+                    ], href="/C3T", active="exact"
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3-UBO-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "UBO Pool")
+                    ], href="/UBO", active="exact",
+                    ),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/C3-NBO-Logo.png',
+                                     className="image-icons"),
+                            className='icon-container'),
+                        html.Span(
+                            "NBO Pool")
+                    ], href="/NBO", active="exact",
+                    ),
+                    html.Hr(style={"margin-top": "1.5rem"}),
+                    html.A(html.H4("Moss", style={
+                        'textAlign': 'left'}),
+                        href='https://mco2token.moss.earth/'),
+                    dbc.NavLink([
+                        html.Div(
+                            html.Img(src='assets/MCO2-Logo.png',
+                                     className="moss-logo"),
+                            className='icon-container'),
+                        html.Span(
+                            "MCO2 Overview")
+                    ], href="/MCO2", active="exact",
+                    ),
+                    html.Hr(style={"margin-top": "1.5rem"}),
+                    html.A(html.H4("Toucan", style={
                         'textAlign': 'left'}),
                         href='https://toucan.earth/'),
                     dbc.NavLink([
@@ -892,50 +936,6 @@ def generate_layout():
                         html.Span(
                             "NCT Pool")
                     ], href="/NCT", active="exact",
-                    ),
-                    html.Hr(style={"margin-top": "1.5rem"}),
-                    html.A(html.H4("Moss", style={
-                        'textAlign': 'left'}),
-                        href='https://mco2token.moss.earth/'),
-                    dbc.NavLink([
-                        html.Div(
-                            html.Img(src='assets/MCO2-Logo.png',
-                                     className="moss-logo"),
-                            className='icon-container'),
-                        html.Span(
-                            "MCO2 Overview")
-                    ], href="/MCO2", active="exact",
-                    ),
-                    html.Hr(style={"margin-top": "1.5rem"}),
-                    html.A(html.H4("C3", style={
-                        'textAlign': 'left'}),
-                        href='https://www.c3.app/'),
-                    dbc.NavLink([
-                        html.Div(
-                            html.Img(src='assets/C3-Logo.png',
-                                     className="image-icons"),
-                            className='icon-container'),
-                        html.Span(
-                            "C3T Overview")
-                    ], href="/C3T", active="exact"
-                    ),
-                    dbc.NavLink([
-                        html.Div(
-                            html.Img(src='assets/C3-UBO-Logo.png',
-                                     className="image-icons"),
-                            className='icon-container'),
-                        html.Span(
-                            "UBO Pool")
-                    ], href="/UBO", active="exact",
-                    ),
-                    dbc.NavLink([
-                        html.Div(
-                            html.Img(src='assets/C3-NBO-Logo.png',
-                                     className="image-icons"),
-                            className='icon-container'),
-                        html.Span(
-                            "NBO Pool")
-                    ], href="/NBO", active="exact",
                     ),
                     html.Hr(style={"margin-top": "3rem"}),
                 ],
@@ -977,7 +977,53 @@ def generate_layout():
                                 id="button-onchain_pool_comp", n_clicks=0,
                             ),
                             html.Hr(style={"margin-top": "1.5rem"}),
-                            html.A(html.H4("Toucan Protocol", style={
+                            html.A(html.H4("C3", style={
+                                'textAlign': 'left'}),
+                                href='https://www.c3.app/'),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3_Logo_Cloud.png',
+                                             className="moss-logo"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "C3T Overview")
+                            ], href="/C3T", active="exact",
+                                id="button-c3t", n_clicks=0),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3-UBO-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "UBO Pool")
+                            ], href="/UBO", active="exact",
+                                id="button-ubo", n_clicks=0
+                            ),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/C3-NBO-Logo.png',
+                                             className="image-icons"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "NBO Pool")
+                            ], href="/NBO", active="exact",
+                                id="button-nbo", n_clicks=0
+                            ),
+                            html.Hr(style={"margin-top": "1.5rem"}),
+                            html.A(html.H4("Moss", style={
+                                'textAlign': 'left'}),
+                                href='https://mco2token.moss.earth/'),
+                            dbc.NavLink([
+                                html.Div(
+                                    html.Img(src='assets/MCO2-Logo.png',
+                                             className="moss-logo"),
+                                    className='icon-container'),
+                                html.Span(
+                                    "MCO2 Overview")
+                            ], href="/MCO2", active="exact",
+                                id="button-mco2", n_clicks=0),
+                            html.Hr(style={"margin-top": "1.5rem"}),
+                            html.A(html.H4("Toucan", style={
                                 'textAlign': 'left'}),
                                 href='https://toucan.earth/'),
                             dbc.NavLink([
@@ -1008,52 +1054,6 @@ def generate_layout():
                                     "NCT Pool")
                             ], href="/NCT", active="exact",
                                 id="button-nct", n_clicks=0
-                            ),
-                            html.Hr(style={"margin-top": "1.5rem"}),
-                            html.A(html.H4("Moss", style={
-                                'textAlign': 'left'}),
-                                href='https://mco2token.moss.earth/'),
-                            dbc.NavLink([
-                                html.Div(
-                                    html.Img(src='assets/MCO2-Logo.png',
-                                             className="moss-logo"),
-                                    className='icon-container'),
-                                html.Span(
-                                    "MCO2 Overview")
-                            ], href="/MCO2", active="exact",
-                                id="button-mco2", n_clicks=0),
-                            html.Hr(style={"margin-top": "1.5rem"}),
-                            html.A(html.H4("C3", style={
-                                'textAlign': 'left'}),
-                                href='https://www.c3.app/'),
-                            dbc.NavLink([
-                                html.Div(
-                                    html.Img(src='assets/C3-Logo.png',
-                                             className="image-icons"),
-                                    className='icon-container'),
-                                html.Span(
-                                    "C3T Overview")
-                            ], href="/C3T", active="exact",
-                                id="button-c3t", n_clicks=0),
-                            dbc.NavLink([
-                                html.Div(
-                                    html.Img(src='assets/C3-UBO-Logo.png',
-                                             className="image-icons"),
-                                    className='icon-container'),
-                                html.Span(
-                                    "UBO Pool")
-                            ], href="/UBO", active="exact",
-                                id="button-ubo", n_clicks=0
-                            ),
-                            dbc.NavLink([
-                                html.Div(
-                                    html.Img(src='assets/C3-NBO-Logo.png',
-                                             className="image-icons"),
-                                    className='icon-container'),
-                                html.Span(
-                                    "NBO Pool")
-                            ], href="/NBO", active="exact",
-                                id="button-nbo", n_clicks=0
                             ),
                             html.Hr(style={"margin-top": "3rem"}),
                         ],

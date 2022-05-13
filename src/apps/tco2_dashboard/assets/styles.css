@@ -380,6 +380,16 @@ p {
   text-align: center;
 }
 
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
+  margin-left: 12px;
+  color: white!important;
+  text-align: left;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter ::placeholder{
+  color: #3c3c3c!important;
+}
+
 @media (max-width: 48em) {
 
   #static-content {
