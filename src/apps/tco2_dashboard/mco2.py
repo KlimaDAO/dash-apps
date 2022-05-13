@@ -11,6 +11,14 @@ def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume,
         'Project ID', 'Quantity', 'Vintage', 'Country', 'Project Type', 'Methodology', 'Name']]
     df_grouped = df_mco2_bridged.groupby(['Project ID', 'Country', 'Methodology', 'Project Type', 'Name', 'Vintage'])[
         'Quantity'].sum().to_frame().reset_index()
+
+    def table_type(df_column):
+        if [df_column] in [
+                'Vintage', 'Quantity']:
+            return 'numeric'
+        else:
+            return 'text'
+
     content_mco2 = [
         dbc.Row(
             dbc.Col(
@@ -101,7 +109,7 @@ def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume,
                             className="card-title"),
                     dash_table.DataTable(
                         df_grouped.to_dict('records'),
-                        [{"name": i, "id": i, "presentation": "markdown"}
+                        [{"name": i, "id": i, "presentation": "markdown", 'type': table_type(i)}
                             for i in df_mco2_bridged.columns],
                         id='tbl',
                         style_header={
@@ -109,18 +117,38 @@ def create_content_moss(df_mco2_bridged, df_mco2_retired, fig_mco2_total_volume,
                             'text-align': 'center'
                         },
                         style_data={
-                            'backgroundColor': DARK_GRAY
+                            'backgroundColor': DARK_GRAY,
+                            'color': 'white'
                         },
                         style_table={'overflowX': 'auto'},
-                        style_data_conditional=[{
-                            "if": {"state": "active"},
-                            "backgroundColor": "#202020",
-                            "border": "1px solid #2a2a2a",
-                            "color": "white",
-                        },
+                        style_data_conditional=[
+                            {"if": {'column_id': 'Project ID'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Country'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Quantity'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Vintage'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Methodology'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {"state": "active"},
+                             "backgroundColor": "#202020",
+                             "border": "1px solid #2a2a2a",
+                             "color": "white",
+                             },
                         ],
                         page_size=20,
-                        sort_action='native'
+                        sort_action='native',
+                        filter_action='native',
+                        style_filter={
+                            'backgroundColor': GRAY,
+                        }
                     ),
                 ])
             ])
