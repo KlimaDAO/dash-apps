@@ -14,6 +14,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
         'Project ID', 'Token Address', 'View on PolygonScan', 'Quantity', 'Vintage', 'Country', 'Project Type',
         'Methodology', 'Name',
     ]]
+
     if retired is None:
         retired_card = dbc.Card([
             html.H5(
@@ -54,6 +55,13 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                     className="card-title"),
             dbc.CardBody(dcc.Graph(figure=fig_redeemed_over_time))
         ], className="card-graph")
+
+    def table_type(df_column):
+        if [df_column] in [
+                'Vintage', 'Quantity']:
+            return 'numeric'
+        else:
+            return 'text'
 
     content = [
         dbc.Row(
@@ -148,7 +156,7 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                             className="card-title"),
                     dash_table.DataTable(
                         detail_df.to_dict('records'),
-                        [{"name": i, "id": i, "presentation": "markdown"}
+                        [{"name": i, "id": i, "presentation": "markdown", 'type': table_type(i)}
                             for i in detail_df.columns],
                         id='tbl',
                         style_header={
@@ -156,18 +164,38 @@ def create_pool_content(pool_ticker, pool_name, deposited, redeemed, retired, de
                             'text-align': 'center'
                         },
                         style_data={
-                            'backgroundColor': DARK_GRAY
+                            'backgroundColor': DARK_GRAY,
+                            'color': 'white'
                         },
-                        style_data_conditional=[{
-                            "if": {"state": "active"},
-                            "backgroundColor": "#202020",
-                            "border": "1px solid #2a2a2a",
-                            "color": "white",
-                        },
+                        style_data_conditional=[
+                            {"if": {'column_id': 'Project ID'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Country'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Quantity'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Vintage'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {'column_id': 'Methodology'},
+                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                             },
+                            {"if": {"state": "active"},
+                             "backgroundColor": "#202020",
+                             "border": "1px solid #2a2a2a",
+                             "color": "white",
+                             },
                         ],
                         style_table={'overflowX': 'auto'},
                         page_size=20,
                         sort_action='native',
+                        filter_action='native',
+                        style_filter={
+                            'backgroundColor': GRAY,
+                        }
                     ),
                 ])
             ])
