@@ -35,8 +35,7 @@ from .constants import rename_map, retires_rename_map, deposits_rename_map, \
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon'
-CARBON_MOSS_ETH_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph'
-CARBON_ETH_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/originalpkbims/ethereum-bridged-carbon'
+CARBON_ETH_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/klimadao/ethereum-bridged-carbon'
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
@@ -193,7 +192,7 @@ def get_data_pool_retired():
 def get_mco2_data():
     sg = Subgrounds()
 
-    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
+    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
     carbon_offsets = carbon_data.Query.batches(
         first=MAX_RECORDS
     )
