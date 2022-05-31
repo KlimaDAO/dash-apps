@@ -12,6 +12,11 @@ RUN apt-get update && \
     && \
     rm -rf /var/lib/apt/lists/*
 
+# CVE-2022-1292 openssl fix
+RUN apt-get update && \
+    apt-get --only-upgrade install openssl libssl1.1 -y && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /opt
 
 WORKDIR /opt
