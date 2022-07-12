@@ -11,3 +11,4 @@ web3
 werkzeug<2.1.0
 circlify==0.14.0
 matplotlib==3.5.2
+plotly==5.7.0
