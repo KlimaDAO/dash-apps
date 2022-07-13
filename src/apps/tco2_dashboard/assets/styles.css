@@ -5,6 +5,7 @@
   --green: #00CC33;
   --blue: #536C9C;
   --font-fam: Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+  --font-fam-Poppins: Poppins,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
 }
 
 body {
@@ -83,7 +84,7 @@ a {
 }
 
 .card-text{
-  font-size: 32px;
+  font-size: 20px;
   text-align: center;
   justify-content: center;
 }
@@ -293,6 +294,155 @@ color: white;
   width: 180px;
 }
 
+.overlay-image{
+  height: 400px; 
+  border-radius: 25px;
+  filter: brightness(75%);
+}
+
+br {
+  line-height: 80%;
+}
+
+.overlay-image-card-texts{
+  font-size: 20px;
+  line-height: 20px;
+}
+
+
+.overlay-image-title{
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  align-self: stretch;
+  font-weight: 700;
+  font-family: var(--font-fam-Poppins);
+  font-size: 55px;
+  line-height: 55px;
+}
+
+.overlay-image-subtitle{
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-family: var(--font-fam-Poppins);
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.overlay-image-lastupdated{
+  align-items: center;
+  justify-content: center;
+  font-weight:normal;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.overlay-image-card{
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+.card-img-overlay{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heading-card, .vcm-card, .summary-card, .upnext-card{
+  padding-left: 0px;
+  padding-right: 0px;
+  background-color: var(--gray);
+}
+
+.vcm-card-header, .vcm-card-text, .summary-card-text, .summary-card-header, .upnext-card-text{
+  justify-content: center;
+  text-align: center;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background-color: var(--gray);
+  font-family: 'Inter';
+  font-weight: 400;
+}
+
+.vcm-card-header{
+  font-weight: 600;
+  font-size: 2rem;
+  font-family: var(--font-fam-Poppins);
+}
+
+.vcm-card-text{
+  font-family: var(--font-fam);
+  font-weight: 400;
+}
+
+.summary-card-header{
+  font-weight: bold;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.summary-card-text, .upnext-card-text{
+  font-size: 2rem;
+  font-family: var(--font-fam-Poppins);
+  font-weight: 300;
+}
+
+.upnext-card-text{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+
+.offvson_fig {
+  width: 800px;
+  height: 700px;
+}
+
+.retirements_chart {
+  width: 500px;
+  height: 500px;
+}
+
+.img_fig{
+  width: 500px;
+  height: 500px;
+}
+
+.img_card_body{
+  align-items: center;
+  justify-content: center;
+}
+
+.offvson_fig_card{
+  align-items: end;
+  justify-content: end;
+}
+
+.year-slider{
+  background-color: var(--gray);
+}
+
+.rc-slider.rc-slider-with-marks{
+  background-color: var(--gray);
+}
+
+.rc-slider-mark-text.rc-slider-mark-text-active{
+  color: var(--green);
+}
+
+.rc-slider-mark-text{
+  color: white;
+  font-size: 10px;
+}
+.rc-slider-mark-text:last-child{
+  transform: translateX(50%) !important ;
+  right: 0% !important;
+  left: auto !important;
+  }
 .dashboard-title {
   margin-bottom: 0rem;
 }
@@ -390,6 +540,73 @@ p {
   color: #3c3c3c!important;
 }
 
+.klimadao-btn, .klimadao-app-btn{
+  background: var(--dark-gray);
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 10px;
+  border-color: var(--dark-gray);
+  height: 3rem;
+  width: 10rem
+}
+
+.klimadao-app-btn{
+  background-color: var(--green);
+  border-color: var(--green);
+  padding-right: 0px;
+}
+
+.klimadao-app-icon-container, .upnext-icon-container{
+  align-items: center;
+  justify-content: center;
+  margin-top: 0rem;
+  height: 2rem;
+  width: 2rem;
+  display: flex;
+  border-radius: 0.6rem;
+  background-color: var(--green);
+}
+
+.top-btns{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.upnext-icon-container{
+  background-color: #303030;
+}
+
+#download_btn_retirements, #download_btn_holders, #download_btn_carbonmarket{
+  background-color: #2b2b2b;
+  border-radius: 64px;
+  border-color: var(--gray);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-style:solid;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+.download_btn_div{
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: start;
+}
+
+.img_card_footer{
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+}
+
 @media (max-width: 48em) {
 
   #static-content {
@@ -442,6 +659,7 @@ p {
     background-color: var(--dark-gray);
   }
 
+
   #toggle {
     display: flex;
   }
@@ -458,5 +676,30 @@ p {
     display: block;
   }
   
- 
+  .overlay-image{
+    height: 600px; 
+    border-radius: 25px;
+    filter: brightness(75%);
+  }
+
+  /* .overlay-image-title{
+    font-size: 32px;
+    line-height: 32px;
+  } */
+  
+  .img_fig{
+    width: 300px;
+    height: 300px;
+  }
+
+  .offvson_fig{
+    width: 300px;
+    height: 400px;
+  }
+
+  .klimadao-btn, .klimadao-app-btn{
+    display: none;
+  }
+
+
 }
