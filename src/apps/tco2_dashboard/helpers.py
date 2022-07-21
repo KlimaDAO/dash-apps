@@ -381,7 +381,6 @@ def create_retirements_data(df_retired):
     df_retired = (
         df_retired.groupby("Retiree")["Quantity"].sum().to_frame().reset_index()
     )
-    print(df_retired.sort_values(by="Quantity", ascending=False).reset_index())
     df_retired = (
         df_retired.sort_values(by="Quantity", ascending=False).reset_index().head(3)
     )
@@ -435,7 +434,6 @@ def create_holders_data(df_holdings):
         .to_frame()
         .reset_index()
     )
-    print(df_holdings.sort_values(by="Quantity", ascending=False).reset_index())
     df_holdings = (
         df_holdings.sort_values(by="Quantity", ascending=False).reset_index().head(4)
     )
@@ -448,8 +446,6 @@ def create_holders_data(df_holdings):
             holders_list.append('Olympus')
         else:
             holders_list.append(i[:4]+'...'+i[-1])
-    holders_list[0] = 'KlimaDAO'
-    holders_list[1] = 'Olympus'
     quantity_list = df_holdings["Quantity"].tolist()
     dummy_holders_list = ["..."] * 20
     dummy_quantity_list = [100000] * 20

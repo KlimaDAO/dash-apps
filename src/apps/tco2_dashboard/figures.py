@@ -1353,18 +1353,18 @@ def create_offchain_vs_onchain_fig(
         showticklabels=False,
         showgrid=False,
         zeroline=False,
-        # scaleanchor="x",
-        # scaleratio=1,
+        scaleanchor="x",
+        scaleratio=1,
         # constrain='domain'
     )
 
-    x_lst = [0.45, 0.66, 0, 0]
+    x_lst = [0.45, 0.66, -0.17, -0.17]
     y_lst = [0, 0, 0, -0.12]
     r_lst = [0.9, 0.6, 0.2, 0.05]
     color_lst = ["#0BA1FF", "#0BA1FF", "#44ffa8", "#00CC33"]
     opacity_lst = [0.5, 1, 0.8, 1]
-    font_x = [0.45, 0.66, -0.1, 0]
-    font_y = [0.85, 0, 0.1, -0.12]
+    font_x = [0.45, 0.66, -0.25, -0.17]
+    font_y = [0.80, 0, 0.1, -0.12]
     label_text = [
         "Verra Registry Credits Issued",
         "Retired Off-Chain",
@@ -1383,10 +1383,14 @@ def create_offchain_vs_onchain_fig(
                 type="circle",
                 xref="x",
                 yref="y",
-                x0=x - r * 0.75,
-                y0=y - r * 1.1,
-                x1=x + r * 0.75,
-                y1=y + r * 1.1,
+                # x0=x - r * 0.75,
+                # y0=y - r * 1.1,
+                # x1=x + r * 0.75,
+                # y1=y + r * 1.1,
+                x0=x - r,
+                y0=y - r,
+                x1=x + r,
+                y1=y + r,
                 fillcolor=color_lst[i],  # fill color if needed
                 line_color=color_lst[i],
                 opacity=opacity_lst[i],
@@ -1397,10 +1401,10 @@ def create_offchain_vs_onchain_fig(
                 type="circle",
                 xref="x",
                 yref="y",
-                x0=x - r * 0.75,
-                y0=y - r * 1.1,
-                x1=x + r * 0.75,
-                y1=y + r * 1.1,
+                x0=x - r,
+                y0=y - r,
+                x1=x + r,
+                y1=y + r,
                 fillcolor=color_lst[i],  # fill color if needed
                 # line_color=color_lst[i],
                 opacity=opacity_lst[i],
@@ -1421,7 +1425,7 @@ def create_offchain_vs_onchain_fig(
                 arrowsize=1,
                 arrowwidth=1,
                 arrowcolor="white",
-                ax=-0.6,
+                ax=-0.75,
                 ay=font_y[i],
                 axref="x",
                 ayref="y",
@@ -1432,7 +1436,7 @@ def create_offchain_vs_onchain_fig(
                 # opacity=0.8,
             )
             fig.add_annotation(
-                x=-0.6,
+                x=-0.75,
                 y=font_y[i] - 0.08,
                 xref="x",
                 yref="y",
