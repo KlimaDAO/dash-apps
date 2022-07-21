@@ -27,7 +27,7 @@ def create_homepage_content(
     fig_retirements,
     fig_holders,
 ):
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y     %H:%M:%S UTC")
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     header_card = dbc.Card(
         [
             dbc.CardImg(
@@ -143,7 +143,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "60px"},
         ),
         dbc.Row(
             [
@@ -160,6 +160,7 @@ def create_homepage_content(
                                                 className="offvson_fig",
                                             ),
                                         ),
+                                        # dbc.Col(),
                                     ]
                                 ),
                                 dbc.Row(
@@ -215,7 +216,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
         dbc.Row(
             [
@@ -227,6 +228,14 @@ def create_homepage_content(
                                     [
                                         dbc.Col(),
                                         dbc.Col(
+                                            # dcc.Graph(
+                                            #     figure=fig_holders,
+                                            #     style={
+                                            #         "width": "35vw",
+                                            #         "height": "70vh",
+                                            #     },
+                                            #     className="img_fig",
+                                            # ),
                                             html.Img(
                                                 src=fig_holders, className="img_fig"
                                             ),
@@ -291,7 +300,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
         dbc.Row(
             [
@@ -348,10 +357,6 @@ def create_homepage_content(
                             dbc.CardHeader("Up next", className="summary-card-header"),
                             dbc.CardBody(
                                 [
-                                    # dbc.Row(
-                                    #     [
-                                    #         dbc.Col(
-                                    #             [html.Div([
                                     "Off vs on-chain carbon",
                                     html.Div(
                                         html.A(
@@ -363,11 +368,6 @@ def create_homepage_content(
                                         ),
                                         className="upnext-icon-container",
                                     ),
-                                    #             ]),
-                                    #             ]
-                                    #         ),
-                                    #     ]
-                                    # )
                                 ],
                                 className="upnext-card-text",
                             ),
@@ -379,7 +379,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
     ]
 
