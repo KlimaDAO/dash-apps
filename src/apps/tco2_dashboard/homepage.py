@@ -82,7 +82,9 @@ def create_homepage_content(
     onchain = human_format(df_onchain["Quantity"].iloc[-1])
     onchain_retired = human_format(df_onchain_retired["Quantity"].iloc[-1])
     highest_retirements = "{:,}".format(int(df_retirements["Quantity"].iloc[0]))
+    highest_retirements_name = df_retirements["Retiree Name"].iloc[0]
     highest_holdings = "{:,}".format(int(df_holders["Quantity"].iloc[0]))
+    highest_holdings_name = df_holders["Klimate Name"].iloc[0]
 
     today = date.today().strftime("%B %d, %Y")
 
@@ -201,7 +203,7 @@ def create_homepage_content(
                             dbc.CardHeader("Holdings", className="summary-card-header"),
                             dbc.CardBody(
                                 [
-                                    html.Strong("KlimaDAO"),
+                                    html.Strong(highest_holdings_name),
                                     " is holding ",
                                     html.Strong(highest_holdings),
                                     " carbon assets, making them the largest single holder of tokenized carbon assets.",
@@ -284,7 +286,7 @@ def create_homepage_content(
                             dbc.CardBody(
                                 [
                                     "To date, ",
-                                    html.Strong("Polygon"),
+                                    html.Strong(highest_retirements_name),
                                     " has retired ",
                                     html.Strong(highest_retirements),
                                     " tokenized carbon credits, making them the current leader in tokenized carbon"

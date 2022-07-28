@@ -57,6 +57,7 @@ retires_rename_map = {
     "retires_offset_name": "Name",
     "retires_offset_tokenAddress": "Token Address",
     "retires_offset_totalRetired": "Total Quantity",
+    "retires_transaction_from": "Tx From Address",
 }
 
 bridges_rename_map = {

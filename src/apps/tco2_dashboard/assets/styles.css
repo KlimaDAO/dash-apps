@@ -169,15 +169,14 @@ color: white;
 }
 
 .nav-pills a{
-  font-size: 14.5px;
-  line-height: 1.5rem;
+  font-size: 14px;
+  line-height: 24px;
   font-weight: 500;
   display: flex;
-  box-sizing: border-box;
+  flex-direction: row;
   align-items: center;
-  text-align: left;
   color:#9c9c9c;
-  gap: 1rem;
+  gap: 12px;
   padding: 0.4rem;
   border-radius: 0.8rem;
   width: 100%;
@@ -276,6 +275,15 @@ color: white;
   flex-direction: column;
   height: 100%;
   display: flex;
+}
+
+.sidebar-protocol-heading {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  color: var(--white);
 }
 
 .sidebar_mobile{
@@ -728,5 +736,51 @@ p {
     display: none;
   }
 
+  .klimadao-btn-sidebar, .klimadao-btn-sidebar:focus,.klimadao-btn-sidebar:hover,.klimadao-btn-sidebar:active,.klimadao-btn-sidebar:visited, .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:hover,
+  .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:visited, .klimadao-app-btn-sidebar:focus{
+    background: var(--gray);
+    box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 10px;
+    border-color: var(--gray);
+    height: 3rem;
+    width: 100%
+  }
+  
+  .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:hover,
+  .klimadao-app-btn-sidebar:active, .klimadao-app-btn-sidebar:visited, .klimadao-app-btn-sidebar:focus{
+    background-color: var(--green);
+    border-color: var(--green);
+    padding-right: 0px;
+  }
+  
+  .klimadao-app-btn-sidebar:hover {
+    background-color: var(--green);
+    opacity: 0.7;
+  }
+  
+.klimadao-btn-sidebar:hover {
+    background-color: var(--dark-gray);
+    opacity: 0.7;
+  }
+  
+  
+  .klimadao-app-icon-container, .upnext-icon-container{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 2rem;
+    width: 2rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: var(--green);
+  }
 
 }

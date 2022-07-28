@@ -1364,7 +1364,7 @@ def create_offchain_vs_onchain_fig(
     color_lst = ["#0BA1FF", "#0BA1FF", "#44ffa8", "#00CC33"]
     opacity_lst = [0.5, 1, 0.8, 1]
     font_x = [0.45, 0.66, -0.25, -0.17]
-    font_y = [0.80, 0, 0.1, -0.12]
+    font_y = [0.80, 0, 0.15, -0.12]
     label_text = [
         "Verra Registry Credits Issued",
         "Retired Off-Chain",
@@ -1419,7 +1419,7 @@ def create_offchain_vs_onchain_fig(
                 yref="y",
                 text=label_value[i],
                 showarrow=True,
-                font=dict(size=24, color="white"),
+                font=dict(size=30, color="white"),
                 align="center",
                 arrowhead=1,
                 arrowsize=1,
@@ -1437,12 +1437,12 @@ def create_offchain_vs_onchain_fig(
             )
             fig.add_annotation(
                 x=-0.75,
-                y=font_y[i] - 0.08,
+                y=font_y[i] - 0.1,
                 xref="x",
                 yref="y",
                 text=label_text[i],
                 showarrow=False,
-                font=dict(size=12, color="white"),
+                font=dict(size=15, color="white"),
                 align="center",
             )
         else:
@@ -1453,24 +1453,24 @@ def create_offchain_vs_onchain_fig(
                 yref="y",
                 text=label_value[i],
                 showarrow=False,
-                font=dict(size=24, color="white"),
+                font=dict(size=30, color="white", family="Inter, sans-serif"),
                 align="center",
             )
             fig.add_annotation(
                 x=font_x[i],
-                y=font_y[i] - 0.08,
+                y=font_y[i] - 0.1,
                 xref="x",
                 yref="y",
                 text=label_text[i],
                 showarrow=False,
-                font=dict(size=12, color="white"),
+                font=dict(size=15, color="white", family="Inter, sans-serif"),
                 align="center",
             )
 
     fig.update_layout(
         width=600,
         height=600,
-        font=dict(color="white", family="Inter"),
+        font=dict(color="white", family="Inter, sans-serif"),
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
         # xaxis=dict(showgrid=True, visible=True),
@@ -1569,7 +1569,7 @@ def create_retirements_fig(data, style_dict):
         # height=600,
         width=600,
         height=600,
-        font=dict(color="white", family="Poppins"),
+        font=dict(color="white", family="Poppins, sans-serif"),
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
         margin=dict(t=50, b=20, l=0, r=0),
