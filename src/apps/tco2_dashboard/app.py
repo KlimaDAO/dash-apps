@@ -224,6 +224,7 @@ def get_data():
             carbon_offsets.offset.category,
             carbon_offsets.offset.name,
             carbon_offsets.offset.totalRetired,
+            carbon_offsets.transaction._select("from"),
         ]
     )
 
@@ -327,6 +328,7 @@ def get_mco2_data():
             carbon_offsets.offset.category,
             carbon_offsets.offset.name,
             carbon_offsets.offset.totalRetired,
+            carbon_offsets.transaction._select("from"),
         ]
     )
     return df_bridged, df_bridged_tx, df_retired
@@ -1166,6 +1168,10 @@ def generate_layout():
     fig_on_vs_off_time, fig_on_vs_off_time_download = create_offchain_vs_onchain_fig(
         df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
     )
+    print(df_retired, df_retired["Quantity"].sum())
+    print(df_retired_mco2, df_retired_mco2["Quantity"].sum())
+    df_retired = pd.concat([df_retired, df_retired_mco2])
+    print(df_retired, df_retired["Quantity"].sum())
     df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
         df_retired
     )
@@ -1211,15 +1217,15 @@ def generate_layout():
         html.A(
             [html.Img(src="assets/KlimaDAO-Wordmark-2.png", className="klima-logo")],
             href="https://www.klimadao.finance/",
-            style={"padding": "0px"},
+            style={"padding-bottom": "24px"},
         ),
-        html.Hr(),
-        html.H3(
-            "Tokenized Carbon Dashboards Beta",
-            style={"textAlign": "start"},
-            className="dashboard-title",
-        ),
-        html.Hr(style={"margin-bottom": "1.5rem"}),
+        # html.Hr(),
+        # html.H3(
+        #     "Tokenized Carbon Dashboards Beta",
+        #     style={"textAlign": "start"},
+        #     className="dashboard-title",
+        # ),
+        # html.Hr(style={"margin-bottom": "1.5rem"}),
     ]
 
     sidebar = html.Div(
@@ -1227,7 +1233,7 @@ def generate_layout():
             dbc.Nav(
                 sidebar_header
                 + [
-                    html.H4("Top Level Summary", style={"textAlign": "left"}),
+                    # html.H4("Top Level Summary", style={"textAlign": "left"}),
                     dbc.NavLink(
                         [
                             html.Div(
@@ -1264,9 +1270,9 @@ def generate_layout():
                         href="/CarbonPools",
                         active="exact",
                     ),
-                    html.Hr(style={"margin-top": "1.5rem"}),
+                    # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
-                        html.H4("C3", style={"textAlign": "left"}),
+                        html.P("C3", className="sidebar-protocol-heading"),
                         href="https://www.c3.app/",
                     ),
                     dbc.NavLink(
@@ -1311,9 +1317,9 @@ def generate_layout():
                         href="/NBO",
                         active="exact",
                     ),
-                    html.Hr(style={"margin-top": "1.5rem"}),
+                    # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
-                        html.H4("Moss", style={"textAlign": "left"}),
+                        html.P("Moss", className="sidebar-protocol-heading"),
                         href="https://mco2token.moss.earth/",
                     ),
                     dbc.NavLink(
@@ -1329,9 +1335,9 @@ def generate_layout():
                         href="/MCO2",
                         active="exact",
                     ),
-                    html.Hr(style={"margin-top": "1.5rem"}),
+                    # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
-                        html.H4("Toucan", style={"textAlign": "left"}),
+                        html.P("Toucan", className="sidebar-protocol-heading"),
                         href="https://toucan.earth/",
                     ),
                     dbc.NavLink(
@@ -1373,11 +1379,11 @@ def generate_layout():
                         href="/NCT",
                         active="exact",
                     ),
-                    html.Hr(style={"margin-top": "3rem"}),
+                    # html.Hr(style={"margin-top": "3rem"}),
                 ],
                 vertical=True,
                 pills=True,
-                style={"gap": "0.5rem"},
+                style={"gap": "4px"},
             )
         ],
         className="sidebar",
@@ -1390,7 +1396,7 @@ def generate_layout():
                     dbc.Nav(
                         sidebar_header
                         + [
-                            html.H4("Top Level Summary", style={"textAlign": "left"}),
+                            # html.H4("Top Level Summary", style={"textAlign": "left"}),
                             dbc.NavLink(
                                 [
                                     html.Div(
@@ -1431,18 +1437,16 @@ def generate_layout():
                                         ),
                                         className="icon-container",
                                     ),
-                                    html.Span(
-                                        "Carbon Pools", className="icon-title"
-                                    ),
+                                    html.Span("Carbon Pools", className="icon-title"),
                                 ],
                                 href="/CarbonPools",
                                 active="exact",
                                 id="button-onchain_pool_comp",
                                 n_clicks=0,
                             ),
-                            html.Hr(style={"margin-top": "1.5rem"}),
+                            # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.H4("C3", style={"textAlign": "left"}),
+                                html.P("C3", className="sidebar-protocol-heading"),
                                 href="https://www.c3.app/",
                             ),
                             dbc.NavLink(
@@ -1493,9 +1497,9 @@ def generate_layout():
                                 id="button-nbo",
                                 n_clicks=0,
                             ),
-                            html.Hr(style={"margin-top": "1.5rem"}),
+                            # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.H4("Moss", style={"textAlign": "left"}),
+                                html.P("Moss", className="sidebar-protocol-heading"),
                                 href="https://mco2token.moss.earth/",
                             ),
                             dbc.NavLink(
@@ -1514,9 +1518,9 @@ def generate_layout():
                                 id="button-mco2",
                                 n_clicks=0,
                             ),
-                            html.Hr(style={"margin-top": "1.5rem"}),
+                            # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.H4("Toucan", style={"textAlign": "left"}),
+                                html.P("Toucan", className="sidebar-protocol-heading"),
                                 href="https://toucan.earth/",
                             ),
                             dbc.NavLink(
@@ -1567,12 +1571,33 @@ def generate_layout():
                                 id="button-nct",
                                 n_clicks=0,
                             ),
-                            html.Hr(style={"margin-top": "3rem"}),
+                            # html.Hr(style={"margin-top": "3rem"}),
                         ],
                         vertical=True,
                         pills=True,
-                        style={"gap": "0.5rem"},
-                    )
+                        style={"gap": "4px"},
+                    ),
+                    dbc.Button(
+                        "KlimaDAO.finance",
+                        className="klimadao-btn-sidebar",
+                        href="https://www.klimadao.finance/",
+                        target="_blank",
+                    ),
+                    dbc.Button(
+                        [
+                            "Open the app",
+                            html.Div(
+                                html.Span(
+                                    "open_in_new",
+                                    className="material-icons",
+                                ),
+                                className="klimadao-app-icon-container",
+                            ),
+                        ],
+                        className="klimadao-app-btn-sidebar",
+                        href="https://app.klimadao.finance/#/stake",
+                        target="_blank",
+                    ),
                 ],
                 id="collapse",
                 className="collapse",
@@ -1955,6 +1980,7 @@ def render_page_content(pathname):
     Output("collapse", "is_open"),
     [
         Input("toggle", "n_clicks"),
+        Input("button-homepage", "n_clicks"),
         Input("button-off_vs_on_chain", "n_clicks"),
         Input("button-onchain_pool_comp", "n_clicks"),
         Input("button-tco2", "n_clicks"),
@@ -1969,6 +1995,7 @@ def render_page_content(pathname):
 )
 def toggle_collapse(
     n,
+    n_home,
     n_off_vs_on,
     n_all_carbon_pools,
     n_tco2,
@@ -1982,6 +2009,7 @@ def toggle_collapse(
 ):
     if (
         n
+        or n_home
         or n_off_vs_on
         or n_all_carbon_pools
         or n_tco2

@@ -169,15 +169,14 @@ color: white;
 }
 
 .nav-pills a{
-  font-size: 14.5px;
-  line-height: 1.5rem;
+  font-size: 14px;
+  line-height: 24px;
   font-weight: 500;
   display: flex;
-  box-sizing: border-box;
+  flex-direction: row;
   align-items: center;
-  text-align: left;
   color:#9c9c9c;
-  gap: 1rem;
+  gap: 12px;
   padding: 0.4rem;
   border-radius: 0.8rem;
   width: 100%;
@@ -278,6 +277,15 @@ color: white;
   display: flex;
 }
 
+.sidebar-protocol-heading {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  color: var(--white);
+}
+
 .sidebar_mobile{
   display: none;
 }
@@ -317,8 +325,8 @@ br {
   align-self: stretch;
   font-weight: 700;
   font-family: var(--font-fam-Poppins);
-  font-size: 55px;
-  line-height: 55px;
+  font-size: 60px;
+  line-height: 100%;
 }
 
 .overlay-image-subtitle{
@@ -326,8 +334,8 @@ br {
   justify-content: center;
   font-weight: 600;
   font-family: var(--font-fam-Poppins);
-  font-size: 20px;
-  line-height: 20px;
+  font-size: 24px;
+  line-height: 32px;
 }
 
 .overlay-image-lastupdated{
@@ -335,7 +343,7 @@ br {
   justify-content: center;
   font-weight:normal;
   font-size: 14px;
-  line-height: 20px;
+  line-height: 16px;
 }
 
 .overlay-image-card{
@@ -368,25 +376,33 @@ br {
 
 .vcm-card-header{
   font-weight: 600;
-  font-size: 2rem;
+  font-size: 32px;
+  font-style: normal;
+  line-height: 36px;
   font-family: var(--font-fam-Poppins);
 }
 
 .vcm-card-text{
   font-family: var(--font-fam);
   font-weight: 400;
+  font-size: 20px;
+  line-height: 32px;
+  font-style: normal;
 }
 
 .summary-card-header{
-  font-weight: bold;
-  font-size: 1rem;
+  font-style: normal;
+  font-size: 16px;
   font-weight: 500;
+  line-height: 20px;
 }
 
 .summary-card-text, .upnext-card-text{
-  font-size: 2rem;
+  font-size: 36px;
+  line-height: 48px;
   font-family: var(--font-fam-Poppins);
   font-weight: 300;
+  font-style: normal;
 }
 
 .upnext-card-text{
@@ -398,8 +414,8 @@ br {
 
 
 .offvson_fig {
-  width: 800px;
-  height: 700px;
+  width: 45vw;
+  height: 90vh;
 }
 
 .retirements_chart {
@@ -408,8 +424,10 @@ br {
 }
 
 .img_fig{
-  width: 500px;
-  height: 500px;
+  width: 40vw;
+  height: 80vh;
+  /* width: 500px;
+  height: 500px; */
 }
 
 .img_card_body{
@@ -418,11 +436,11 @@ br {
 }
 
 .offvson_fig_card{
-  align-items: end;
-  justify-content: end;
+  align-items: center;
+  justify-content: center;
 }
 
-.year-slider{
+/* .year-slider{
   background-color: var(--gray);
 }
 
@@ -442,7 +460,7 @@ br {
   transform: translateX(50%) !important ;
   right: 0% !important;
   left: auto !important;
-  }
+  } */
 .dashboard-title {
   margin-bottom: 0rem;
 }
@@ -540,7 +558,11 @@ p {
   color: #3c3c3c!important;
 }
 
-.klimadao-btn, .klimadao-app-btn{
+/* .btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+  background-color: #8064A2 !important;
+} */
+.klimadao-btn, .klimadao-btn:focus, .klimadao-btn:hover, .klimadao-btn:active, .klimadao-btn:visited, .klimadao-app-btn, .klimadao-app-btn:hover,
+.klimadao-app-btn:active, .klimadao-app-btn:visited, .klimadao-app-btn:focus{
   background: var(--dark-gray);
   box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 4px;
@@ -556,11 +578,23 @@ p {
   width: 10rem
 }
 
-.klimadao-app-btn{
+.klimadao-app-btn, .klimadao-app-btn:hover,
+.klimadao-app-btn:active, .klimadao-app-btn:visited, .klimadao-app-btn:focus{
   background-color: var(--green);
   border-color: var(--green);
   padding-right: 0px;
 }
+
+.klimadao-app-btn:hover {
+  background-color: var(--green);
+  opacity: 0.7;
+}
+
+.klimadao-btn:hover {
+  background-color: var(--dark-gray);
+  opacity: 0.7;
+}
+
 
 .klimadao-app-icon-container, .upnext-icon-container{
   align-items: center;
@@ -593,6 +627,7 @@ p {
   display:flex;
   align-items: center;
   justify-content: center;
+  padding: 0px;
 }
 .download_btn_div{
   display: flex;
@@ -687,7 +722,7 @@ p {
     line-height: 32px;
   } */
   
-  .img_fig{
+  /* .img_fig{
     width: 300px;
     height: 300px;
   }
@@ -695,11 +730,57 @@ p {
   .offvson_fig{
     width: 300px;
     height: 400px;
-  }
+  } */
 
   .klimadao-btn, .klimadao-app-btn{
     display: none;
   }
 
+  .klimadao-btn-sidebar, .klimadao-btn-sidebar:focus,.klimadao-btn-sidebar:hover,.klimadao-btn-sidebar:active,.klimadao-btn-sidebar:visited, .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:hover,
+  .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:visited, .klimadao-app-btn-sidebar:focus{
+    background: var(--gray);
+    box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 10px;
+    border-color: var(--gray);
+    height: 3rem;
+    width: 100%
+  }
+  
+  .klimadao-app-btn-sidebar, .klimadao-app-btn-sidebar:hover,
+  .klimadao-app-btn-sidebar:active, .klimadao-app-btn-sidebar:visited, .klimadao-app-btn-sidebar:focus{
+    background-color: var(--green);
+    border-color: var(--green);
+    padding-right: 0px;
+  }
+  
+  .klimadao-app-btn-sidebar:hover {
+    background-color: var(--green);
+    opacity: 0.7;
+  }
+  
+.klimadao-btn-sidebar:hover {
+    background-color: var(--dark-gray);
+    opacity: 0.7;
+  }
+  
+  
+  .klimadao-app-icon-container, .upnext-icon-container{
+    align-items: center;
+    justify-content: center;
+    margin-top: 0rem;
+    height: 2rem;
+    width: 2rem;
+    display: flex;
+    border-radius: 0.6rem;
+    background-color: var(--green);
+  }
 
 }

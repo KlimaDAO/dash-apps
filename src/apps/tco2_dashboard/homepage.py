@@ -27,7 +27,7 @@ def create_homepage_content(
     fig_retirements,
     fig_holders,
 ):
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y     %H:%M:%S UTC")
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     header_card = dbc.Card(
         [
             dbc.CardImg(
@@ -82,7 +82,9 @@ def create_homepage_content(
     onchain = human_format(df_onchain["Quantity"].iloc[-1])
     onchain_retired = human_format(df_onchain_retired["Quantity"].iloc[-1])
     highest_retirements = "{:,}".format(int(df_retirements["Quantity"].iloc[0]))
+    highest_retirements_name = df_retirements["Retiree Name"].iloc[0]
     highest_holdings = "{:,}".format(int(df_holders["Quantity"].iloc[0]))
+    highest_holdings_name = df_holders["Klimate Name"].iloc[0]
 
     today = date.today().strftime("%B %d, %Y")
 
@@ -143,7 +145,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "60px"},
         ),
         dbc.Row(
             [
@@ -160,6 +162,7 @@ def create_homepage_content(
                                                 className="offvson_fig",
                                             ),
                                         ),
+                                        # dbc.Col(),
                                     ]
                                 ),
                                 dbc.Row(
@@ -200,7 +203,7 @@ def create_homepage_content(
                             dbc.CardHeader("Holdings", className="summary-card-header"),
                             dbc.CardBody(
                                 [
-                                    html.Strong("KlimaDAO"),
+                                    html.Strong(highest_holdings_name),
                                     " is holding ",
                                     html.Strong(highest_holdings),
                                     " carbon assets, making them the largest single holder of tokenized carbon assets.",
@@ -215,7 +218,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
         dbc.Row(
             [
@@ -227,6 +230,14 @@ def create_homepage_content(
                                     [
                                         dbc.Col(),
                                         dbc.Col(
+                                            # dcc.Graph(
+                                            #     figure=fig_holders,
+                                            #     style={
+                                            #         "width": "35vw",
+                                            #         "height": "70vh",
+                                            #     },
+                                            #     className="img_fig",
+                                            # ),
                                             html.Img(
                                                 src=fig_holders, className="img_fig"
                                             ),
@@ -275,7 +286,7 @@ def create_homepage_content(
                             dbc.CardBody(
                                 [
                                     "To date, ",
-                                    html.Strong("Polygon"),
+                                    html.Strong(highest_retirements_name),
                                     " has retired ",
                                     html.Strong(highest_retirements),
                                     " tokenized carbon credits, making them the current leader in tokenized carbon"
@@ -291,7 +302,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
         dbc.Row(
             [
@@ -348,10 +359,6 @@ def create_homepage_content(
                             dbc.CardHeader("Up next", className="summary-card-header"),
                             dbc.CardBody(
                                 [
-                                    # dbc.Row(
-                                    #     [
-                                    #         dbc.Col(
-                                    #             [html.Div([
                                     "Off vs on-chain carbon",
                                     html.Div(
                                         html.A(
@@ -363,11 +370,6 @@ def create_homepage_content(
                                         ),
                                         className="upnext-icon-container",
                                     ),
-                                    #             ]),
-                                    #             ]
-                                    #         ),
-                                    #     ]
-                                    # )
                                 ],
                                 className="upnext-card-text",
                             ),
@@ -379,7 +381,7 @@ def create_homepage_content(
                 ),
                 dbc.Col(),
             ],
-            style={"padding-top": "30px"},
+            style={"padding-top": "45px"},
         ),
     ]
 

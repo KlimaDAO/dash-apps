@@ -379,19 +379,20 @@ def off_vs_on_data(df_verra, df_verra_retired, bridges_info_dict, retires_info_d
 
 def create_retirements_data(df_retired):
     df_retired = (
-        df_retired.groupby("Retiree")["Quantity"].sum().to_frame().reset_index()
+        df_retired.groupby("Tx From Address")["Quantity"].sum().to_frame().reset_index()
     )
-    print(df_retired.sort_values(by="Quantity", ascending=False).reset_index())
     df_retired = (
         df_retired.sort_values(by="Quantity", ascending=False).reset_index().head(3)
     )
     data = [{"id": "World", "datum": df_retired["Quantity"].sum(), "children": []}]
     retiree_list = []
-    for i in df_retired["Retiree"].tolist():
-        if i == "0xcefb61af5325c0c100cbd77eb4c9f51d17b189ca":
-            retiree_list.append('Polygon')
+    df_retired["Retiree Name"] = df_retired["Tx From Address"]
+    for index, i in enumerate(df_retired["Tx From Address"].tolist()):
+        if i == "0x087a7afb6975a2837453be685eb6272576c0bc06":
+            retiree_list.append("Polygon")
+            df_retired.loc[index, "Retiree Name"] = "Polygon"
         else:
-            retiree_list.append(i[:4]+'...'+i[-1])
+            retiree_list.append(i[:4] + "..." + i[-1])
     quantity_list = df_retired["Quantity"].tolist()
     dummy_retiree_list = ["..."] * 20
     dummy_quantity_list = [1000] * 20
@@ -406,9 +407,16 @@ def create_retirements_data(df_retired):
                 "alpha": 1,
                 "color": "#00CC33",
             }
-        elif i > 0 and i < 3:
+        elif i == 1:
             style_dict[retiree_list[i]] = {
-                "fontsize": 8,
+                "fontsize": 22,
+                "scale_r": 0.9,
+                "alpha": 0.8,
+                "color": "#00CC33",
+            }
+        elif i == 2:
+            style_dict[retiree_list[i]] = {
+                "fontsize": 15,
                 "scale_r": 0.9,
                 "alpha": 0.7,
                 "color": "#00CC33",
@@ -435,21 +443,21 @@ def create_holders_data(df_holdings):
         .to_frame()
         .reset_index()
     )
-    print(df_holdings.sort_values(by="Quantity", ascending=False).reset_index())
     df_holdings = (
         df_holdings.sort_values(by="Quantity", ascending=False).reset_index().head(4)
     )
     data = [{"id": "World", "datum": df_holdings["Quantity"].sum(), "children": []}]
     holders_list = []
-    for i in df_holdings["Klimate_Address"].tolist():
+    df_holdings["Klimate Name"] = df_holdings["Klimate_Address"]
+    for index, i in enumerate(df_holdings["Klimate_Address"].tolist()):
         if i == "0x7dd4f0b986f032a44f913bf92c9e8b7c17d77ad7":
-            holders_list.append('KlimaDAO')
+            holders_list.append("KlimaDAO")
+            df_holdings.loc[index, "Klimate Name"] = "KlimaDAO"
         elif i == "0x1e67124681b402064cd0abe8ed1b5c79d2e02f64":
-            holders_list.append('Olympus')
+            holders_list.append("Olympus")
+            df_holdings.loc[index, "Klimate Name"] = "Olympus"
         else:
-            holders_list.append(i[:4]+'...'+i[-1])
-    holders_list[0] = 'KlimaDAO'
-    holders_list[1] = 'Olympus'
+            holders_list.append(i[:4] + "..." + i[-1])
     quantity_list = df_holdings["Quantity"].tolist()
     dummy_holders_list = ["..."] * 20
     dummy_quantity_list = [100000] * 20
