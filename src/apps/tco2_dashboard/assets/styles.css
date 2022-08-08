@@ -11,6 +11,8 @@
 body {
     background: var(--gray);
     font-family: var(--font-fam);
+    scrollbar-color: var(--dark-gray);
+    scrollbar-width: 0.6rem;
 }
 
 h1 {
@@ -415,7 +417,7 @@ br {
 
 .offvson_fig {
   width: 45vw;
-  height: 90vh;
+  /* height: 90vh; */
 }
 
 .retirements_chart {
@@ -425,9 +427,7 @@ br {
 
 .img_fig{
   width: 40vw;
-  height: 80vh;
-  /* width: 500px;
-  height: 500px; */
+  /* height: 80vh; */
 }
 
 .img_card_body{
@@ -440,27 +440,6 @@ br {
   justify-content: center;
 }
 
-/* .year-slider{
-  background-color: var(--gray);
-}
-
-.rc-slider.rc-slider-with-marks{
-  background-color: var(--gray);
-}
-
-.rc-slider-mark-text.rc-slider-mark-text-active{
-  color: var(--green);
-}
-
-.rc-slider-mark-text{
-  color: white;
-  font-size: 10px;
-}
-.rc-slider-mark-text:last-child{
-  transform: translateX(50%) !important ;
-  right: 0% !important;
-  left: auto !important;
-  } */
 .dashboard-title {
   margin-bottom: 0rem;
 }
@@ -558,9 +537,6 @@ p {
   color: #3c3c3c!important;
 }
 
-/* .btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
-  background-color: #8064A2 !important;
-} */
 .klimadao-btn, .klimadao-btn:focus, .klimadao-btn:hover, .klimadao-btn:active, .klimadao-btn:visited, .klimadao-app-btn, .klimadao-app-btn:hover,
 .klimadao-app-btn:active, .klimadao-app-btn:visited, .klimadao-app-btn:focus{
   background: var(--dark-gray);
@@ -642,6 +618,17 @@ p {
   justify-content: left;
 }
 
+/* // safari and chrome */
+*::-webkit-scrollbar {
+    width: 0.6rem;
+  }
+*::-webkit-scrollbar-thumb {
+    background-color: var(--dark-gray);
+    outline: 1px solid var(--dark-gray);
+    border-radius: 0.2rem;
+    width: 0.6rem;
+  }
+
 @media (max-width: 48em) {
 
   #static-content {
@@ -717,20 +704,6 @@ p {
     filter: brightness(75%);
   }
 
-  /* .overlay-image-title{
-    font-size: 32px;
-    line-height: 32px;
-  } */
-  
-  /* .img_fig{
-    width: 300px;
-    height: 300px;
-  }
-
-  .offvson_fig{
-    width: 300px;
-    height: 400px;
-  } */
 
   .klimadao-btn, .klimadao-app-btn{
     display: none;

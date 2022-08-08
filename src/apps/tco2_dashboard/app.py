@@ -63,6 +63,7 @@ from .helpers import (
     off_vs_on_data,
     create_retirements_data,
     create_holders_data,
+    merge_retirements_data_for_retirement_chart,
 )
 from .constants import (
     rename_map,
@@ -84,6 +85,7 @@ from .constants import (
     mco2_bridged_rename_map,
     bridges_rename_map,
     holders_rename_map,
+    moss_retires_rename_map,
 )
 
 CACHE_TIMEOUT = 86400
@@ -92,6 +94,9 @@ CARBON_SUBGRAPH_URL = (
 )
 CARBON_MOSS_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
+)
+CARBON_MOSS_ETH_TEST_SUBGRAPH_URL = (
+    "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraphtest"
 )
 CARBON_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethereum-bridged-carbon"
@@ -224,6 +229,7 @@ def get_data():
             carbon_offsets.offset.category,
             carbon_offsets.offset.name,
             carbon_offsets.offset.totalRetired,
+            carbon_offsets.transaction.id,
             carbon_offsets.transaction._select("from"),
         ]
     )
@@ -275,6 +281,11 @@ def get_data_pool_retired():
             klimaretires.timestamp,
             klimaretires.pool,
             klimaretires.amount,
+            klimaretires.retiringAddress,
+            klimaretires.beneficiary,
+            klimaretires.beneficiaryAddress,
+            klimaretires.retirementMessage,
+            klimaretires.transaction.id,
         ]
     )
 
@@ -316,6 +327,7 @@ def get_mco2_data():
         [
             carbon_offsets.value,
             carbon_offsets.timestamp,
+            carbon_offsets.retiree,
             carbon_offsets.offset.tokenAddress,
             carbon_offsets.offset.bridge,
             carbon_offsets.offset.region,
@@ -328,10 +340,26 @@ def get_mco2_data():
             carbon_offsets.offset.category,
             carbon_offsets.offset.name,
             carbon_offsets.offset.totalRetired,
+            carbon_offsets.transaction.id,
             carbon_offsets.transaction._select("from"),
         ]
     )
-    return df_bridged, df_bridged_tx, df_retired
+
+    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_TEST_SUBGRAPH_URL)
+    carbon_offsets = carbon_data.Query.mossOffsets(first=MAX_RECORDS)
+
+    df_moss_retired = sg.query_df(
+        [
+            carbon_offsets.value,
+            carbon_offsets.timestamp,
+            carbon_offsets.retiree,
+            carbon_offsets.receiptId,
+            carbon_offsets.onBehalfOf,
+            carbon_offsets.transaction.id,
+            carbon_offsets.transaction._select("from"),
+        ]
+    )
+    return df_bridged, df_bridged_tx, df_retired, df_moss_retired
 
 
 @cache.memoize()
@@ -441,7 +469,12 @@ def generate_layout():
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
     df_pool_retired = get_data_pool_retired()
-    df_bridged_mco2, df_bridged_tx_mco2, df_retired_mco2 = get_mco2_data()
+    (
+        df_bridged_mco2,
+        df_bridged_tx_mco2,
+        df_retired_mco2,
+        df_retired_mco2_info,
+    ) = get_mco2_data()
     df_verra, verra_fallback_note = get_verra_data()
     df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     df_prices = get_prices()
@@ -452,6 +485,7 @@ def generate_layout():
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
     df_holdings = df_holdings.rename(columns=holders_rename_map)
+    df_retired_mco2_info = df_retired_mco2_info.rename(columns=moss_retires_rename_map)
 
     # -----TCO2_Figures----
     # Bridge manipulations
@@ -1168,12 +1202,13 @@ def generate_layout():
     fig_on_vs_off_time, fig_on_vs_off_time_download = create_offchain_vs_onchain_fig(
         df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
     )
-    print(df_retired, df_retired["Quantity"].sum())
-    print(df_retired_mco2, df_retired_mco2["Quantity"].sum())
-    df_retired = pd.concat([df_retired, df_retired_mco2])
-    print(df_retired, df_retired["Quantity"].sum())
+
+    df_retired_merged = merge_retirements_data_for_retirement_chart(
+        df_retired, df_pool_retired, df_retired_mco2, df_retired_mco2_info
+    )
+
     df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
-        df_retired
+        df_retired_merged
     )
     df_holders, holders_data, holders_style_dict = create_holders_data(df_holdings)
     fig_retirements, fig_retirements_download = create_retirements_fig(

@@ -377,22 +377,124 @@ def off_vs_on_data(df_verra, df_verra_retired, bridges_info_dict, retires_info_d
     return df_verra, df_verra_retired, bridge_df, retire_df
 
 
+def merge_retirements_data_for_retirement_chart(
+    df_retired_polygon, df_klima_agg_retired, df_retired_eth, df_retired_moss
+):
+
+    df_retired_polygon = df_retired_polygon[df_retired_polygon["Quantity"] > 0]
+    df_klima_agg_retired = df_klima_agg_retired[df_klima_agg_retired["Quantity"] > 0]
+    df_retired_eth = df_retired_eth[df_retired_eth["Quantity"] > 0]
+    df_retired_moss = df_retired_moss[df_retired_moss["Quantity"] > 0]
+
+    df_retired_polygon["Quantity"] = df_retired_polygon["Quantity"].round(4)
+    df_klima_agg_retired["Quantity"] = df_klima_agg_retired["Quantity"].round(4)
+    df_retired_polygon["Key"] = (
+        df_retired_polygon["Quantity"].astype(str) + "_" + df_retired_polygon["Tx ID"]
+    )
+    df_klima_agg_retired["Key"] = (
+        df_klima_agg_retired["Quantity"].astype(str)
+        + "_"
+        + df_klima_agg_retired["Tx ID"]
+    )
+
+    df_retired_polygon_merged = df_retired_polygon.merge(
+        df_klima_agg_retired,
+        how="outer",
+        left_on="Key",
+        right_on="Key",
+        suffixes=("", "_klima_agg"),
+    )
+    pd.set_option("display.max_rows", 100)
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.width", None)
+    pd.set_option("display.max_colwidth", None)
+
+    df_retired_polygon_merged.loc[
+        df_retired_polygon_merged["Beneficiary"].isna(),
+        "Beneficiary",
+    ] = df_retired_polygon_merged["Tx From Address"]
+    df_retired_polygon_merged.loc[
+        df_retired_polygon_merged["Beneficiary"].str.contains("Polygon", case=False),
+        "Beneficiary",
+    ] = "Polygon"
+
+    df_retired_polygon_merged.loc[
+        df_retired_polygon_merged["Quantity"].isna(),
+        "Quantity",
+    ] = df_retired_polygon_merged["Quantity_klima_agg"]
+
+    df_retired_polygon_merged.loc[
+        df_retired_polygon_merged["Beneficiary"].str.contains("Polygon", case=False),
+        "Beneficiary",
+    ] = "Polygon"
+
+    df_retired_polygon_merged = df_retired_polygon_merged.sort_values(
+        by="Quantity", ascending=False
+    ).reset_index()
+
+    df_retired_eth_merged = df_retired_eth.merge(
+        df_retired_moss,
+        how="left",
+        left_on="Tx ID",
+        right_on="Tx ID",
+        suffixes=("", "_moss"),
+    )
+
+    df_retired_eth_merged["Beneficiary"] = df_retired_eth_merged["Retiree_moss"]
+    moss_corporate_wallet_list = [
+        "0x3424b93bda014d41b828f6b31ef08134f983a8fc",
+        "0x70d5eadcb367bcf733fc98b441def1c7c5eec187",
+        "0x225e489114291d74bd3960e3e5383e523ce8a462",
+    ]
+    klima_retire_wallet = "0xedaefcf60e12bd331c092341d5b3d8901c1c05a8"
+    df_retired_eth_merged = df_retired_eth_merged[
+        df_retired_eth_merged["Retiree_moss"] != klima_retire_wallet
+    ]
+    df_retired_eth_merged.loc[
+        df_retired_eth_merged["Retiree_moss"].isin(moss_corporate_wallet_list),
+        "Beneficiary",
+    ] = df_retired_eth_merged["Receipt ID"]
+    df_retired_eth_merged = df_retired_eth_merged.loc[
+        (df_retired_eth_merged["Beneficiary"].notna())
+    ]
+    df_retired_eth_merged.loc[
+        df_retired_eth_merged["Beneficiary"].str.contains("ifood|IFOOD", case=False),
+        "Beneficiary",
+    ] = "iFood"
+    df_retired_eth_merged.loc[
+        df_retired_eth_merged["Beneficiary"].str.contains("SKYBRIDGE", case=False),
+        "Beneficiary",
+    ] = "SkyBridge Capital"
+
+    df_retired_eth_merged = df_retired_eth_merged.sort_values(
+        by="Quantity", ascending=False
+    ).reset_index()
+
+    df_retired_final = pd.concat(
+        [
+            df_retired_eth_merged[["Quantity", "Beneficiary"]],
+            df_retired_polygon_merged[["Quantity", "Beneficiary"]],
+        ]
+    ).reset_index()
+
+    return df_retired_final
+
+
 def create_retirements_data(df_retired):
     df_retired = (
-        df_retired.groupby("Tx From Address")["Quantity"].sum().to_frame().reset_index()
+        df_retired.groupby("Beneficiary")["Quantity"].sum().to_frame().reset_index()
     )
     df_retired = (
-        df_retired.sort_values(by="Quantity", ascending=False).reset_index().head(3)
+        df_retired.sort_values(by="Quantity", ascending=False).reset_index().head(4)
     )
     data = [{"id": "World", "datum": df_retired["Quantity"].sum(), "children": []}]
     retiree_list = []
-    df_retired["Retiree Name"] = df_retired["Tx From Address"]
-    for index, i in enumerate(df_retired["Tx From Address"].tolist()):
-        if i == "0x087a7afb6975a2837453be685eb6272576c0bc06":
-            retiree_list.append("Polygon")
-            df_retired.loc[index, "Retiree Name"] = "Polygon"
-        else:
+    # df_retired["Retiree Name"] = df_retired["Tx From Address"]
+    for index, i in enumerate(df_retired["Beneficiary"].tolist()):
+        if i[:2] == "0x":
             retiree_list.append(i[:4] + "..." + i[-1])
+        else:
+            retiree_list.append(i)
     quantity_list = df_retired["Quantity"].tolist()
     dummy_retiree_list = ["..."] * 20
     dummy_quantity_list = [1000] * 20
@@ -402,28 +504,30 @@ def create_retirements_data(df_retired):
     for i in range(len(retiree_list)):
         if i == 0:
             style_dict[retiree_list[i]] = {
-                "fontsize": 25,
                 "scale_r": 0.9,
                 "alpha": 1,
                 "color": "#00CC33",
             }
         elif i == 1:
             style_dict[retiree_list[i]] = {
-                "fontsize": 22,
                 "scale_r": 0.9,
                 "alpha": 0.8,
                 "color": "#00CC33",
             }
         elif i == 2:
             style_dict[retiree_list[i]] = {
-                "fontsize": 15,
                 "scale_r": 0.9,
                 "alpha": 0.7,
                 "color": "#00CC33",
             }
+        elif i == 3:
+            style_dict[retiree_list[i]] = {
+                "scale_r": 0.9,
+                "alpha": 0.6,
+                "color": "#00CC33",
+            }
         else:
             style_dict[retiree_list[i]] = {
-                "fontsize": 4,
                 "scale_r": 0.7,
                 "alpha": 0.4,
                 "color": "#00CC33",
@@ -454,8 +558,8 @@ def create_holders_data(df_holdings):
             holders_list.append("KlimaDAO")
             df_holdings.loc[index, "Klimate Name"] = "KlimaDAO"
         elif i == "0x1e67124681b402064cd0abe8ed1b5c79d2e02f64":
-            holders_list.append("Olympus")
-            df_holdings.loc[index, "Klimate Name"] = "Olympus"
+            holders_list.append("Olympus DAO")
+            df_holdings.loc[index, "Klimate Name"] = "Olympus DAO"
         else:
             holders_list.append(i[:4] + "..." + i[-1])
     quantity_list = df_holdings["Quantity"].tolist()
@@ -467,28 +571,30 @@ def create_holders_data(df_holdings):
     for i in range(len(holders_list)):
         if i == 0:
             style_dict[holders_list[i]] = {
-                "fontsize": 25,
                 "scale_r": 0.9,
                 "alpha": 1,
                 "color": "#00CC33",
             }
         elif i == 1:
             style_dict[holders_list[i]] = {
-                "fontsize": 14,
                 "scale_r": 0.9,
                 "alpha": 0.7,
                 "color": "#00CC33",
             }
-        elif i > 1 and i < 4:
+        elif i == 2:
             style_dict[holders_list[i]] = {
-                "fontsize": 12,
                 "scale_r": 0.9,
-                "alpha": 0.7,
+                "alpha": 0.6,
+                "color": "#00CC33",
+            }
+        elif i == 3:
+            style_dict[holders_list[i]] = {
+                "scale_r": 0.9,
+                "alpha": 0.5,
                 "color": "#00CC33",
             }
         else:
             style_dict[holders_list[i]] = {
-                "fontsize": 4,
                 "scale_r": 0.7,
                 "alpha": 0.4,
                 "color": "#00CC33",

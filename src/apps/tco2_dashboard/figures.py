@@ -11,6 +11,7 @@ import circlify
 import matplotlib
 from math import log, floor
 from base64 import b64encode
+import math
 
 matplotlib.use("agg")
 
@@ -1486,13 +1487,20 @@ def create_offchain_vs_onchain_fig(
     return img_b64, fig
 
 
+def font_size_calculator(label, r):
+    if label == "<b>" + "..." + "</b>":
+        font_size = 4
+    else:
+        font_size = max(10, math.ceil(min(25, (r / 0.5) * 25)))
+    return font_size
+
+
 def create_retirements_fig(data, style_dict):
     circles = circlify.circlify(
         data, show_enclosure=False, target_enclosure=circlify.Circle(x=0, y=0, r=1)
     )
 
     fig = go.Figure()
-
     # Set axes properties
     fig.update_xaxes(
         range=[-1, 1],
@@ -1543,7 +1551,7 @@ def create_retirements_fig(data, style_dict):
             yref="y",
             text=label_text,
             showarrow=False,
-            font=dict(size=style_dict[label]["fontsize"], color="white"),
+            font=dict(size=font_size_calculator(label_text, r), color="white"),
             align="center",
         )
         if label_text != "<b>" + "..." + "</b>":
@@ -1552,13 +1560,13 @@ def create_retirements_fig(data, style_dict):
                 y=y
                 - 0.1
                 * style_dict[label]["scale_r"]
-                * style_dict[label]["fontsize"]
+                * font_size_calculator(label_text, r)
                 / 20,
                 xref="x",
                 yref="y",
                 text=label_value,
                 showarrow=False,
-                font=dict(size=style_dict[label]["fontsize"], color="white"),
+                font=dict(size=font_size_calculator(label_text, r), color="white"),
                 align="center",
             )
 
