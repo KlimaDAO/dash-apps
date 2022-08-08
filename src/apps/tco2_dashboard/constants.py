@@ -57,7 +57,18 @@ retires_rename_map = {
     "retires_offset_name": "Name",
     "retires_offset_tokenAddress": "Token Address",
     "retires_offset_totalRetired": "Total Quantity",
+    "retires_transaction_id": "Tx ID",
     "retires_transaction_from": "Tx From Address",
+}
+
+moss_retires_rename_map = {
+    "mossOffsets_value": "Quantity",
+    "mossOffsets_timestamp": "Date",
+    "mossOffsets_retiree": "Retiree",
+    "mossOffsets_receiptId": "Receipt ID",
+    "mossOffsets_onBehalfOf": "OnBehalf Of",
+    "mossOffsets_transaction_id": "Tx ID",
+    "mossOffsets_transaction_from": "Tx From Address",
 }
 
 bridges_rename_map = {
@@ -85,6 +96,11 @@ pool_retires_rename_map = {
     "klimaRetires_amount": "Quantity",
     "klimaRetires_timestamp": "Date",
     "klimaRetires_pool": "Pool",
+    "klimaRetires_retiringAddress": "Retiring Address",
+    "klimaRetires_beneficiary": "Beneficiary",
+    "klimaRetires_beneficiaryAddress": "Beneficiary Address",
+    "klimaRetires_retirementMessage": "Retirement Message",
+    "klimaRetires_transaction_id": "Tx ID",
 }
 
 verra_rename_map = {

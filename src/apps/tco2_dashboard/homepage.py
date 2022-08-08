@@ -82,7 +82,7 @@ def create_homepage_content(
     onchain = human_format(df_onchain["Quantity"].iloc[-1])
     onchain_retired = human_format(df_onchain_retired["Quantity"].iloc[-1])
     highest_retirements = "{:,}".format(int(df_retirements["Quantity"].iloc[0]))
-    highest_retirements_name = df_retirements["Retiree Name"].iloc[0]
+    highest_retirements_name = df_retirements["Beneficiary"].iloc[0]
     highest_holdings = "{:,}".format(int(df_holders["Quantity"].iloc[0]))
     highest_holdings_name = df_holders["Klimate Name"].iloc[0]
 
