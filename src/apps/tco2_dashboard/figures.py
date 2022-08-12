@@ -1527,6 +1527,7 @@ def create_retirements_fig(data, style_dict):
     xmax = -math.inf
     ymin = math.inf
     ymax = -math.inf
+    range_buffer = 0.05
     for circle in circles:
         if circle.level != 2:
             continue
@@ -1534,10 +1535,10 @@ def create_retirements_fig(data, style_dict):
         label = circle.ex["id"]
         label_value = "{:,}".format(int(circle.ex["datum"])) + "t"
         r = r * style_dict[label]["scale_r"]
-        xmin = max(-1, min(xmin, x - r))
-        xmax = min(1, max(xmax, x + r))
-        ymin = max(-1, min(ymin, y - r))
-        ymax = min(1, max(ymax, y + r))
+        xmin = max(-1, min(xmin, x - r - range_buffer))
+        xmax = min(1, max(xmax, x + r + range_buffer))
+        ymin = max(-1, min(ymin, y - r - range_buffer))
+        ymax = min(1, max(ymax, y + r + range_buffer))
         label_text = "<b>" + circle.ex["id"] + "</b>"
         fig.add_shape(
             type="circle",
