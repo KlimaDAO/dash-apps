@@ -1252,6 +1252,7 @@ def generate_layout():
         html.A(
             [html.Img(src="assets/KlimaDAO-Wordmark-2.png", className="klima-logo")],
             href="https://www.klimadao.finance/",
+            target="_blank",
             style={"padding-bottom": "24px"},
         ),
         # html.Hr(),
@@ -1309,6 +1310,7 @@ def generate_layout():
                     html.A(
                         html.P("C3", className="sidebar-protocol-heading"),
                         href="https://www.c3.app/",
+                        target="_blank",
                     ),
                     dbc.NavLink(
                         [
@@ -1356,6 +1358,7 @@ def generate_layout():
                     html.A(
                         html.P("Moss", className="sidebar-protocol-heading"),
                         href="https://mco2token.moss.earth/",
+                        target="_blank",
                     ),
                     dbc.NavLink(
                         [
@@ -1374,6 +1377,7 @@ def generate_layout():
                     html.A(
                         html.P("Toucan", className="sidebar-protocol-heading"),
                         href="https://toucan.earth/",
+                        target="_blank",
                     ),
                     dbc.NavLink(
                         [
@@ -1413,6 +1417,7 @@ def generate_layout():
                         ],
                         href="/NCT",
                         active="exact",
+                        style={"margin-bottom": "30px"},
                     ),
                     # html.Hr(style={"margin-top": "3rem"}),
                 ],
@@ -1483,6 +1488,7 @@ def generate_layout():
                             html.A(
                                 html.P("C3", className="sidebar-protocol-heading"),
                                 href="https://www.c3.app/",
+                                target="_blank",
                             ),
                             dbc.NavLink(
                                 [
@@ -1536,6 +1542,7 @@ def generate_layout():
                             html.A(
                                 html.P("Moss", className="sidebar-protocol-heading"),
                                 href="https://mco2token.moss.earth/",
+                                target="_blank",
                             ),
                             dbc.NavLink(
                                 [
@@ -1557,6 +1564,7 @@ def generate_layout():
                             html.A(
                                 html.P("Toucan", className="sidebar-protocol-heading"),
                                 href="https://toucan.earth/",
+                                target="_blank",
                             ),
                             dbc.NavLink(
                                 [
@@ -1613,12 +1621,6 @@ def generate_layout():
                         style={"gap": "4px"},
                     ),
                     dbc.Button(
-                        "KlimaDAO.finance",
-                        className="klimadao-btn-sidebar",
-                        href="https://www.klimadao.finance/",
-                        target="_blank",
-                    ),
-                    dbc.Button(
                         [
                             "Open the app",
                             html.Div(
@@ -1651,12 +1653,6 @@ def generate_layout():
                     dbc.Col(
                         html.Div(
                             [
-                                dbc.Button(
-                                    "KlimaDAO.finance",
-                                    className="klimadao-btn",
-                                    href="https://www.klimadao.finance/",
-                                    target="_blank",
-                                ),
                                 dbc.Button(
                                     [
                                         "Open the app",

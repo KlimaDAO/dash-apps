@@ -103,7 +103,7 @@ def create_homepage_content(
                             dbc.CardBody(
                                 "The VCM is a robust and effective means to tackle climate change by driving"
                                 " resources to projects which deliver independently verified and additional"
-                                "emissions reductions on a global scale.",
+                                " emissions reductions on a global scale.",
                                 className="vcm-card-text",
                             ),
                         ],
@@ -155,14 +155,12 @@ def create_homepage_content(
                             [
                                 dbc.Row(
                                     [
-                                        dbc.Col(),
                                         dbc.Col(
                                             html.Img(
                                                 src=fig_on_vs_off_time,
                                                 className="offvson_fig",
                                             ),
                                         ),
-                                        # dbc.Col(),
                                     ]
                                 ),
                                 dbc.Row(
@@ -228,21 +226,11 @@ def create_homepage_content(
                             [
                                 dbc.Row(
                                     [
-                                        dbc.Col(),
                                         dbc.Col(
-                                            # dcc.Graph(
-                                            #     figure=fig_holders,
-                                            #     style={
-                                            #         "width": "35vw",
-                                            #         "height": "70vh",
-                                            #     },
-                                            #     className="img_fig",
-                                            # ),
                                             html.Img(
                                                 src=fig_holders, className="img_fig"
                                             ),
                                         ),
-                                        dbc.Col(),
                                     ]
                                 ),
                                 dbc.Row(
@@ -269,10 +257,11 @@ def create_homepage_content(
                                 ),
                             ],
                             className="img_card_body",
-                        )
+                        ),
                     )
                 )
-            ]
+            ],
+            className="img_row",
         ),
         dbc.Row(
             [
@@ -290,7 +279,7 @@ def create_homepage_content(
                                     " has retired ",
                                     html.Strong(highest_retirements),
                                     " tokenized carbon credits, making them the current leader in tokenized carbon"
-                                    " retirements",
+                                    " retirements.",
                                 ],
                                 className="summary-card-text",
                             ),
@@ -312,13 +301,11 @@ def create_homepage_content(
                             [
                                 dbc.Row(
                                     [
-                                        dbc.Col(),
                                         dbc.Col(
                                             html.Img(
                                                 src=fig_retirements, className="img_fig"
                                             ),
                                         ),
-                                        dbc.Col(),
                                     ]
                                 ),
                                 dbc.Row(
