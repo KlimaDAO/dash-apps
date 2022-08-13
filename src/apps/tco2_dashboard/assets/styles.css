@@ -171,9 +171,10 @@ color: white;
 }
 
 .nav-pills a{
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 1rem;
+  line-height: 1.4rem;
   font-weight: 500;
+  -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -263,6 +264,7 @@ color: white;
 }
 
 .sidebar {
+  -webkit-font-smoothing: antialiased;
   position: fixed;
   padding: 1rem 2rem;
   top: 0;
@@ -305,6 +307,7 @@ color: white;
 }
 
 .overlay-image{
+  object-fit: cover;
   height: 400px; 
   border-radius: 25px;
   filter: brightness(75%);
@@ -416,8 +419,7 @@ br {
 
 
 .offvson_fig {
-  width: 45vw;
-  /* height: 90vh; */
+  max-width: 80%;
 }
 
 .retirements_chart {
@@ -426,14 +428,26 @@ br {
 }
 
 .img_fig{
-  width: 40vw;
-  /* height: 80vh; */
+  max-width: 60%;
 }
 
 .img_card_body{
-  align-items: center;
+  /* width: 80vw;
+  height: 80vh;
+  background: yellow;
+  display: flex; */
   justify-content: center;
+  align-items: center;
 }
+
+.img_card_body .col{
+  text-align: center;
+}
+
+.offvson_fig_card .col{
+  text-align: right;
+}
+
 
 .offvson_fig_card{
   align-items: center;
@@ -477,7 +491,7 @@ br {
 }
 
 .icon-title{
-  width: 70%;
+  width: 90%;
 }
 
 #logo_title {
@@ -542,23 +556,23 @@ p {
   background: var(--dark-gray);
   box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 1rem;
+  font-weight: 500;
   color: white;
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 10px 20px;
+  padding: 10px 16px 10px 20px;
   gap: 10px;
   border-color: var(--dark-gray);
   height: 3rem;
-  width: 10rem
+  /* width: 12rem */
 }
 
 .klimadao-app-btn, .klimadao-app-btn:hover,
 .klimadao-app-btn:active, .klimadao-app-btn:visited, .klimadao-app-btn:focus{
   background-color: var(--green);
   border-color: var(--green);
-  padding-right: 0px;
 }
 
 .klimadao-app-btn:hover {
@@ -667,7 +681,7 @@ p {
   }
   
   .nav-pills a{
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .navbar-toggler{
@@ -714,7 +728,7 @@ p {
     background: var(--gray);
     box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 14px;
     color: white;
     display: flex;
     justify-content: center;
@@ -732,6 +746,7 @@ p {
     background-color: var(--green);
     border-color: var(--green);
     padding-right: 0px;
+    margin-bottom: 30px;
   }
   
   .klimadao-app-btn-sidebar:hover {
@@ -754,6 +769,18 @@ p {
     display: flex;
     border-radius: 0.6rem;
     background-color: var(--green);
+  }
+
+  .upnext-icon-container{
+    background-color: #303030;
+  }
+
+  .img_fig{
+    max-width: 100%;
+  }
+
+  .offvson_fig {
+    max-width: 100%;
   }
 
 }

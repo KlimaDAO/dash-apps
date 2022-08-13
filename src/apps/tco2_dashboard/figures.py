@@ -1476,7 +1476,7 @@ def create_offchain_vs_onchain_fig(
         plot_bgcolor=FIGURE_BG_COLOR,
         # xaxis=dict(showgrid=True, visible=True),
         # yaxis=dict(showgrid=True, visible=True),
-        margin=dict(t=50, b=20, l=0, r=0),
+        margin=dict(t=0, b=0, l=0, r=0),
         showlegend=True,
     )
 
@@ -1523,6 +1523,11 @@ def create_retirements_fig(data, style_dict):
     )
     # Print circles:
     i = 1
+    xmin = math.inf
+    xmax = -math.inf
+    ymin = math.inf
+    ymax = -math.inf
+    range_buffer = 0.05
     for circle in circles:
         if circle.level != 2:
             continue
@@ -1530,6 +1535,10 @@ def create_retirements_fig(data, style_dict):
         label = circle.ex["id"]
         label_value = "{:,}".format(int(circle.ex["datum"])) + "t"
         r = r * style_dict[label]["scale_r"]
+        xmin = max(-1, min(xmin, x - r - range_buffer))
+        xmax = min(1, max(xmax, x + r + range_buffer))
+        ymin = max(-1, min(ymin, y - r - range_buffer))
+        ymax = min(1, max(ymax, y + r + range_buffer))
         label_text = "<b>" + circle.ex["id"] + "</b>"
         fig.add_shape(
             type="circle",
@@ -1572,6 +1581,8 @@ def create_retirements_fig(data, style_dict):
 
         i += 1
 
+    fig.update_xaxes(range=[xmin, xmax])
+    fig.update_yaxes(range=[ymin, ymax])
     fig.update_layout(
         # width=1000,
         # height=600,
@@ -1580,7 +1591,7 @@ def create_retirements_fig(data, style_dict):
         font=dict(color="white", family="Poppins, sans-serif"),
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
-        margin=dict(t=50, b=20, l=0, r=0),
+        margin=dict(t=0, b=0, l=0, r=0),
         showlegend=True,
     )
 
