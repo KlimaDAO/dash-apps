@@ -643,6 +643,13 @@ p {
     width: 0.6rem;
   }
 
+  @media (max-width: 56em) {
+    .overlay-image{
+      height: 500px; 
+    }
+
+  }
+
 @media (max-width: 48em) {
 
   #static-content {
@@ -714,8 +721,6 @@ p {
   
   .overlay-image{
     height: 600px; 
-    border-radius: 25px;
-    filter: brightness(75%);
   }
 
 

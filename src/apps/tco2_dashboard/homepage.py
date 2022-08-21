@@ -31,7 +31,7 @@ def create_homepage_content(
     header_card = dbc.Card(
         [
             dbc.CardImg(
-                src="/assets/homepage-title-background.png",
+                src="/assets/homepage-title-background.jpg",
                 top=True,
                 style={"opacity": 1},
                 className="overlay-image",
