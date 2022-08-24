@@ -6,6 +6,10 @@ orjson
 pycoingecko
 pycountry==22.1.10
 pytest
-subgrounds==0.0.8
+subgrounds==1.0.0
 web3
 werkzeug<2.1.0
+circlify==0.14.0
+matplotlib==3.5.2
+plotly==5.7.0
+kaleido==0.2.1
