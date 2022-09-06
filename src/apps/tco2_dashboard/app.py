@@ -9,6 +9,7 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
+import pyperclip
 
 # from ...util import get_eth_web3, load_abi
 from .figures import (
@@ -118,6 +119,9 @@ INTER_FONT = {
     "href": "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap",
     "rel": "stylesheet",
 }
+FONT_AWESOME_ICONS = (
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+)
 
 
 # Configure plausible.io tracking script
@@ -141,6 +145,8 @@ app = dash.Dash(
         GOOGLE_API_ICONS,
         INTER_FONT,
         POPPINS_FONT,
+        dbc.icons.FONT_AWESOME,
+        FONT_AWESOME_ICONS,
     ],
     external_scripts=external_scripts,
     meta_tags=[
@@ -1954,6 +1960,15 @@ def download_carbonmarket(n_clicks):
     fig = cache.get("fig_on_vs_off_time")
     filename = "CarbonMarket.html"
     return dict(content=fig.to_html(), filename=filename)
+
+
+@app.callback(
+    Output("copy_website_link_dummy_output", "content"),
+    Input("copy_website_link", "n_clicks"),
+)
+def custom_copy(n):
+    pyperclip.copy("https://carbon.klimadao.finance/")
+    return "dummy output"
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
