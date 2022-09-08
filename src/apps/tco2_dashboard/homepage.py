@@ -15,6 +15,71 @@ def human_format(num):
     )
 
 
+socialShareFeature = html.Div(
+    [
+        dbc.DropdownMenu(
+            menu_variant="dark",
+            children=[
+                dbc.DropdownMenuItem(
+                    [
+                        html.A(
+                            html.I(
+                                className="fab fa-twitter",
+                            ),
+                        ),
+                        "Twitter",
+                    ],
+                    href="https://twitter.com/intent/tweet?text=https://carbon.klimadao.finance/",
+                    target="_blank",
+                ),
+                dbc.DropdownMenuItem(
+                    [
+                        html.A(
+                            html.I(
+                                className="fab fa-facebook",
+                            ),
+                        ),
+                        "Facebook",
+                    ],
+                    href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcarbon."
+                    "klimadao.finance%2F&amp;src=sdkpreparse",
+                    target="_blank",
+                ),
+                dbc.DropdownMenuItem(
+                    [
+                        html.A(
+                            html.I(
+                                className="fab fa-linkedin",
+                            ),
+                        ),
+                        "Linkedin",
+                    ],
+                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://carbon.klimadao.finance",
+                    target="_blank",
+                ),
+                dbc.DropdownMenuItem(divider=True),
+                dbc.DropdownMenuItem(
+                    [
+                        html.A(
+                            html.I(
+                                className="fas fa-copy",
+                            ),
+                        ),
+                        "Copy Link",
+                        html.Div(
+                            id="copy_website_link_dummy_output",
+                            style={"display": "None"},
+                        ),
+                    ],
+                    id="copy_website_link",
+                    n_clicks=0,
+                ),
+            ],
+        )
+    ]
+)
+
+
 def create_homepage_content(
     df_retired,
     df_offchain,
@@ -178,10 +243,11 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_carbonmarket"
                                                     ),
+                                                    socialShareFeature,
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
                                     ]
                                 ),
@@ -248,10 +314,11 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_holders"
                                                     ),
+                                                    socialShareFeature,
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
                                     ]
                                 ),
@@ -323,12 +390,13 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_retirements"
                                                     ),
+                                                    socialShareFeature,
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ],
                             className="img_card_body",
