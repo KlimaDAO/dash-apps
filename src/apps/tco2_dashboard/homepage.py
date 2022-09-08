@@ -15,7 +15,6 @@ def human_format(num):
     )
 
 
-
 socialShareFeature = html.Div(
     [
         dbc.DropdownMenu(
