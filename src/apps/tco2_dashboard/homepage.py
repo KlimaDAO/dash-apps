@@ -15,69 +15,66 @@ def human_format(num):
     )
 
 
-socialShareFeature = html.Div(
-    [
-        dbc.DropdownMenu(
-            menu_variant="dark",
-            children=[
-                dbc.DropdownMenuItem(
-                    [
-                        html.A(
-                            html.I(
-                                className="fab fa-twitter",
+def getSocialShareFeature(clipboardId):
+    return html.Div(
+        [
+            dbc.DropdownMenu(
+                menu_variant="dark",
+                children=[
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-twitter",
+                                ),
                             ),
-                        ),
-                        "Twitter",
-                    ],
-                    href="https://twitter.com/intent/tweet?text=https://carbon.klimadao.finance/",
-                    target="_blank",
-                ),
-                dbc.DropdownMenuItem(
-                    [
-                        html.A(
-                            html.I(
-                                className="fab fa-facebook",
+                            "Twitter",
+                        ],
+                        href="https://twitter.com/intent/tweet?text=https://carbon.klimadao.finance/",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-facebook",
+                                ),
                             ),
-                        ),
-                        "Facebook",
-                    ],
-                    href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcarbon."
-                    "klimadao.finance%2F&amp;src=sdkpreparse",
-                    target="_blank",
-                ),
-                dbc.DropdownMenuItem(
-                    [
-                        html.A(
-                            html.I(
-                                className="fab fa-linkedin",
+                            "Facebook",
+                        ],
+                        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcarbon."
+                        "klimadao.finance%2F&amp;src=sdkpreparse",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-linkedin",
+                                ),
                             ),
-                        ),
-                        "Linkedin",
-                    ],
-                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://carbon.klimadao.finance",
-                    target="_blank",
-                ),
-                dbc.DropdownMenuItem(divider=True),
-                dbc.DropdownMenuItem(
-                    [
-                        html.A(
-                            html.I(
-                                className="fas fa-copy",
+                            "Linkedin",
+                        ],
+                        href="https://www.linkedin.com/sharing/share-offsite/?url=https://carbon.klimadao.finance",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(divider=True),
+                    html.Div(
+                        [
+                            dcc.Clipboard(
+                                id="copy_website_clipboard_" + clipboardId,
+                                style={
+                                    "fontSize": 20,
+                                },
                             ),
-                        ),
-                        "Copy Link",
-                        html.Div(
-                            id="copy_website_link_dummy_output",
-                            style={"display": "None"},
-                        ),
-                    ],
-                    id="copy_website_link",
-                    n_clicks=0,
-                ),
-            ],
-        )
-    ]
-)
+                            html.P("Copy Link"),
+                        ],
+                        className="dropdown-item",
+                    ),
+                ],
+            )
+        ]
+    )
 
 
 def create_homepage_content(
@@ -243,7 +240,9 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_carbonmarket"
                                                     ),
-                                                    socialShareFeature,
+                                                    getSocialShareFeature(
+                                                        "carbonmarket"
+                                                    ),
                                                 ],
                                                 className="download_btn_div",
                                             ),
@@ -314,7 +313,7 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_holders"
                                                     ),
-                                                    socialShareFeature,
+                                                    getSocialShareFeature("holders"),
                                                 ],
                                                 className="download_btn_div",
                                             ),
@@ -390,7 +389,9 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_retirements"
                                                     ),
-                                                    socialShareFeature,
+                                                    getSocialShareFeature(
+                                                        "retirements"
+                                                    ),
                                                 ],
                                                 className="download_btn_div",
                                             ),

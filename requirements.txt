@@ -13,4 +13,3 @@ circlify==0.14.0
 matplotlib==3.5.2
 plotly==5.7.0
 kaleido==0.2.1
-pyperclip==1.8.2

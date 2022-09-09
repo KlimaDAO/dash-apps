@@ -1,5 +1,4 @@
 import os
-
 import dash_bootstrap_components as dbc
 import dash
 from dash import html, Input, Output, callback, State
@@ -9,7 +8,6 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
-import pyperclip
 
 # from ...util import get_eth_web3, load_abi
 from .figures import (
@@ -1962,12 +1960,27 @@ def download_carbonmarket(n_clicks):
 
 
 @app.callback(
-    Output("copy_website_link_dummy_output", "content"),
-    Input("copy_website_link", "n_clicks"),
+    Output("copy_website_clipboard_carbonmarket", "content"),
+    Input("copy_website_clipboard_carbonmarket", "n_clicks"),
 )
-def custom_copy(n):
-    pyperclip.copy("https://carbon.klimadao.finance/")
-    return "dummy output"
+def custom_copy_carbonmarket(n):
+    return "https://carbon.klimadao.finance/"
+
+
+@app.callback(
+    Output("copy_website_clipboard_holders", "content"),
+    Input("copy_website_clipboard_holders", "n_clicks"),
+)
+def custom_copy_holders(n):
+    return "https://carbon.klimadao.finance/"
+
+
+@app.callback(
+    Output("copy_website_clipboard_retirements", "content"),
+    Input("copy_website_clipboard_retirements", "n_clicks"),
+)
+def custom_copy_retirements(n):
+    return "https://carbon.klimadao.finance/"
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])

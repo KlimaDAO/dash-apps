@@ -674,6 +674,10 @@ border-radius: 6px;
   display: flex;
 }
 
+.dropdown-item p {
+  padding: 0px;
+}
+
 .dropdown-divider{
   background-color: #F3F4F6;
   height: 1px;
@@ -706,9 +710,11 @@ border-radius: 6px;
 .fa-copy::before{
   font-weight: 100 !important;
 }
-/* .fa-facebook::before{
-  content :"\f09a"
-} */
+
+.svg-inline--fa.fa-w-14 {
+  width: 1em;
+  color: #A1A1A1;
+}
 
 .download_btn_div{
   display: flex;
