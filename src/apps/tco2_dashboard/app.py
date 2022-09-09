@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
+import pyperclip
 
 # from ...util import get_eth_web3, load_abi
 from .figures import (
@@ -120,7 +121,6 @@ INTER_FONT = {
 FONT_AWESOME_ICONS = (
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
 )
-
 
 # Configure plausible.io tracking script
 external_scripts = (
