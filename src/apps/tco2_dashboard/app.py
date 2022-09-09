@@ -8,7 +8,6 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from pycoingecko import CoinGeckoAPI
-import pyperclip
 
 # from ...util import get_eth_web3, load_abi
 from .figures import (
