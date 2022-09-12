@@ -286,6 +286,19 @@ def filter_pool_quantity(df, quantity_column):
         + filtered["Token Address"]
         + ")"
     )
+    filtered = filtered[
+        [
+            "Project ID",
+            "Token Address",
+            "View on PolygonScan",
+            "Quantity",
+            "Vintage",
+            "Country",
+            "Project Type",
+            "Methodology",
+            "Name",
+        ]
+    ]
     return filtered
 
 

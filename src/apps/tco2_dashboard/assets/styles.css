@@ -607,7 +607,7 @@ p {
   background-color: #303030;
 }
 
-#download_btn_retirements, #download_btn_holders, #download_btn_carbonmarket, .dropdown .btn, .dropdown .btn:hover, .dropdown .btn:visited, .dropdown .btn:focus, .dropdown .btn:active{
+.download_btn, #download_btn_retirements, #download_btn_holders, #download_btn_carbonmarket, .dropdown .btn, .dropdown .btn:hover, .dropdown .btn:visited, .dropdown .btn:focus, .dropdown .btn:active{
   background-color: #2b2b2b;
   border-radius: 64px;
   border-color: var(--gray);

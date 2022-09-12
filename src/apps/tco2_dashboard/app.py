@@ -908,9 +908,29 @@ def generate_layout():
     fig_mco2_total_metho = methodology_volume(df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
     df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
+    df_bridged_mco2_summary = df_bridged_mco2_summary[
+        [
+            "Project ID",
+            "Quantity",
+            "Vintage",
+            "Country",
+            "Project Type",
+            "Methodology",
+            "Name",
+        ]
+    ]
+    mco2_carbon = (
+        df_bridged_mco2_summary.groupby(
+            ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
+        )["Quantity"]
+        .sum()
+        .to_frame()
+        .reset_index()
+    )
     content_mco2 = create_content_moss(
         df_bridged_mco2_summary,
         df_retired_mco2,
+        mco2_carbon,
         fig_mco2_total_volume,
         fig_mco2_total_vintage,
         fig_mco2_total_map,
@@ -919,6 +939,7 @@ def generate_layout():
     )
 
     cache.set("content_mco2", content_mco2)
+    cache.set("mco2_carbon", mco2_carbon)
 
     # --Carbon Pool Figures---
 
@@ -973,6 +994,7 @@ def generate_layout():
     )
 
     cache.set("content_bct", content_bct)
+    cache.set("bct_carbon", bct_carbon)
 
     # --NCT--
 
@@ -1012,6 +1034,7 @@ def generate_layout():
     )
 
     cache.set("content_nct", content_nct)
+    cache.set("nct_carbon", nct_carbon)
 
     # --UBO---
 
@@ -1053,6 +1076,7 @@ def generate_layout():
     )
 
     cache.set("content_ubo", content_ubo)
+    cache.set("ubo_carbon", ubo_carbon)
 
     # --NBO---
 
@@ -1093,6 +1117,7 @@ def generate_layout():
     )
 
     cache.set("content_nbo", content_nbo)
+    cache.set("nbo_carbon", nbo_carbon)
 
     # ----Top Level Page---
 
@@ -1957,6 +1982,61 @@ def download_carbonmarket(n_clicks):
     fig = cache.get("fig_on_vs_off_time")
     filename = "CarbonMarket.html"
     return dict(content=fig.to_html(), filename=filename)
+
+
+@app.callback(
+    Output("download_csv_BCT", "data"),
+    Input("download_btn_BCT", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv_BCT_callback(n_clicks):
+    df = cache.get("bct_carbon")
+    filename = "BCT.csv"
+    return dcc.send_data_frame(df.to_csv, filename=filename)
+
+
+@app.callback(
+    Output("download_csv_NCT", "data"),
+    Input("download_btn_NCT", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv_NCT_callback(n_clicks):
+    df = cache.get("nct_carbon")
+    filename = "NCT.csv"
+    return dcc.send_data_frame(df.to_csv, filename=filename)
+
+
+@app.callback(
+    Output("download_csv_UBO", "data"),
+    Input("download_btn_UBO", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv_UBO_callback(n_clicks):
+    df = cache.get("ubo_carbon")
+    filename = "UBO.csv"
+    return dcc.send_data_frame(df.to_csv, filename=filename)
+
+
+@app.callback(
+    Output("download_csv_NBO", "data"),
+    Input("download_btn_NBO", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv_NBO_callback(n_clicks):
+    df = cache.get("nbo_carbon")
+    filename = "NBO.csv"
+    return dcc.send_data_frame(df.to_csv, filename=filename)
+
+
+@app.callback(
+    Output("download_csv_MCO2", "data"),
+    Input("download_btn_MCO2", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_csv_MCO2_callback(n_clicks):
+    df = cache.get("mco2_carbon")
+    filename = "MCO2.csv"
+    return dcc.send_data_frame(df.to_csv, filename=filename)
 
 
 app.clientside_callback(
