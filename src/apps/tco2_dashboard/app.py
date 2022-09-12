@@ -1959,28 +1959,35 @@ def download_carbonmarket(n_clicks):
     return dict(content=fig.to_html(), filename=filename)
 
 
-@app.callback(
-    Output("copy_website_clipboard_carbonmarket", "content"),
+app.clientside_callback(
+    """
+function copyToClipboard(n_clicks) {
+    navigator.clipboard.writeText("https://carbon.klimadao.finance/");
+}
+""",
+    Output("copy_website_clipboard_hidden_carbonmarket", "children"),
     Input("copy_website_clipboard_carbonmarket", "n_clicks"),
 )
-def custom_copy_carbonmarket(n):
-    return "https://carbon.klimadao.finance/"
 
-
-@app.callback(
-    Output("copy_website_clipboard_holders", "content"),
+app.clientside_callback(
+    """
+function copyToClipboard(n_clicks) {
+    navigator.clipboard.writeText("https://carbon.klimadao.finance/");
+}
+""",
+    Output("copy_website_clipboard_hidden_holders", "children"),
     Input("copy_website_clipboard_holders", "n_clicks"),
 )
-def custom_copy_holders(n):
-    return "https://carbon.klimadao.finance/"
 
-
-@app.callback(
-    Output("copy_website_clipboard_retirements", "content"),
+app.clientside_callback(
+    """
+function copyToClipboard(n_clicks) {
+    navigator.clipboard.writeText("https://carbon.klimadao.finance/");
+}
+""",
+    Output("copy_website_clipboard_hidden_retirements", "children"),
     Input("copy_website_clipboard_retirements", "n_clicks"),
 )
-def custom_copy_retirements(n):
-    return "https://carbon.klimadao.finance/"
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])

@@ -59,17 +59,20 @@ def getSocialShareFeature(clipboardId):
                         target="_blank",
                     ),
                     dbc.DropdownMenuItem(divider=True),
-                    html.Div(
+                    dbc.DropdownMenuItem(
                         [
-                            dcc.Clipboard(
-                                id="copy_website_clipboard_" + clipboardId,
-                                style={
-                                    "fontSize": 20,
-                                },
+                            html.A(
+                                html.I(
+                                    className="fa fa-copy",
+                                ),
                             ),
-                            html.P("Copy Link"),
+                            "Copy Link",
+                            html.Div(
+                                id="copy_website_clipboard_hidden_" + clipboardId,
+                                style={"display": "None"},
+                            ),
                         ],
-                        className="dropdown-item",
+                        id="copy_website_clipboard_" + clipboardId,
                     ),
                 ],
             )
