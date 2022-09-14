@@ -298,7 +298,7 @@ def filter_pool_quantity(df, quantity_column):
             "Methodology",
             "Name",
         ]
-    ]
+    ].reset_index(drop=True)
     return filtered
 
 

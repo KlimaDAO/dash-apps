@@ -207,7 +207,7 @@ def create_content_moss(
                                             "presentation": "markdown",
                                             "type": table_type(i),
                                         }
-                                        for i in df_mco2_bridged.columns
+                                        for i in mco2_carbon.columns
                                     ],
                                     id="tbl",
                                     style_header={

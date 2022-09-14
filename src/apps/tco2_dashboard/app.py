@@ -908,7 +908,15 @@ def generate_layout():
     fig_mco2_total_metho = methodology_volume(df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
     df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
-    df_bridged_mco2_summary = df_bridged_mco2_summary[
+    mco2_carbon = (
+        df_bridged_mco2_summary.groupby(
+            ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
+        )["Quantity"]
+        .sum()
+        .to_frame()
+        .reset_index()
+    )
+    mco2_carbon = mco2_carbon[
         [
             "Project ID",
             "Quantity",
@@ -919,14 +927,6 @@ def generate_layout():
             "Name",
         ]
     ]
-    mco2_carbon = (
-        df_bridged_mco2_summary.groupby(
-            ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
-        )["Quantity"]
-        .sum()
-        .to_frame()
-        .reset_index()
-    )
     content_mco2 = create_content_moss(
         df_bridged_mco2_summary,
         df_retired_mco2,
