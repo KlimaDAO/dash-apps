@@ -63,6 +63,7 @@ from .helpers import (
     create_retirements_data,
     create_holders_data,
     merge_retirements_data_for_retirement_chart,
+    retirmentManualAdjustments,
 )
 from .constants import (
     rename_map,
@@ -489,6 +490,9 @@ def generate_layout():
     df_retired = df_retired.rename(columns=retires_rename_map)
     df_holdings = df_holdings.rename(columns=holders_rename_map)
     df_retired_mco2_info = df_retired_mco2_info.rename(columns=moss_retires_rename_map)
+
+    # manual adjusments
+    df_retired = retirmentManualAdjustments(df_retired)
 
     # -----TCO2_Figures----
     # Bridge manipulations
@@ -1992,7 +1996,7 @@ def download_carbonmarket(n_clicks):
 def download_csv_BCT_callback(n_clicks):
     df = cache.get("bct_carbon")
     filename = "BCT.csv"
-    return dcc.send_data_frame(df.to_csv, filename=filename)
+    return dcc.send_data_frame(df.to_csv, filename=filename, index=False)
 
 
 @app.callback(
@@ -2003,7 +2007,7 @@ def download_csv_BCT_callback(n_clicks):
 def download_csv_NCT_callback(n_clicks):
     df = cache.get("nct_carbon")
     filename = "NCT.csv"
-    return dcc.send_data_frame(df.to_csv, filename=filename)
+    return dcc.send_data_frame(df.to_csv, filename=filename, index=False)
 
 
 @app.callback(
@@ -2014,7 +2018,7 @@ def download_csv_NCT_callback(n_clicks):
 def download_csv_UBO_callback(n_clicks):
     df = cache.get("ubo_carbon")
     filename = "UBO.csv"
-    return dcc.send_data_frame(df.to_csv, filename=filename)
+    return dcc.send_data_frame(df.to_csv, filename=filename, index=False)
 
 
 @app.callback(
@@ -2025,7 +2029,7 @@ def download_csv_UBO_callback(n_clicks):
 def download_csv_NBO_callback(n_clicks):
     df = cache.get("nbo_carbon")
     filename = "NBO.csv"
-    return dcc.send_data_frame(df.to_csv, filename=filename)
+    return dcc.send_data_frame(df.to_csv, filename=filename, index=False)
 
 
 @app.callback(
@@ -2036,7 +2040,7 @@ def download_csv_NBO_callback(n_clicks):
 def download_csv_MCO2_callback(n_clicks):
     df = cache.get("mco2_carbon")
     filename = "MCO2.csv"
-    return dcc.send_data_frame(df.to_csv, filename=filename)
+    return dcc.send_data_frame(df.to_csv, filename=filename, index=False)
 
 
 app.clientside_callback(

@@ -615,3 +615,12 @@ def create_holders_data(df_holdings):
         data[0]["children"].append({"id": holders_list[i], "datum": quantity_list[i]})
 
     return df_holdings, data, style_dict
+
+
+def retirmentManualAdjustments(df_retired):
+    # Remove DAO MultiSig Address
+    df_retired = df_retired[
+        df_retired["Tx From Address"] != "0x693ad12dba5f6e07de86faa21098b691f60a1bea"
+    ]
+
+    return df_retired
