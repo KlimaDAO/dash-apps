@@ -1560,7 +1560,11 @@ def create_retirements_fig(data, style_dict):
             yref="y",
             text=label_text,
             showarrow=False,
-            font=dict(size=font_size_calculator(label_text, r), color="white"),
+            font=dict(
+                size=font_size_calculator(label_text, r),
+                color="white",
+                family="Poppins, sans-serif",
+            ),
             align="center",
         )
         if label_text != "<b>" + "..." + "</b>":
@@ -1575,7 +1579,11 @@ def create_retirements_fig(data, style_dict):
                 yref="y",
                 text=label_value,
                 showarrow=False,
-                font=dict(size=font_size_calculator(label_text, r), color="white"),
+                font=dict(
+                    size=font_size_calculator(label_text, r),
+                    color="white",
+                    family="Poppins, sans-serif",
+                ),
                 align="center",
             )
 

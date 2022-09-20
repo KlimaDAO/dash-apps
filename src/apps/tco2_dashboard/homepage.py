@@ -15,6 +15,71 @@ def human_format(num):
     )
 
 
+def getSocialShareFeature(clipboardId):
+    return html.Div(
+        [
+            dbc.DropdownMenu(
+                menu_variant="dark",
+                children=[
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-twitter",
+                                ),
+                            ),
+                            "Twitter",
+                        ],
+                        href="https://twitter.com/intent/tweet?text=https://carbon.klimadao.finance/",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-facebook",
+                                ),
+                            ),
+                            "Facebook",
+                        ],
+                        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcarbon."
+                        "klimadao.finance%2F&amp;src=sdkpreparse",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fab fa-linkedin",
+                                ),
+                            ),
+                            "Linkedin",
+                        ],
+                        href="https://www.linkedin.com/sharing/share-offsite/?url=https://carbon.klimadao.finance",
+                        target="_blank",
+                    ),
+                    dbc.DropdownMenuItem(divider=True),
+                    dbc.DropdownMenuItem(
+                        [
+                            html.A(
+                                html.I(
+                                    className="fa fa-copy",
+                                ),
+                            ),
+                            "Copy Link",
+                            html.Div(
+                                id="copy_website_clipboard_hidden_" + clipboardId,
+                                style={"display": "None"},
+                            ),
+                        ],
+                        id="copy_website_clipboard_" + clipboardId,
+                    ),
+                ],
+            )
+        ]
+    )
+
+
 def create_homepage_content(
     df_retired,
     df_offchain,
@@ -178,10 +243,13 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_carbonmarket"
                                                     ),
+                                                    getSocialShareFeature(
+                                                        "carbonmarket"
+                                                    ),
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
                                     ]
                                 ),
@@ -248,10 +316,11 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_holders"
                                                     ),
+                                                    getSocialShareFeature("holders"),
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
                                     ]
                                 ),
@@ -323,12 +392,15 @@ def create_homepage_content(
                                                     dcc.Download(
                                                         id="download_image_retirements"
                                                     ),
+                                                    getSocialShareFeature(
+                                                        "retirements"
+                                                    ),
                                                 ],
                                                 className="download_btn_div",
                                             ),
-                                            width=2,
+                                            width=4,
                                         ),
-                                    ]
+                                    ],
                                 ),
                             ],
                             className="img_card_body",
