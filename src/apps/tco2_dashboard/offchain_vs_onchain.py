@@ -11,7 +11,20 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Tokenized Carbon")),
+                        html.H1(["State of", 
+                        html.Span(
+                            html.A(
+                            "Tokenized Carbon", 
+                            href='https://docs.klimadao.finance/references/glossary#tokenized-carbon-asset',
+                            ),
+                            id="tooltip-target", 
+                            style={"textDecoration": "underline", "cursor": "pointer"})
+                        ]),
+                    dbc.Tooltip("\
+                                A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain. \
+                                ",
+                                target="tooltip-target",
+                                style={"text-align": "right"})),
                     dbc.CardFooter(
                         verra_fallback_note,
                         id="fallback_indicator")
@@ -22,8 +35,22 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Tokenized Carbon")),
-                ]), width=12, style={'textAlign': 'center'}),
+                        html.H1([
+                            "State of", 
+                            html.Span(
+                                html.A(
+                                    "Tokenized Carbon", 
+                                    href='https://docs.klimadao.finance/references/glossary#tokenized-carbon-asset',
+                                ),
+                                id="tooltip-target", 
+                                style={"textDecoration": "underline", "cursor": "pointer"})
+                            ]),
+                            dbc.Tooltip("A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain.", 
+                                target="tooltip-target",
+                                style={"text-align": "right"}
+                            ), width=12, style={'textAlign': 'center'}),
+                ]),
+            ),
         )
 
     sum_total_tokenized = sum(d['Dataframe']['Quantity'].sum()

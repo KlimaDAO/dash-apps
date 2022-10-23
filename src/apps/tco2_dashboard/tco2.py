@@ -62,7 +62,19 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H2("Deep Dive into TCO2")),
+                    dbc.CardHeader(html.H2([
+                        "Deep Dive into",
+                        html.Span(
+                            html.A("TCO2", 
+                            href='https://docs.klimadao.finance/references/glossary#tco2'),
+                            id="tooltip-target", 
+                            style={"textDecoration": "underline", "cursor": "pointer"}
+                        )
+                    ]),
+                    dbc.Tooltip("Toucan Carbon Tokens (TCO2) is the general term for fungible tokenized carbon offsets bridged via Toucan",
+                    target="tooltip-target",
+                    style={"text-align": "right"},)
+                    ),
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col([
