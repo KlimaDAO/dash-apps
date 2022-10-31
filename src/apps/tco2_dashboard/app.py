@@ -169,6 +169,48 @@ app = dash.Dash(
     ],
 )
 
+
+# Add GTM for analytics via index_string
+gtm_head_section = '''
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-KWFJ9R2');</script>
+        <!-- End Google Tag Manager -->
+''' if os.environ.get("ENV") == "Production" else ''
+
+gtm_body_section = '''
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWFJ9R2"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+''' if os.environ.get("ENV") == "Production" else ''
+
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+''' + gtm_head_section + '''
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+''' + gtm_body_section + '''
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
+
+
 # Configure cache
 cache = Cache(
     app.server,
