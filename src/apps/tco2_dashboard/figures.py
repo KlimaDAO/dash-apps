@@ -1610,34 +1610,21 @@ def create_retirements_fig(data, style_dict):
     return img_b64, fig
 
 
-def get_polygon_supply_breakdown_figure(df):
+def get_supply_breakdown_figure(allowed_tokens, df):
 
     fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_bctSupply"],
-            mode="lines", name="BCT", stackgroup="one", line={'width': 0.5, 'color': '#eff542'},
-        ))
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_nctSupply"],
-            mode="lines", name="NCT", stackgroup="one", line={'width': 0.5, 'color': '#6fa8dc'},
-        )),
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_mco2Supply"],
-            mode="lines", name="MCO2", stackgroup="one", line={'width': 0.5, 'color': '#93c47d'},
-        )),
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_uboSupply"],
-            mode="lines", name="UBO", stackgroup="one", line={'width': 0.5, 'color': '#c27ba0'},
-        )),
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_nboSupply"],
-            mode="lines", name="NBO", stackgroup="one", line={'width': 0.5, 'color': '#8e7cc3'},
-        )),
+
+    for allowed_token in allowed_tokens:
+        col_name = f"carbonMetrics_{allowed_token['name']}Supply"
+        fig.add_trace(
+            go.Scatter(
+                name=allowed_token['name'].upper(),
+                x=df["carbonMetrics_datetime"],
+                y=df[col_name],
+                mode="lines",
+                stackgroup="one",
+                line={'width': 0.5, 'color': allowed_token['color']},
+            ))
 
     fig.update_layout(
         height=300,
@@ -1661,13 +1648,38 @@ def get_polygon_retirement_breakdown_figure(df):
     fig.add_trace(
         go.Scatter(
             x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalKlimaRetirements"],
-            mode="lines", name="Klima Retired", stackgroup="one", line={'width': 0.5, 'color': 'BLUE'},
+            mode="lines", name="Klima Retired", stackgroup="one", line={'width': 0.5, 'color': '#536C9C'},
         ))
     fig.add_trace(
         go.Scatter(
             x=df["carbonMetrics_datetime"], y=df["carbonMetrics_not_klima_retired"],
-            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': 'RED'},
+            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
         )),
+
+    fig.update_layout(
+        height=300,
+        font=dict(color="white"),
+        xaxis_title="Date",
+        yaxis_title="Total Retirements",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=20, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+    )
+    return fig
+
+
+def get_eth_retirement_breakdown_figure(df):
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalRetirements"],
+            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
+        ))
 
     fig.update_layout(
         height=300,

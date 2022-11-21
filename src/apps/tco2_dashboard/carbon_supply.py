@@ -2,21 +2,72 @@ from dash import html, dash_table
 from dash import dcc
 import dash_bootstrap_components as dbc
 
-from .constants import GRAY, DARK_GRAY
+from src.apps.tco2_dashboard.figures import get_eth_retirement_breakdown_figure, \
+    get_polygon_retirement_breakdown_figure, get_supply_breakdown_figure
+
+
+bct_token = {"name": "bct", "color": "#eff542"}
+nct_token = {"name": "nct", "color": "#6fa8dc"}
+mco2_token = {"name": "mco2", "color": "#93c47d"}
+ubo_token = {"name": "ubo", "color": "#c27ba0"}
+nbo_token = {"name": "nbo", "color": "#8e7cc3"}
+
+
+polygon_carbon_tokens = [
+    bct_token,
+    nct_token,
+    mco2_token,
+    ubo_token,
+    nbo_token,
+]
+
+eth_carbon_tokens = [
+    mco2_token,
+]
+
+celo_carbon_tokens = [
+    bct_token,
+    nct_token,
+    mco2_token,
+]
 
 
 def create_carbon_supply_content(
     df_carbon_metrics_polygon,
     df_carbon_metrics_eth,
-    df_carbon_metrics_celo,
-    polygon_supply_figure,
-    polygon_retirement_figure
+    df_carbon_metrics_celo
 ):
-    totalCarbonSupply = int(df_carbon_metrics_polygon["carbonMetrics_totalCarbonSupply"].iloc[0])
-    totalKlimaRetired = float(df_carbon_metrics_polygon["carbonMetrics_totalKlimaRetirements"].iloc[0])
-    totalRetired = float(df_carbon_metrics_polygon["carbonMetrics_totalRetirements"].iloc[0])
+    # Polygon Supply Info
+    polygonCarbonSupply = int(df_carbon_metrics_polygon["carbonMetrics_totalCarbonSupply"].iloc[0])
+    polygonCarbonSupply7daysAgo = int(df_carbon_metrics_polygon["carbonMetrics_totalCarbonSupply"].iloc[6])
 
-    klimaRetiredPercentage = totalKlimaRetired / totalRetired
+    polygonSupplyChangeRatio = float((polygonCarbonSupply - polygonCarbonSupply7daysAgo) / polygonCarbonSupply)
+
+    polygonKlimaRetired = float(df_carbon_metrics_polygon["carbonMetrics_totalKlimaRetirements"].iloc[0])
+    polygonRetired = float(df_carbon_metrics_polygon["carbonMetrics_totalRetirements"].iloc[0])
+    polygonKlimaRetiredRatio = polygonKlimaRetired / polygonRetired
+
+    polygon_supply_figure = get_supply_breakdown_figure(polygon_carbon_tokens, df_carbon_metrics_polygon)
+    polygon_retirement_figure = get_polygon_retirement_breakdown_figure(df_carbon_metrics_polygon)
+
+    # Eth Supply Info
+    ethCarbonSupply = int(df_carbon_metrics_eth["carbonMetrics_totalCarbonSupply"].iloc[0])
+    ethCarbonSupply7daysAgo = int(df_carbon_metrics_eth["carbonMetrics_totalCarbonSupply"].iloc[6])
+
+    ethSupplyChangeRatio = float((ethCarbonSupply - ethCarbonSupply7daysAgo) / ethCarbonSupply)
+
+    ethRetired = float(df_carbon_metrics_eth["carbonMetrics_totalRetirements"].iloc[0])
+
+    eth_supply_figure = get_supply_breakdown_figure(eth_carbon_tokens, df_carbon_metrics_eth)
+    eth_retirement_figure = get_eth_retirement_breakdown_figure(df_carbon_metrics_eth)
+
+    # Celo Supply Info
+    celoCarbonSupply = int(df_carbon_metrics_celo["carbonMetrics_totalCarbonSupply"].iloc[0])
+    celoCarbonSupply7daysAgo = int(df_carbon_metrics_celo["carbonMetrics_totalCarbonSupply"].iloc[6])
+
+    celoSupplyChangeRatio = float((celoCarbonSupply - celoCarbonSupply7daysAgo) / celoCarbonSupply)
+
+    celo_supply_figure = get_supply_breakdown_figure(celo_carbon_tokens, df_carbon_metrics_celo)
 
     content = [
         dbc.Row(
@@ -41,7 +92,12 @@ def create_carbon_supply_content(
                     html.H5("Total Supply In Tonnes",
                             className="card-title"),
                     dbc.CardBody("{:,}".format(
-                        totalCarbonSupply),
+                        polygonCarbonSupply),
+                        className="card-text"),
+                    html.H5("Supply change in the last 7d",
+                            className="card-title"),
+                    dbc.CardBody("{:.2%}".format(
+                        polygonSupplyChangeRatio),
                         className="card-text")
                 ], style={'margin': '0px', 'padding': '0px'}), width=6),
             dbc.Col(
@@ -49,12 +105,12 @@ def create_carbon_supply_content(
                     html.H5("Total Retirements In Tonnes",
                             className="card-title"),
                     dbc.CardBody("{:,}".format(
-                        int(totalRetired)),
+                        int(polygonRetired)),
                         className="card-text"),
                     html.H5("Percentage Retired By Klima",
                             className="card-title"),
                     dbc.CardBody("{:.2%}".format(
-                        klimaRetiredPercentage),
+                        polygonKlimaRetiredRatio),
                         className="card-text")
                 ], style={'margin': '0px', 'padding': '0px'}), width=6),
         ]),
@@ -74,263 +130,118 @@ def create_carbon_supply_content(
                 ])
             ], width=6),
         ]),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5(
-        #                         f"Cumulative Tonnes of {bridge_ticker} Deposited",
-        #                         className="card-title",
-        #                     ),
-        #                     dbc.CardBody(
-        #                         "{:,}".format(
-        #                             int(deposited["Quantity"].sum())),
-        #                         className="card-text",
-        #                     ),
-        #                 ],
-        #                 className="card-pool-summary",
-        #             ),
-        #             lg=4,
-        #             md=12,
-        #         ),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5(
-        #                         f"Cumulative Tonnes of {bridge_ticker} Redeemed",
-        #                         className="card-title",
-        #                     ),
-        #                     dbc.CardBody(
-        #                         "{:,}".format(int(redeemed["Quantity"].sum())),
-        #                         className="card-text",
-        #                     ),
-        #                 ],
-        #                 className="card-pool-summary",
-        #             ),
-        #             lg=4,
-        #             md=12,
-        #         ),
-        #         dbc.Col(retired_card, lg=4, md=12),
-        #     ],
-        #     style={"paddingTop": "60px"},
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(
-        #             [
-        #                 dbc.Card(
-        #                     [
-        #                         html.H5(
-        #                             f"Cumulative Tonnes of {bridge_ticker} Deposited Over Time",
-        #                             className="card-title",
-        #                         ),
-        #                         dbc.CardBody(
-        #                             dcc.Graph(figure=fig_deposited_over_time)),
-        #                     ],
-        #                     className="card-graph",
-        #                 )
-        #             ],
-        #             lg=4,
-        #             md=12,
-        #         ),
-        #         dbc.Col([redeemed_graph], lg=4, md=12),
-        #         dbc.Col([retired_graph], lg=4, md=12),
-        #     ]
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     dbc.CardBody(
-        #                         html.H2(f"Deep Dive into {pool_ticker}"),
-        #                         style={"textAlign": "center"},
-        #                     )
-        #                 ]
-        #             ),
-        #             lg=6,
-        #             md=12,
-        #         ),
-        #         dbc.Col(),
-        #     ],
-        #     style={"paddingTop": "60px"},
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5(
-        #                         "Distribution of Vintage Start Dates",
-        #                         className="card-title",
-        #                     ),
-        #                     dcc.Graph(figure=fig_total_vintage),
-        #                 ]
-        #             ),
-        #             width=12,
-        #         ),
-        #         dbc.Col(),
-        #     ]
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5(
-        #                         "Origin of Tokenized Credits", className="card-title"
-        #                     ),
-        #                     dcc.Graph(figure=fig_total_map),
-        #                 ]
-        #             ),
-        #             width=12,
-        #         ),
-        #         dbc.Col(),
-        #     ]
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5(
-        #                         "Distribution of Methodologies", className="card-title"
-        #                     ),
-        #                     dcc.Graph(figure=fig_total_metho),
-        #                 ]
-        #             ),
-        #             width=12,
-        #         ),
-        #         dbc.Col(),
-        #     ]
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(),
-        #         dbc.Col(
-        #             dbc.Card(
-        #                 [
-        #                     html.H5("Distribution of Projects",
-        #                             className="card-title"),
-        #                     dcc.Graph(figure=fig_total_project),
-        #                 ]
-        #             ),
-        #             width=12,
-        #         ),
-        #         dbc.Col(),
-        #     ]
-        # ),
-        # dbc.Row(
-        #     [
-        #         dbc.Col(
-        #             [
-        #                 dbc.Card(
-        #                     [
-        #                         html.H5(
-        #                             f"{pool_ticker} Pool Composition Details",
-        #                             className="card-title",
-        #                         ),
-        #                         dash_table.DataTable(
-        #                             detail_df.to_dict("records"),
-        #                             [
-        #                                 {
-        #                                     "name": i,
-        #                                     "id": i,
-        #                                     "presentation": "markdown",
-        #                                     "type": table_type(i),
-        #                                 }
-        #                                 for i in detail_df.columns
-        #                             ],
-        #                             id="tbl",
-        #                             style_header={
-        #                                 "backgroundColor": GRAY,
-        #                                 "text-align": "center",
-        #                             },
-        #                             style_data={
-        #                                 "backgroundColor": DARK_GRAY,
-        #                                 "color": "white",
-        #                             },
-        #                             style_data_conditional=[
-        #                                 {
-        #                                     "if": {"column_id": "Project ID"},
-        #                                     "minWidth": "180px",
-        #                                     "width": "180px",
-        #                                     "maxWidth": "180px",
-        #                                 },
-        #                                 {
-        #                                     "if": {"column_id": "Country"},
-        #                                     "minWidth": "180px",
-        #                                     "width": "180px",
-        #                                     "maxWidth": "180px",
-        #                                 },
-        #                                 {
-        #                                     "if": {"column_id": "Quantity"},
-        #                                     "minWidth": "180px",
-        #                                     "width": "180px",
-        #                                     "maxWidth": "180px",
-        #                                 },
-        #                                 {
-        #                                     "if": {"column_id": "Vintage"},
-        #                                     "minWidth": "180px",
-        #                                     "width": "180px",
-        #                                     "maxWidth": "180px",
-        #                                 },
-        #                                 {
-        #                                     "if": {"column_id": "Methodology"},
-        #                                     "minWidth": "180px",
-        #                                     "width": "180px",
-        #                                     "maxWidth": "180px",
-        #                                 },
-        #                                 {
-        #                                     "if": {"state": "active"},
-        #                                     "backgroundColor": "#202020",
-        #                                     "border": "1px solid #2a2a2a",
-        #                                     "color": "white",
-        #                                 },
-        #                             ],
-        #                             style_table={"overflowX": "auto"},
-        #                             page_size=20,
-        #                             sort_action="native",
-        #                             filter_action="native",
-        #                             style_filter={
-        #                                 "backgroundColor": GRAY,
-        #                             },
-        #                         ),
-        #                         dbc.Row(
-        #                             [
-        #                                 dbc.Col(
-        #                                     html.Div(
-        #                                         [
-        #                                             html.Button(
-        #                                                 html.Span(
-        #                                                     "file_download",
-        #                                                     className="material-icons",
-        #                                                 ),
-        #                                                 id="download_btn_"
-        #                                                 + pool_ticker,
-        #                                                 className="download_btn",
-        #                                             ),
-        #                                             dcc.Download(
-        #                                                 id="download_csv_" + pool_ticker
-        #                                             ),
-        #                                         ],
-        #                                         className="download_btn_div",
-        #                                     ),
-        #                                     width=4,
-        #                                 ),
-        #                             ],
-        #                             style={"padding-top": "5px"},
-        #                         ),
-        #                     ]
-        #                 )
-        #             ]
-        #         )
-        #     ]
-        # ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            html.H1(
+                                "Ethereum On Chain Carbon",
+                                className="page-title",
+                            )
+                        )
+                    ]
+                ),
+                width=12,
+                style={"textAlign": "center"},
+            )
+        ),
+        dbc.Row([
+            dbc.Col(
+                dbc.Card([
+                    html.H5("Total Supply In Tonnes",
+                            className="card-title"),
+                    dbc.CardBody("{:,}".format(
+                        ethCarbonSupply),
+                        className="card-text"),
+                    html.H5("Supply change in the last 7d",
+                            className="card-title"),
+                    dbc.CardBody("{:.2%}".format(
+                        ethSupplyChangeRatio),
+                        className="card-text")
+                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+            dbc.Col(
+                dbc.Card([
+                    html.H5("Total Retirements In Tonnes",
+                            className="card-title"),
+                    dbc.CardBody("{:,}".format(
+                        int(ethRetired)),
+                        className="card-text"),
+                    html.H5("Percentage Retired By Klima",
+                            className="card-title"),
+                    dbc.CardBody("{:.2%}".format(
+                        0),
+                        className="card-text")
+                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    html.H5("Supply",
+                            className="card-title"),
+                    dbc.CardBody(dcc.Graph(figure=eth_supply_figure))
+                ])
+            ], width=6),
+            dbc.Col([
+                dbc.Card([
+                    html.H5("Retirements",
+                            className="card-title"),
+                    dbc.CardBody(dcc.Graph(figure=eth_retirement_figure))
+                ])
+            ], width=6),
+        ]),
+        dbc.Row(
+            dbc.Col(
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            html.H1(
+                                "Celo On Chain Carbon",
+                                className="page-title",
+                            )
+                        )
+                    ]
+                ),
+                width=12,
+                style={"textAlign": "center"},
+            )
+        ),
+        dbc.Row([
+            dbc.Col(
+                dbc.Card([
+                    html.H5("Total Supply In Tonnes",
+                            className="card-title"),
+                    dbc.CardBody("{:,}".format(
+                        celoCarbonSupply),
+                        className="card-text"),
+                    html.H5("Supply change in the last 7d",
+                            className="card-title"),
+                    dbc.CardBody("{:.2%}".format(
+                        celoSupplyChangeRatio),
+                        className="card-text")
+                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+            dbc.Col(
+                dbc.Card([
+                    html.H5("Total Retirements In Tonnes",
+                            className="card-title"),
+                    dbc.CardBody("{:,}".format(
+                        0),
+                        className="card-text"),
+                    html.H5("Percentage Retired By Klima",
+                            className="card-title"),
+                    dbc.CardBody("{:.2%}".format(
+                        0),
+                        className="card-text")
+                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+        ]),
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    html.H5("Supply",
+                            className="card-title"),
+                    dbc.CardBody(dcc.Graph(figure=celo_supply_figure))
+                ])
+            ], width=6),
+        ]),
     ]
     return content
