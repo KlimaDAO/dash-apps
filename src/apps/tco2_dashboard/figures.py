@@ -1608,3 +1608,78 @@ def create_retirements_fig(data, style_dict):
     img_b64 = "data:image/png;base64," + encoding
 
     return img_b64, fig
+
+
+def get_polygon_supply_breakdown_figure(df):
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_bctSupply"],
+            mode="lines", name="BCT", stackgroup="one", line={'width': 0.5, 'color': '#eff542'},
+        ))
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_nctSupply"],
+            mode="lines", name="NCT", stackgroup="one", line={'width': 0.5, 'color': '#6fa8dc'},
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_mco2Supply"],
+            mode="lines", name="MCO2", stackgroup="one", line={'width': 0.5, 'color': '#93c47d'},
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_uboSupply"],
+            mode="lines", name="UBO", stackgroup="one", line={'width': 0.5, 'color': '#c27ba0'},
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_nboSupply"],
+            mode="lines", name="NBO", stackgroup="one", line={'width': 0.5, 'color': '#8e7cc3'},
+        )),
+
+    fig.update_layout(
+        height=300,
+        font=dict(color="white"),
+        xaxis_title="Date",
+        yaxis_title="Supply",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=20, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+    )
+    return fig
+
+
+def get_polygon_retirement_breakdown_figure(df):
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalKlimaRetirements"],
+            mode="lines", name="Klima Retired", stackgroup="one", line={'width': 0.5, 'color': 'BLUE'},
+        ))
+    fig.add_trace(
+        go.Scatter(
+            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_not_klima_retired"],
+            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': 'RED'},
+        )),
+
+    fig.update_layout(
+        height=300,
+        font=dict(color="white"),
+        xaxis_title="Date",
+        yaxis_title="Total Retirements",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=20, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+    )
+    return fig

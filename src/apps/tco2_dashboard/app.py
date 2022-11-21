@@ -1,16 +1,22 @@
 import os
 import dash_bootstrap_components as dbc
 import dash
+from datetime import datetime
 from dash import html, Input, Output, callback, State
 from dash import dcc
 from flask_caching import Cache
 import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
+from subgrounds.subgraph import SyntheticField
 from pycoingecko import CoinGeckoAPI
+
+from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 
 # from ...util import get_eth_web3, load_abi
 from .figures import (
+    get_polygon_retirement_breakdown_figure,
+    get_polygon_supply_breakdown_figure,
     sub_plots_vintage,
     sub_plots_volume,
     map,
@@ -99,7 +105,10 @@ CARBON_MOSS_ETH_TEST_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraphtest"
 )
 CARBON_ETH_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/originalpkbims/ethereum-bridged-carbon"
+    "https://api.thegraph.com/subgraphs/name/klimadao/ethereum-bridged-carbon"
+)
+CARBON_CELO_SUBGRAPH_URL = (
+    "https://api.thegraph.com/subgraphs/name/milos1991/carbon-celo"
 )
 CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
@@ -454,6 +463,137 @@ def get_holders_data():
     return df_holdings
 
 
+@cache.memoize()
+def get_eth_carbon_metrics():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+
+    carbon_data.CarbonMetric.datetime = SyntheticField(
+        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+        SyntheticField.STRING,
+        carbon_data.CarbonMetric.timestamp,
+    )
+
+    carbonMetrics = carbon_data.Query.carbonMetrics(
+        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
+        where=[
+            carbon_data.CarbonMetric.timestamp > 0
+        ]
+    )
+
+    df = sg.query_df(
+        [
+            carbonMetrics.id,
+            carbonMetrics.timestamp,
+            carbonMetrics.datetime,
+            carbonMetrics.timestamp,
+            carbonMetrics.mco2Supply,
+            carbonMetrics.totalCarbonSupply,
+            carbonMetrics.mco2Retired,
+            carbonMetrics.totalRetirements,
+        ]
+    )
+
+    zeroTimestampIndex = df[(df['carbonMetrics_timestamp'] == "0")].index
+    df.drop(zeroTimestampIndex, inplace=True)
+
+    return df
+
+
+@cache.memoize()
+def get_celo_carbon_metrics():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
+
+    carbon_data.CarbonMetric.datetime = SyntheticField(
+        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+        SyntheticField.STRING,
+        carbon_data.CarbonMetric.timestamp,
+    )
+
+    carbonMetrics = carbon_data.Query.carbonMetrics(
+        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
+        where=[
+            carbon_data.CarbonMetric.timestamp > 0
+        ]
+    )
+
+    df = sg.query_df(
+        [
+            carbonMetrics.id,
+            carbonMetrics.timestamp,
+            carbonMetrics.datetime,
+            carbonMetrics.bctSupply,
+            carbonMetrics.nctSupply,
+            carbonMetrics.mco2Supply,
+            carbonMetrics.totalCarbonSupply,
+            carbonMetrics.mco2Retired,
+            carbonMetrics.totalRetirements,
+        ]
+    )
+
+    return df
+
+
+# @cache.memoize()
+def get_polygon_carbon_metrics():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+
+    carbon_data.CarbonMetric.datetime = SyntheticField(
+        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+        SyntheticField.STRING,
+        carbon_data.CarbonMetric.timestamp,
+    )
+
+    carbon_data.CarbonMetric.not_klima_retired = SyntheticField(
+        lambda totalRetirements, totalKlimaRetirements:
+            totalRetirements - totalKlimaRetirements,
+        SyntheticField.FLOAT,
+        [
+            carbon_data.CarbonMetric.totalRetirements,
+            carbon_data.CarbonMetric.totalKlimaRetirements,
+        ],
+    )
+
+    carbonMetrics = carbon_data.Query.carbonMetrics(
+        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
+        where=[
+            carbon_data.CarbonMetric.timestamp > 0
+        ]
+    )
+
+    df = sg.query_df(
+        [
+            carbonMetrics.id,
+            carbonMetrics.timestamp,
+            carbonMetrics.datetime,
+            carbonMetrics.bctSupply,
+            carbonMetrics.nctSupply,
+            carbonMetrics.mco2Supply,
+            carbonMetrics.uboSupply,
+            carbonMetrics.nboSupply,
+            carbonMetrics.totalCarbonSupply,
+            carbonMetrics.mco2Retired,
+            carbonMetrics.tco2Retired,
+            carbonMetrics.c3tRetired,
+            carbonMetrics.totalRetirements,
+            carbonMetrics.bctKlimaRetired,
+            carbonMetrics.nctKlimaRetired,
+            carbonMetrics.mco2KlimaRetired,
+            carbonMetrics.uboKlimaRetired,
+            carbonMetrics.nboKlimaRetired,
+            carbonMetrics.totalKlimaRetirements,
+            carbonMetrics.not_klima_retired
+        ]
+    )
+
+    return df
+
+
 # web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
 
 
@@ -652,6 +792,24 @@ def generate_layout():
     fig_thirty_day_project_retired_tc = project_volume(
         td_pool_retired_tc, zero_retiring_evt_text
     )
+
+    # Content carbon supply
+    polygon_carbon_metrics_df = get_polygon_carbon_metrics()
+    polygon_supply_figure = get_polygon_supply_breakdown_figure(polygon_carbon_metrics_df)
+    polygon_retirement_figure = get_polygon_retirement_breakdown_figure(polygon_carbon_metrics_df)
+    eth_carbon_metrics_df = get_eth_carbon_metrics()
+    celo_carbon_metrics_df = get_celo_carbon_metrics()
+    content_carbon_supply = create_carbon_supply_content(
+        polygon_carbon_metrics_df,
+        eth_carbon_metrics_df,
+        celo_carbon_metrics_df,
+        polygon_supply_figure,
+        polygon_retirement_figure)
+
+    # cache.set("df_polygon_carbon_metrics", polygon_carbon_metrics_df)
+    # cache.set("df_eth_carbon_metrics", eth_carbon_metrics_df)
+    # cache.set("df_celo_carbon_metrics", celo_carbon_metrics_df)
+    cache.set("content_carbon_supply", content_carbon_supply)
 
     # Total
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
@@ -1380,6 +1538,19 @@ def generate_layout():
                         href="/CarbonPools",
                         active="exact",
                     ),
+                    dbc.NavLink(
+                        [
+                            html.Div(
+                                html.Span(
+                                    "balance", className="material-icons"
+                                ),
+                                className="icon-container",
+                            ),
+                            html.Span("Carbon Supply", className="icon-title"),
+                        ],
+                        href="/CarbonSupply",
+                        active="exact",
+                    ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
                         html.P("C3", className="sidebar-protocol-heading"),
@@ -1556,6 +1727,21 @@ def generate_layout():
                                 href="/CarbonPools",
                                 active="exact",
                                 id="button-onchain_pool_comp",
+                                n_clicks=0,
+                            ),
+                            dbc.NavLink(
+                                [
+                                    html.Div(
+                                        html.Span(
+                                            "balance", className="material-icons"
+                                        ),
+                                        className="icon-container",
+                                    ),
+                                    html.Span("Blockchain Carbon Supply", className="icon-title"),
+                                ],
+                                href="/CarbonSupply",
+                                active="exact",
+                                id="button-onchain_carbon_supply",
                                 n_clicks=0,
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
@@ -1771,7 +1957,7 @@ def generate_layout():
 
 
 app.layout = generate_layout
-# cache.delete_memoized(app.layout)
+cache.delete_memoized(app.layout)
 
 
 @callback(
@@ -2128,6 +2314,10 @@ def render_page_content(pathname):
     elif pathname == "/CarbonPools":
         content_onchain_pool_comp = cache.get("content_onchain_pool_comp")
         return content_onchain_pool_comp
+
+    elif pathname == "/CarbonSupply":
+        content_carbon_supply = cache.get("content_carbon_supply")
+        return content_carbon_supply
 
     elif pathname == "/TCO2":
         content_tco2 = cache.get("content_tco2")
