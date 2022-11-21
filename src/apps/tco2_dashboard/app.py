@@ -13,8 +13,12 @@ from ...util import get_polygon_web3
 
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 
+from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
+
 # from ...util import get_eth_web3, load_abi
 from .figures import (
+    get_polygon_retirement_breakdown_figure,
+    get_polygon_supply_breakdown_figure,
     sub_plots_vintage,
     sub_plots_volume,
     map,
@@ -1590,6 +1594,19 @@ def generate_layout():
                         href="/CarbonSupply",
                         active="exact",
                     ),
+                    dbc.NavLink(
+                        [
+                            html.Div(
+                                html.Span(
+                                    "balance", className="material-icons"
+                                ),
+                                className="icon-container",
+                            ),
+                            html.Span("Carbon Supply", className="icon-title"),
+                        ],
+                        href="/CarbonSupply",
+                        active="exact",
+                    ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
                         html.P("C3", className="sidebar-protocol-heading"),
@@ -1999,7 +2016,7 @@ def generate_layout():
 
 
 app.layout = generate_layout
-# cache.delete_memoized(app.layout)
+cache.delete_memoized(app.layout)
 
 
 @callback(
