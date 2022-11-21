@@ -18,7 +18,7 @@ from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 # from ...util import get_eth_web3, load_abi
 from .figures import (
     get_polygon_retirement_breakdown_figure,
-    get_polygon_supply_breakdown_figure,
+    get_supply_breakdown_figure,
     sub_plots_vintage,
     sub_plots_volume,
     map,
@@ -104,7 +104,7 @@ from .constants import (
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
+    "https://api.thegraph.com/subgraphs/name/milos1991/carbonpolygon"
 )
 CARBON_MOSS_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
@@ -841,8 +841,9 @@ def generate_layout():
     eth_carbon_metrics_df = get_eth_carbon_metrics()
     celo_carbon_metrics_df = get_celo_carbon_metrics()
     content_carbon_supply = create_carbon_supply_content(
-        polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
-    )
+        polygon_carbon_metrics_df,
+        eth_carbon_metrics_df,
+        celo_carbon_metrics_df)
 
     cache.set("content_carbon_supply", content_carbon_supply)
 
