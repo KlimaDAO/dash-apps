@@ -77,59 +77,59 @@ def create_carbon_supply_content(
                         dbc.CardHeader(
                             html.H1(
                                 "Polygon On Chain Carbon",
-                                className="page-title",
+                                className="page-title-carbon-supply",
                             )
                         )
                     ]
                 ),
                 width=12,
-                style={"textAlign": "center"},
-            )
-        ),
+                style={"textAlign": "center", "margin-bottom": "20px"},
+            ),
+            style={'paddingTop': '60px'}),
         dbc.Row([
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Supply In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Supply (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         polygonCarbonSupply),
-                        className="card-text"),
-                    html.H5("Supply change in the last 7d",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Supply Change (last 7 days)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         polygonSupplyChangeRatio),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+                        className="card-text-carbon-supply")
+                ]), width=6),
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Retirements In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Retirements (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         int(polygonRetired)),
-                        className="card-text"),
-                    html.H5("Percentage Retired By Klima",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Percentage Retired by Klima",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         polygonKlimaRetiredRatio),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
-        ]),
+                        className="card-text-carbon-supply")
+                ]), width=6),
+        ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
                 dbc.Card([
                     html.H5("Supply",
-                            className="card-title"),
+                            className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=polygon_supply_figure))
                 ])
             ], width=6),
             dbc.Col([
                 dbc.Card([
                     html.H5("Retirements",
-                            className="card-title"),
+                            className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=polygon_retirement_figure))
                 ])
             ], width=6),
-        ]),
+        ], style={"margin-bottom": "40px"}),
         dbc.Row(
             dbc.Col(
                 dbc.Card(
@@ -137,59 +137,59 @@ def create_carbon_supply_content(
                         dbc.CardHeader(
                             html.H1(
                                 "Ethereum On Chain Carbon",
-                                className="page-title",
+                                className="page-title-carbon-supply",
                             )
                         )
                     ]
                 ),
                 width=12,
-                style={"textAlign": "center"},
+                style={"textAlign": "center", "margin-bottom": "20px"},
             )
         ),
         dbc.Row([
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Supply In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Supply (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         ethCarbonSupply),
-                        className="card-text"),
-                    html.H5("Supply change in the last 7d",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Supply Change (last 7 days)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         ethSupplyChangeRatio),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+                        className="card-text-carbon-supply")
+                ]), width=6),
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Retirements In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Retirements (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         int(ethRetired)),
-                        className="card-text"),
-                    html.H5("Percentage Retired By Klima",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Percentage Retired by Klima",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         0),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
-        ]),
+                        className="card-text-carbon-supply")
+                ]), width=6),
+        ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
                 dbc.Card([
                     html.H5("Supply",
-                            className="card-title"),
+                            className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=eth_supply_figure))
                 ])
             ], width=6),
             dbc.Col([
                 dbc.Card([
                     html.H5("Retirements",
-                            className="card-title"),
+                            className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=eth_retirement_figure))
                 ])
             ], width=6),
-        ]),
+        ], style={"margin-bottom": "40px"}),
         dbc.Row(
             dbc.Col(
                 dbc.Card(
@@ -197,48 +197,48 @@ def create_carbon_supply_content(
                         dbc.CardHeader(
                             html.H1(
                                 "Celo On Chain Carbon",
-                                className="page-title",
+                                className="page-title-carbon-supply",
                             )
                         )
                     ]
                 ),
                 width=12,
-                style={"textAlign": "center"},
+                style={"textAlign": "center", "margin-bottom": "20px"},
             )
         ),
         dbc.Row([
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Supply In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Supply (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         celoCarbonSupply),
-                        className="card-text"),
-                    html.H5("Supply change in the last 7d",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Supply Change (last 7 days)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         celoSupplyChangeRatio),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
+                        className="card-text-carbon-supply")
+                ]), width=6),
             dbc.Col(
                 dbc.Card([
-                    html.H5("Total Retirements In Tonnes",
-                            className="card-title"),
+                    html.H5("Total Retirements (Tonnes)",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:,}".format(
                         0),
-                        className="card-text"),
-                    html.H5("Percentage Retired By Klima",
-                            className="card-title"),
+                        className="card-text-carbon-supply"),
+                    html.H5("Percentage Retired by Klima",
+                            className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         0),
-                        className="card-text")
-                ], style={'margin': '0px', 'padding': '0px'}), width=6),
-        ]),
+                        className="card-text-carbon-supply")
+                ]), width=6),
+        ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
                 dbc.Card([
                     html.H5("Supply",
-                            className="card-title"),
+                            className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=celo_supply_figure))
                 ])
             ], width=6),

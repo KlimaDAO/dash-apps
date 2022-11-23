@@ -85,8 +85,41 @@ a {
   font-size: 16px;
 }
 
+.card-title-carbon-supply{
+  padding-top: 20px;
+  padding-bottom: 12px;
+  font-family: var(--font-fam-Poppins);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  text-align: center;
+  justify-content: center;
+}
+
 .card-text{
   font-size: 20px;
+  text-align: center;
+  justify-content: center;
+}
+
+.card-text-carbon-supply{
+  padding-top: 0px;
+  padding-bottom: 20px;
+  font-family: var(--font-fam-Inter);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.graph-label-carbon-supply{
+  font-family: var(--font-fam-Poppins);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
   text-align: center;
   justify-content: center;
 }
@@ -99,6 +132,15 @@ a {
 .page-title {
   margin: 5px 5px 5px 5px;
   vertical-align: middle;
+}
+
+.page-title-carbon-supply{
+  width: 100%;
+  font-family: var(--font-fam-Poppins);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 48px;
 }
 
 .card-graph {
