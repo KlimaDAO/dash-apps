@@ -1598,12 +1598,13 @@ def generate_layout():
                     dbc.NavLink(
                         [
                             html.Div(
-                                html.Span(
-                                    "balance", className="material-icons"
+                                html.Img(
+                                    src="assets/carbon_supply_icon.svg",
+                                    className="image-icons",
                                 ),
                                 className="icon-container",
                             ),
-                            html.Span("Carbon Supply", className="icon-title"),
+                            html.Span("Carbon Supply"),
                         ],
                         href="/CarbonSupply",
                         active="exact",
