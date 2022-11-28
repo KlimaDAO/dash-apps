@@ -1648,12 +1648,12 @@ def get_polygon_retirement_breakdown_figure(df):
     fig.add_trace(
         go.Scatter(
             x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalKlimaRetirements"],
-            mode="lines", name="Klima Retired", stackgroup="one", line={'width': 0.5, 'color': '#536C9C'},
+            mode="lines", name="Retired via KlimaDAO", stackgroup="one", line={'width': 0.5, 'color': '#536C9C'},
         ))
     fig.add_trace(
         go.Scatter(
             x=df["carbonMetrics_datetime"], y=df["carbonMetrics_not_klima_retired"],
-            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
+            mode="lines", name="Not Retired via KlimaDAO", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
         )),
 
     fig.update_layout(

@@ -76,7 +76,7 @@ def create_carbon_supply_content(
                     [
                         dbc.CardHeader(
                             html.H1(
-                                "Polygon On Chain Carbon",
+                                "Polygon Digital Carbon",
                                 className="page-title-carbon-supply",
                             )
                         )
@@ -107,7 +107,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:,}".format(
                         int(polygonRetired)),
                         className="card-text-carbon-supply"),
-                    html.H5("Percentage Retired by Klima",
+                    html.H5("Percentage Retired via KlimaDAO",
                             className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         polygonKlimaRetiredRatio),
@@ -136,7 +136,7 @@ def create_carbon_supply_content(
                     [
                         dbc.CardHeader(
                             html.H1(
-                                "Ethereum On Chain Carbon",
+                                "Ethereum Digital Carbon",
                                 className="page-title-carbon-supply",
                             )
                         )
@@ -196,7 +196,7 @@ def create_carbon_supply_content(
                     [
                         dbc.CardHeader(
                             html.H1(
-                                "Celo On Chain Carbon",
+                                "Celo Digital Carbon",
                                 className="page-title-carbon-supply",
                             )
                         )
@@ -227,7 +227,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:,}".format(
                         0),
                         className="card-text-carbon-supply"),
-                    html.H5("Percentage Retired by Klima",
+                    html.H5("Percentage Retired via KlimaDAO",
                             className="card-title-carbon-supply"),
                     dbc.CardBody("{:.2%}".format(
                         0),
