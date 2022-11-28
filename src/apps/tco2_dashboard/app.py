@@ -104,7 +104,7 @@ from .constants import (
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/milos1991/carbonpolygon"
+    "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
 )
 CARBON_MOSS_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
