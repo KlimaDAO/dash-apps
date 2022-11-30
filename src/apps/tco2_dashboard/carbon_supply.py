@@ -1,8 +1,9 @@
-from dash import html, dash_table
+from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 
-from src.apps.tco2_dashboard.figures import get_eth_retirement_breakdown_figure, \
+from src.apps.tco2_dashboard.figures import \
+    get_eth_retirement_breakdown_figure, \
     get_polygon_retirement_breakdown_figure, get_supply_breakdown_figure
 
 
