@@ -85,8 +85,7 @@ def create_carbon_supply_content(
                 ),
                 width=12,
                 style={"textAlign": "center", "margin-bottom": "20px"},
-            ),
-            style={'paddingTop': '60px'}),
+            )),
         dbc.Row([
             dbc.Col(
                 dbc.Card([
@@ -100,7 +99,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         polygonSupplyChangeRatio),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5("Total Retirements (Tonnes)",
@@ -113,7 +112,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         polygonKlimaRetiredRatio),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
         ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
@@ -122,14 +121,14 @@ def create_carbon_supply_content(
                             className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=polygon_supply_figure))
                 ])
-            ], width=6),
+            ], lg=6, md=12),
             dbc.Col([
                 dbc.Card([
                     html.H5("Retirements",
                             className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=polygon_retirement_figure))
                 ])
-            ], width=6),
+            ], lg=6, md=12),
         ], style={"margin-bottom": "40px"}),
         dbc.Row(
             dbc.Col(
@@ -160,7 +159,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         ethSupplyChangeRatio),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5("Total Retirements (Tonnes)",
@@ -173,7 +172,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         0),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
         ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
@@ -182,14 +181,14 @@ def create_carbon_supply_content(
                             className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=eth_supply_figure))
                 ])
-            ], width=6),
+            ], lg=6, md=12),
             dbc.Col([
                 dbc.Card([
                     html.H5("Retirements",
                             className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=eth_retirement_figure))
                 ])
-            ], width=6),
+            ], lg=6, md=12),
         ], style={"margin-bottom": "40px"}),
         dbc.Row(
             dbc.Col(
@@ -220,7 +219,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         celoSupplyChangeRatio),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
             dbc.Col(
                 dbc.Card([
                     html.H5("Total Retirements (Tonnes)",
@@ -233,7 +232,7 @@ def create_carbon_supply_content(
                     dbc.CardBody("{:.2%}".format(
                         0),
                         className="card-text-carbon-supply")
-                ]), width=6),
+                ]), lg=6, md=12),
         ], style={"margin-bottom": "20px"}),
         dbc.Row([
             dbc.Col([
@@ -242,7 +241,7 @@ def create_carbon_supply_content(
                             className="graph-label-carbon-supply"),
                     dbc.CardBody(dcc.Graph(figure=celo_supply_figure))
                 ])
-            ], width=6),
+            ], lg=6, md=12),
         ]),
     ]
     return content
