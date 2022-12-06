@@ -6,7 +6,7 @@ orjson
 pycoingecko
 pycountry==22.1.10
 pytest
-subgrounds==1.0.0
+subgrounds==1.0.3
 web3
 werkzeug<2.1.0
 circlify==0.14.0
