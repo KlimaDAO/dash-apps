@@ -69,7 +69,9 @@ def create_pool_content(
                 dbc.CardBody(
                     "{:,}".format(int(retired["Quantity"].sum())), className="card-text"
                 ),
-                dbc.CardFooter(retire_note, id="klima_retire_note"),
+                dbc.CardFooter(
+                    retire_note, className="card-footer", id="klima_retire_note"
+                ),
             ],
             className="card-pool-summary",
         )
@@ -81,7 +83,9 @@ def create_pool_content(
                     className="card-title",
                 ),
                 dbc.CardBody(dcc.Graph(figure=fig_retired_over_time)),
-                dbc.CardFooter(retire_note, id="klima_retire_note"),
+                dbc.CardFooter(
+                    retire_note, className="card-footer", id="klima_retire_note"
+                ),
             ],
             className="card-graph",
         )

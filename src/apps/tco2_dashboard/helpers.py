@@ -2,6 +2,14 @@ import pandas as pd
 import datetime as dt
 import os
 import json
+from ...util import load_abi
+from .constants import (
+    BCT_ADDRESS,
+    MCO2_ADDRESS,
+    NCT_ADDRESS,
+    UBO_ADDRESS,
+    NBO_ADDRESS,
+)
 
 
 def pct_change(first, second):
@@ -624,3 +632,47 @@ def retirmentManualAdjustments(df_retired):
     ]
 
     return df_retired
+
+
+def get_fee_redeem_factors(token_address, web3):
+    if web3 is not None:
+        if token_address == BCT_ADDRESS or token_address == NCT_ADDRESS:
+            contract = web3.eth.contract(
+                address=web3.toChecksumAddress(token_address),
+                abi=load_abi("toucanPoolToken.json"),
+            )
+            feeRedeemDivider = contract.functions.feeRedeemDivider().call()
+            feeRedeemFactor = (
+                contract.functions.feeRedeemPercentageInBase().call() / feeRedeemDivider
+            )
+        elif token_address == UBO_ADDRESS or token_address == NBO_ADDRESS:
+            contract = web3.eth.contract(
+                address=web3.toChecksumAddress(token_address),
+                abi=load_abi("s3PoolToken.json"),
+            )
+            feeRedeemFactor = contract.functions.feeRedeem().call() / 10000
+        elif token_address == MCO2_ADDRESS:
+            feeRedeemFactor = 0
+
+        return feeRedeemFactor
+    else:
+        # If web3 is not connected, just return an invalid value
+        return -1
+
+
+def add_fee_redeem_factors_to_dict(token_dict, web3):
+    for i in token_dict.keys():
+        token_dict[i]["Fee Redeem Factor"] = get_fee_redeem_factors(
+            token_dict[i]["Token Address"], web3
+        )
+
+
+def human_format(num):
+    num = float("{:.3g}".format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return "{}{}".format(
+        "{:f}".format(num).rstrip("0").rstrip("."), ["", "K", "M", "B", "T"][magnitude]
+    )
