@@ -612,7 +612,6 @@ def get_polygon_carbon_metrics():
 
     return df
 
-
     carbonMetrics = carbon_data.Query.carbonMetrics(
         orderBy=carbon_data.CarbonMetric.timestamp,
         orderDirection="desc",
