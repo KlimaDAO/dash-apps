@@ -10,12 +10,7 @@ import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
 from ...util import get_polygon_web3
-
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
-
-from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
-
-# from ...util import get_eth_web3, load_abi
 from .figures import (
     sub_plots_vintage,
     sub_plots_volume,
