@@ -10,6 +10,12 @@ MCO2_ADDRESS_MATIC = "0xaa7dbd1598251f856c12f63557a4c4397c253cea"
 VERRA_FALLBACK_NOTE = "Note: Off-Chain Verra Registry data is not updated, we are temporarily using fallback data"
 KLIMA_RETIRED_NOTE = "Note: This only includes Retired Tonnes coming through the KlimaDAO retirement aggregator tool"
 VERRA_FALLBACK_URL = "https://prod-klimadao-data.nyc3.digitaloceanspaces.com/verra_registry_fallback_data.csv"
+KLIMA_UBO_ADDRESS = "0x5400a05b8b45eaf9105315b4f2e31f806ab706de"
+KLIMA_NBO_ADDRESS = "0x251ca6a70cbd93ccd7039b6b708d4cb9683c266c"
+KLIMA_MCO2_ADDRESS = "0x64a3b8ca5a7e406a78e660ae10c7563d9153a739"
+KLIMA_BCT_ADDRESS = "0x9803c7ae526049210a1725f7487af26fe2c24614"
+BCT_USDC_ADDRESS = "0x1e67124681b402064cd0abe8ed1b5c79d2e02f64"
+NCT_USDC_ADDRESS = "0xdb995f975f1bfc3b2157495c47e4efb31196b2ca"
 
 rename_map = {
     "carbonOffsets_bridges_value": "Quantity",
