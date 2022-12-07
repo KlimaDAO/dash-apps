@@ -69,6 +69,12 @@ a {
   border: 0px;
 }
 
+.pool_card{
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .card-pool-summary {
   background: var(--dark-gray);
   /* border: 2px solid #00CC33; */
@@ -292,10 +298,11 @@ color: white;
   font-style: italic;
 }
 
-#klima_retire_note{
+.card-footer{
   font-style: italic;
   font-size: 0.7rem;
   padding: 0px;
+  border: 0px;
 }
 
 .on_vs_off_footers{
@@ -639,7 +646,35 @@ p {
   background-color: var(--green);
 }
 
-.top-btns{
+.tooltip-icon-container{
+  align-items: center;
+  justify-content: center;
+  margin-top: 0rem;
+  height: 20px;
+  width: 20px;
+  display: flex;
+}
+
+.tooltip{
+  font-family: var(--font-fam);
+  font-weight: 400;
+  font-size: 1em;
+}
+
+.tooltip-inner{
+  background: #303030;
+}
+
+.card-title-with-tooltip{
+  justify-content: center;
+  align-items: center;
+}
+
+.card-title-with-tooltip .card-title{
+  margin: 0px;
+}
+
+.top-btns, .card-title-with-tooltip{
   display: flex;
   flex-direction: row;
   gap: 10px;

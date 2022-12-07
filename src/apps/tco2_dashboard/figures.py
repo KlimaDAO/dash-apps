@@ -3,13 +3,12 @@ import plotly.graph_objects as go
 import numpy as np
 import pycountry
 from collections import defaultdict
-from .helpers import add_px_figure
+from .helpers import add_px_figure, human_format
 from plotly.subplots import make_subplots
 from .constants import FIGURE_BG_COLOR
 import pandas as pd
 import circlify
 import matplotlib
-from math import log, floor
 from base64 import b64encode
 import math
 
@@ -763,9 +762,9 @@ def verra_project(df_verra, df_verra_toucan):
     return fig
 
 
-def historical_prices(token_cg_dict, df_prices):
+def historical_prices(tokens_dict, df_prices):
     fig = go.Figure()
-    for i in token_cg_dict.keys():
+    for i in tokens_dict.keys():
         col_name = f"{i}_Price"
         filtered_df = df_prices[~df_prices[col_name].isna()]
         fig.add_trace(
@@ -1323,12 +1322,6 @@ def create_offchain_vs_onchain_fig(
     offchain_retired = df_offchain_retired["Quantity"].iat[-1]
     onchain_retired = df_onchain_retired["Quantity"].iat[-1]
 
-    def human_format(number):
-        units = ["", "K", "M", "G", "T", "P"]
-        k = 1000.0
-        magnitude = int(floor(log(number, k)))
-        return "%.0f%s" % (number / k**magnitude, units[magnitude])
-
     label_value = [
         human_format(issued),
         human_format(offchain_retired),
@@ -1618,13 +1611,14 @@ def get_supply_breakdown_figure(allowed_tokens, df):
         col_name = f"carbonMetrics_{allowed_token['name']}Supply"
         fig.add_trace(
             go.Scatter(
-                name=allowed_token['name'].upper(),
+                name=allowed_token["name"].upper(),
                 x=df["carbonMetrics_datetime"],
                 y=df[col_name],
                 mode="lines",
                 stackgroup="one",
-                line={'width': 0.5, 'color': allowed_token['color']},
-            ))
+                line={"width": 0.5, "color": allowed_token["color"]},
+            )
+        )
 
     fig.update_layout(
         height=300,
@@ -1647,14 +1641,24 @@ def get_polygon_retirement_breakdown_figure(df):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalKlimaRetirements"],
-            mode="lines", name="Retired via KlimaDAO", stackgroup="one", line={'width': 0.5, 'color': '#536C9C'},
-        ))
+            x=df["carbonMetrics_datetime"],
+            y=df["carbonMetrics_totalKlimaRetirements"],
+            mode="lines",
+            name="Retired via KlimaDAO",
+            stackgroup="one",
+            line={"width": 0.5, "color": "#536C9C"},
+        )
+    )
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_not_klima_retired"],
-            mode="lines", name="Not Retired via KlimaDAO", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
-        )),
+            x=df["carbonMetrics_datetime"],
+            y=df["carbonMetrics_not_klima_retired"],
+            mode="lines",
+            name="Not Retired via KlimaDAO",
+            stackgroup="one",
+            line={"width": 0.5, "color": "#c74b0e"},
+        )
+    ),
 
     fig.update_layout(
         height=300,
@@ -1677,9 +1681,14 @@ def get_eth_retirement_breakdown_figure(df):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalRetirements"],
-            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
-        ))
+            x=df["carbonMetrics_datetime"],
+            y=df["carbonMetrics_totalRetirements"],
+            mode="lines",
+            name="Not Retired by Klima",
+            stackgroup="one",
+            line={"width": 0.5, "color": "#c74b0e"},
+        )
+    )
 
     fig.update_layout(
         height=300,
