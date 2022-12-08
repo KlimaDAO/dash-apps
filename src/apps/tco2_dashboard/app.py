@@ -10,10 +10,7 @@ import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
 from ...util import get_polygon_web3
-
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
-
-# from ...util import get_eth_web3, load_abi
 from .figures import (
     sub_plots_vintage,
     sub_plots_volume,
@@ -580,6 +577,40 @@ def get_polygon_carbon_metrics():
             carbon_data.CarbonMetric.totalKlimaRetirements,
         ],
     )
+
+    carbonMetrics = carbon_data.Query.carbonMetrics(
+        orderBy=carbon_data.CarbonMetric.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS,
+        where=[carbon_data.CarbonMetric.timestamp > 0],
+    )
+
+    df = sg.query_df(
+        [
+            carbonMetrics.id,
+            carbonMetrics.timestamp,
+            carbonMetrics.datetime,
+            carbonMetrics.bctSupply,
+            carbonMetrics.nctSupply,
+            carbonMetrics.mco2Supply,
+            carbonMetrics.uboSupply,
+            carbonMetrics.nboSupply,
+            carbonMetrics.totalCarbonSupply,
+            carbonMetrics.mco2Retired,
+            carbonMetrics.tco2Retired,
+            carbonMetrics.c3tRetired,
+            carbonMetrics.totalRetirements,
+            carbonMetrics.bctKlimaRetired,
+            carbonMetrics.nctKlimaRetired,
+            carbonMetrics.mco2KlimaRetired,
+            carbonMetrics.uboKlimaRetired,
+            carbonMetrics.nboKlimaRetired,
+            carbonMetrics.totalKlimaRetirements,
+            carbonMetrics.not_klima_retired,
+        ]
+    )
+
+    return df
 
     carbonMetrics = carbon_data.Query.carbonMetrics(
         orderBy=carbon_data.CarbonMetric.timestamp,
