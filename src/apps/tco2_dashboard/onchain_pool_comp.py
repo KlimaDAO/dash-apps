@@ -9,18 +9,22 @@ def create_onchain_pool_comp_content(tokens_dict, df_prices, fig_historical_pric
     pool_cards = []
     for i in tokens_dict.keys():
         filtered_df = df_prices[~df_prices[f"{i}_Price"].isna()]
+        bridge_name = tokens_dict[i]["Bridge"]
         if i == "MCO2":
             selective_cost_value = "NA"
             selective_cost_tooltip_text = (
                 "There is no selective reddeeming/retiring option for MCO2."
             )
         else:
-            selective_cost_tooltip_text = "This cost includes the asset spot price + the fee to \
-                selectively redeem or retire an underlying carbon project."
+            fee_redeem_percentage = "{:.2%}".format(tokens_dict[i]["Fee Redeem Factor"])
             selective_cost_value = "${:.2f}".format(
                 filtered_df[f"{i}_Price"].iloc[0]
                 * (1 + tokens_dict[i]["Fee Redeem Factor"])
             )
+            selective_cost_tooltip_text = f"This cost includes the asset spot price + \
+                the {fee_redeem_percentage} fee to \
+                selectively redeem or retire an underlying carbon project charged by \
+                    {bridge_name}."
 
         print(filtered_df[f"{i}_Price"])
         price_col = dbc.Col(
