@@ -622,6 +622,7 @@ tokens_dict = {
         "Pair Address": BCT_USDC_ADDRESS,
         "Token Address": BCT_ADDRESS,
         "Full Name": "Base Carbon Tonne",
+        "Bridge": "Toucan",
     },
     "NCT": {
         "address": NCT_ADDRESS,
@@ -629,6 +630,7 @@ tokens_dict = {
         "Pair Address": NCT_USDC_ADDRESS,
         "Token Address": NCT_ADDRESS,
         "Full Name": "Nature Carbon Tonne",
+        "Bridge": "Toucan",
     },
     "MCO2": {
         "address": MCO2_ADDRESS,
@@ -636,16 +638,19 @@ tokens_dict = {
         "Pair Address": KLIMA_MCO2_ADDRESS,
         "Token Address": MCO2_ADDRESS,
         "Full Name": "Moss Carbon Credit",
+        "Bridge": "Moss",
     },
     "UBO": {
         "Pair Address": KLIMA_UBO_ADDRESS,
         "Token Address": UBO_ADDRESS,
         "Full Name": "Universal Basic Offset",
+        "Bridge": "C3",
     },
     "NBO": {
         "Pair Address": KLIMA_NBO_ADDRESS,
         "Token Address": NBO_ADDRESS,
         "Full Name": "Nature Based Offset",
+        "Bridge": "C3",
     },
 }
 
