@@ -114,9 +114,7 @@ CARBON_CELO_SUBGRAPH_URL = (
 CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
 )
-PAIRS_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/originalpkbims/klimapairs-price-test"
-)
+PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
