@@ -13,7 +13,7 @@ def create_onchain_pool_comp_content(tokens_dict, df_prices, fig_historical_pric
         if i == "MCO2":
             selective_cost_value = "NA"
             selective_cost_tooltip_text = (
-                "There is no selective reddeeming/retiring option for MCO2."
+                "There is no selective redemption/retirement functionality for MCO2."
             )
         else:
             fee_redeem_percentage = "{:.2%}".format(tokens_dict[i]["Fee Redeem Factor"])
@@ -25,8 +25,6 @@ def create_onchain_pool_comp_content(tokens_dict, df_prices, fig_historical_pric
                 the {fee_redeem_percentage} fee to \
                 selectively redeem or retire an underlying carbon project charged by \
                     {bridge_name}."
-
-        print(filtered_df[f"{i}_Price"])
         price_col = dbc.Col(
             dbc.Card(
                 [

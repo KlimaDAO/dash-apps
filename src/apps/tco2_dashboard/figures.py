@@ -1704,28 +1704,3 @@ def get_eth_retirement_breakdown_figure(df):
         hoverlabel=dict(font_color="white", font_size=8),
     )
     return fig
-
-
-def get_eth_retirement_breakdown_figure(df):
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=df["carbonMetrics_datetime"], y=df["carbonMetrics_totalRetirements"],
-            mode="lines", name="Not Retired by Klima", stackgroup="one", line={'width': 0.5, 'color': '#c74b0e'},
-        ))
-
-    fig.update_layout(
-        height=300,
-        font=dict(color="white"),
-        xaxis_title="Date",
-        yaxis_title="Total Retirements",
-        paper_bgcolor=FIGURE_BG_COLOR,
-        plot_bgcolor=FIGURE_BG_COLOR,
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False),
-        margin=dict(t=20, b=20, l=0, r=0),
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
-    )
-    return fig
