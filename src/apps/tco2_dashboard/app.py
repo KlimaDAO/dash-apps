@@ -9,11 +9,8 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
-from pycoingecko import CoinGeckoAPI
-
+from ...util import get_polygon_web3
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
-
-# from ...util import get_eth_web3, load_abi
 from .figures import (
     sub_plots_vintage,
     sub_plots_volume,
@@ -68,6 +65,7 @@ from .helpers import (
     create_holders_data,
     merge_retirements_data_for_retirement_chart,
     retirmentManualAdjustments,
+    add_fee_redeem_factors_to_dict,
 )
 from .constants import (
     rename_map,
@@ -90,6 +88,11 @@ from .constants import (
     bridges_rename_map,
     holders_rename_map,
     moss_retires_rename_map,
+    BCT_USDC_ADDRESS,
+    NCT_USDC_ADDRESS,
+    KLIMA_MCO2_ADDRESS,
+    KLIMA_NBO_ADDRESS,
+    KLIMA_UBO_ADDRESS,
 )
 
 CACHE_TIMEOUT = 86400
@@ -111,10 +114,12 @@ CARBON_CELO_SUBGRAPH_URL = (
 CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
 )
+PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
 MAX_RECORDS = 1000000
 PRICE_DAYS = 5000
 GOOGLE_API_ICONS = {
-    "href": "https://fonts.googleapis.com/icon?family=Material+Icons",
+    "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
+    "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
     "rel": "stylesheet",
 }
 POPPINS_FONT = {
@@ -178,7 +183,8 @@ app = dash.Dash(
 
 
 # Add GTM for analytics via index_string
-gtm_head_section = '''
+gtm_head_section = (
+    """
         <!-- Google Tag Manager -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -186,27 +192,39 @@ gtm_head_section = '''
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-KWFJ9R2');</script>
         <!-- End Google Tag Manager -->
-''' if os.environ.get("ENV") == "Production" else ''
+"""
+    if os.environ.get("ENV") == "Production"
+    else ""
+)
 
-gtm_body_section = '''
+gtm_body_section = (
+    """
         <!-- Google Tag Manager (noscript) -->
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWFJ9R2"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
-''' if os.environ.get("ENV") == "Production" else ''
+"""
+    if os.environ.get("ENV") == "Production"
+    else ""
+)
 
-app.index_string = '''
+app.index_string = (
+    """
 <!DOCTYPE html>
 <html>
     <head>
-''' + gtm_head_section + '''
+"""
+    + gtm_head_section
+    + """
         {%metas%}
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
     </head>
     <body>
-''' + gtm_body_section + '''
+"""
+    + gtm_body_section
+    + """
         {%app_entry%}
         <footer>
             {%config%}
@@ -215,7 +233,8 @@ app.index_string = '''
         </footer>
     </body>
 </html>
-'''
+"""
+)
 
 
 # Configure cache
@@ -474,10 +493,10 @@ def get_eth_carbon_metrics():
     )
 
     carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
-        where=[
-            carbon_data.CarbonMetric.timestamp > 0
-        ]
+        orderBy=carbon_data.CarbonMetric.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS,
+        where=[carbon_data.CarbonMetric.timestamp > 0],
     )
 
     df = sg.query_df(
@@ -493,7 +512,7 @@ def get_eth_carbon_metrics():
         ]
     )
 
-    zeroTimestampIndex = df[(df['carbonMetrics_timestamp'] == "0")].index
+    zeroTimestampIndex = df[(df["carbonMetrics_timestamp"] == "0")].index
     df.drop(zeroTimestampIndex, inplace=True)
 
     return df
@@ -512,10 +531,10 @@ def get_celo_carbon_metrics():
     )
 
     carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
-        where=[
-            carbon_data.CarbonMetric.timestamp > 0
-        ]
+        orderBy=carbon_data.CarbonMetric.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS,
+        where=[carbon_data.CarbonMetric.timestamp > 0],
     )
 
     df = sg.query_df(
@@ -548,8 +567,8 @@ def get_polygon_carbon_metrics():
     )
 
     carbon_data.CarbonMetric.not_klima_retired = SyntheticField(
-        lambda totalRetirements, totalKlimaRetirements:
-            totalRetirements - totalKlimaRetirements,
+        lambda totalRetirements, totalKlimaRetirements: totalRetirements
+        - totalKlimaRetirements,
         SyntheticField.FLOAT,
         [
             carbon_data.CarbonMetric.totalRetirements,
@@ -558,10 +577,10 @@ def get_polygon_carbon_metrics():
     )
 
     carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp, orderDirection="desc", first=MAX_RECORDS,
-        where=[
-            carbon_data.CarbonMetric.timestamp > 0
-        ]
+        orderBy=carbon_data.CarbonMetric.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS,
+        where=[carbon_data.CarbonMetric.timestamp > 0],
     )
 
     df = sg.query_df(
@@ -585,61 +604,83 @@ def get_polygon_carbon_metrics():
             carbonMetrics.uboKlimaRetired,
             carbonMetrics.nboKlimaRetired,
             carbonMetrics.totalKlimaRetirements,
-            carbonMetrics.not_klima_retired
+            carbonMetrics.not_klima_retired,
         ]
     )
 
     return df
 
 
-# web3 = get_eth_web3() if os.environ.get('WEB3_INFURA_PROJECT_ID') else None
+web3 = get_polygon_web3() if os.environ.get("WEB3_INFURA_PROJECT_ID") else None
 
-
-# def get_mco2_contract_data():
-#     ERC20_ABI = load_abi('erc20.json')
-#     if web3 is not None:
-#         mco2_contract = web3.eth.contract(address=MCO2_ADDRESS, abi=ERC20_ABI)
-#         decimals = 10 ** mco2_contract.functions.decimals().call()
-#         total_supply = mco2_contract.functions.totalSupply().call() // decimals
-#         return total_supply
-#     else:
-#         # If web3 is not connected, just return an invalid value
-#         return -1
-
-
-cg = CoinGeckoAPI()
-token_cg_dict = {
+tokens_dict = {
     "BCT": {
         "address": BCT_ADDRESS,
         "id": "polygon-pos",
+        "Pair Address": BCT_USDC_ADDRESS,
+        "Token Address": BCT_ADDRESS,
         "Full Name": "Base Carbon Tonne",
+        "Bridge": "Toucan",
     },
     "NCT": {
         "address": NCT_ADDRESS,
         "id": "polygon-pos",
+        "Pair Address": NCT_USDC_ADDRESS,
+        "Token Address": NCT_ADDRESS,
         "Full Name": "Nature Carbon Tonne",
+        "Bridge": "Toucan",
     },
     "MCO2": {
         "address": MCO2_ADDRESS,
         "id": "ethereum",
+        "Pair Address": KLIMA_MCO2_ADDRESS,
+        "Token Address": MCO2_ADDRESS,
         "Full Name": "Moss Carbon Credit",
+        "Bridge": "Moss",
+    },
+    "UBO": {
+        "Pair Address": KLIMA_UBO_ADDRESS,
+        "Token Address": UBO_ADDRESS,
+        "Full Name": "Universal Basic Offset",
+        "Bridge": "C3",
+    },
+    "NBO": {
+        "Pair Address": KLIMA_NBO_ADDRESS,
+        "Token Address": NBO_ADDRESS,
+        "Full Name": "Nature Based Offset",
+        "Bridge": "C3",
     },
 }
 
 
 @cache.memoize()
 def get_prices():
+    sg = Subgrounds()
+    price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
     df_prices = pd.DataFrame()
-    for i in token_cg_dict.keys():
-        data = cg.get_coin_market_chart_from_contract_address_by_id(
-            id=token_cg_dict[i]["id"],
-            vs_currency="usd",
-            contract_address=token_cg_dict[i]["address"],
-            days=PRICE_DAYS,
+    for i in tokens_dict.keys():
+        swaps = price_sg.Query.swaps(
+            first=MAX_RECORDS,
+            orderBy=price_sg.Swap.timestamp,
+            orderDirection="desc",
+            where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
         )
-        df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
-        df["Date"] = pd.to_datetime(df["Date"], unit="ms")
-        df["Date"] = df["Date"].dt.floor("D")
+
+        df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
+        rename_prices_map = {
+            "swaps_pair_id": f"{i}_Address",
+            "swaps_close": f"{i}_Price",
+            "swaps_timestamp": "Date",
+        }
+        df = df.rename(columns=rename_prices_map)
+        df["Date"] = (
+            pd.to_datetime(df["Date"], unit="s")
+            .dt.tz_localize("UTC")
+            .dt.floor("D")
+            .dt.date
+        )
+        df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
+        df = df[df[f"{i}_Price"] != 0]
         if df_prices.empty:
             df_prices = df
         else:
@@ -1316,14 +1357,20 @@ def generate_layout():
 
     # ----Top Level Page---
 
-    token_cg_dict["BCT"]["Current Supply"] = (
+    tokens_dict["BCT"]["Current Supply"] = (
         bct_deposited["Quantity"].sum() - bct_redeemed["Quantity"].sum()
     )
-    token_cg_dict["NCT"]["Current Supply"] = (
+    tokens_dict["NCT"]["Current Supply"] = (
         nct_deposited["Quantity"].sum() - nct_redeemed["Quantity"].sum()
     )
-    token_cg_dict["MCO2"]["Current Supply"] = (
+    tokens_dict["MCO2"]["Current Supply"] = (
         df_bridged_mco2["Quantity"].sum() - df_retired_mco2["Quantity"].sum()
+    )
+    tokens_dict["UBO"]["Current Supply"] = (
+        ubo_deposited["Quantity"].sum() - ubo_redeemed["Quantity"].sum()
+    )
+    tokens_dict["NBO"]["Current Supply"] = (
+        nbo_deposited["Quantity"].sum() - nbo_redeemed["Quantity"].sum()
     )
 
     bridges_info_dict = {
@@ -1411,9 +1458,10 @@ def generate_layout():
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # --- onchain carbon pool comparison ---
-    fig_historical_prices = historical_prices(token_cg_dict, df_prices)
+    add_fee_redeem_factors_to_dict(tokens_dict, web3)
+    fig_historical_prices = historical_prices(tokens_dict, df_prices)
     content_onchain_pool_comp = create_onchain_pool_comp_content(
-        token_cg_dict, df_prices, fig_historical_prices
+        tokens_dict, df_prices, fig_historical_prices
     )
     cache.set("content_onchain_pool_comp", content_onchain_pool_comp)
 
@@ -1524,9 +1572,9 @@ def generate_layout():
                                 html.Span("balance", className="material-icons"),
                                 className="icon-container",
                             ),
-                            html.Span("Carbon Pools", className="icon-title"),
+                            html.Span("Carbon Pricing", className="icon-title"),
                         ],
-                        href="/CarbonPools",
+                        href="/CarbonPricing",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1714,9 +1762,9 @@ def generate_layout():
                                         ),
                                         className="icon-container",
                                     ),
-                                    html.Span("Carbon Pools", className="icon-title"),
+                                    html.Span("Carbon Pricing", className="icon-title"),
                                 ],
-                                href="/CarbonPools",
+                                href="/CarbonPricing",
                                 active="exact",
                                 id="button-onchain_pool_comp",
                                 n_clicks=0,
@@ -1729,7 +1777,10 @@ def generate_layout():
                                         ),
                                         className="icon-container",
                                     ),
-                                    html.Span("Blockchain Carbon Supply", className="icon-title"),
+                                    html.Span(
+                                        "Blockchain Carbon Supply",
+                                        className="icon-title",
+                                    ),
                                 ],
                                 href="/CarbonSupply",
                                 active="exact",
@@ -2303,7 +2354,7 @@ def render_page_content(pathname):
         content_offchain_vs_onchain = cache.get("content_offchain_vs_onchain")
         return content_offchain_vs_onchain
 
-    elif pathname == "/CarbonPools":
+    elif pathname == "/CarbonPricing":
         content_onchain_pool_comp = cache.get("content_onchain_pool_comp")
         return content_onchain_pool_comp
 
