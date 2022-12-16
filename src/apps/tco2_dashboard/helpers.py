@@ -81,7 +81,7 @@ def date_manipulations(df):
 
 def date_manipulations_verra(df):
     if not (df.empty):
-        df["Date"] = (
+        df.loc[:, "Date"] = (
             pd.to_datetime(df["Date"], unit="s")
             .dt.tz_localize(None)
             .dt.floor("D")
@@ -128,7 +128,7 @@ def bridge_manipulations(df, bridge):
 
 def merge_verra(df, df_verra, merge_columns, drop_columns):
     df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
-    df_verra["ID"] = df_verra["ID"].astype(str)
+    df_verra.loc[:, "ID"] = df_verra["ID"].astype(str)
     df_verra = df_verra[merge_columns]
     df_verra = df_verra.drop_duplicates(subset=["ID"]).reset_index(drop=True)
     for i in drop_columns:
@@ -244,7 +244,7 @@ def verra_retired(df_verra, df_bridged_mco2):
 
 def mco2_verra_manipulations(df_mco2_bridged):
     df_mco2_bridged = df_mco2_bridged[df_mco2_bridged["Project ID"] != "missing"]
-    df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
+    df_mco2_bridged.loc[:, "Quantity"] = df_mco2_bridged["Quantity"].astype(int)
     pat = r"VCS-(?P<id>\d+)"
     repl = (
         lambda m: "[VCS-"
@@ -253,7 +253,7 @@ def mco2_verra_manipulations(df_mco2_bridged):
         + m.group("id")
         + ")"
     )
-    df_mco2_bridged["Project ID"] = (
+    df_mco2_bridged.loc[:, "Project ID"] = (
         df_mco2_bridged["Project ID"].astype(str).str.replace(pat, repl, regex=True)
     )
     return df_mco2_bridged
@@ -269,7 +269,7 @@ def filter_carbon_pool(pool_address, *dfs):
 
 def filter_pool_quantity(df, quantity_column):
     filtered = df[df[quantity_column] > 0]
-    filtered["Quantity"] = filtered[quantity_column]
+    filtered.loc[:, "Quantity"] = filtered[quantity_column]
     filtered = filtered[
         [
             "Project ID",
@@ -371,7 +371,7 @@ def adjust_mco2_bridges(df, df_tx):
 
 def group_data_monthly(i):
     i = i[["Date", "Quantity"]]
-    i["Date"] = pd.to_datetime(i["Date"]).dt.to_period("m")
+    i.loc[:, "Date"] = pd.to_datetime(i["Date"]).dt.to_period("m")
     i = i.groupby("Date")["Quantity"].sum().to_frame().reset_index()
     i = i.sort_values(by="Date", ascending=True)
     i["Quantity"] = i["Quantity"].cumsum()
@@ -411,12 +411,12 @@ def merge_retirements_data_for_retirement_chart(
     df_retired_eth = df_retired_eth[df_retired_eth["Quantity"] > 0]
     df_retired_moss = df_retired_moss[df_retired_moss["Quantity"] > 0]
 
-    df_retired_polygon["Quantity"] = df_retired_polygon["Quantity"].round(4)
-    df_klima_agg_retired["Quantity"] = df_klima_agg_retired["Quantity"].round(4)
-    df_retired_polygon["Key"] = (
+    df_retired_polygon.loc[:, "Quantity"] = df_retired_polygon["Quantity"].round(4)
+    df_klima_agg_retired.loc[:, "Quantity"] = df_klima_agg_retired["Quantity"].round(4)
+    df_retired_polygon.loc[:, "Key"] = (
         df_retired_polygon["Quantity"].astype(str) + "_" + df_retired_polygon["Tx ID"]
     )
-    df_klima_agg_retired["Key"] = (
+    df_klima_agg_retired.loc[:, "Key"] = (
         df_klima_agg_retired["Quantity"].astype(str)
         + "_"
         + df_klima_agg_retired["Tx ID"]
