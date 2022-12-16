@@ -9,6 +9,9 @@ from .constants import (
     NCT_ADDRESS,
     UBO_ADDRESS,
     NBO_ADDRESS,
+    KLIMA_USDC_ADDRESS,
+    USDC_DECIMALS,
+    KLIMA_DECIMALS,
 )
 
 
@@ -676,3 +679,22 @@ def human_format(num):
     return "{}{}".format(
         "{:f}".format(num).rstrip("0").rstrip("."), ["", "K", "M", "B", "T"][magnitude]
     )
+
+
+def uni_v2_pool_price(web3, pool_address, decimals, base_price=1):
+    """
+    Calculate the price of a SushiSwap liquidity pool, using the provided
+    pool address, decimals of the first token, and multiplied by
+    base_price if provided for computing multiple pool hops.
+    """
+    uni_v2_abi = load_abi("uni_v2_pool.json")
+    pool_contract = web3.eth.contract(address=pool_address, abi=uni_v2_abi)
+
+    reserves = pool_contract.functions.getReserves().call()
+    token_price = reserves[0] * base_price * 10**decimals / reserves[1]
+
+    return token_price
+
+
+def klima_usdc_price(web3):
+    return uni_v2_pool_price(web3, KLIMA_USDC_ADDRESS, USDC_DECIMALS - KLIMA_DECIMALS)

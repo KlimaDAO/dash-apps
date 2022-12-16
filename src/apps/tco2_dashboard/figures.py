@@ -762,16 +762,17 @@ def verra_project(df_verra, df_verra_toucan):
     return fig
 
 
-def historical_prices(tokens_dict, df_prices):
+def historical_prices(tokens_dict, df_prices, excluded_tokens):
     fig = go.Figure()
     for i in tokens_dict.keys():
-        col_name = f"{i}_Price"
-        filtered_df = df_prices[~df_prices[col_name].isna()]
-        fig.add_trace(
-            go.Scatter(
-                x=filtered_df["Date"], y=filtered_df[col_name], mode="lines", name=i
+        if i not in excluded_tokens:
+            col_name = f"{i}_Price"
+            filtered_df = df_prices[~df_prices[col_name].isna()]
+            fig.add_trace(
+                go.Scatter(
+                    x=filtered_df["Date"], y=filtered_df[col_name], mode="lines", name=i
+                )
             )
-        )
     fig.update_layout(
         height=360,
         font=dict(color="white"),

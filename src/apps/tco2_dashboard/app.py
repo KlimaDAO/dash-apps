@@ -66,6 +66,8 @@ from .helpers import (
     merge_retirements_data_for_retirement_chart,
     retirmentManualAdjustments,
     add_fee_redeem_factors_to_dict,
+    klima_usdc_price,
+    uni_v2_pool_price,
 )
 from .constants import (
     rename_map,
@@ -93,7 +95,14 @@ from .constants import (
     KLIMA_MCO2_ADDRESS,
     KLIMA_NBO_ADDRESS,
     KLIMA_UBO_ADDRESS,
+    KLIMA_DECIMALS,
+    UBO_DECIMALS,
+    NBO_DECIMALS,
+    BCT_DECIMALS,
+    NCT_DECIMALS,
+    MCO2_DECIMALS,
 )
+from pycoingecko import CoinGeckoAPI
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
@@ -621,6 +630,7 @@ tokens_dict = {
         "Token Address": BCT_ADDRESS,
         "Full Name": "Base Carbon Tonne",
         "Bridge": "Toucan",
+        "Decimals": BCT_DECIMALS,
     },
     "NCT": {
         "address": NCT_ADDRESS,
@@ -629,6 +639,7 @@ tokens_dict = {
         "Token Address": NCT_ADDRESS,
         "Full Name": "Nature Carbon Tonne",
         "Bridge": "Toucan",
+        "Decimals": NCT_DECIMALS,
     },
     "MCO2": {
         "address": MCO2_ADDRESS,
@@ -637,56 +648,102 @@ tokens_dict = {
         "Token Address": MCO2_ADDRESS,
         "Full Name": "Moss Carbon Credit",
         "Bridge": "Moss",
+        "Decimals": MCO2_DECIMALS,
     },
     "UBO": {
         "Pair Address": KLIMA_UBO_ADDRESS,
         "Token Address": UBO_ADDRESS,
         "Full Name": "Universal Basic Offset",
         "Bridge": "C3",
+        "Decimals": UBO_DECIMALS,
     },
     "NBO": {
         "Pair Address": KLIMA_NBO_ADDRESS,
         "Token Address": NBO_ADDRESS,
         "Full Name": "Nature Based Offset",
         "Bridge": "C3",
+        "Decimals": NBO_DECIMALS,
     },
 }
 
 
-@cache.memoize()
+# @cache.memoize()
 def get_prices():
-    sg = Subgrounds()
-    price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
     df_prices = pd.DataFrame()
-    for i in tokens_dict.keys():
-        swaps = price_sg.Query.swaps(
-            first=MAX_RECORDS,
-            orderBy=price_sg.Swap.timestamp,
-            orderDirection="desc",
-            where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
-        )
+    sg = Subgrounds()
+    current_price_only_token_list = []
+    try:
+        price_source = "Subgraph"
+        price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
+        for i in tokens_dict.keys():
+            swaps = price_sg.Query.swaps(
+                first=MAX_RECORDS,
+                orderBy=price_sg.Swap.timestamp,
+                orderDirection="desc",
+                where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
+            )
 
-        df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
-        rename_prices_map = {
-            "swaps_pair_id": f"{i}_Address",
-            "swaps_close": f"{i}_Price",
-            "swaps_timestamp": "Date",
-        }
-        df = df.rename(columns=rename_prices_map)
-        df["Date"] = (
-            pd.to_datetime(df["Date"], unit="s")
-            .dt.tz_localize("UTC")
-            .dt.floor("D")
-            .dt.date
-        )
-        df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
-        df = df[df[f"{i}_Price"] != 0]
-        if df_prices.empty:
-            df_prices = df
-        else:
-            df_prices = df_prices.merge(df, how="outer", on="Date")
-        df_prices = df_prices.sort_values(by="Date", ascending=False)
-    return df_prices
+            df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
+            rename_prices_map = {
+                "swaps_pair_id": f"{i}_Address",
+                "swaps_close": f"{i}_Price",
+                "swaps_timestamp": "Date",
+            }
+            df = df.rename(columns=rename_prices_map)
+            df["Date"] = (
+                pd.to_datetime(df["Date"], unit="s")
+                .dt.tz_localize("UTC")
+                .dt.floor("D")
+                .dt.date
+            )
+            df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
+            df = df[df[f"{i}_Price"] != 0]
+            if df_prices.empty:
+                df_prices = df
+            else:
+                df_prices = df_prices.merge(df, how="outer", on="Date")
+            df_prices = df_prices.sort_values(by="Date", ascending=False)
+    except Exception:
+        print("using coingecko")
+        price_source = "Coingecko"
+        cg = CoinGeckoAPI()
+        current_price_only_token_list = ["UBO", "NBO"]
+        for i in tokens_dict.keys():
+            if i not in current_price_only_token_list:
+                data = cg.get_coin_market_chart_from_contract_address_by_id(
+                    id=tokens_dict[i]["id"],
+                    vs_currency="usd",
+                    contract_address=tokens_dict[i]["Token Address"],
+                    days=PRICE_DAYS,
+                )
+                df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
+                df["Date"] = pd.to_datetime(df["Date"], unit="ms")
+                df["Date"] = df["Date"].dt.floor("D")
+                if df_prices.empty:
+                    df_prices = df
+                else:
+                    df_prices = df_prices.merge(df, how="outer", on="Date")
+                df_prices = df_prices.sort_values(by="Date", ascending=False)
+        for i in current_price_only_token_list:
+            if i == "UBO":
+                klima_price = klima_usdc_price(web3)
+                token_price = uni_v2_pool_price(
+                    web3,
+                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                    KLIMA_DECIMALS - tokens_dict[i]["Decimals"],
+                )
+                price = klima_price / token_price
+            elif i == "NBO":
+                klima_price = klima_usdc_price(web3)
+                token_price = uni_v2_pool_price(
+                    web3,
+                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                    KLIMA_DECIMALS,
+                )
+                price = token_price * klima_price
+
+            df_prices[f"{i}_Price"] = price
+    return df_prices, current_price_only_token_list, price_source
 
 
 @cache.memoize()
@@ -702,7 +759,7 @@ def generate_layout():
     ) = get_mco2_data()
     df_verra, verra_fallback_note = get_verra_data()
     df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
-    df_prices = get_prices()
+    df_prices, current_price_only_token_list, price_source = get_prices()
     df_holdings = get_holders_data()
     # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
@@ -837,9 +894,8 @@ def generate_layout():
     eth_carbon_metrics_df = get_eth_carbon_metrics()
     celo_carbon_metrics_df = get_celo_carbon_metrics()
     content_carbon_supply = create_carbon_supply_content(
-        polygon_carbon_metrics_df,
-        eth_carbon_metrics_df,
-        celo_carbon_metrics_df)
+        polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
+    )
 
     cache.set("content_carbon_supply", content_carbon_supply)
 
@@ -1459,9 +1515,11 @@ def generate_layout():
 
     # --- onchain carbon pool comparison ---
     add_fee_redeem_factors_to_dict(tokens_dict, web3)
-    fig_historical_prices = historical_prices(tokens_dict, df_prices)
+    fig_historical_prices = historical_prices(
+        tokens_dict, df_prices, current_price_only_token_list
+    )
     content_onchain_pool_comp = create_onchain_pool_comp_content(
-        tokens_dict, df_prices, fig_historical_prices
+        tokens_dict, df_prices, fig_historical_prices, price_source
     )
     cache.set("content_onchain_pool_comp", content_onchain_pool_comp)
 
