@@ -24,33 +24,33 @@ jobs:
           # exclude: "src/ignoreme.py"
           max-line-length: "120"
           path: "./"
-  # pytest:
-  #   runs-on: ubuntu-latest
-  #   needs: flake8-lint
-  #   name: Unit Tests
-  #   env:
-  #     POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
-  #     WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
-  #   steps:
-  #     - name: Check out source repository
-  #       uses: actions/checkout@v2
-  #     - name: Set up Python environment
-  #       uses: actions/setup-python@v1
-  #       with:
-  #         python-version: "3.10"
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         pip install -r requirements.txt
-  #     # - name: Run tests with pytest
-  #     #   run: pytest
-  #     - name: Run smoketest
-  #       run: bash scripts/smoketest.sh
+  pytest:
+    runs-on: ubuntu-latest
+    needs: flake8-lint
+    name: Unit Tests
+    env:
+      POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+      WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v2
+      - name: Set up Python environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      # - name: Run tests with pytest
+      #   run: pytest
+      - name: Run smoketest
+        run: bash scripts/smoketest.sh
   build-docker:
     name: Build Docker image
     environment: ${{ github.ref_name }}
     runs-on: ubuntu-latest
-    needs: flake8-lint # pytest
+    needs: pytest
     steps:
       - name: Check out source repository
         uses: actions/checkout@v2
