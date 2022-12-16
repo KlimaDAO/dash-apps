@@ -261,7 +261,7 @@ def mco2_verra_manipulations(df_mco2_bridged):
 def filter_carbon_pool(pool_address, *dfs):
     filtered = []
     for df in dfs:
-        filtered.concat(filter_df_by_pool(df, pool_address))
+        filtered.append(filter_df_by_pool(df, pool_address))
 
     return filtered
 

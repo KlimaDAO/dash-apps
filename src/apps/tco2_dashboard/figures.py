@@ -863,7 +863,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
         df = df[df["Vintage"] != "missing"]
         df = df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Bridged VCUs"
-        dfs.concat(df)
+        dfs.append(df)
         if df_verra_other_grouped.empty:
             df_verra_other_grouped = df_verra_grouped.merge(
                 df,
@@ -929,7 +929,7 @@ def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
         df = df[df["Vintage"] != "missing"]
         df = df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Retired VCUs"
-        dfs.concat(df)
+        dfs.append(df)
     df_verra_grouped["Type"] = "Off-Chain Retired VCUs"
 
     df_other_and_bridges = pd.concat(dfs + [df_verra_grouped]).reset_index()
@@ -1193,7 +1193,7 @@ def on_vs_off_project(df_verra, bridges_info_dict):
         df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Bridged VCUs"
         colors[f"{i} Bridged VCUs"] = "#00CC33"
-        dfs.concat(df)
+        dfs.append(df)
         if df_verra_other_grouped.empty:
             df_verra_other_grouped = df_verra_grouped.merge(
                 df,
@@ -1273,7 +1273,7 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
         df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Retired VCUs"
         colors[f"{i} Retired VCUs"] = "#00CC33"
-        dfs.concat(df)
+        dfs.append(df)
     df_verra_grouped["Type"] = "Off-Chain Retired VCUs"
     colors["Off-Chain Retired VCUs"] = "#536C9C"
     colors["(?)"] = "#6E6E6E"
