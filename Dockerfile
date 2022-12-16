@@ -63,3 +63,6 @@ COPY app-spec.yml app-spec.yml
 
 # Ensures that variables in app-spec.yml are replaced every time
 ENTRYPOINT make replace_variables
+
+# Command to manually execute the app:
+# docker run -p 0.0.0.0:8050
