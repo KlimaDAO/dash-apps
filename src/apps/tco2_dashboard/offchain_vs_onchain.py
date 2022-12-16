@@ -10,47 +10,54 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
         header = dbc.Row(
             dbc.Col(
                 dbc.Card([
-                    dbc.CardHeader(
-                        html.H1(["State of", 
-                        html.Span(
-                            html.A(
-                            "Tokenized Carbon", 
-                            href='https://docs.klimadao.finance/references/glossary#tokenized-carbon-asset',
-                            ),
-                            id="tooltip-target", 
-                            style={"textDecoration": "underline", "cursor": "pointer"})
+                    dbc.CardHeader([
+                        html.H1([
+                            "State of ", 
+                            str(),
+                            html.Span(
+                                html.A(
+                                "Tokenized Carbon", 
+                                href='https://docs.klimadao.finance/references/glossary#tokenized-carbon-asset',
+                                ),
+                                id="tooltip-target", 
+                                style={"cursor": "pointer"})
                         ]),
-                    dbc.Tooltip("\
-                                A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain. \
-                                ",
-                                target="tooltip-target",
-                                style={"text-align": "right"})),
+                        dbc.Tooltip("\
+                                    A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain. \
+                                    ",
+                                    target="tooltip-target",
+                                    style={"text-align": "right"})
+                    ]),
                     dbc.CardFooter(
                         verra_fallback_note,
                         id="fallback_indicator")
-                ]), width=12, style={'textAlign': 'center'}),
+                ]), width=12, style={'textAlign': 'center'}
+            ),
         )
     else:
         header = dbc.Row(
-            dbc.Col(
+            dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(
+                    dbc.CardHeader([
                         html.H1([
-                            "State of", 
+                            "State of ",
+                            str(),
                             html.Span(
                                 html.A(
                                     "Tokenized Carbon", 
                                     href='https://docs.klimadao.finance/references/glossary#tokenized-carbon-asset',
                                 ),
                                 id="tooltip-target", 
-                                style={"textDecoration": "underline", "cursor": "pointer"})
-                            ]),
-                            dbc.Tooltip("A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain.", 
-                                target="tooltip-target",
-                                style={"text-align": "right"}
-                            ), width=12, style={'textAlign': 'center'}),
-                ]),
-            ),
+                                style={"cursor": "pointer"} # "textDecoration": "underline", 
+                            )
+                        ]),
+                        dbc.Tooltip("A Tokenized Carbon Asset (TCA) refers to a carbon asset (e.g. voluntary carbon offset) brought onto the blockchain.", 
+                            target="tooltip-target",
+                            style={"text-align": "right"}
+                        ), 
+                    ]),
+               ]), 
+            ], width=12, style={'textAlign': 'center'}),
         )
 
     sum_total_tokenized = sum(d['Dataframe']['Quantity'].sum()

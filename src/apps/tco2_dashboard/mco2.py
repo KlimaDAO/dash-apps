@@ -91,29 +91,34 @@ def create_content_moss(
                 dbc.Col(
                     dbc.Card(
                         [
-                            dbc.CardBody(html.H2(['Deep Dive into Bridged',                            
-                            html.Span(
-                                html.A(
-                                "MCO2", 
-                                href='https://docs.klimadao.finance/references/glossary#mco2',
+                            dbc.CardBody([
+                                html.H2([
+                                    "Deep Dive into Bridged".ljust(1), 
+                                    str(),
+                                    html.Span(
+                                        html.A(
+                                        children=" MCO2", 
+                                        href='https://docs.klimadao.finance/references/glossary#mco2',
+                                        ),
+                                        id="tooltip-target", 
+                                        style={"cursor": "pointer"} # "textDecoration": "underline", 
+                                    ),
+                                ]),
+                                dbc.Tooltip(
+                                    "\
+                                    Moss Carbon Credit (MCO2) is a relatively homogenenous, centrally managed pool of tokenized Verra VCUs. \
+                                    Moss created it in August 2020, by curating REDD+ projects in the Amazon Rainforest (one in Peru, five in Brazil).\
+                                    ",
+                                    target="tooltip-target",
+                                    style={"text-align": "right"},
                                 ),
-                                id="tooltip-target", 
-                                style={"textDecoration": "underline", "cursor": "pointer"}
-                            ),]),
-
-                            dbc.Tooltip(
-                                "\
-                                Moss Carbon Credit (MCO2) is a relatively homogenenous, centrally managed pool of tokenized Verra VCUs. \
-                                Moss created it in August 2020, by curating REDD+ projects in the Amazon Rainforest (one in Peru, five in Brazil).\
-                                ",
-                                target="tooltip-target",
-                                style={"text-align": "right"},),
-
-                            style={'textAlign': 'center'},)
+                                # style={'textAlign': 'center'},
+                            ]),
                         ]
                     ),
                     lg=6,
                     md=12,
+                    style={'textAlign': 'center'}, #Moved this argument here
                 ),
                 dbc.Col(),
             ],

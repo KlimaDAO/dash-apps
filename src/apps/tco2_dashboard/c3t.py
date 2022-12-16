@@ -9,24 +9,27 @@ def create_content_c3t(df, df_retired, fig_pool_pie_chart):
         dbc.Row(
             dbc.Col(
                 dbc.Card([
-                    dbc.CardHeader(
-                        html.H1(["State of", 
-                        html.Span(
-                            html.A(
-                                "C3 Tokenized Carbon", 
-                                href='https://docs.klimadao.finance/references/glossary#c3-token',
-                            ), 
-                            id="tooltip-target", 
-                            style={"textDecoration": "underline", "cursor": "pointer"}
-                        )], className='page-title'),
+                    dbc.CardHeader([
+                        html.H1([
+                            "State of ", 
+                            str(),
+                            "  ",
+                            html.Span(
+                                html.A(
+                                    "C3 Tokenized Carbon", 
+                                    href='https://docs.klimadao.finance/references/glossary#c3-token',
+                                ), 
+                                id="tooltip-target", 
+                                style={"cursor": "pointer"} # "textDecoration": "underline", 
+                            )
+                        ], className='page-title'),
 
-                        dbc.Tooltip("A utility token for the C3 carbon bridge. \
-                            It is distributed as a reward to users of the protocol that stake, bridge or provide liquidity.",
+                        dbc.Tooltip("A utility token for the C3 carbon bridge. It is distributed as a reward to users of the protocol that stake, bridge or provide liquidity.",
                             target="tooltip-target",
                             style={"text-align": "right"},),
-
-                    )
-                ]), width=12, style={'textAlign': 'center'})
+                    ])
+                ]), width=12, style={'textAlign': 'center'}
+            )
         ),
 
         dbc.Row([
@@ -77,21 +80,23 @@ def create_content_c3t(df, df_retired, fig_pool_pie_chart):
             dbc.Col(),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(
-                        html.H2(["Deep Dive into",
+                    dbc.CardHeader([
+                        html.H2([
+                            "Deep Dive into ",
+                            str(),
                             html.Span(
                                       html.A(
                                         "C3T", 
                                         href='https://docs.klimadao.finance/references/glossary#c3t',
                                       ),
-                                      id="tooltip-target", 
-                                      style={"textDecoration": "underline", "cursor": "pointer"}
+                                      id="tooltip-target1", 
+                                      style={"cursor": "pointer"} # "textDecoration": "underline", 
                                 )
-                            ]),
+                            ], style={'textAlign': 'center'}),
                         dbc.Tooltip("C3 Tonne (C3T) is the general term for fungible tokenized carbon offsets bridged via C3.",
-                                  target="tooltip-target",
+                                  target="tooltip-target1",
                                   style={"text-align": "right"},),
-                    ),
+                    ]),
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col([
