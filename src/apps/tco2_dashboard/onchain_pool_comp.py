@@ -3,9 +3,14 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 
 
-def create_onchain_pool_comp_content(tokens_dict, df_prices, fig_historical_prices):
-
+def create_onchain_pool_comp_content(
+    tokens_dict, df_prices, fig_historical_prices, price_source
+):
     historical_price_note = "Note: The chart shows MCO2 prices based on the KLIMA/MCO2 pool since it launched."
+    if price_source == "Subgraph":
+        footer_style = {"paddingTop": "10px"}
+    else:
+        footer_style = {"display": "none"}
     pool_cards = []
     for i in tokens_dict.keys():
         filtered_df = df_prices[~df_prices[f"{i}_Price"].isna()]
@@ -131,7 +136,7 @@ def create_onchain_pool_comp_content(tokens_dict, df_prices, fig_historical_pric
                                 dbc.CardFooter(
                                     historical_price_note,
                                     className="card-footer",
-                                    style={"paddingTop": "10px"},
+                                    style=footer_style,
                                 ),
                             ]
                         )

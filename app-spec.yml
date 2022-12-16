@@ -38,5 +38,5 @@ services:
     instance_count: 1
     instance_size_slug: basic-s
     name: carbon-dashboard
-    run_command: gunicorn --worker-tmp-dir /dev/shm --timeout 180 src.apps.tco2_dashboard.app:server
+    run_command: gunicorn --worker-tmp-dir /dev/shm --timeout 600 src.apps.tco2_dashboard.app:server
     source_dir: /
