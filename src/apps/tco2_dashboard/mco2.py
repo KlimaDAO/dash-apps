@@ -27,7 +27,7 @@ def create_content_moss(
                     [
                         dbc.CardHeader(
                             html.H1(
-                                "State of Moss Tokenized Carbon", className="page-title"
+                                "State of Moss Digital Carbon", className="page-title"
                             )
                         )
                     ]

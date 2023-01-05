@@ -157,7 +157,7 @@ external_scripts = (
 
 app = dash.Dash(
     __name__,
-    title="KlimaDAO Tokenized Carbon Dashboard | Beta",
+    title="KlimaDAO Digital Carbon Dashboard",
     suppress_callback_exceptions=True,
     external_stylesheets=[
         dbc.themes.BOOTSTRAP,
@@ -172,7 +172,7 @@ app = dash.Dash(
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},
         {"property": "og:type", "content": "website"},
         {"property": "og:site_name", "content": "KlimaDAO Carbon Dashboards"},
-        {"property": "og:title", "content": "State of Tokenized Carbon"},
+        {"property": "og:title", "content": "State of Digital Carbon"},
         {
             "property": "og:description",
             "content": """
@@ -1605,7 +1605,7 @@ def generate_layout():
                                 html.Span("token", className="material-icons"),
                                 className="icon-container",
                             ),
-                            html.Span("Tokenized Carbon", className="icon-title"),
+                            html.Span("Digital Carbon", className="icon-title"),
                         ],
                         href="/",
                         active="exact",
@@ -1787,7 +1787,7 @@ def generate_layout():
                                         className="icon-container",
                                     ),
                                     html.Span(
-                                        "Tokenized Carbon",
+                                        "Digital Carbon",
                                         className="icon-title",
                                     ),
                                 ],

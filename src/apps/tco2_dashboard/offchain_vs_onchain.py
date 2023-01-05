@@ -11,7 +11,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Tokenized Carbon")),
+                        html.H1("State of Digital Carbon")),
                     dbc.CardFooter(
                         verra_fallback_note,
                         id="fallback_indicator")
@@ -22,7 +22,7 @@ def create_offchain_vs_onchain_content(bridges_info_dict, retires_info_dict, df_
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Tokenized Carbon")),
+                        html.H1("State of Digital Carbon")),
                 ]), width=12, style={'textAlign': 'center'}),
         )
 
