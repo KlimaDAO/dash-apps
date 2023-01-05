@@ -106,7 +106,7 @@ def create_homepage_content(
                                 ),
                                 html.P(
                                     [
-                                        "The State of the Tokenized",
+                                        "The State of the Digital",
                                         html.Br(),
                                         "Carbon Market",
                                     ],
@@ -116,7 +116,7 @@ def create_homepage_content(
                                     [
                                         "Carbon credits are moving on-chain,",
                                         html.Br(),
-                                        "follow its progress",
+                                        "follow the industry's progress",
                                     ],
                                     className="overlay-image-subtitle",
                                 ),

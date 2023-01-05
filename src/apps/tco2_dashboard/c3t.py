@@ -10,7 +10,7 @@ def create_content_c3t(df, df_retired, fig_pool_pie_chart):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of C3 Tokenized Carbon", className='page-title'))
+                        html.H1("State of C3 Digital Carbon", className='page-title'))
                 ]), width=12, style={'textAlign': 'center'})
         ),
 

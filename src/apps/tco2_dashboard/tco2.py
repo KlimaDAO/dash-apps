@@ -10,7 +10,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(
-                        html.H1("State of Toucan Tokenized Carbon", className='page-title'))
+                        html.H1("State of Toucan Digital Carbon", className='page-title'))
                 ]), width=12, style={'textAlign': 'center'})
         ),
 
