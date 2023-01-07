@@ -13,6 +13,7 @@ body {
     font-family: var(--font-fam);
     scrollbar-color: var(--dark-gray);
     scrollbar-width: 0.6rem;
+    margin: 0px;
 }
 
 h1 {
@@ -50,11 +51,13 @@ a {
 }
 
 .card-body{
+  padding-top: 0px;
   padding-bottom: 0px;
 }
 
 .card-header {
   border-bottom: 0px;
+  padding: 0px;
 }
 
 .card {
@@ -64,9 +67,60 @@ a {
   border-radius: 15px;
   color: var(--white);
   padding: 20px;
-  margin: 10px 10px 10px 10px;
+  margin: 20px;
   padding-top: 20px;
   border: 0px;
+}
+
+.card h1{
+  margin: 0px;
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: var(--font-fam-Poppins);
+  line-height: 3rem;
+  background-color: var(--dark-gray);
+}
+
+.card h2{
+  margin: 0px;
+  font-weight: 700;
+  font-family: var(--font-fam-Poppins);
+  background-color: var(--dark-gray);
+  text-align: center;
+}
+
+.card-title{
+  padding-top: 0px;
+  padding-bottom: 12px;
+  font-family: var(--font-fam-Poppins);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  text-align: center;
+  justify-content: center;
+  margin: 0px;
+  background-color: var(--dark-gray);
+}
+
+.card-text, .card-text-continuation, .card-title-price{
+  padding-top: 0px;
+  padding-bottom: 0px;
+  font-family: var(--font-fam-Inter);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.card-text-continuation{
+  padding-bottom: 20px;
+}
+
+.card-title-price{
+  padding-bottom: 12px;
+  margin: 0px;
 }
 
 .pool_card{
@@ -87,10 +141,6 @@ a {
   height: 200px;
 }
 
-.card-title{
-  font-size: 16px;
-}
-
 .card-title-carbon-supply{
   padding-top: 20px;
   padding-bottom: 12px;
@@ -99,12 +149,6 @@ a {
   font-weight: 700;
   font-size: 20px;
   line-height: 28px;
-  text-align: center;
-  justify-content: center;
-}
-
-.card-text{
-  font-size: 20px;
   text-align: center;
   justify-content: center;
 }
@@ -568,6 +612,31 @@ br {
   margin-right: 1rem;
 }
 
+.footer {
+  left: 0;
+  bottom: 0;
+  max-width: 100%;
+  padding-left: 21rem;
+  padding-right: 1rem;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  background-color: var(--dark-gray);
+  color: white;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-fam-Inter);
+  line-height: 20px;
+}
+
+.footer p{
+  padding: 0px;
+}
+
+.footer span{
+  color: #00CC33;
+}
+
 /* dropdown menu options */
 .VirtualizedSelectOption {
 background-color: black;
@@ -653,6 +722,7 @@ p {
   height: 20px;
   width: 20px;
   display: flex;
+  padding-bottom: 12px;
 }
 
 .tooltip{
@@ -831,6 +901,12 @@ border-radius: 6px;
     margin-left: 0rem;
     margin-right: 0rem;
   }
+
+  .footer {
+    padding-left: 0rem;
+    padding-right: 0rem;
+  }
+
   .sidebar{
     display: none;
   }

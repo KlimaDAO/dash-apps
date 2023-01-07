@@ -1,7 +1,7 @@
 from dash import html, dash_table
 from dash import dcc
 import dash_bootstrap_components as dbc
-from .constants import GRAY, DARK_GRAY
+from .constants import GRAY, DARK_GRAY, BETWEEN_SECTION_STYLE
 
 
 def create_content_moss(
@@ -83,7 +83,7 @@ def create_content_moss(
                     md=12,
                 ),
             ],
-            style={"paddingTop": "60px"},
+            style=BETWEEN_SECTION_STYLE,
         ),
         dbc.Row(
             [
@@ -102,7 +102,7 @@ def create_content_moss(
                 ),
                 dbc.Col(),
             ],
-            style={"paddingTop": "60px"},
+            style=BETWEEN_SECTION_STYLE,
         ),
         dbc.Row(
             [

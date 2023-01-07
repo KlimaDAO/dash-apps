@@ -29,6 +29,8 @@ UBO_DECIMALS = 18
 NCT_DECIMALS = 18
 USDC_DECIMALS = 12
 
+BETWEEN_SECTION_STYLE = {"padding-top": "20px"}
+
 rename_map = {
     "carbonOffsets_bridges_value": "Quantity",
     "carbonOffsets_bridges_timestamp": "Date",
