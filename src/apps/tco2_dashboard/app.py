@@ -2414,46 +2414,49 @@ function copyToClipboard(n_clicks) {
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
+    # For case-insensitive routing
+    # NOTE: all `/` paths MUST be lowercase!
+    pathname = pathname.lower()
     if pathname == "/":
         content_homepage = cache.get("content_homepage")
         return content_homepage
-    elif pathname == "/Carbonmarket":
+    elif pathname == "/carbonmarket":
         content_offchain_vs_onchain = cache.get("content_offchain_vs_onchain")
         return content_offchain_vs_onchain
 
-    elif pathname == "/CarbonPricing":
+    elif pathname == "/carbonpricing":
         content_onchain_pool_comp = cache.get("content_onchain_pool_comp")
         return content_onchain_pool_comp
 
-    elif pathname == "/CarbonSupply":
+    elif pathname == "/carbonsupply":
         content_carbon_supply = cache.get("content_carbon_supply")
         return content_carbon_supply
 
-    elif pathname == "/TCO2":
+    elif pathname == "/tco2":
         content_tco2 = cache.get("content_tco2")
         return content_tco2
 
-    elif pathname == "/BCT":
+    elif pathname == "/bct":
         content_bct = cache.get("content_bct")
         return content_bct
 
-    elif pathname == "/NCT":
+    elif pathname == "/nct":
         content_nct = cache.get("content_nct")
         return content_nct
 
-    elif pathname == "/MCO2":
+    elif pathname == "/mco2":
         content_mco2 = cache.get("content_mco2")
         return content_mco2
 
-    elif pathname == "/C3T":
+    elif pathname == "/c3t":
         content_c3t = cache.get("content_c3t")
         return content_c3t
 
-    elif pathname == "/UBO":
+    elif pathname == "/ubo":
         content_ubo = cache.get("content_ubo")
         return content_ubo
 
-    elif pathname == "/NBO":
+    elif pathname == "/nbo":
         content_nbo = cache.get("content_nbo")
         return content_nbo
 
