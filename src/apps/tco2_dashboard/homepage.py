@@ -262,7 +262,7 @@ def create_homepage_content(
                                     html.Strong(highest_holdings_name),
                                     " is holding ",
                                     html.Strong(highest_holdings),
-                                    " carbon assets, making them the largest single holder of tokenized carbon assets.",
+                                    " carbon assets, making them the largest single holder of digital carbon assets.",
                                 ],
                                 className="summary-card-text",
                             ),
@@ -337,7 +337,7 @@ def create_homepage_content(
                                     html.Strong(highest_retirements_name),
                                     " has retired ",
                                     html.Strong(highest_retirements),
-                                    " tokenized carbon credits, making them the current leader in tokenized carbon"
+                                    " digital carbon credits, making them the current leader in digital carbon"
                                     " retirements.",
                                 ],
                                 className="summary-card-text",

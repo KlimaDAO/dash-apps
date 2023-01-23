@@ -138,7 +138,7 @@ def create_onchain_pool_comp_content(
                 dbc.Card(
                     [
                         dbc.CardHeader(
-                            html.H1("Carbon Prices", className="page-title")
+                            html.H1("Digital Carbon Pricing", className="page-title")
                         ),
                     ]
                 ),
