@@ -106,7 +106,7 @@ a {
 .card-text, .card-text-continuation, .card-title-price{
   padding-top: 0px;
   padding-bottom: 0px;
-  font-family: var(--font-fam-Inter);
+  font-family: var(--font-fam);
   font-style: normal;
   font-weight: 400;
   font-size: 20px;
@@ -156,7 +156,7 @@ a {
 .card-text-carbon-supply{
   padding-top: 0px;
   padding-bottom: 20px;
-  font-family: var(--font-fam-Inter);
+  font-family: var(--font-fam);
   font-style: normal;
   font-weight: 400;
   font-size: 20px;
@@ -262,6 +262,15 @@ box-shadow: none;
 color: white;
 }
 
+.Select-control{
+  background-color: black !important;
+}
+
+.Select.is-focused:not(.is-open) > .Select-control{
+  background-color: black !important;
+  border-color: gray;
+}
+
 .nav-pills a{
   font-size: 1rem;
   line-height: 1.4rem;
@@ -274,7 +283,7 @@ color: white;
   gap: 12px;
   padding: 0.4rem;
   border-radius: 0.8rem;
-  width: 100%;
+  max-width: 100%;
 }
 
 .nav-pills .nav-link {
@@ -498,9 +507,13 @@ br {
 .summary-card-text, .upnext-card-text{
   font-size: 36px;
   line-height: 48px;
-  font-family: var(--font-fam-Poppins);
+  font-family: var(--font-fam);
   font-weight: 300;
   font-style: normal;
+}
+
+.summary-card-text strong{
+  font-weight: 500;
 }
 
 .upnext-card-text{
@@ -555,11 +568,11 @@ br {
   align-items: center;
   justify-content: center;
   margin-top: 0rem;
-  height: 38px;
-  width: 38px;
+  min-height: 38px !important;
+  min-width: 38px !important;
   display: flex;
   border-radius: 0.4rem;
-  background-color: #262626;;
+  background-color: #262626;
 }
 
 .collapse offcanvas offcanvas-start show{
@@ -625,7 +638,7 @@ br {
   text-align: center;
   font-size: 16px;
   font-weight: 500;
-  font-family: var(--font-fam-Inter);
+  font-family: var(--font-fam);
   line-height: 20px;
 }
 

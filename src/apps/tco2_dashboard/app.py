@@ -1645,7 +1645,7 @@ def generate_layout():
                                 ),
                                 className="icon-container",
                             ),
-                            html.Span("Carbon Supply"),
+                            html.Span("Blockchain Carbon Supply"),
                         ],
                         href="/CarbonSupply",
                         active="exact",

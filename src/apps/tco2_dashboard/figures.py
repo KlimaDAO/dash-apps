@@ -5,7 +5,12 @@ import pycountry
 from collections import defaultdict
 from .helpers import add_px_figure, human_format
 from plotly.subplots import make_subplots
-from .constants import FIGURE_BG_COLOR
+from .constants import (
+    FIGURE_BG_COLOR,
+    GRAPH_FONT,
+    TREEMAP_FONT,
+    PIE_CHART_FONT,
+)
 import pandas as pd
 import circlify
 import matplotlib
@@ -71,7 +76,7 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
             plot_bgcolor=FIGURE_BG_COLOR,
             xaxis=dict(title_text="Date", showgrid=False),
             yaxis=dict(title_text="Volume", showgrid=False),
-            font_size=12,
+            font=GRAPH_FONT,
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
         )
@@ -146,7 +151,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
             plot_bgcolor=FIGURE_BG_COLOR,
             xaxis=dict(title_text="Vintage", showgrid=False),
             yaxis=dict(title_text="Volume", showgrid=False),
-            font_size=12,
+            font=GRAPH_FONT,
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
         )
@@ -211,7 +216,7 @@ def map(df, zero_evt_text):
             paper_bgcolor=FIGURE_BG_COLOR,
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=8,
+            font=GRAPH_FONT,
             margin=dict(t=50, b=0, l=0, r=0),
             coloraxis_colorbar=dict(thickness=10, len=0.6),
         )
@@ -272,7 +277,7 @@ def total_volume(df, title, zero_evt_text):
             yaxis=dict(title_text="Volume", showgrid=False),
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=12,
+            font=GRAPH_FONT,
         )
     else:
         fig = go.Figure()
@@ -331,7 +336,7 @@ def total_vintage(df, zero_evt_text):
             yaxis=dict(title_text="Volume", showgrid=False),
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=12,
+            font=GRAPH_FONT,
         )
     else:
         fig = go.Figure()
@@ -367,7 +372,7 @@ def methodology_volume(df, zero_evt_text):
             font_color="white",
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=8,
+            font=GRAPH_FONT,
             margin=dict(t=50, b=0, l=0, r=0),
         )
     else:
@@ -413,9 +418,8 @@ def project_volume(df, zero_evt_text):
         fig.update_layout(
             paper_bgcolor=FIGURE_BG_COLOR,
             plot_bgcolor=FIGURE_BG_COLOR,
-            font=dict(color="white"),
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=12,
+            font=TREEMAP_FONT,
             margin=dict(t=50, b=20, l=0, r=0),
         )
     else:
@@ -461,9 +465,8 @@ def project_volume_mco2(df, zero_evt_text):
         fig.update_layout(
             paper_bgcolor=FIGURE_BG_COLOR,
             plot_bgcolor=FIGURE_BG_COLOR,
-            font=dict(color="white"),
             hoverlabel=dict(font_color="white", font_size=8),
-            font_size=12,
+            font=TREEMAP_FONT,
             margin=dict(t=20, b=20, l=0, r=0),
         )
     else:
@@ -501,9 +504,9 @@ def pool_pie_chart(df, labels):
         height=360,
         paper_bgcolor=FIGURE_BG_COLOR,
         font_color="white",
-        font_size=8,
+        font=PIE_CHART_FONT,
         margin=dict(t=50, b=0, l=0, r=0),
-        legend=dict(x=1, font=dict(size=8)),
+        legend=dict(x=1, font=dict(size=10)),
     )
     fig.update_traces(textposition="inside")
 
@@ -528,7 +531,7 @@ def bridges_pie_chart(bridges_info_dict):
         height=360,
         paper_bgcolor=FIGURE_BG_COLOR,
         font_color="white",
-        font_size=8,
+        font=PIE_CHART_FONT,
         margin=dict(t=50, b=0, l=0, r=0),
         legend=dict(x=1, font=dict(size=12)),
     )
@@ -563,7 +566,7 @@ def eligible_pool_pie_chart(df, pool_key):
         height=300,
         paper_bgcolor=FIGURE_BG_COLOR,
         font_color="white",
-        font_size=12,
+        font=PIE_CHART_FONT,
         margin=dict(t=0, b=0, l=0, r=0),
     )
     return fig_eligible
@@ -612,7 +615,7 @@ def verra_vintage(df_verra, df_verra_toucan):
         font_color="white",
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=12,
+        font=GRAPH_FONT,
         legend=dict(
             title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
         ),
@@ -693,7 +696,7 @@ def verra_map(df_verra, df_verra_toucan):
         paper_bgcolor=FIGURE_BG_COLOR,
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=8,
+        font=GRAPH_FONT,
         margin=dict(t=50, b=0, l=0, r=0),
         coloraxis_colorbar=dict(thickness=10, len=0.6),
     )
@@ -753,9 +756,8 @@ def verra_project(df_verra, df_verra_toucan):
     fig.update_layout(
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
-        font=dict(color="white"),
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=12,
+        font=TREEMAP_FONT,
         margin=dict(t=20, b=20, l=0, r=0),
     )
 
@@ -775,7 +777,6 @@ def historical_prices(tokens_dict, df_prices, excluded_tokens):
             )
     fig.update_layout(
         height=360,
-        font=dict(color="white"),
         xaxis_title="Date",
         yaxis_title="Price",
         paper_bgcolor=FIGURE_BG_COLOR,
@@ -785,6 +786,7 @@ def historical_prices(tokens_dict, df_prices, excluded_tokens):
         margin=dict(t=50, b=20, l=0, r=0),
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
     )
     return fig
 
@@ -818,7 +820,7 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
         yaxis=dict(showgrid=False),
         margin=dict(t=20, b=20, l=0, r=0),
         hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
+        hoverlabel=dict(font_color="white", font_size=8, font=GRAPH_FONT),
     )
     return fig
 
@@ -837,7 +839,6 @@ def tokenized_volume(bridges_info_dict):
         )
         fig.update_layout(
             height=300,
-            font=dict(color="white"),
             xaxis_title="Date",
             yaxis_title="Quantity",
             paper_bgcolor=FIGURE_BG_COLOR,
@@ -847,6 +848,7 @@ def tokenized_volume(bridges_info_dict):
             margin=dict(t=20, b=20, l=0, r=0),
             hovermode="x unified",
             hoverlabel=dict(font_color="white", font_size=8),
+            font=GRAPH_FONT,
         )
     return fig
 
@@ -905,10 +907,9 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
         plot_bgcolor=FIGURE_BG_COLOR,
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=False),
-        font_color="white",
+        font=GRAPH_FONT,
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=8,
         legend=dict(
             title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
         ),
@@ -948,10 +949,9 @@ def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
         plot_bgcolor=FIGURE_BG_COLOR,
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=False),
-        font_color="white",
+        font=GRAPH_FONT,
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=8,
         legend=dict(
             title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
         ),
@@ -1051,12 +1051,11 @@ def on_vs_off_map(df_verra, bridges_info_dict):
             landcolor="darkgrey",
             subunitcolor="grey",
         ),
-        font_color="white",
         dragmode=False,
         paper_bgcolor=FIGURE_BG_COLOR,
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=8,
+        font=GRAPH_FONT,
         margin=dict(t=20, b=20, l=0, r=0),
         legend=dict(
             font=dict(size=8),
@@ -1162,12 +1161,11 @@ def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
             landcolor="darkgrey",
             subunitcolor="grey",
         ),
-        font_color="white",
         dragmode=False,
         paper_bgcolor=FIGURE_BG_COLOR,
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=8,
+        font=GRAPH_FONT,
         margin=dict(t=20, b=20, l=0, r=0),
         legend=dict(
             font=dict(size=8),
@@ -1248,9 +1246,8 @@ def on_vs_off_project(df_verra, bridges_info_dict):
     fig.update_layout(
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
-        font=dict(color="white"),
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=12,
+        font=TREEMAP_FONT,
         margin=dict(t=20, b=20, l=0, r=0),
     )
 
@@ -1305,9 +1302,8 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
     fig.update_layout(
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
-        font=dict(color="white"),
         hoverlabel=dict(font_color="white", font_size=8),
-        font_size=12,
+        font=TREEMAP_FONT,
         margin=dict(t=20, b=20, l=0, r=0),
     )
 
@@ -1623,7 +1619,7 @@ def get_supply_breakdown_figure(allowed_tokens, df):
 
     fig.update_layout(
         height=300,
-        font=dict(color="white"),
+        font=GRAPH_FONT,
         xaxis_title="Date",
         yaxis_title="Supply",
         paper_bgcolor=FIGURE_BG_COLOR,
@@ -1663,7 +1659,7 @@ def get_polygon_retirement_breakdown_figure(df):
 
     fig.update_layout(
         height=300,
-        font=dict(color="white"),
+        font=GRAPH_FONT,
         xaxis_title="Date",
         yaxis_title="Total Retirements",
         paper_bgcolor=FIGURE_BG_COLOR,
@@ -1693,7 +1689,7 @@ def get_eth_retirement_breakdown_figure(df):
 
     fig.update_layout(
         height=300,
-        font=dict(color="white"),
+        font=GRAPH_FONT,
         xaxis_title="Date",
         yaxis_title="Total Retirements",
         paper_bgcolor=FIGURE_BG_COLOR,
