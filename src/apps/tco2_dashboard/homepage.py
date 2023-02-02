@@ -1,7 +1,7 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
-from datetime import date, datetime
+from datetime import date
 from .helpers import human_format
 
 
@@ -71,6 +71,7 @@ def getSocialShareFeature(clipboardId):
 
 
 def create_homepage_content(
+    curr_time_str,
     df_retired,
     df_offchain,
     df_offchain_retired,
@@ -82,7 +83,6 @@ def create_homepage_content(
     fig_retirements,
     fig_holders,
 ):
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     header_card = dbc.Card(
         [
             dbc.CardImg(
@@ -262,7 +262,7 @@ def create_homepage_content(
                                     html.Strong(highest_holdings_name),
                                     " is holding ",
                                     html.Strong(highest_holdings),
-                                    " carbon assets, making them the largest single holder of tokenized carbon assets.",
+                                    " carbon assets, making them the largest single holder of digital carbon assets.",
                                 ],
                                 className="summary-card-text",
                             ),
@@ -337,7 +337,7 @@ def create_homepage_content(
                                     html.Strong(highest_retirements_name),
                                     " has retired ",
                                     html.Strong(highest_retirements),
-                                    " tokenized carbon credits, making them the current leader in tokenized carbon"
+                                    " digital carbon credits, making them the current leader in digital carbon"
                                     " retirements.",
                                 ],
                                 className="summary-card-text",

@@ -748,6 +748,7 @@ def get_prices():
 
 @cache.memoize()
 def generate_layout():
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
     df_pool_retired = get_data_pool_retired()
@@ -1547,6 +1548,7 @@ def generate_layout():
         holders_data, holders_style_dict
     )
     content_homepage = create_homepage_content(
+        curr_time_str,
         df_retired,
         df_offchain,
         df_offchain_retired,
@@ -1605,7 +1607,7 @@ def generate_layout():
                                 html.Span("token", className="material-icons"),
                                 className="icon-container",
                             ),
-                            html.Span("Digital Carbon", className="icon-title"),
+                            html.Span("Digital Carbon Overview"),
                         ],
                         href="/",
                         active="exact",
@@ -1618,7 +1620,6 @@ def generate_layout():
                             ),
                             html.Span(
                                 "Off vs On-Chain Carbon",
-                                className="icon-title",
                             ),
                         ],
                         href="/Carbonmarket",
@@ -1630,7 +1631,7 @@ def generate_layout():
                                 html.Span("balance", className="material-icons"),
                                 className="icon-container",
                             ),
-                            html.Span("Carbon Pricing", className="icon-title"),
+                            html.Span("Digital Carbon Pricing"),
                         ],
                         href="/CarbonPricing",
                         active="exact",
@@ -1644,7 +1645,7 @@ def generate_layout():
                                 ),
                                 className="icon-container",
                             ),
-                            html.Span("Carbon Supply"),
+                            html.Span("Digital Carbon Supply"),
                         ],
                         href="/CarbonSupply",
                         active="exact",
@@ -1787,8 +1788,7 @@ def generate_layout():
                                         className="icon-container",
                                     ),
                                     html.Span(
-                                        "Digital Carbon",
-                                        className="icon-title",
+                                        "Digital Carbon Overview",
                                     ),
                                 ],
                                 href="/",
@@ -1804,7 +1804,6 @@ def generate_layout():
                                     ),
                                     html.Span(
                                         "Off vs On-Chain Carbon",
-                                        className="icon-title",
                                     ),
                                 ],
                                 href="/Carbonmarket",
@@ -1820,7 +1819,7 @@ def generate_layout():
                                         ),
                                         className="icon-container",
                                     ),
-                                    html.Span("Carbon Pricing", className="icon-title"),
+                                    html.Span("Digital Carbon Pricing"),
                                 ],
                                 href="/CarbonPricing",
                                 active="exact",
@@ -1836,8 +1835,7 @@ def generate_layout():
                                         className="icon-container",
                                     ),
                                     html.Span(
-                                        "Blockchain Carbon Supply",
-                                        className="icon-title",
+                                        "Digital Carbon Supply",
                                     ),
                                 ],
                                 href="/CarbonSupply",
@@ -2053,7 +2051,11 @@ def generate_layout():
         id="static-content",
     )
 
-    layout = html.Div([dcc.Location(id="url"), sidebar, content])
+    footer = html.Div(
+        html.P(["last updated ", html.Span(curr_time_str)]), className="footer"
+    )
+
+    layout = html.Div([dcc.Location(id="url"), sidebar, content, footer])
     return layout
 
 
@@ -2465,6 +2467,7 @@ def render_page_content(pathname):
         Input("button-homepage", "n_clicks"),
         Input("button-off_vs_on_chain", "n_clicks"),
         Input("button-onchain_pool_comp", "n_clicks"),
+        Input("button-onchain_carbon_supply", "n_clicks"),
         Input("button-tco2", "n_clicks"),
         Input("button-bct", "n_clicks"),
         Input("button-nct", "n_clicks"),
@@ -2480,6 +2483,7 @@ def toggle_collapse(
     n_home,
     n_off_vs_on,
     n_all_carbon_pools,
+    n_carbon_supply,
     n_tco2,
     n_bct,
     n_nct,
@@ -2494,6 +2498,7 @@ def toggle_collapse(
         or n_home
         or n_off_vs_on
         or n_all_carbon_pools
+        or n_carbon_supply
         or n_tco2
         or n_bct
         or n_nct

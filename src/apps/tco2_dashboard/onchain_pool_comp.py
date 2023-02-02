@@ -1,6 +1,7 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
+from .constants import BETWEEN_SECTION_STYLE
 
 
 def create_onchain_pool_comp_content(
@@ -33,12 +34,18 @@ def create_onchain_pool_comp_content(
         price_col = dbc.Col(
             dbc.Card(
                 [
-                    html.H5("Price", className="card-title"),
+                    html.H5("Price", className="card-title-price"),
                     dbc.CardBody(
                         "${:.2f}".format(filtered_df[f"{i}_Price"].iloc[0]),
-                        className="card-text",
+                        className="card-text-continuation",
                     ),
-                ]
+                ],
+                style={
+                    "padding-top": "0px",
+                    "padding-bottom": "0px",
+                    "margin-top": "0px",
+                    "margin-bottom": "0px",
+                },
             ),
             width=12,
         )
@@ -48,7 +55,7 @@ def create_onchain_pool_comp_content(
                 [
                     html.Div(
                         [
-                            html.H5("Selective Cost", className="card-title"),
+                            html.H5("Selective Cost", className="card-title-price"),
                             html.Div(
                                 html.Span(
                                     "info",
@@ -70,9 +77,15 @@ def create_onchain_pool_comp_content(
                     ),
                     dbc.CardBody(
                         selective_cost_value,
-                        className="card-text",
+                        className="card-text-continuation",
                     ),
-                ]
+                ],
+                style={
+                    "padding-top": "0px",
+                    "padding-bottom": "0px",
+                    "margin-top": "0px",
+                    "margin-bottom": "0px",
+                },
             ),
             width=12,
         )
@@ -80,12 +93,18 @@ def create_onchain_pool_comp_content(
         current_supply_col = dbc.Col(
             dbc.Card(
                 [
-                    html.H5("Current Supply", className="card-title"),
+                    html.H5("Current Supply", className="card-title-price"),
                     dbc.CardBody(
                         "{:,}".format(int(tokens_dict[i]["Current Supply"])),
                         className="card-text",
                     ),
-                ]
+                ],
+                style={
+                    "padding-top": "0px",
+                    "padding-bottom": "0px",
+                    "margin-top": "0px",
+                    "margin-bottom": "0px",
+                },
             ),
             width=12,
         )
@@ -95,7 +114,11 @@ def create_onchain_pool_comp_content(
                 dbc.Card(
                     [
                         dbc.CardHeader(
-                            html.H5(tokens_dict[i]["Full Name"] + f" ({i})")
+                            html.H5(
+                                tokens_dict[i]["Full Name"] + f" ({i})",
+                                className="card-title",
+                                style={"padding-bottom": "20px"},
+                            ),
                         ),
                         price_col,
                         selective_cost_col,
@@ -115,7 +138,7 @@ def create_onchain_pool_comp_content(
                 dbc.Card(
                     [
                         dbc.CardHeader(
-                            html.H1("Carbon Prices", className="page-title")
+                            html.H1("Digital Carbon Pricing", className="page-title")
                         ),
                     ]
                 ),
@@ -123,7 +146,7 @@ def create_onchain_pool_comp_content(
                 style={"textAlign": "center"},
             ),
         ),
-        dbc.Row(pool_cards[:3], style={"paddingTop": "60px"}),
+        dbc.Row(pool_cards[:3], style=BETWEEN_SECTION_STYLE),
         dbc.Row(pool_cards[3:]),
         dbc.Row(
             [
