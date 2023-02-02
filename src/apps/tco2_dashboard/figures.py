@@ -1701,3 +1701,36 @@ def get_eth_retirement_breakdown_figure(df):
         hoverlabel=dict(font_color="white", font_size=8),
     )
     return fig
+
+
+def total_carbon_supply_pie_chart(
+    polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
+):
+    labels = ["Polygon", "Ethereum", "Celo"]
+    values = [
+        polygon_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
+        eth_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
+        celo_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
+    ]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Pie(
+            labels=labels,
+            values=values,
+            textinfo="percent",
+            textfont=dict(color="white", size=12),
+            hoverlabel=dict(font_color="white", font_size=12),
+            hole=0.3,
+        )
+    )
+    fig.update_layout(
+        height=360,
+        paper_bgcolor=FIGURE_BG_COLOR,
+        font_color="white",
+        font_size=8,
+        margin=dict(t=10, b=0, l=0, r=0),
+        legend=dict(x=1, font=dict(size=12)),
+    )
+    fig.update_traces(textposition="inside")
+
+    return fig

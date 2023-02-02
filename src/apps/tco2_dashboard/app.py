@@ -33,6 +33,7 @@ from .figures import (
     # create_offchain_vs_onchain_figs,
     create_offchain_vs_onchain_fig,
     create_retirements_fig,
+    total_carbon_supply_pie_chart,
 )
 from .figures_carbon_pool import (
     deposited_over_time,
@@ -894,8 +895,14 @@ def generate_layout():
     polygon_carbon_metrics_df = get_polygon_carbon_metrics()
     eth_carbon_metrics_df = get_eth_carbon_metrics()
     celo_carbon_metrics_df = get_celo_carbon_metrics()
-    content_carbon_supply = create_carbon_supply_content(
+    fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart(
         polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
+    )
+    content_carbon_supply = create_carbon_supply_content(
+        polygon_carbon_metrics_df,
+        eth_carbon_metrics_df,
+        celo_carbon_metrics_df,
+        fig_total_carbon_supply_pie_chart,
     )
 
     cache.set("content_carbon_supply", content_carbon_supply)
