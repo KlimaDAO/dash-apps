@@ -1629,7 +1629,7 @@ def generate_layout():
                                 "Off vs On-Chain Carbon",
                             ),
                         ],
-                        href="/Carbonmarket",
+                        href="/carbon-market",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1640,7 +1640,7 @@ def generate_layout():
                             ),
                             html.Span("Digital Carbon Pricing"),
                         ],
-                        href="/CarbonPricing",
+                        href="/carbon-pricing",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1654,7 +1654,7 @@ def generate_layout():
                             ),
                             html.Span("Digital Carbon Supply"),
                         ],
-                        href="/CarbonSupply",
+                        href="/carbon-supply",
                         active="exact",
                     ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
@@ -1674,7 +1674,7 @@ def generate_layout():
                             ),
                             html.Span("C3T Overview"),
                         ],
-                        href="/C3T",
+                        href="/c3t",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1688,7 +1688,7 @@ def generate_layout():
                             ),
                             html.Span("UBO Pool"),
                         ],
-                        href="/UBO",
+                        href="/ubo",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1702,7 +1702,7 @@ def generate_layout():
                             ),
                             html.Span("NBO Pool"),
                         ],
-                        href="/NBO",
+                        href="/nbo",
                         active="exact",
                     ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
@@ -1721,7 +1721,7 @@ def generate_layout():
                             ),
                             html.Span("MCO2 Overview"),
                         ],
-                        href="/MCO2",
+                        href="/mco2",
                         active="exact",
                     ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
@@ -1740,7 +1740,7 @@ def generate_layout():
                             ),
                             html.Span("TCO2 Overview"),
                         ],
-                        href="/TCO2",
+                        href="/tco2",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1753,7 +1753,7 @@ def generate_layout():
                             ),
                             html.Span("BCT Pool"),
                         ],
-                        href="/BCT",
+                        href="/bct",
                         active="exact",
                     ),
                     dbc.NavLink(
@@ -1766,7 +1766,7 @@ def generate_layout():
                             ),
                             html.Span("NCT Pool"),
                         ],
-                        href="/NCT",
+                        href="/nct",
                         active="exact",
                         style={"margin-bottom": "30px"},
                     ),
@@ -1813,7 +1813,7 @@ def generate_layout():
                                         "Off vs On-Chain Carbon",
                                     ),
                                 ],
-                                href="/Carbonmarket",
+                                href="/carbon-market",
                                 active="exact",
                                 id="button-off_vs_on_chain",
                                 n_clicks=0,
@@ -1828,7 +1828,7 @@ def generate_layout():
                                     ),
                                     html.Span("Digital Carbon Pricing"),
                                 ],
-                                href="/CarbonPricing",
+                                href="/carbon-pricing",
                                 active="exact",
                                 id="button-onchain_pool_comp",
                                 n_clicks=0,
@@ -1845,7 +1845,7 @@ def generate_layout():
                                         "Digital Carbon Supply",
                                     ),
                                 ],
-                                href="/CarbonSupply",
+                                href="/carbon-supply",
                                 active="exact",
                                 id="button-onchain_carbon_supply",
                                 n_clicks=0,
@@ -1867,7 +1867,7 @@ def generate_layout():
                                     ),
                                     html.Span("C3T Overview"),
                                 ],
-                                href="/C3T",
+                                href="/c3t",
                                 active="exact",
                                 id="button-c3t",
                                 n_clicks=0,
@@ -1883,7 +1883,7 @@ def generate_layout():
                                     ),
                                     html.Span("UBO Pool"),
                                 ],
-                                href="/UBO",
+                                href="/ubo",
                                 active="exact",
                                 id="button-ubo",
                                 n_clicks=0,
@@ -1899,7 +1899,7 @@ def generate_layout():
                                     ),
                                     html.Span("NBO Pool"),
                                 ],
-                                href="/NBO",
+                                href="/nbo",
                                 active="exact",
                                 id="button-nbo",
                                 n_clicks=0,
@@ -1921,7 +1921,7 @@ def generate_layout():
                                     ),
                                     html.Span("MCO2 Overview"),
                                 ],
-                                href="/MCO2",
+                                href="/mco2",
                                 active="exact",
                                 id="button-mco2",
                                 n_clicks=0,
@@ -1943,7 +1943,7 @@ def generate_layout():
                                     ),
                                     html.Span("TCO2 Overview"),
                                 ],
-                                href="/TCO2",
+                                href="/tco2",
                                 active="exact",
                                 id="button-tco2",
                                 n_clicks=0,
@@ -1959,7 +1959,7 @@ def generate_layout():
                                     ),
                                     html.Span("BCT Pool"),
                                 ],
-                                href="/BCT",
+                                href="/bct",
                                 active="exact",
                                 id="button-bct",
                                 n_clicks=0,
@@ -1975,7 +1975,7 @@ def generate_layout():
                                     ),
                                     html.Span("NCT Pool"),
                                 ],
-                                href="/NCT",
+                                href="/nct",
                                 active="exact",
                                 id="button-nct",
                                 n_clicks=0,
@@ -2416,19 +2416,18 @@ function copyToClipboard(n_clicks) {
 def render_page_content(pathname):
     # For case-insensitive routing
     # NOTE: all `/` paths MUST be lowercase!
-    pathname = pathname.lower()
     if pathname == "/":
         content_homepage = cache.get("content_homepage")
         return content_homepage
-    elif pathname == "/carbonmarket":
+    elif pathname == "/carbon-market":
         content_offchain_vs_onchain = cache.get("content_offchain_vs_onchain")
         return content_offchain_vs_onchain
 
-    elif pathname == "/carbonpricing":
+    elif pathname == "/carbon-pricing":
         content_onchain_pool_comp = cache.get("content_onchain_pool_comp")
         return content_onchain_pool_comp
 
-    elif pathname == "/carbonsupply":
+    elif pathname == "/carbon-supply":
         content_carbon_supply = cache.get("content_carbon_supply")
         return content_carbon_supply
 
@@ -2523,6 +2522,28 @@ def toggle_collapse(
 
 # For Gunicorn to reference
 server = app.server
+
+
+# Redirects
+redirects = {
+    'Carbonmarket': 'carbon-market',
+    'CarbonPricing': 'carbon-pricing',
+    'CarbonSupply': 'carbon-supply',
+    'TCO2': 'tco2',
+    'BCT': 'bct',
+    'NCT': 'nct',
+    'MCO2': 'mco2',
+    'C3T': 'c3t',
+    'UBO': 'ubo',
+    'NBO': 'nbo'
+}
+
+for o, d in redirects.items():
+    dash.register_page(
+        __name__,
+        path=f"/{d}",
+        redirect_from=[f"/{o}"]
+    )
 
 
 if __name__ == "__main__":
