@@ -105,7 +105,7 @@ from .constants import (
 )
 from pycoingecko import CoinGeckoAPI
 
-CACHE_TIMEOUT = 86400
+CACHE_TIMEOUT = 2 * 86400
 CARBON_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
 )
