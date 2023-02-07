@@ -97,4 +97,8 @@ jobs:
       - name: Replace variables
         run: make replace_variables
       - name: Upsert app
-        run: doctl apps update ${{ secrets.DIGITALOCEAN_APP_ID }} --spec app-spec.yml --wait --verbose
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 4
+          command: doctl apps update ${{ secrets.DIGITALOCEAN_APP_ID }} --spec app-spec.yml --wait --verbose
