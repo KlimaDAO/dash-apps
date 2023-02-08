@@ -105,7 +105,7 @@ from .constants import (
 )
 from pycoingecko import CoinGeckoAPI
 
-CACHE_TIMEOUT = 2 * 86400
+CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
 )
@@ -2416,6 +2416,7 @@ function copyToClipboard(n_clicks) {
 def render_page_content(pathname):
     # For case-insensitive routing
     # NOTE: all `/` paths MUST be lowercase!
+    pathname = pathname.lower()
     if pathname == "/":
         content_homepage = cache.get("content_homepage")
         return content_homepage
@@ -2526,8 +2527,11 @@ server = app.server
 
 # Redirects
 redirects = {
+    'carbonmarket': 'carbon-market',
     'Carbonmarket': 'carbon-market',
+    'carbonpricing': 'carbon-pricing',
     'CarbonPricing': 'carbon-pricing',
+    'carbonsupply': 'carbon-supply',
     'CarbonSupply': 'carbon-supply',
     'TCO2': 'tco2',
     'BCT': 'bct',
