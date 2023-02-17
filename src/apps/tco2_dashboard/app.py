@@ -1372,8 +1372,7 @@ def generate_layout():
     # --UBO---
 
     # Carbon pool filter
-    df_carbon_c3t["Project ID"] = "VCS-" + \
-        df_carbon_c3t["Project ID"].astype(str)
+    df_carbon_c3t["Project ID"] = df_carbon_c3t["Project ID"].astype(str)
     ubo_deposited, ubo_redeemed = filter_carbon_pool(
         UBO_ADDRESS, df_deposited, df_redeemed
     )
