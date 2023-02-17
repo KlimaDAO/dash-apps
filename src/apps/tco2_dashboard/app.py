@@ -458,7 +458,8 @@ def get_verra_data():
                 "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
                 json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
             )
-            df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
+            df_verra = pd.DataFrame(r.json()["value"]).rename(
+                columns=verra_rename_map)
         except requests.exceptions.RequestException as err:
             print(err)
             fallback_note = VERRA_FALLBACK_NOTE
@@ -697,7 +698,8 @@ def get_prices():
                 .dt.floor("D")
                 .dt.date
             )
-            df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
+            df = df.drop_duplicates(keep="first", subset=[
+                                    f"{i}_Address", "Date"])
             df = df[df[f"{i}_Price"] != 0]
             if df_prices.empty:
                 df_prices = df
@@ -717,7 +719,8 @@ def get_prices():
                     contract_address=tokens_dict[i]["Token Address"],
                     days=PRICE_DAYS,
                 )
-                df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
+                df = pd.DataFrame(data["prices"], columns=[
+                                  "Date", f"{i}_Price"])
                 df["Date"] = pd.to_datetime(df["Date"], unit="ms")
                 df["Date"] = df["Date"].dt.floor("D")
                 if df_prices.empty:
@@ -769,7 +772,8 @@ def generate_layout():
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
     df_holdings = df_holdings.rename(columns=holders_rename_map)
-    df_retired_mco2_info = df_retired_mco2_info.rename(columns=moss_retires_rename_map)
+    df_retired_mco2_info = df_retired_mco2_info.rename(
+        columns=moss_retires_rename_map)
 
     # manual adjusments
     df_retired = retirmentManualAdjustments(df_retired)
@@ -780,10 +784,12 @@ def generate_layout():
     df_retired_tc = bridge_manipulations(df_retired, "Toucan")
     # merge Verra Data
     df_tc = merge_verra(
-        df_tc, df_verra_toucan, merge_columns, ["Name", "Country", "Project Type"]
+        df_tc, df_verra_toucan, merge_columns, [
+            "Name", "Country", "Project Type"]
     )
     df_retired_tc = merge_verra(
-        df_retired_tc, df_verra, merge_columns, ["Name", "Country", "Project Type"]
+        df_retired_tc, df_verra, merge_columns, [
+            "Name", "Country", "Project Type"]
     )
     # datetime manipulations
     df_tc = date_manipulations(df_tc)
@@ -839,12 +845,15 @@ def generate_layout():
         zero_retiring_evt_text,
     )
     fig_seven_day_map_tc = map(sd_pool_tc, zero_bridging_evt_text)
-    fig_seven_day_map_retired_tc = map(sd_pool_retired_tc, zero_retiring_evt_text)
-    fig_seven_day_metho_tc = methodology_volume(sd_pool_tc, zero_bridging_evt_text)
+    fig_seven_day_map_retired_tc = map(
+        sd_pool_retired_tc, zero_retiring_evt_text)
+    fig_seven_day_metho_tc = methodology_volume(
+        sd_pool_tc, zero_bridging_evt_text)
     fig_seven_day_metho_retired_tc = methodology_volume(
         sd_pool_retired_tc, zero_retiring_evt_text
     )
-    fig_seven_day_project_tc = project_volume(sd_pool_tc, zero_bridging_evt_text)
+    fig_seven_day_project_tc = project_volume(
+        sd_pool_tc, zero_bridging_evt_text)
     fig_seven_day_project_retired_tc = project_volume(
         sd_pool_retired_tc, zero_retiring_evt_text
     )
@@ -881,12 +890,15 @@ def generate_layout():
         zero_retiring_evt_text,
     )
     fig_thirty_day_map_tc = map(td_pool_tc, zero_bridging_evt_text)
-    fig_thirty_day_map_retired_tc = map(td_pool_retired_tc, zero_retiring_evt_text)
-    fig_thirty_day_metho_tc = methodology_volume(td_pool_tc, zero_bridging_evt_text)
+    fig_thirty_day_map_retired_tc = map(
+        td_pool_retired_tc, zero_retiring_evt_text)
+    fig_thirty_day_metho_tc = methodology_volume(
+        td_pool_tc, zero_bridging_evt_text)
     fig_thirty_day_metho_retired_tc = methodology_volume(
         td_pool_retired_tc, zero_retiring_evt_text
     )
-    fig_thirty_day_project_tc = project_volume(td_pool_tc, zero_bridging_evt_text)
+    fig_thirty_day_project_tc = project_volume(
+        td_pool_tc, zero_bridging_evt_text)
     fig_thirty_day_project_retired_tc = project_volume(
         td_pool_retired_tc, zero_retiring_evt_text
     )
@@ -917,7 +929,8 @@ def generate_layout():
         df_retired_tc, "Credits retired (total)", zero_retiring_evt_text
     )
     fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
-    fig_total_vintage_retired_tc = total_vintage(df_retired_tc, zero_retiring_evt_text)
+    fig_total_vintage_retired_tc = total_vintage(
+        df_retired_tc, zero_retiring_evt_text)
     fig_total_map_tc = map(df_tc, zero_bridging_evt_text)
     fig_total_map_retired_tc = map(df_retired_tc, zero_retiring_evt_text)
     fig_total_metho_tc = methodology_volume(df_tc, zero_bridging_evt_text)
@@ -925,10 +938,12 @@ def generate_layout():
         df_retired_tc, zero_retiring_evt_text
     )
     fig_total_project_tc = project_volume(df_tc, zero_bridging_evt_text)
-    fig_total_project_retired_tc = project_volume(df_retired_tc, zero_retiring_evt_text)
+    fig_total_project_retired_tc = project_volume(
+        df_retired_tc, zero_retiring_evt_text)
 
     fig_pool_pie_chart_tc = pool_pie_chart(df_carbon_tc, ["BCT", "NCT"])
-    content_tco2 = create_content_toucan(df_tc, df_retired_tc, fig_pool_pie_chart_tc)
+    content_tco2 = create_content_toucan(
+        df_tc, df_retired_tc, fig_pool_pie_chart_tc)
 
     fig_seven_day_tc = [
         fig_seven_day_volume_tc,
@@ -995,7 +1010,8 @@ def generate_layout():
     df_c3t = region_manipulations(df_c3t)
     df_retired_c3t = region_manipulations(df_retired_c3t)
     # 7 day and 30 day subsets
-    sd_pool_c3t, last_sd_pool_c3t, td_pool_c3t, last_td_pool_c3t = subsets(df_c3t)
+    sd_pool_c3t, last_sd_pool_c3t, td_pool_c3t, last_td_pool_c3t = subsets(
+        df_c3t)
     (
         sd_pool_retired_c3t,
         last_sd_pool_retired_c3t,
@@ -1043,12 +1059,15 @@ def generate_layout():
         zero_retiring_evt_text,
     )
     fig_seven_day_map_c3t = map(sd_pool_c3t, zero_bridging_evt_text)
-    fig_seven_day_map_retired_c3t = map(sd_pool_retired_c3t, zero_retiring_evt_text)
-    fig_seven_day_metho_c3t = methodology_volume(sd_pool_c3t, zero_bridging_evt_text)
+    fig_seven_day_map_retired_c3t = map(
+        sd_pool_retired_c3t, zero_retiring_evt_text)
+    fig_seven_day_metho_c3t = methodology_volume(
+        sd_pool_c3t, zero_bridging_evt_text)
     fig_seven_day_metho_retired_c3t = methodology_volume(
         sd_pool_retired_c3t, zero_retiring_evt_text
     )
-    fig_seven_day_project_c3t = project_volume(sd_pool_c3t, zero_bridging_evt_text)
+    fig_seven_day_project_c3t = project_volume(
+        sd_pool_c3t, zero_bridging_evt_text)
     fig_seven_day_project_retired_c3t = project_volume(
         sd_pool_retired_c3t, zero_retiring_evt_text
     )
@@ -1089,12 +1108,15 @@ def generate_layout():
         zero_retiring_evt_text,
     )
     fig_thirty_day_map_c3t = map(td_pool_c3t, zero_bridging_evt_text)
-    fig_thirty_day_map_retired_c3t = map(td_pool_retired_c3t, zero_retiring_evt_text)
-    fig_thirty_day_metho_c3t = methodology_volume(td_pool_c3t, zero_bridging_evt_text)
+    fig_thirty_day_map_retired_c3t = map(
+        td_pool_retired_c3t, zero_retiring_evt_text)
+    fig_thirty_day_metho_c3t = methodology_volume(
+        td_pool_c3t, zero_bridging_evt_text)
     fig_thirty_day_metho_retired_c3t = methodology_volume(
         td_pool_retired_c3t, zero_retiring_evt_text
     )
-    fig_thirty_day_project_c3t = project_volume(td_pool_c3t, zero_bridging_evt_text)
+    fig_thirty_day_project_c3t = project_volume(
+        td_pool_c3t, zero_bridging_evt_text)
     fig_thirty_day_project_retired_c3t = project_volume(
         td_pool_retired_c3t, zero_retiring_evt_text
     )
@@ -1124,7 +1146,8 @@ def generate_layout():
     )
     fig_pool_pie_chart_c3t = pool_pie_chart(df_carbon_c3t, ["UBO", "NBO"])
 
-    content_c3t = create_content_c3t(df_c3t, df_retired_c3t, fig_pool_pie_chart_c3t)
+    content_c3t = create_content_c3t(
+        df_c3t, df_retired_c3t, fig_pool_pie_chart_c3t)
 
     fig_seven_day_c3t = [
         fig_seven_day_volume_c3t,
@@ -1184,7 +1207,8 @@ def generate_layout():
     df_retired_mco2 = df_retired_mco2.rename(columns=retires_rename_map)
     df_bridged_tx_mco2 = df_bridged_tx_mco2.rename(columns=bridges_rename_map)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
-    df_bridged_mco2["Project ID"] = "VCS-" + df_bridged_mco2["Project ID"].astype(str)
+    df_bridged_mco2["Project ID"] = "VCS-" + \
+        df_bridged_mco2["Project ID"].astype(str)
     df_bridged_mco2 = merge_verra(
         df_bridged_mco2,
         df_verra,
@@ -1195,7 +1219,8 @@ def generate_layout():
         df_bridged_mco2["Serial Number"].astype(str).str[-15:-11].astype(int)
     )
     df_retired_mco2 = merge_verra(
-        df_retired_mco2, df_verra, merge_columns, ["Name", "Country", "Project Type"]
+        df_retired_mco2, df_verra, merge_columns, [
+            "Name", "Country", "Project Type"]
     )
     df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
@@ -1203,14 +1228,18 @@ def generate_layout():
 
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     fig_mco2_total_volume = deposited_over_time(df_bridged_mco2)
-    fig_mco2_total_vintage = total_vintage(df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_vintage = total_vintage(
+        df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_map = map(df_bridged_mco2, zero_bridging_evt_text)
-    fig_mco2_total_metho = methodology_volume(df_bridged_mco2, zero_bridging_evt_text)
-    fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_metho = methodology_volume(
+        df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_project = project_volume(
+        df_bridged_mco2, zero_bridging_evt_text)
     df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
     mco2_carbon = (
         df_bridged_mco2_summary.groupby(
-            ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
+            ["Project ID", "Country", "Methodology",
+                "Project Type", "Name", "Vintage"]
         )["Quantity"]
         .sum()
         .to_frame()
@@ -1269,11 +1298,13 @@ def generate_layout():
     # BCT Figures
     fig_deposited_over_time = deposited_over_time(bct_deposited)
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
-    fig_retired_over_time = retired_over_time(BCT_ADDRESS, "BCT", df_pool_retired)
+    fig_retired_over_time = retired_over_time(
+        BCT_ADDRESS, "BCT", df_pool_retired)
     zero_bridging_evt_text = "The BCT Pool is empty"
     fig_bct_total_vintage = total_vintage(bct_carbon, zero_bridging_evt_text)
     fig_bct_total_map = map(bct_carbon, zero_bridging_evt_text)
-    fig_bct_total_metho = methodology_volume(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_metho = methodology_volume(
+        bct_carbon, zero_bridging_evt_text)
     fig_bct_total_project = project_volume(bct_carbon, zero_bridging_evt_text)
 
     content_bct = create_pool_content(
@@ -1309,11 +1340,13 @@ def generate_layout():
     # NCT Figures
     fig_deposited_over_time = deposited_over_time(nct_deposited)
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
-    fig_retired_over_time = retired_over_time(NCT_ADDRESS, "NCT", df_pool_retired)
+    fig_retired_over_time = retired_over_time(
+        NCT_ADDRESS, "NCT", df_pool_retired)
     zero_bridging_evt_text = "The NCT Pool is empty"
     fig_nct_total_vintage = total_vintage(nct_carbon, zero_bridging_evt_text)
     fig_nct_total_map = map(nct_carbon, zero_bridging_evt_text)
-    fig_nct_total_metho = methodology_volume(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_metho = methodology_volume(
+        nct_carbon, zero_bridging_evt_text)
     fig_nct_total_project = project_volume(nct_carbon, zero_bridging_evt_text)
 
     content_nct = create_pool_content(
@@ -1339,7 +1372,7 @@ def generate_layout():
     # --UBO---
 
     # Carbon pool filter
-    df_carbon_c3t["Project ID"] = "VCS-" + df_carbon_c3t["Project ID"].astype(str)
+    df_carbon_c3t["Project ID"] = df_carbon_c3t["Project ID"].astype(str)
     ubo_deposited, ubo_redeemed = filter_carbon_pool(
         UBO_ADDRESS, df_deposited, df_redeemed
     )
@@ -1353,7 +1386,8 @@ def generate_layout():
     zero_bridging_evt_text = "The UBO Pool is empty"
     fig_ubo_total_vintage = total_vintage(ubo_carbon, zero_bridging_evt_text)
     fig_ubo_total_map = map(ubo_carbon, zero_bridging_evt_text)
-    fig_ubo_total_metho = methodology_volume(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_metho = methodology_volume(
+        ubo_carbon, zero_bridging_evt_text)
     fig_ubo_total_project = project_volume(ubo_carbon, zero_bridging_evt_text)
 
     content_ubo = create_pool_content(
@@ -1394,7 +1428,8 @@ def generate_layout():
     zero_bridging_evt_text = "The NBO Pool is empty"
     fig_nbo_total_vintage = total_vintage(nbo_carbon, zero_bridging_evt_text)
     fig_nbo_total_map = map(nbo_carbon, zero_bridging_evt_text)
-    fig_nbo_total_metho = methodology_volume(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_metho = methodology_volume(
+        nbo_carbon, zero_bridging_evt_text)
     fig_nbo_total_project = project_volume(nbo_carbon, zero_bridging_evt_text)
 
     content_nbo = create_pool_content(
@@ -1547,7 +1582,8 @@ def generate_layout():
     df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
         df_retired_merged
     )
-    df_holders, holders_data, holders_style_dict = create_holders_data(df_holdings)
+    df_holders, holders_data, holders_style_dict = create_holders_data(
+        df_holdings)
     fig_retirements, fig_retirements_download = create_retirements_fig(
         retirements_data, retirements_style_dict
     )
@@ -1588,7 +1624,8 @@ def generate_layout():
 
     sidebar_header = [
         html.A(
-            [html.Img(src="assets/KlimaDAO-Wordmark-2.png", className="klima-logo")],
+            [html.Img(src="assets/KlimaDAO-Wordmark-2.png",
+                      className="klima-logo")],
             href="https://www.klimadao.finance/",
             target="_blank",
             style={"padding-bottom": "24px"},
@@ -1635,7 +1672,8 @@ def generate_layout():
                     dbc.NavLink(
                         [
                             html.Div(
-                                html.Span("balance", className="material-icons"),
+                                html.Span(
+                                    "balance", className="material-icons"),
                                 className="icon-container",
                             ),
                             html.Span("Digital Carbon Pricing"),
@@ -1791,7 +1829,8 @@ def generate_layout():
                             dbc.NavLink(
                                 [
                                     html.Div(
-                                        html.Span("token", className="material-icons"),
+                                        html.Span(
+                                            "token", className="material-icons"),
                                         className="icon-container",
                                     ),
                                     html.Span(
@@ -1806,7 +1845,8 @@ def generate_layout():
                             dbc.NavLink(
                                 [
                                     html.Div(
-                                        html.Span("link", className="material-icons"),
+                                        html.Span(
+                                            "link", className="material-icons"),
                                         className="icon-container",
                                     ),
                                     html.Span(
@@ -1852,7 +1892,8 @@ def generate_layout():
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.P("C3", className="sidebar-protocol-heading"),
+                                html.P(
+                                    "C3", className="sidebar-protocol-heading"),
                                 href="https://www.c3.app/",
                                 target="_blank",
                             ),
@@ -1906,7 +1947,8 @@ def generate_layout():
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.P("Moss", className="sidebar-protocol-heading"),
+                                html.P(
+                                    "Moss", className="sidebar-protocol-heading"),
                                 href="https://mco2token.moss.earth/",
                                 target="_blank",
                             ),
@@ -1928,7 +1970,8 @@ def generate_layout():
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
                             html.A(
-                                html.P("Toucan", className="sidebar-protocol-heading"),
+                                html.P(
+                                    "Toucan", className="sidebar-protocol-heading"),
                                 href="https://toucan.earth/",
                                 target="_blank",
                             ),
@@ -2227,19 +2270,26 @@ def update_output_div_c3(summary_type, C3T_type):
 
 
 @callback(
-    Output(component_id="offchain-volume-title", component_property="children"),
+    Output(component_id="offchain-volume-title",
+           component_property="children"),
     Output(component_id="onchain-volume-title", component_property="children"),
-    Output(component_id="on_vs_off_vintage_title", component_property="children"),
-    Output(component_id="on_vs_off_origin_title", component_property="children"),
-    Output(component_id="on_vs_off_project_title", component_property="children"),
+    Output(component_id="on_vs_off_vintage_title",
+           component_property="children"),
+    Output(component_id="on_vs_off_origin_title",
+           component_property="children"),
+    Output(component_id="on_vs_off_project_title",
+           component_property="children"),
     Output(component_id="offchain-volume-plot", component_property="figure"),
     Output(component_id="onchain-volume-plot", component_property="figure"),
     Output(component_id="on_vs_off_vintage_plot", component_property="figure"),
     Output(component_id="on_vs_off_origin_plot", component_property="figure"),
     Output(component_id="on_vs_off_project_plot", component_property="figure"),
-    Output(component_id="on_vs_off_vintage_footer", component_property="children"),
-    Output(component_id="on_vs_off_origin_footer", component_property="children"),
-    Output(component_id="on_vs_off_project_footer", component_property="children"),
+    Output(component_id="on_vs_off_vintage_footer",
+           component_property="children"),
+    Output(component_id="on_vs_off_origin_footer",
+           component_property="children"),
+    Output(component_id="on_vs_off_project_footer",
+           component_property="children"),
     Input(component_id="issued_or_retired", component_property="value"),
 )
 def update_output_on_vs_off(type):
@@ -2284,7 +2334,8 @@ def update_output_on_vs_off(type):
 
 
 @callback(
-    Output(component_id="eligible pie chart plot", component_property="figure"),
+    Output(component_id="eligible pie chart plot",
+           component_property="figure"),
     Input(component_id="pie_chart_summary", component_property="value"),
 )
 def update_eligible_pie_chart(pool_key):
