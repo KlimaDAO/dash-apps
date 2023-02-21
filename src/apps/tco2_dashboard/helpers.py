@@ -762,7 +762,7 @@ def initialize_client_s3(region_name, endpoint_url):
     try:
         client.list_buckets()
         print("Client initialization successful")
-    except:
+    except Exception:
         print("Client initialization failed")
     return client
 
