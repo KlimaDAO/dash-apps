@@ -13,6 +13,9 @@ from .constants import (
     USDC_DECIMALS,
     KLIMA_DECIMALS,
 )
+from io import StringIO
+import boto3
+from botocore.client import Config
 
 
 def pct_change(first, second):
@@ -698,3 +701,75 @@ def uni_v2_pool_price(web3, pool_address, decimals, base_price=1):
 
 def klima_usdc_price(web3):
     return uni_v2_pool_price(web3, KLIMA_USDC_ADDRESS, USDC_DECIMALS - KLIMA_DECIMALS)
+
+
+def upload_file_to_DO_Space(client, bucket, df, filename):
+    buffer = StringIO()
+    if "Verra" in filename:
+        df.to_json(buffer)
+        keyname = f"{filename}.json"
+    else:
+        df.to_csv(buffer, index=False)
+        keyname = f"{filename}.csv"
+    print(f"Starting upload of file: {keyname}")
+    client.put_object(
+        ACL="public-read",
+        Bucket=bucket,
+        Body=buffer.getvalue(),
+        Key=keyname,
+    )
+    print(f"Upload successful of file: {keyname}")
+
+
+def download_file_from_DO_Space(endpoint, bucket, filename):
+    if "Verra" in filename:
+        keyname = f"https://{bucket}.{endpoint[8:]}/{filename}.json"
+        print(f"Starting download of file: {keyname}")
+        df = pd.read_json(keyname)
+    else:
+        keyname = f"https://{bucket}.{endpoint[8:]}/{filename}.csv"
+        print(f"Starting download of file: {keyname}")
+        df = pd.read_csv(keyname)
+    print(f"Download successful of file: {keyname}")
+    return df
+
+
+def update_backup_time(client, bucket, filename, endpoint, backup_day, backup_time):
+    print(f"Updating Exact Backup Time for Backup Day: {backup_day}")
+    df = download_file_from_DO_Space(endpoint, bucket, filename).astype(str)
+    df.loc[df["Backup_Day"] == backup_day, "Backup_Time"] = backup_time
+    upload_file_to_DO_Space(client, bucket, df, filename)
+
+
+def get_backup_time(bucket, filename, endpoint, backup_day):
+    print(f"Getting Exact Backup Time for Backup Day: {backup_day}")
+    df = download_file_from_DO_Space(endpoint, bucket, filename).astype(str)
+    backup_time = df.loc[df["Backup_Day"] == backup_day, "Backup_Time"].values[0]
+    print(f"Exact Backup Time : {backup_time}")
+    return backup_time
+
+
+def initialize_client_s3(region_name, endpoint_url):
+    session = boto3.session.Session()
+    client = session.client(
+        "s3",
+        region_name=region_name,
+        endpoint_url=endpoint_url,
+        aws_access_key_id=os.environ.get("DO_SPACES_ACCESS_ID"),
+        aws_secret_access_key=os.environ.get("DO_SPACES_SECRET_KEY"),
+        config=Config(s3={"addressing_style": "virtual"}),
+    )
+    try:
+        client.list_buckets()
+        print("Client initialization successful")
+    except:
+        print("Client initialization failed")
+    return client
+
+
+def calculate_backup_day(backup_data_days_list, curr_day_str):
+    for index, day in enumerate(backup_data_days_list):
+        if int(curr_day_str) == int(day):
+            return day
+        elif int(curr_day_str) < int(day):
+            return backup_data_days_list[index - 1]

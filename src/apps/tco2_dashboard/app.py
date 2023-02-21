@@ -69,6 +69,12 @@ from .helpers import (
     add_fee_redeem_factors_to_dict,
     klima_usdc_price,
     uni_v2_pool_price,
+    upload_file_to_DO_Space,
+    download_file_from_DO_Space,
+    initialize_client_s3,
+    update_backup_time,
+    get_backup_time,
+    calculate_backup_day,
 )
 from .constants import (
     rename_map,
@@ -80,9 +86,6 @@ from .constants import (
     verra_rename_map,
     merge_columns,
     MCO2_ADDRESS,
-    verra_columns,
-    VERRA_FALLBACK_NOTE,
-    VERRA_FALLBACK_URL,
     NCT_ADDRESS,
     KLIMA_RETIRED_NOTE,
     UBO_ADDRESS,
@@ -102,6 +105,10 @@ from .constants import (
     BCT_DECIMALS,
     NCT_DECIMALS,
     MCO2_DECIMALS,
+    DO_SPACES_ENDPOINT,
+    DO_SPACES_REGION,
+    BACKUP_DATA_DAYS,
+    DO_SPACES_BUCKET_NAME,
 )
 from pycoingecko import CoinGeckoAPI
 
@@ -259,364 +266,542 @@ cache = Cache(
 
 
 @cache.memoize()
-def get_data():
+def get_data(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
-    carbon_offsets = carbon_data.Query.carbonOffsets(
-        orderBy=carbon_data.CarbonOffset.lastUpdate,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-    )
+        carbon_offsets = carbon_data.Query.carbonOffsets(
+            orderBy=carbon_data.CarbonOffset.lastUpdate,
+            orderDirection="desc",
+            first=MAX_RECORDS,
+        )
 
-    df_bridged = sg.query_df(
-        [
-            carbon_offsets.tokenAddress,
-            carbon_offsets.bridge,
-            carbon_offsets.region,
-            carbon_offsets.vintage,
-            carbon_offsets.projectID,
-            carbon_offsets.standard,
-            carbon_offsets.methodology,
-            carbon_offsets.country,
-            carbon_offsets.category,
-            carbon_offsets.name,
-            carbon_offsets.balanceBCT,
-            carbon_offsets.balanceNCT,
-            carbon_offsets.balanceUBO,
-            carbon_offsets.balanceNBO,
-            carbon_offsets.totalBridged,
-            carbon_offsets.bridges.value,
-            carbon_offsets.bridges.timestamp,
-        ]
-    )
+        df_bridged = sg.query_df(
+            [
+                carbon_offsets.tokenAddress,
+                carbon_offsets.bridge,
+                carbon_offsets.region,
+                carbon_offsets.vintage,
+                carbon_offsets.projectID,
+                carbon_offsets.standard,
+                carbon_offsets.methodology,
+                carbon_offsets.country,
+                carbon_offsets.category,
+                carbon_offsets.name,
+                carbon_offsets.balanceBCT,
+                carbon_offsets.balanceNCT,
+                carbon_offsets.balanceUBO,
+                carbon_offsets.balanceNBO,
+                carbon_offsets.totalBridged,
+                carbon_offsets.bridges.value,
+                carbon_offsets.bridges.timestamp,
+            ]
+        )
 
-    carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
+        carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
 
-    df_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.offset.tokenAddress,
-            carbon_offsets.offset.bridge,
-            carbon_offsets.offset.region,
-            carbon_offsets.offset.vintage,
-            carbon_offsets.offset.projectID,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.methodology,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.country,
-            carbon_offsets.offset.category,
-            carbon_offsets.offset.name,
-            carbon_offsets.offset.totalRetired,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
+        df_retired = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.retiree,
+                carbon_offsets.offset.tokenAddress,
+                carbon_offsets.offset.bridge,
+                carbon_offsets.offset.region,
+                carbon_offsets.offset.vintage,
+                carbon_offsets.offset.projectID,
+                carbon_offsets.offset.standard,
+                carbon_offsets.offset.methodology,
+                carbon_offsets.offset.standard,
+                carbon_offsets.offset.country,
+                carbon_offsets.offset.category,
+                carbon_offsets.offset.name,
+                carbon_offsets.offset.totalRetired,
+                carbon_offsets.transaction.id,
+                carbon_offsets.transaction._select("from"),
+            ]
+        )
+
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_bridged,
+                f"Polygon_Digital_Carbon_Bridged_Data_{backup_day}",
+            )
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_retired,
+                f"Polygon_Digital_Carbon_Retired_Data_{backup_day}",
+            )
+    else:
+        df_bridged = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Polygon_Digital_Carbon_Bridged_Data_{backup_day}",
+        )
+        df_retired = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Polygon_Digital_Carbon_Retired_Data_{backup_day}",
+        )
 
     return df_bridged, df_retired
 
 
 @cache.memoize()
-def get_data_pool():
+def get_data_pool(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
-    carbon_offsets = carbon_data.Query.deposits(first=MAX_RECORDS)
+        carbon_offsets = carbon_data.Query.deposits(first=MAX_RECORDS)
 
-    df_deposited = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.pool,
-            # carbon_offsets.offset.region,
-        ]
-    )
+        df_deposited = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.pool,
+                # carbon_offsets.offset.region,
+            ]
+        )
 
-    carbon_offsets = carbon_data.Query.redeems(first=MAX_RECORDS)
+        carbon_offsets = carbon_data.Query.redeems(first=MAX_RECORDS)
 
-    df_redeemed = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.pool,
-            # carbon_offsets.offset.region
-        ]
-    )
+        df_redeemed = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.pool,
+                # carbon_offsets.offset.region
+            ]
+        )
+
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_deposited,
+                f"Polygon_Digital_Carbon_Deposited_Data_{backup_day}",
+            )
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_redeemed,
+                f"Polygon_Digital_Carbon_Redeemed_Data_{backup_day}",
+            )
+    else:
+        df_deposited = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Polygon_Digital_Carbon_Deposited_Data_{backup_day}",
+        )
+        df_redeemed = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Polygon_Digital_Carbon_Redeemed_Data_{backup_day}",
+        )
 
     return df_deposited, df_redeemed
 
 
 @cache.memoize()
-def get_data_pool_retired():
+def get_data_pool_retired(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
-    klimaretires = carbon_data.Query.klimaRetires(first=MAX_RECORDS)
+        klimaretires = carbon_data.Query.klimaRetires(first=MAX_RECORDS)
 
-    df_pool_retired = sg.query_df(
-        [
-            klimaretires.timestamp,
-            klimaretires.pool,
-            klimaretires.amount,
-            klimaretires.retiringAddress,
-            klimaretires.beneficiary,
-            klimaretires.beneficiaryAddress,
-            klimaretires.retirementMessage,
-            klimaretires.transaction.id,
-        ]
-    )
+        df_pool_retired = sg.query_df(
+            [
+                klimaretires.timestamp,
+                klimaretires.pool,
+                klimaretires.amount,
+                klimaretires.retiringAddress,
+                klimaretires.beneficiary,
+                klimaretires.beneficiaryAddress,
+                klimaretires.retirementMessage,
+                klimaretires.transaction.id,
+            ]
+        )
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_pool_retired,
+                f"Klima_Aggregator_Carbon_Retired_Data_{backup_day}",
+            )
+    else:
+        df_pool_retired = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Klima_Aggregator_Carbon_Retired_Data_{backup_day}",
+        )
 
     return df_pool_retired
 
 
 @cache.memoize()
-def get_mco2_data():
-    sg = Subgrounds()
+def get_mco2_data(use_backup, client, backup_day, backup_data):
 
-    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.batches(first=MAX_RECORDS)
-    df_bridged = sg.query_df(
-        [
-            carbon_offsets.id,
-            carbon_offsets.serialNumber,
-            carbon_offsets.timestamp,
-            carbon_offsets.tokenAddress,
-            carbon_offsets.vintage,
-            carbon_offsets.projectID,
-            carbon_offsets.value,
-            carbon_offsets.originaltx,
-        ]
-    )
+    if not (use_backup):
+        sg = Subgrounds()
 
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.bridges(first=MAX_RECORDS)
-    df_bridged_tx = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.transaction.id,
-        ]
-    )
+        carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
+        carbon_offsets = carbon_data.Query.batches(first=MAX_RECORDS)
+        df_bridged = sg.query_df(
+            [
+                carbon_offsets.id,
+                carbon_offsets.serialNumber,
+                carbon_offsets.timestamp,
+                carbon_offsets.tokenAddress,
+                carbon_offsets.vintage,
+                carbon_offsets.projectID,
+                carbon_offsets.value,
+                carbon_offsets.originaltx,
+            ]
+        )
 
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
-    df_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.offset.tokenAddress,
-            carbon_offsets.offset.bridge,
-            carbon_offsets.offset.region,
-            carbon_offsets.offset.vintage,
-            carbon_offsets.offset.projectID,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.methodology,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.country,
-            carbon_offsets.offset.category,
-            carbon_offsets.offset.name,
-            carbon_offsets.offset.totalRetired,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
+        carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+        carbon_offsets = carbon_data.Query.bridges(first=MAX_RECORDS)
+        df_bridged_tx = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.transaction.id,
+            ]
+        )
 
-    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_TEST_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.mossOffsets(first=MAX_RECORDS)
+        carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+        carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
+        df_retired = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.retiree,
+                carbon_offsets.offset.tokenAddress,
+                carbon_offsets.offset.bridge,
+                carbon_offsets.offset.region,
+                carbon_offsets.offset.vintage,
+                carbon_offsets.offset.projectID,
+                carbon_offsets.offset.standard,
+                carbon_offsets.offset.methodology,
+                carbon_offsets.offset.standard,
+                carbon_offsets.offset.country,
+                carbon_offsets.offset.category,
+                carbon_offsets.offset.name,
+                carbon_offsets.offset.totalRetired,
+                carbon_offsets.transaction.id,
+                carbon_offsets.transaction._select("from"),
+            ]
+        )
 
-    df_moss_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.receiptId,
-            carbon_offsets.onBehalfOf,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
+        carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_TEST_SUBGRAPH_URL)
+        carbon_offsets = carbon_data.Query.mossOffsets(first=MAX_RECORDS)
+
+        df_moss_retired = sg.query_df(
+            [
+                carbon_offsets.value,
+                carbon_offsets.timestamp,
+                carbon_offsets.retiree,
+                carbon_offsets.receiptId,
+                carbon_offsets.onBehalfOf,
+                carbon_offsets.transaction.id,
+                carbon_offsets.transaction._select("from"),
+            ]
+        )
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_bridged,
+                f"Ethereum_Digital_Carbon_Bridged_Data_{backup_day}",
+            )
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_bridged_tx,
+                f"Ethereum_Digital_Carbon_Bridged_tx_Data_{backup_day}",
+            )
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_retired,
+                f"Ethereum_Digital_Carbon_Retired_Data_{backup_day}",
+            )
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_moss_retired,
+                f"Ethereum_Digital_Carbon_Moss_Retired_Data_{backup_day}",
+            )
+    else:
+        df_bridged = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Ethereum_Digital_Carbon_Bridged_Data_{backup_day}",
+        )
+        df_bridged_tx = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Ethereum_Digital_Carbon_Bridged_tx_Data_{backup_day}",
+        )
+        df_retired = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Ethereum_Digital_Carbon_Retired_Data_{backup_day}",
+        )
+        df_moss_retired = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Ethereum_Digital_Carbon_Moss_Retired_Data_{backup_day}",
+        )
+
     return df_bridged, df_bridged_tx, df_retired, df_moss_retired
 
 
 @cache.memoize()
-def get_verra_data():
-    use_fallback_data = False
-    if use_fallback_data:
-        fallback_note = VERRA_FALLBACK_NOTE
-        df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-        df_verra = df_verra[verra_columns]
-    else:
-        try:
-            fallback_note = ""
-            r = requests.post(
-                "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
-                json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
+def get_verra_data(use_backup, client, backup_day, backup_data):
+    if not (use_backup):
+        fallback_note = ""
+        r = requests.post(
+            "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
+            json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
+        )
+        df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
+        # df_verra.to_csv("df_verra1.csv", quoting=csv.QUOTE_NONE)
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_verra,
+                f"Verra_Data_{backup_day}",
             )
-            df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
-        except requests.exceptions.RequestException as err:
-            print(err)
-            fallback_note = VERRA_FALLBACK_NOTE
-            df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-            df_verra = df_verra[verra_columns]
+    else:
+        fallback_note = ""
+        df_verra = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Verra_Data_{backup_day}",
+        )
+        df_verra = df_verra.rename(columns=verra_rename_map)
+
     return df_verra, fallback_note
 
 
 @cache.memoize()
-def get_holders_data():
+def get_holders_data(use_backup, client, backup_day, backup_data):
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
+        holdings = carbon_data.Query.holdings(
+            orderBy=carbon_data.Holding.timestamp,
+            orderDirection="desc",
+            first=MAX_RECORDS,
+        )
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
-    holdings = carbon_data.Query.holdings(
-        orderBy=carbon_data.Holding.timestamp, orderDirection="desc", first=MAX_RECORDS
-    )
-
-    df_holdings = sg.query_df(
-        [
-            holdings.id,
-            holdings.token,
-            holdings.timestamp,
-            holdings.tokenAmount,
-            holdings.carbonValue,
-            holdings.klimate.id,
-        ]
-    )
+        df_holdings = sg.query_df(
+            [
+                holdings.id,
+                holdings.token,
+                holdings.timestamp,
+                holdings.tokenAmount,
+                holdings.carbonValue,
+                holdings.klimate.id,
+            ]
+        )
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_holdings,
+                f"Carbon_Holders_Data_{backup_day}",
+            )
+    else:
+        df_holdings = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Carbon_Holders_Data_{backup_day}",
+        )
 
     return df_holdings
 
 
 @cache.memoize()
-def get_eth_carbon_metrics():
+def get_eth_carbon_metrics(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
 
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
+        carbon_data.CarbonMetric.datetime = SyntheticField(
+            lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+            SyntheticField.STRING,
+            carbon_data.CarbonMetric.timestamp,
+        )
 
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
+        carbonMetrics = carbon_data.Query.carbonMetrics(
+            orderBy=carbon_data.CarbonMetric.timestamp,
+            orderDirection="desc",
+            first=MAX_RECORDS,
+            where=[carbon_data.CarbonMetric.timestamp > 0],
+        )
 
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.timestamp,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.totalRetirements,
-        ]
-    )
+        df = sg.query_df(
+            [
+                carbonMetrics.id,
+                carbonMetrics.timestamp,
+                carbonMetrics.datetime,
+                carbonMetrics.timestamp,
+                carbonMetrics.mco2Supply,
+                carbonMetrics.totalCarbonSupply,
+                carbonMetrics.mco2Retired,
+                carbonMetrics.totalRetirements,
+            ]
+        )
 
-    zeroTimestampIndex = df[(df["carbonMetrics_timestamp"] == "0")].index
-    df.drop(zeroTimestampIndex, inplace=True)
+        zeroTimestampIndex = df[(df["carbonMetrics_timestamp"] == "0")].index
+        df.drop(zeroTimestampIndex, inplace=True)
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df,
+                f"Ethereum_Digital_Carbon_Metrics_Data_{backup_day}",
+            )
+    else:
+        df = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Ethereum_Digital_Carbon_Metrics_Data_{backup_day}",
+        )
 
     return df
 
 
 @cache.memoize()
-def get_celo_carbon_metrics():
+def get_celo_carbon_metrics(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
 
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
+        carbon_data.CarbonMetric.datetime = SyntheticField(
+            lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+            SyntheticField.STRING,
+            carbon_data.CarbonMetric.timestamp,
+        )
 
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
+        carbonMetrics = carbon_data.Query.carbonMetrics(
+            orderBy=carbon_data.CarbonMetric.timestamp,
+            orderDirection="desc",
+            first=MAX_RECORDS,
+            where=[carbon_data.CarbonMetric.timestamp > 0],
+        )
 
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.bctSupply,
-            carbonMetrics.nctSupply,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.totalRetirements,
-        ]
-    )
+        df = sg.query_df(
+            [
+                carbonMetrics.id,
+                carbonMetrics.timestamp,
+                carbonMetrics.datetime,
+                carbonMetrics.bctSupply,
+                carbonMetrics.nctSupply,
+                carbonMetrics.mco2Supply,
+                carbonMetrics.totalCarbonSupply,
+                carbonMetrics.mco2Retired,
+                carbonMetrics.totalRetirements,
+            ]
+        )
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df,
+                f"Celo_Digital_Carbon_Metrics_Data_{backup_day}",
+            )
+    else:
+        df = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Celo_Digital_Carbon_Metrics_Data_{backup_day}",
+        )
 
     return df
 
 
-# @cache.memoize()
-def get_polygon_carbon_metrics():
+@cache.memoize()
+def get_polygon_carbon_metrics(use_backup, client, backup_day, backup_data):
 
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+    if not (use_backup):
+        sg = Subgrounds()
+        carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
+        carbon_data.CarbonMetric.datetime = SyntheticField(
+            lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+            SyntheticField.STRING,
+            carbon_data.CarbonMetric.timestamp,
+        )
 
-    carbon_data.CarbonMetric.not_klima_retired = SyntheticField(
-        lambda totalRetirements, totalKlimaRetirements: totalRetirements
-        - totalKlimaRetirements,
-        SyntheticField.FLOAT,
-        [
-            carbon_data.CarbonMetric.totalRetirements,
-            carbon_data.CarbonMetric.totalKlimaRetirements,
-        ],
-    )
+        carbon_data.CarbonMetric.not_klima_retired = SyntheticField(
+            lambda totalRetirements, totalKlimaRetirements: totalRetirements
+            - totalKlimaRetirements,
+            SyntheticField.FLOAT,
+            [
+                carbon_data.CarbonMetric.totalRetirements,
+                carbon_data.CarbonMetric.totalKlimaRetirements,
+            ],
+        )
 
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
+        carbonMetrics = carbon_data.Query.carbonMetrics(
+            orderBy=carbon_data.CarbonMetric.timestamp,
+            orderDirection="desc",
+            first=MAX_RECORDS,
+            where=[carbon_data.CarbonMetric.timestamp > 0],
+        )
 
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.bctSupply,
-            carbonMetrics.nctSupply,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.uboSupply,
-            carbonMetrics.nboSupply,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.tco2Retired,
-            carbonMetrics.c3tRetired,
-            carbonMetrics.totalRetirements,
-            carbonMetrics.bctKlimaRetired,
-            carbonMetrics.nctKlimaRetired,
-            carbonMetrics.mco2KlimaRetired,
-            carbonMetrics.uboKlimaRetired,
-            carbonMetrics.nboKlimaRetired,
-            carbonMetrics.totalKlimaRetirements,
-            carbonMetrics.not_klima_retired,
-        ]
-    )
+        df = sg.query_df(
+            [
+                carbonMetrics.id,
+                carbonMetrics.timestamp,
+                carbonMetrics.datetime,
+                carbonMetrics.bctSupply,
+                carbonMetrics.nctSupply,
+                carbonMetrics.mco2Supply,
+                carbonMetrics.uboSupply,
+                carbonMetrics.nboSupply,
+                carbonMetrics.totalCarbonSupply,
+                carbonMetrics.mco2Retired,
+                carbonMetrics.tco2Retired,
+                carbonMetrics.c3tRetired,
+                carbonMetrics.totalRetirements,
+                carbonMetrics.bctKlimaRetired,
+                carbonMetrics.nctKlimaRetired,
+                carbonMetrics.mco2KlimaRetired,
+                carbonMetrics.uboKlimaRetired,
+                carbonMetrics.nboKlimaRetired,
+                carbonMetrics.totalKlimaRetirements,
+                carbonMetrics.not_klima_retired,
+            ]
+        )
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df,
+                f"Polygon_Digital_Carbon_Metrics_Data_{backup_day}",
+            )
+    else:
+        df = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Polygon_Digital_Carbon_Metrics_Data_{backup_day}",
+        )
 
     return df
 
@@ -668,103 +853,268 @@ tokens_dict = {
 }
 
 
-# @cache.memoize()
-def get_prices():
-    df_prices = pd.DataFrame()
-    sg = Subgrounds()
-    current_price_only_token_list = []
-    try:
-        price_source = "Subgraph"
-        price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
-        for i in tokens_dict.keys():
-            swaps = price_sg.Query.swaps(
-                first=MAX_RECORDS,
-                orderBy=price_sg.Swap.timestamp,
-                orderDirection="desc",
-                where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
-            )
+@cache.memoize()
+def get_prices(use_backup, client, backup_day, backup_data):
 
-            df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
-            rename_prices_map = {
-                "swaps_pair_id": f"{i}_Address",
-                "swaps_close": f"{i}_Price",
-                "swaps_timestamp": "Date",
-            }
-            df = df.rename(columns=rename_prices_map)
-            df["Date"] = (
-                pd.to_datetime(df["Date"], unit="s")
-                .dt.tz_localize("UTC")
-                .dt.floor("D")
-                .dt.date
-            )
-            df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
-            df = df[df[f"{i}_Price"] != 0]
-            if df_prices.empty:
-                df_prices = df
-            else:
-                df_prices = df_prices.merge(df, how="outer", on="Date")
-            df_prices = df_prices.sort_values(by="Date", ascending=False)
-    except Exception:
-        print("using coingecko")
-        price_source = "Coingecko"
-        cg = CoinGeckoAPI()
-        current_price_only_token_list = ["UBO", "NBO"]
-        for i in tokens_dict.keys():
-            if i not in current_price_only_token_list:
-                data = cg.get_coin_market_chart_from_contract_address_by_id(
-                    id=tokens_dict[i]["id"],
-                    vs_currency="usd",
-                    contract_address=tokens_dict[i]["Token Address"],
-                    days=PRICE_DAYS,
+    if not (use_backup):
+        df_prices = pd.DataFrame()
+        sg = Subgrounds()
+        current_price_only_token_list = []
+        try:
+            price_source = "Subgraph"
+            price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
+            for i in tokens_dict.keys():
+                swaps = price_sg.Query.swaps(
+                    first=MAX_RECORDS,
+                    orderBy=price_sg.Swap.timestamp,
+                    orderDirection="desc",
+                    where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
                 )
-                df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
-                df["Date"] = pd.to_datetime(df["Date"], unit="ms")
-                df["Date"] = df["Date"].dt.floor("D")
+
+                df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
+                rename_prices_map = {
+                    "swaps_pair_id": f"{i}_Address",
+                    "swaps_close": f"{i}_Price",
+                    "swaps_timestamp": "Date",
+                }
+                df = df.rename(columns=rename_prices_map)
+                df["Date"] = (
+                    pd.to_datetime(df["Date"], unit="s")
+                    .dt.tz_localize("UTC")
+                    .dt.floor("D")
+                    .dt.date
+                )
+                df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
+                df = df[df[f"{i}_Price"] != 0]
                 if df_prices.empty:
                     df_prices = df
                 else:
                     df_prices = df_prices.merge(df, how="outer", on="Date")
                 df_prices = df_prices.sort_values(by="Date", ascending=False)
-        for i in current_price_only_token_list:
-            if i == "UBO":
-                klima_price = klima_usdc_price(web3)
-                token_price = uni_v2_pool_price(
-                    web3,
-                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
-                    KLIMA_DECIMALS - tokens_dict[i]["Decimals"],
-                )
-                price = klima_price / token_price
-            elif i == "NBO":
-                klima_price = klima_usdc_price(web3)
-                token_price = uni_v2_pool_price(
-                    web3,
-                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
-                    KLIMA_DECIMALS,
-                )
-                price = token_price * klima_price
+        except Exception:
+            print("using coingecko")
+            price_source = "Coingecko"
+            cg = CoinGeckoAPI()
+            current_price_only_token_list = ["UBO", "NBO"]
+            for i in tokens_dict.keys():
+                if i not in current_price_only_token_list:
+                    data = cg.get_coin_market_chart_from_contract_address_by_id(
+                        id=tokens_dict[i]["id"],
+                        vs_currency="usd",
+                        contract_address=tokens_dict[i]["Token Address"],
+                        days=PRICE_DAYS,
+                    )
+                    df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
+                    df["Date"] = pd.to_datetime(df["Date"], unit="ms")
+                    df["Date"] = df["Date"].dt.floor("D")
+                    if df_prices.empty:
+                        df_prices = df
+                    else:
+                        df_prices = df_prices.merge(df, how="outer", on="Date")
+                    df_prices = df_prices.sort_values(by="Date", ascending=False)
+            for i in current_price_only_token_list:
+                if i == "UBO":
+                    klima_price = klima_usdc_price(web3)
+                    token_price = uni_v2_pool_price(
+                        web3,
+                        web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                        KLIMA_DECIMALS - tokens_dict[i]["Decimals"],
+                    )
+                    price = klima_price / token_price
+                elif i == "NBO":
+                    klima_price = klima_usdc_price(web3)
+                    token_price = uni_v2_pool_price(
+                        web3,
+                        web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                        KLIMA_DECIMALS,
+                    )
+                    price = token_price * klima_price
 
-            df_prices[f"{i}_Price"] = price
+                df_prices[f"{i}_Price"] = price
+        if backup_data:
+            upload_file_to_DO_Space(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                df_prices,
+                f"Digital_Carbon_Prices_{backup_day}",
+            )
+    else:
+        current_price_only_token_list = []
+        price_source = "Subgraph"
+        df_prices = download_file_from_DO_Space(
+            DO_SPACES_ENDPOINT,
+            DO_SPACES_BUCKET_NAME,
+            f"Digital_Carbon_Prices_{backup_day}",
+        )
+
     return df_prices, current_price_only_token_list, price_source
 
 
 @cache.memoize()
-def generate_layout():
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
-    df, df_retired = get_data()
-    df_deposited, df_redeemed = get_data_pool()
-    df_pool_retired = get_data_pool_retired()
+def run_get_data_functions(use_backup, client, backup_day, backup_data):
+    df_verra, verra_fallback_note = get_verra_data(
+        use_backup, client, backup_day, backup_data
+    )
+    df, df_retired = get_data(use_backup, client, backup_day, backup_data)
+    df_deposited, df_redeemed = get_data_pool(
+        use_backup, client, backup_day, backup_data
+    )
+    df_pool_retired = get_data_pool_retired(use_backup, client, backup_day, backup_data)
     (
         df_bridged_mco2,
         df_bridged_tx_mco2,
         df_retired_mco2,
         df_retired_mco2_info,
-    ) = get_mco2_data()
-    df_verra, verra_fallback_note = get_verra_data()
-    df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
-    df_prices, current_price_only_token_list, price_source = get_prices()
-    df_holdings = get_holders_data()
-    # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+    ) = get_mco2_data(use_backup, client, backup_day, backup_data)
+    df_verra, verra_fallback_note = get_verra_data(
+        use_backup, client, backup_day, backup_data
+    )
+    df_prices, current_price_only_token_list, price_source = get_prices(
+        use_backup, client, backup_day, backup_data
+    )
+    df_holdings = get_holders_data(use_backup, client, backup_day, backup_data)
+    polygon_carbon_metrics_df = get_polygon_carbon_metrics(
+        use_backup, client, backup_day, backup_data
+    )
+    eth_carbon_metrics_df = get_eth_carbon_metrics(
+        use_backup, client, backup_day, backup_data
+    )
+    celo_carbon_metrics_df = get_celo_carbon_metrics(
+        use_backup, client, backup_day, backup_data
+    )
+    return (
+        df,
+        df_retired,
+        df_deposited,
+        df_redeemed,
+        df_pool_retired,
+        df_bridged_mco2,
+        df_bridged_tx_mco2,
+        df_retired_mco2,
+        df_retired_mco2_info,
+        df_verra,
+        verra_fallback_note,
+        df_prices,
+        current_price_only_token_list,
+        price_source,
+        df_holdings,
+        polygon_carbon_metrics_df,
+        eth_carbon_metrics_df,
+        celo_carbon_metrics_df,
+    )
 
+
+@cache.memoize()
+def generate_layout():
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
+    curr_day_str = datetime.utcnow().strftime("%d")
+    try:
+        if curr_day_str in BACKUP_DATA_DAYS:
+            client = initialize_client_s3(
+                region_name=DO_SPACES_REGION, endpoint_url=DO_SPACES_ENDPOINT
+            )
+            print(
+                f"Starting to fetch data and simultaneously create Backup for Day : {curr_day_str}"
+            )
+            (
+                df,
+                df_retired,
+                df_deposited,
+                df_redeemed,
+                df_pool_retired,
+                df_bridged_mco2,
+                df_bridged_tx_mco2,
+                df_retired_mco2,
+                df_retired_mco2_info,
+                df_verra,
+                verra_fallback_note,
+                df_prices,
+                current_price_only_token_list,
+                price_source,
+                df_holdings,
+                polygon_carbon_metrics_df,
+                eth_carbon_metrics_df,
+                celo_carbon_metrics_df,
+            ) = run_get_data_functions(
+                use_backup=False,
+                client=client,
+                backup_day=curr_day_str,
+                backup_data=True,
+            )
+            update_backup_time(
+                client,
+                DO_SPACES_BUCKET_NAME,
+                filename="Exact_Backup_Time",
+                endpoint=DO_SPACES_ENDPOINT,
+                backup_day=curr_day_str,
+                backup_time=curr_time_str,
+            )
+            print("Backup creation successful")
+        else:
+            print("Starting to Fetch Data")
+            (
+                df,
+                df_retired,
+                df_deposited,
+                df_redeemed,
+                df_pool_retired,
+                df_bridged_mco2,
+                df_bridged_tx_mco2,
+                df_retired_mco2,
+                df_retired_mco2_info,
+                df_verra,
+                verra_fallback_note,
+                df_prices,
+                current_price_only_token_list,
+                price_source,
+                df_holdings,
+                polygon_carbon_metrics_df,
+                eth_carbon_metrics_df,
+                celo_carbon_metrics_df,
+            ) = run_get_data_functions(
+                use_backup=False,
+                client=None,
+                backup_day=curr_day_str,
+                backup_data=False,
+            )
+        print("Data Fetch Successful")
+    except:
+        print("Data Fetch Failed")
+        backup_day = calculate_backup_day(BACKUP_DATA_DAYS, curr_day_str)
+        print(f"Use Backup Data of day: {backup_day}")
+        client = initialize_client_s3(
+            region_name=DO_SPACES_REGION, endpoint_url=DO_SPACES_ENDPOINT
+        )
+        (
+            df,
+            df_retired,
+            df_deposited,
+            df_redeemed,
+            df_pool_retired,
+            df_bridged_mco2,
+            df_bridged_tx_mco2,
+            df_retired_mco2,
+            df_retired_mco2_info,
+            df_verra,
+            verra_fallback_note,
+            df_prices,
+            current_price_only_token_list,
+            price_source,
+            df_holdings,
+            polygon_carbon_metrics_df,
+            eth_carbon_metrics_df,
+            celo_carbon_metrics_df,
+        ) = run_get_data_functions(
+            use_backup=True, client=client, backup_day=backup_day, backup_data=False
+        )
+        curr_time_str = get_backup_time(
+            bucket=DO_SPACES_BUCKET_NAME,
+            filename="Exact_Backup_Time",
+            endpoint=DO_SPACES_ENDPOINT,
+            backup_day=backup_day,
+        )
+        print("Data Fetch from backup successfull")
+    df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     # rename_columns
     df = df.rename(columns=rename_map)
     df_retired = df_retired.rename(columns=retires_rename_map)
@@ -892,9 +1242,6 @@ def generate_layout():
     )
 
     # Content carbon supply
-    polygon_carbon_metrics_df = get_polygon_carbon_metrics()
-    eth_carbon_metrics_df = get_eth_carbon_metrics()
-    celo_carbon_metrics_df = get_celo_carbon_metrics()
     fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart(
         polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
     )
@@ -2527,27 +2874,23 @@ server = app.server
 
 # Redirects
 redirects = {
-    'carbonmarket': 'carbon-market',
-    'Carbonmarket': 'carbon-market',
-    'carbonpricing': 'carbon-pricing',
-    'CarbonPricing': 'carbon-pricing',
-    'carbonsupply': 'carbon-supply',
-    'CarbonSupply': 'carbon-supply',
-    'TCO2': 'tco2',
-    'BCT': 'bct',
-    'NCT': 'nct',
-    'MCO2': 'mco2',
-    'C3T': 'c3t',
-    'UBO': 'ubo',
-    'NBO': 'nbo'
+    "carbonmarket": "carbon-market",
+    "Carbonmarket": "carbon-market",
+    "carbonpricing": "carbon-pricing",
+    "CarbonPricing": "carbon-pricing",
+    "carbonsupply": "carbon-supply",
+    "CarbonSupply": "carbon-supply",
+    "TCO2": "tco2",
+    "BCT": "bct",
+    "NCT": "nct",
+    "MCO2": "mco2",
+    "C3T": "c3t",
+    "UBO": "ubo",
+    "NBO": "nbo",
 }
 
 for o, d in redirects.items():
-    dash.register_page(
-        __name__,
-        path=f"/{d}",
-        redirect_from=[f"/{o}"]
-    )
+    dash.register_page(__name__, path=f"/{d}", redirect_from=[f"/{o}"])
 
 
 if __name__ == "__main__":

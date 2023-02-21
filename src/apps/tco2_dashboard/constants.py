@@ -31,6 +31,13 @@ USDC_DECIMALS = 12
 
 BETWEEN_SECTION_STYLE = {"padding-top": "20px"}
 
+# DO Spaces Config Parameters
+DO_SPACES_ENDPOINT = "https://nyc3.digitaloceanspaces.com"
+DO_SPACES_REGION = "us-east-1"
+DO_SPACES_BUCKET_NAME = "carbon-dashboard-data"
+
+BACKUP_DATA_DAYS = ["1", "8", "15", "21", "27"]
+
 rename_map = {
     "carbonOffsets_bridges_value": "Quantity",
     "carbonOffsets_bridges_timestamp": "Date",
