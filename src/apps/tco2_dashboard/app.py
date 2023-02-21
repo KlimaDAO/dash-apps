@@ -1,3 +1,4 @@
+from distutils.sysconfig import EXEC_PREFIX
 import os
 import dash_bootstrap_components as dbc
 import dash
@@ -1078,7 +1079,7 @@ def generate_layout():
                 backup_data=False,
             )
         print("Data Fetch Successful")
-    except:
+    except Exception:
         print("Data Fetch Failed")
         backup_day = calculate_backup_day(BACKUP_DATA_DAYS, curr_day_str)
         print(f"Use Backup Data of day: {backup_day}")
