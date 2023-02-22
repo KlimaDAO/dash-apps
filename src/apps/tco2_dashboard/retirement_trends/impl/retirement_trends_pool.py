@@ -1,6 +1,6 @@
 from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
-     import RetirementTrendsInterface
+    import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartData, ListData, TopContent
 import dash_bootstrap_components as dbc
@@ -97,7 +97,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 html.Div(
                                     [
-                                        html.H5("Percentage Redeemed via KlimaDAO", className="card-title-carbon-supply"),
+                                        html.H5("Percentage Redeemed via KlimaDAO",
+                                                className="card-title-carbon-supply"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -112,7 +113,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             target="selective-cost-tooltip-bct",
                                             className="selective-cost-tooltip",
                                             placement="top",
-                                            style={"background-color": "#303030"},
+                                            style={
+                                                "background-color": "#303030"},
                                         ),
                                     ],
                                     className="card-title-with-tooltip",
@@ -143,7 +145,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 html.Div(
                                     [
-                                        html.H5("Percentage Redeemed via KlimaDAO", className="card-title-carbon-supply"),
+                                        html.H5("Percentage Redeemed via KlimaDAO",
+                                                className="card-title-carbon-supply"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -158,7 +161,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             target="selective-cost-tooltip-nct",
                                             className="selective-cost-tooltip",
                                             placement="top",
-                                            style={"background-color": "#303030"},
+                                            style={
+                                                "background-color": "#303030"},
                                         ),
                                     ],
                                     className="card-title-with-tooltip",
@@ -175,7 +179,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                 ],
                 style={"margin-bottom": "20px"},
             ),
-             dbc.Row(
+                dbc.Row(
                 [
                     dbc.Col(
                         dbc.Card(
@@ -194,7 +198,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 html.Div(
                                     [
-                                        html.H5("Percentage Redeemed via KlimaDAO", className="card-title-carbon-supply"),
+                                        html.H5(
+                                            "Percentage Redeemed via KlimaDAO",
+                                            className="card-title-carbon-supply"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -209,7 +215,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             target="selective-cost-tooltip-ubo",
                                             className="selective-cost-tooltip",
                                             placement="top",
-                                            style={"background-color": "#303030"},
+                                            style={
+                                                "background-color": "#303030"},
                                         ),
                                     ],
                                     className="card-title-with-tooltip",
@@ -240,7 +247,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 html.Div(
                                     [
-                                        html.H5("Percentage Redeemed via KlimaDAO", className="card-title-carbon-supply"),
+                                        html.H5(
+                                            "Percentage Redeemed via KlimaDAO",
+                                            className="card-title-carbon-supply"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -255,7 +264,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             target="selective-cost-tooltip-nbo",
                                             className="selective-cost-tooltip",
                                             placement="top",
-                                            style={"background-color": "#303030"},
+                                            style={
+                                                "background-color": "#303030"},
                                         ),
                                     ],
                                     className="card-title-with-tooltip",
@@ -272,7 +282,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                 ],
                 style={"margin-bottom": "20px"},
             ),
-             dbc.Row(
+                dbc.Row(
                 [
                     dbc.Col(
                         dbc.Card(
@@ -349,7 +359,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             (df[token_str] == "NCT")].copy()
 
         tco2_df = tco2_df.assign(dailyKlimaRetirements_token='TCO2')
-        tco2_df = tco2_df.groupby([datetime_str])[amount_str].sum().reset_index()
+        tco2_df = tco2_df.groupby([datetime_str])[
+            amount_str].sum().reset_index()
 
         c3t_df = df.loc[
             (df[token_str] == "UBO") |
@@ -375,7 +386,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                 'klimaRetires_proof': 'View on PolygonScan',
                 'klimaRetires_amount': 'Amount in Tonnes'})
 
-        df['Amount in Tonnes'] = df['Amount in Tonnes'].apply(lambda x: f'{round(x, 3)}')
+        df['Amount in Tonnes'] = df['Amount in Tonnes'].apply(
+            lambda x: f'{round(x, 3)}')
         df['View on PolygonScan'] = df[
             'View on PolygonScan'].apply(lambda x: f'[Click Here]({x})')
 
