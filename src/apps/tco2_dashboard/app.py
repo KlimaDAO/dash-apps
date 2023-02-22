@@ -2260,7 +2260,7 @@ def generate_layout():
 
 
 app.layout = generate_layout
-cache.delete_memoized(app.layout)
+# cache.delete_memoized(app.layout)
 
 
 @callback(
