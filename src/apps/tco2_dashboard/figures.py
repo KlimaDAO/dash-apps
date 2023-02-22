@@ -89,8 +89,7 @@ def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -137,8 +136,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
 
         add_px_figure(
             px.bar(
-                df.groupby("Vintage")["Quantity"].sum(
-                ).to_frame().reset_index(),
+                df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index(),
                 x="Vintage",
                 y="Quantity",
                 title=title_graph,
@@ -166,8 +164,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -232,8 +229,7 @@ def map(df, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -292,8 +288,7 @@ def total_volume(df, title, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -317,15 +312,13 @@ def total_vintage(df, zero_evt_text):
                 mode="number",
                 value=value,
                 number=dict(valueformat=".1f", font=dict(size=24)),
-                title=dict(text="Average Credit Vintage (total)",
-                           font=dict(size=12)),
+                title=dict(text="Average Credit Vintage (total)", font=dict(size=12)),
                 domain={"x": [0.25, 0.75], "y": [0.6, 1]},
             )
         )
         add_px_figure(
             px.bar(
-                df.groupby("Vintage")["Quantity"].sum(
-                ).to_frame().reset_index(),
+                df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index(),
                 x="Vintage",
                 y="Quantity",
                 title="",
@@ -354,8 +347,7 @@ def total_vintage(df, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -365,8 +357,7 @@ def methodology_volume(df, zero_evt_text):
     df = df[df["Methodology"] != "missing"].reset_index(drop=True)
     if not (df.empty):
         fig = px.bar(
-            df.groupby("Methodology")[
-                "Quantity"].sum().to_frame().reset_index(),
+            df.groupby("Methodology")["Quantity"].sum().to_frame().reset_index(),
             x="Methodology",
             y="Quantity",
             title="",
@@ -393,8 +384,7 @@ def methodology_volume(df, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -405,8 +395,7 @@ def project_volume(df, zero_evt_text):
     if not (df.empty):
         fig = px.treemap(
             df,
-            path=[px.Constant("All Projects"), "Project Type",
-                  "Country", "Name"],
+            path=[px.Constant("All Projects"), "Project Type", "Country", "Name"],
             values="Quantity",
             hover_data=["Name", "Quantity"],
             color_discrete_sequence=px.colors.qualitative.Antique,
@@ -442,8 +431,7 @@ def project_volume(df, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -490,8 +478,7 @@ def project_volume_mco2(df, zero_evt_text):
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
             annotations=[
-                dict(text=zero_evt_text, font=dict(
-                    color="white"), showarrow=False)
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
             ],
         )
     return fig
@@ -528,8 +515,7 @@ def pool_pie_chart(df, labels):
 
 def bridges_pie_chart(bridges_info_dict):
     labels = list(bridges_info_dict.keys())
-    values = [d["Dataframe"]["Quantity"].sum()
-              for d in bridges_info_dict.values()]
+    values = [d["Dataframe"]["Quantity"].sum() for d in bridges_info_dict.values()]
     fig = go.Figure()
     fig.add_trace(
         go.Pie(
@@ -588,8 +574,7 @@ def eligible_pool_pie_chart(df, pool_key):
 
 def verra_vintage(df_verra, df_verra_toucan):
     df_verra_toucan_grouped = (
-        df_verra_toucan.groupby("Vintage")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra_toucan.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
     )
     df_verra_grouped = (
         df_verra.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
@@ -605,8 +590,7 @@ def verra_vintage(df_verra, df_verra_toucan):
         "Quantity_Toucan"
     ].fillna(0)
     df_verra_other_grouped["Quantity"] = (
-        df_verra_other_grouped["Quantity"] -
-        df_verra_other_grouped["Quantity_Toucan"]
+        df_verra_other_grouped["Quantity"] - df_verra_other_grouped["Quantity_Toucan"]
     )
     df_verra_other_grouped = df_verra_other_grouped[["Vintage", "Quantity"]]
     df_verra_other_grouped["Type"] = "Rest of Issued VCU"
@@ -642,8 +626,7 @@ def verra_vintage(df_verra, df_verra_toucan):
 
 def verra_map(df_verra, df_verra_toucan):
     df_verra_toucan_grouped = (
-        df_verra_toucan.groupby("Country")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra_toucan.groupby("Country")["Quantity"].sum().to_frame().reset_index()
     )
     df_verra_grouped = (
         df_verra.groupby("Country")["Quantity"].sum().to_frame().reset_index()
@@ -655,8 +638,7 @@ def verra_map(df_verra, df_verra_toucan):
         right_on="Country",
         suffixes=("", "_Toucan"),
     )
-    df_verra_grouped["Quantity_Toucan"] = df_verra_grouped["Quantity_Toucan"].fillna(
-        0)
+    df_verra_grouped["Quantity_Toucan"] = df_verra_grouped["Quantity_Toucan"].fillna(0)
     df_verra_grouped["Ratio"] = (
         df_verra_grouped["Quantity_Toucan"] / df_verra_grouped["Quantity"]
     )
@@ -729,8 +711,7 @@ def verra_project(df_verra, df_verra_toucan):
         .reset_index()
     )
     df_verra_grouped = (
-        df_verra.groupby("Project Type")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
     )
     df_verra_other_grouped = df_verra_grouped.merge(
         df_verra_toucan_grouped,
@@ -743,8 +724,7 @@ def verra_project(df_verra, df_verra_toucan):
         "Quantity_Toucan"
     ].fillna(0)
     df_verra_other_grouped["Quantity"] = (
-        df_verra_other_grouped["Quantity"] -
-        df_verra_other_grouped["Quantity_Toucan"]
+        df_verra_other_grouped["Quantity"] - df_verra_other_grouped["Quantity_Toucan"]
     )
     df_verra_other_grouped["Type"] = "Rest of Issued VCU"
     df_verra_toucan_grouped["Type"] = "Toucan Bridged Credit"
@@ -1023,15 +1003,12 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
             f"Quantity_{i}"
         ].fillna(0)
         df_verra_other_grouped["Quantity"] = (
-            df_verra_other_grouped["Quantity"] -
-            df_verra_other_grouped[f"Quantity_{i}"]
+            df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{i}"]
         )
-        df_verra_other_grouped = df_verra_other_grouped[[
-            "Vintage", "Quantity"]]
+        df_verra_other_grouped = df_verra_other_grouped[["Vintage", "Quantity"]]
         df_verra_other_grouped["Type"] = "Rest of Issued VCUs"
 
-    df_other_and_bridges = pd.concat(
-        dfs + [df_verra_other_grouped]).reset_index()
+    df_other_and_bridges = pd.concat(dfs + [df_verra_other_grouped]).reset_index()
     fig = px.bar(
         df_other_and_bridges,
         x="Vintage",
@@ -1062,8 +1039,7 @@ def on_vs_off_vintage(df_verra, bridges_info_dict):
 def on_vs_off_vintage_retired(df_verra_retired, retires_info_dict):
     df_verra_retired = df_verra_retired[df_verra_retired["Vintage"] != "missing"]
     df_verra_grouped = (
-        df_verra_retired.groupby("Vintage")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra_retired.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
     )
     dfs = []
     for i in retires_info_dict.keys():
@@ -1121,11 +1097,9 @@ def on_vs_off_map(df_verra, bridges_info_dict):
             right_on="Country",
             suffixes=("", f"_{i}"),
         )
-        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(
-            0)
+        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(0)
         df_verra_grouped["Quantity_Bridges"] = (
-            df_verra_grouped["Quantity_Bridges"] +
-            df_verra_grouped[f"Quantity_{i}"]
+            df_verra_grouped["Quantity_Bridges"] + df_verra_grouped[f"Quantity_{i}"]
         )
         df_verra_grouped["Text_Bridges"] = (
             df_verra_grouped["Text_Bridges"]
@@ -1134,8 +1108,7 @@ def on_vs_off_map(df_verra, bridges_info_dict):
             + "<br>"
         )
     df_verra_grouped["Percentage"] = (
-        (df_verra_grouped["Quantity_Bridges"] /
-         df_verra_grouped["Quantity"]) * 100
+        (df_verra_grouped["Quantity_Bridges"] / df_verra_grouped["Quantity"]) * 100
     ).round(decimals=4)
     df_verra_grouped["text"] = (
         df_verra_grouped["Country"]
@@ -1214,8 +1187,7 @@ def on_vs_off_map(df_verra, bridges_info_dict):
 def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
     df_verra_retired = df_verra_retired[df_verra_retired["Country"] != "missing"]
     df_verra_grouped = (
-        df_verra_retired.groupby("Country")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra_retired.groupby("Country")["Quantity"].sum().to_frame().reset_index()
     )
     df_verra_grouped["Text_Retires"] = ""
     df_verra_grouped["Quantity_Retires"] = 0
@@ -1231,11 +1203,9 @@ def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
             right_on="Country",
             suffixes=("", f"_{i}"),
         )
-        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(
-            0)
+        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(0)
         df_verra_grouped["Quantity_Retires"] = (
-            df_verra_grouped["Quantity_Retires"] +
-            df_verra_grouped[f"Quantity_{i}"]
+            df_verra_grouped["Quantity_Retires"] + df_verra_grouped[f"Quantity_{i}"]
         )
         df_verra_grouped["Text_Retires"] = (
             df_verra_grouped["Text_Retires"]
@@ -1327,8 +1297,7 @@ def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
 def on_vs_off_project(df_verra, bridges_info_dict):
     df_verra = df_verra[df_verra["Project Type"] != "missing"]
     df_verra_grouped = (
-        df_verra.groupby("Project Type")[
-            "Quantity"].sum().to_frame().reset_index()
+        df_verra.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
     )
     df_verra_other_grouped = pd.DataFrame()
     dfs = []
@@ -1336,8 +1305,7 @@ def on_vs_off_project(df_verra, bridges_info_dict):
     for i in bridges_info_dict.keys():
         df = bridges_info_dict[i]["Dataframe"]
         df = df[df["Project Type"] != "missing"]
-        df = df.groupby("Project Type")[
-            "Quantity"].sum().to_frame().reset_index()
+        df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Bridged VCUs"
         colors[f"{i} Bridged VCUs"] = "#00CC33"
         dfs.append(df)
@@ -1361,16 +1329,13 @@ def on_vs_off_project(df_verra, bridges_info_dict):
             f"Quantity_{i}"
         ].fillna(0)
         df_verra_other_grouped["Quantity"] = (
-            df_verra_other_grouped["Quantity"] -
-            df_verra_other_grouped[f"Quantity_{i}"]
+            df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{i}"]
         )
-        df_verra_other_grouped = df_verra_other_grouped[[
-            "Project Type", "Quantity"]]
+        df_verra_other_grouped = df_verra_other_grouped[["Project Type", "Quantity"]]
         df_verra_other_grouped["Type"] = "Rest of Issued VCUs"
     colors["Rest of Issued VCUs"] = "#536C9C"
     colors["(?)"] = "#6E6E6E"
-    df_other_and_bridges = pd.concat(
-        dfs + [df_verra_other_grouped]).reset_index()
+    df_other_and_bridges = pd.concat(dfs + [df_verra_other_grouped]).reset_index()
     fig = px.treemap(
         df_other_and_bridges,
         path=[px.Constant("All Projects"), "Project Type", "Type"],
@@ -1419,8 +1384,7 @@ def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
     for i in retires_info_dict.keys():
         df = retires_info_dict[i]["Dataframe"]
         df = df[df["Project Type"] != "missing"]
-        df = df.groupby("Project Type")[
-            "Quantity"].sum().to_frame().reset_index()
+        df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
         df["Type"] = f"{i} Retired VCUs"
         colors[f"{i} Retired VCUs"] = "#00CC33"
         dfs.append(df)
@@ -1767,37 +1731,6 @@ def get_supply_breakdown_figure(allowed_tokens, df):
                 mode="lines",
                 stackgroup="one",
                 line={"width": 0.5, "color": allowed_token["color"]},
-            )
-        )
-
-    fig.update_layout(
-        height=300,
-        font=GRAPH_FONT,
-        xaxis_title="Date",
-        yaxis_title="Supply",
-        paper_bgcolor=FIGURE_BG_COLOR,
-        plot_bgcolor=FIGURE_BG_COLOR,
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False),
-        margin=dict(t=20, b=20, l=0, r=0),
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
-    )
-    return fig
-
-
-def get_retirements_breakdown_figure(items, df):
-    fig = go.Figure()
-
-    for item in items:
-        col_name = f"carbonMetrics_{item['name']}Retired"
-        fig.add_trace(
-            go.Scatter(
-                name=item["name"].upper(),
-                x=df["carbonMetrics_datetime"],
-                y=df[col_name],
-                mode="lines",
-                line={"width": 0.5, "color": item["color"]},
             )
         )
 
