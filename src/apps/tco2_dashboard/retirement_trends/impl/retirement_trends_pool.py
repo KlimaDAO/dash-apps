@@ -77,6 +77,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         )
         mco2KlimaRetiredRatio = mco2KlimaRetired / mco2Retired
 
+        redemption_tooltip_message = \
+            "Percentage of Redemptions tied to Retirements made via KlimaDAO"
+
         top_content_data = \
             [dbc.Row(
                 [
@@ -85,20 +88,20 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                             [
                                 html.H5(
                                     "BCT",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 html.H5(
                                     "Total Redemptions (Tonnes)",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(int(bctRedeemed)),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
                                 html.Div(
                                     [
                                         html.H5("Percentage Redeemed via KlimaDAO",
-                                                className="card-title-carbon-supply"),
+                                                className="card-title-retirement-trends"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -109,7 +112,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             className="tooltip-icon-container",
                                         ),
                                         dbc.Tooltip(
-                                            "Percentage of Redemptions tied to Retirements made via KlimaDAO",
+                                            redemption_tooltip_message,
                                             target="selective-cost-tooltip-bct",
                                             className="selective-cost-tooltip",
                                             placement="top",
@@ -121,9 +124,12 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(bctKlimaRedeemedRatio),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
-                            ]
+                            ],
+                            style={"margin-right": "0px",
+                                   "margin-top": "0px",
+                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -133,20 +139,20 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                             [
                                 html.H5(
                                     "NCT",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 html.H5(
                                     "Total Redemptions (Tonnes)",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(int(nctRedeemed)),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
                                 html.Div(
                                     [
                                         html.H5("Percentage Redeemed via KlimaDAO",
-                                                className="card-title-carbon-supply"),
+                                                className="card-title-retirement-trends"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -157,7 +163,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             className="tooltip-icon-container",
                                         ),
                                         dbc.Tooltip(
-                                            "Percentage of Redemptions tied to Retirements made via KlimaDAO",
+                                            redemption_tooltip_message,
                                             target="selective-cost-tooltip-nct",
                                             className="selective-cost-tooltip",
                                             placement="top",
@@ -169,15 +175,17 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(nctKlimaRedeemedRatio),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
-                            ]
+                            ],
+                            style={"margin-left": "0px",
+                                   "margin-top": "0px",
+                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
                     ),
                 ],
-                style={"margin-bottom": "20px"},
             ),
                 dbc.Row(
                 [
@@ -186,21 +194,21 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                             [
                                 html.H5(
                                     "UBO",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 html.H5(
                                     "Total Redemptions (Tonnes)",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(int(uboRedeemed)),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
                                 html.Div(
                                     [
                                         html.H5(
                                             "Percentage Redeemed via KlimaDAO",
-                                            className="card-title-carbon-supply"),
+                                            className="card-title-retirement-trends"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -211,7 +219,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             className="tooltip-icon-container",
                                         ),
                                         dbc.Tooltip(
-                                            "Percentage of Redemptions tied to Retirements made via KlimaDAO",
+                                            redemption_tooltip_message,
                                             target="selective-cost-tooltip-ubo",
                                             className="selective-cost-tooltip",
                                             placement="top",
@@ -223,9 +231,11 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(uboKlimaRedeemedRatio),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
-                            ]
+                            ],
+                            style={"margin-right": "0px",
+                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -235,21 +245,21 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                             [
                                 html.H5(
                                     "NBO",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 html.H5(
                                     "Total Redemptions (Tonnes)",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(int(nboRedeemed)),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
                                 html.Div(
                                     [
                                         html.H5(
                                             "Percentage Redeemed via KlimaDAO",
-                                            className="card-title-carbon-supply"),
+                                            className="card-title-retirement-trends"),
                                         html.Div(
                                             html.Span(
                                                 "info",
@@ -260,7 +270,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                             className="tooltip-icon-container",
                                         ),
                                         dbc.Tooltip(
-                                            "Percentage of Redemptions tied to Retirements made via KlimaDAO",
+                                            redemption_tooltip_message,
                                             target="selective-cost-tooltip-nbo",
                                             className="selective-cost-tooltip",
                                             placement="top",
@@ -272,15 +282,16 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(nboKlimaRedeemedRatio),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
-                            ]
+                            ],
+                            style={"margin-left": "0px",
+                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
                     ),
                 ],
-                style={"margin-bottom": "20px"},
             ),
                 dbc.Row(
                 [
@@ -289,31 +300,31 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                             [
                                 html.H5(
                                     "MCO2",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 html.H5(
                                     "Total Retirements (Tonnes)",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(int(mco2Retired)),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
                                 html.H5(
                                     "Percentage Retired via KlimaDAO",
-                                    className="card-title-carbon-supply",
+                                    className="card-title-retirement-trends",
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(mco2KlimaRetiredRatio),
-                                    className="card-text-carbon-supply",
+                                    className="card-text-retirement-trends",
                                 ),
-                            ]
+                            ],
+                            style={"margin-bottom": "0px"}
                         ),
                         lg=12,
                         md=12,
                     ),
                 ],
-                style={"margin-bottom": "20px"},
             )]
 
         return TopContent(top_content_data)

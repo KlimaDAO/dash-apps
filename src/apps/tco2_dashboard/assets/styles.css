@@ -141,7 +141,7 @@ a {
   height: 200px;
 }
 
-.card-title-carbon-supply{
+.card-title-carbon-supply, .card-title-retirement-trends {
   padding-top: 20px;
   padding-bottom: 12px;
   font-family: var(--font-fam-Poppins);
@@ -153,7 +153,7 @@ a {
   justify-content: center;
 }
 
-.card-text-carbon-supply{
+.card-text-carbon-supply, .card-text-retirement-trends{
   padding-top: 0px;
   padding-bottom: 20px;
   font-family: var(--font-fam);
@@ -164,7 +164,7 @@ a {
   text-align: center;
 }
 
-.graph-label-carbon-supply{
+.graph-label-carbon-supply, .graph-label-retirement-trends{
   font-family: var(--font-fam-Poppins);
   font-style: normal;
   font-weight: 700;
@@ -172,6 +172,15 @@ a {
   line-height: 28px;
   text-align: center;
   justify-content: center;
+}
+
+.nav-bar-retirement-trends{
+  font-family: var(--font-fam-Poppins);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: uppercase;
 }
 
 .card-text.card-body{
@@ -184,7 +193,7 @@ a {
   vertical-align: middle;
 }
 
-.page-title-carbon-supply{
+.page-title-carbon-supply, .page-title-retirement-trends {
   width: 100%;
   font-family: var(--font-fam-Poppins);
   font-style: normal;
@@ -226,7 +235,7 @@ a {
 
 .Select--single > .Select-control .Select-value, .Select-placeholder {
   border: 1px solid grey;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 
@@ -306,6 +315,12 @@ color: white;
   .nav-pills .nav-link.active .icon-container {
   background-color: var(--green);
   color: white;
+}
+
+  /* Add bottom border on the active nav link */
+  .nav-pills .nav-link.active .nav-bar-retirement-trends {
+    border-bottom: 3px solid var(--green);
+    color: white;
 }
 
   /* Change the color of links on mouse-over */

@@ -112,7 +112,7 @@ from pycoingecko import CoinGeckoAPI
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/milos1991/carbonpolygon"
+    "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
 )
 CARBON_MOSS_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
@@ -1835,7 +1835,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/carbon_supply_icon.svg",
+                                    src="assets/retirement_trends_icon.svg",
                                     className="image-icons",
                                 ),
                                 className="icon-container",
@@ -2260,7 +2260,7 @@ def generate_layout():
 
 
 app.layout = generate_layout
-# cache.delete_memoized(app.layout)
+cache.delete_memoized(app.layout)
 
 
 @callback(
@@ -2637,10 +2637,6 @@ def render_page_content(pathname):
         content_carbon_supply = cache.get("content_pool_retirement_trends")
         return content_carbon_supply
 
-    elif pathname == "/retirements/pool":
-        content_carbon_supply = cache.get("content_pool_retirement_trends")
-        return content_carbon_supply
-
     elif pathname == "/retirements/token":
         content_carbon_supply = cache.get("content_token_retirement_trends")
         return content_carbon_supply
@@ -2757,7 +2753,6 @@ redirects = {
     'C3T': 'c3t',
     'UBO': 'ubo',
     'NBO': 'nbo',
-    'retirements': 'retirements/pool',
 }
 
 for o, d in redirects.items():

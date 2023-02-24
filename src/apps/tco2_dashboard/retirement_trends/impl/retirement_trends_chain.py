@@ -42,8 +42,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
             [
                 top_left_column,
                 top_right_column,
-            ],
-            style={"margin-bottom": "20px"},
+            ]
         )]
 
         return TopContent(top_content_data)
@@ -73,26 +72,29 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 [
                     html.H5(
                         "On-Chain",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     html.H5(
                         "Total Retirements (Tonnes)",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     dbc.CardBody(
                         "{:,}".format(
                             int(total_on_chain_retirements)),
-                        className="card-text-carbon-supply",
+                        className="card-text-retirement-trends",
                     ),
                     html.H5(
                         "Percentage Retired via KlimaDAO",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     dbc.CardBody(
                         "{:.2%}".format(klima_retirments_ratio),
-                        className="card-text-carbon-supply",
+                        className="card-text-retirement-trends",
                     ),
-                ]
+                ],
+                style={"margin-right": "0px",
+                       "margin-top": "0px",
+                       "margin-bottom": "0px"}
             ),
             lg=6,
             md=12,
@@ -114,25 +116,28 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 [
                     html.H5(
                         "Verra Retirements",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     html.H5(
                         "Total Retirements (Tonnes)",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     dbc.CardBody(
                         verra_retired,
-                        className="card-text-carbon-supply",
+                        className="card-text-retirement-trends",
                     ),
                     html.H5(
                         "Percentage of Retired Credits",
-                        className="card-title-carbon-supply",
+                        className="card-title-retirement-trends",
                     ),
                     dbc.CardBody(
                         verra_perc_retired,
-                        className="card-text-carbon-supply",
+                        className="card-text-retirement-trends",
                     ),
-                ]
+                ],
+                style={"margin-left": "0px",
+                       "margin-top": "0px",
+                       "margin-bottom": "0px"}
             ),
             lg=6,
             md=12,

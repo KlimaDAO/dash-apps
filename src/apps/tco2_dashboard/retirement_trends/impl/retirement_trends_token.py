@@ -1,6 +1,6 @@
 from src.apps.tco2_dashboard.figures import token_klima_retirement_chart
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
-     import RetirementTrendsInterface
+    import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartData, ListData, TopContent
 import dash_bootstrap_components as dbc
@@ -63,87 +63,93 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                         [
                             html.H5(
                                 "C3T",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             html.H5(
                                 "Total Retirements (Tonnes)",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:,}".format(int(c3tRetired)),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
                             html.H5(
                                 "Percentage Retired via KlimaDAO",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:.2%}".format(c3tklimaRetiredRatio),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
-                        ]
+                        ],
+                        style={"margin-right": "0px",
+                               "margin-top": "0px",
+                               "margin-bottom": "0px"}
                     ),
                     lg=4,
-                    md=12,
+                    md=12
                 ),
                 dbc.Col(
                     dbc.Card(
                         [
                             html.H5(
                                 "TCO2",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             html.H5(
                                 "Total Retirements (Tonnes)",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:,}".format(int(tco2Retired)),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
                             html.H5(
                                 "Percentage Retired via KlimaDAO",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:.2%}".format(tco2klimaRetiredRatio),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
-                        ]
+                        ],
+                        style={"margin": "0px"}
                     ),
                     lg=4,
-                    md=12,
+                    md=12
                 ),
                 dbc.Col(
                     dbc.Card(
                         [
                             html.H5(
                                 "MCO2",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             html.H5(
                                 "Total Retirements (Tonnes)",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:,}".format(int(mco2Retired)),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
                             html.H5(
                                 "Percentage Retired via KlimaDAO",
-                                className="card-title-carbon-supply",
+                                className="card-title-retirement-trends",
                             ),
                             dbc.CardBody(
                                 "{:.2%}".format(mco2klimaRetiredRatio),
-                                className="card-text-carbon-supply",
+                                className="card-text-retirement-trends",
                             ),
-                        ]
+                        ],
+                        style={"margin-left": "0px",
+                               "margin-top": "0px",
+                               "margin-bottom": "0px"}
                     ),
                     lg=4,
-                    md=12,
+                    md=12
                 ),
             ],
-            style={"margin-bottom": "20px"},
         ),
 
         return TopContent(top_content_data)
@@ -174,7 +180,8 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             (df[token_str] == "NCT")].copy()
 
         tco2_df = tco2_df.assign(dailyKlimaRetirements_token='TCO2')
-        tco2_df = tco2_df.groupby([datetime_str])[amount_str].sum().reset_index()
+        tco2_df = tco2_df.groupby([datetime_str])[
+            amount_str].sum().reset_index()
 
         c3t_df = df.loc[
             (df[token_str] == "UBO") |
@@ -200,7 +207,8 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                 'klimaRetires_proof': 'View on PolygonScan',
                 'klimaRetires_amount': 'Amount in Tonnes'})
 
-        df['Amount in Tonnes'] = df['Amount in Tonnes'].apply(lambda x: f'{round(x, 3)}')
+        df['Amount in Tonnes'] = df['Amount in Tonnes'].apply(
+            lambda x: f'{round(x, 3)}')
         df['View on PolygonScan'] = df[
             'View on PolygonScan'].apply(lambda x: f'[Click Here]({x})')
 

@@ -52,40 +52,42 @@ def create_content_retirement_trends(
     list_data = retirement_trends.create_list_data()
 
     content = [
-        # Adding top nav
-        dbc.Nav(
-            [
-                dbc.NavLink(
-                    [
-                        html.Span(
-                            "By Pool",
-                        ),
-                    ],
-                    href="/retirements/pool",
-                    active="exact",
-                ),
-                dbc.NavLink(
-                    [
-                        html.Span(
-                            "By Token",
-                        ),
-                    ],
-                    href="/retirements/token",
-                    active="exact",
-                ),
-                dbc.NavLink(
-                    [
-                        html.Span(
-                            "By Chain",
-                        ),
-                    ],
-                    href="/retirements/chain",
-                    active="exact",
-                ),
-            ],
-            horizontal=True,
-            pills=True,
-            style={"gap": "4px"},),
+        # Adding top nav row
+        dbc.Row(
+            dbc.Nav(
+                [
+                    dbc.NavLink(
+                        [
+                            html.Span(
+                                "By Pool", className="nav-bar-retirement-trends"
+                            ),
+                        ],
+                        href="/retirements",
+                        active="exact",
+                    ),
+                    dbc.NavLink(
+                        [
+                            html.Span(
+                                "By Token", className="nav-bar-retirement-trends"
+                            ),
+                        ],
+                        href="/retirements/token",
+                        active="exact",
+                    ),
+                    dbc.NavLink(
+                        [
+                            html.Span(
+                                "By Chain", className="nav-bar-retirement-trends"
+                            ),
+                        ],
+                        href="/retirements/chain",
+                        active="exact",
+                    ),
+                ],
+                horizontal=True,
+                pills=True),
+            style={"margin-left": "20px"}),
+
         # Adding header rows
         dbc.Row(
             dbc.Col(
@@ -94,13 +96,13 @@ def create_content_retirement_trends(
                         dbc.CardHeader(
                             html.H1(
                                 header,
-                                className="page-title-carbon-supply",
+                                className="page-title-retirement-trends",
                             )
                         )
                     ]
                 ),
                 width=12,
-                style={"textAlign": "center", "margin-bottom": "20px"},
+                style={"textAlign": "center"},
             )
         )]
     # Adding top content rows
@@ -166,7 +168,9 @@ def create_content_retirement_trends(
                                 sort_by=[{
                                     'column_id': 'Date', 'direction': 'desc'}],
                             ),
-                        ]
+                        ],
+                        style={"margin-top": "0px",
+                               "margin-bottom": "0px"}
                     )
                 ]
             )
