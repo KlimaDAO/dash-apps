@@ -814,7 +814,7 @@ def token_klima_retirement_chart(tco2_df, mco2_df, c3t_df):
     fig.update_layout(
         height=360,
         xaxis_title="Date",
-        yaxis_title="Daily Retirements",
+        yaxis_title="Tonnes Retired",
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
         xaxis=dict(showgrid=False),
@@ -862,7 +862,7 @@ def pool_klima_retirement_chart(bct_df, nct_df, mco2_df, ubo_df, nbo_df):
     fig.update_layout(
         height=360,
         xaxis_title="Date",
-        yaxis_title="Daily Retirements",
+        yaxis_title="Tonnes Retired",
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
         xaxis=dict(showgrid=False),
