@@ -837,15 +837,15 @@ def pool_klima_retirement_chart(bct_df, nct_df, mco2_df, ubo_df, nbo_df):
         )),
     fig.add_trace(
         go.Scatter(
-            x=mco2_df.dailyKlimaRetirements_datetime,
-            y=mco2_df.dailyKlimaRetirements_amount,
-            mode="lines", name="MCO2"
-        )),
-    fig.add_trace(
-        go.Scatter(
             x=nct_df.dailyKlimaRetirements_datetime,
             y=nct_df.dailyKlimaRetirements_amount,
             mode="lines", name="NCT"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=mco2_df.dailyKlimaRetirements_datetime,
+            y=mco2_df.dailyKlimaRetirements_amount,
+            mode="lines", name="MCO2"
         )),
     fig.add_trace(
         go.Scatter(

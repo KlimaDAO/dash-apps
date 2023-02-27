@@ -1657,7 +1657,6 @@ def generate_layout():
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # Content Retirement trends
-    print(df_verra_retired.keys())
     klima_retirements_df = get_klima_retirements()
     daily_agg_klima_retirements_df = get_daily_agg_klima_retirements()
 

@@ -114,9 +114,31 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         return dbc.Col(
             dbc.Card(
                 [
-                    html.H5(
-                        "Verra Retirements",
-                        className="card-title-retirement-trends",
+                    html.Div(
+                        [
+                            html.H5(
+                                "Off-Chain",
+                                className="card-title-retirement-trends"),
+                            html.Div(
+                                html.Span(
+                                    "info",
+                                    className="material-icons-outlined",
+                                    style={
+                                        "font-size": "20px"},
+                                    id="offchain-verra-tooltip",
+                                ),
+                                className="tooltip-icon-container",
+                            ),
+                            dbc.Tooltip(
+                                "Off-Chain currently includes only Verra retirements",
+                                target="offchain-verra-tooltip",
+                                className="offchain-verra-tooltip",
+                                placement="top",
+                                style={
+                                    "background-color": "#303030"},
+                            ),
+                        ],
+                        className="card-title-with-tooltip",
                     ),
                     html.H5(
                         "Total Retirements (Tonnes)",
