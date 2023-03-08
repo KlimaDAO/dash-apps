@@ -1728,7 +1728,7 @@ def total_carbon_supply_pie_chart(
         paper_bgcolor=FIGURE_BG_COLOR,
         font_color="white",
         font_size=8,
-        margin=dict(t=10, b=0, l=0, r=0),
+        margin=dict(t=30, b=0, l=0, r=0),
         legend=dict(x=1, font=dict(size=12)),
     )
     fig.update_traces(textposition="inside")
