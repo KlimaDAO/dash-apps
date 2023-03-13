@@ -2739,19 +2739,19 @@ server = app.server
 
 # Redirects
 redirects = {
-    'carbonmarket': 'carbon-market',
-    'Carbonmarket': 'carbon-market',
-    'carbonpricing': 'carbon-pricing',
-    'CarbonPricing': 'carbon-pricing',
-    'carbonsupply': 'carbon-supply',
-    'CarbonSupply': 'carbon-supply',
-    'TCO2': 'tco2',
-    'BCT': 'bct',
-    'NCT': 'nct',
-    'MCO2': 'mco2',
-    'C3T': 'c3t',
-    'UBO': 'ubo',
-    'NBO': 'nbo',
+    "carbonmarket": "carbon-market",
+    "Carbonmarket": "carbon-market",
+    "carbonpricing": "carbon-pricing",
+    "CarbonPricing": "carbon-pricing",
+    "carbonsupply": "carbon-supply",
+    "CarbonSupply": "carbon-supply",
+    "TCO2": "tco2",
+    "BCT": "bct",
+    "NCT": "nct",
+    "MCO2": "mco2",
+    "C3T": "c3t",
+    "UBO": "ubo",
+    "NBO": "nbo",
 }
 
 for o, d in redirects.items():
