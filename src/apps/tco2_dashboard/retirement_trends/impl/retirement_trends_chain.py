@@ -3,9 +3,9 @@ from src.apps.tco2_dashboard.figures import chain_klima_retirement_chart
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
-    import ChartData, ListData, TopContent
+    import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, dcc
 
 
 class RetirementTrendsByChain(RetirementTrendsInterface):
@@ -92,9 +92,6 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                         className="card-text-retirement-trends",
                     ),
                 ],
-                style={"margin-right": "0px",
-                       "margin-top": "0px",
-                       "margin-bottom": "0px"}
             ),
             lg=6,
             md=12,
@@ -157,15 +154,12 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                         className="card-text-retirement-trends",
                     ),
                 ],
-                style={"margin-left": "0px",
-                       "margin-top": "0px",
-                       "margin-bottom": "0px"}
             ),
             lg=6,
             md=12,
         )
 
-    def create_chart_data(self) -> ChartData:
+    def create_chart_content(self) -> ChartContent:
         on_chain_df = self.merge_daily_klima_retirements_df(
             self.agg_daily_klima_retirements)
 
@@ -177,7 +171,30 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
             on_chain_df,
             off_chain_df)
 
-        return ChartData("Retirements by Chain", retirement_chart_figure)
+        content = dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dbc.Card(
+                            [
+                                html.H5(
+                                    "Retirements by Chain",
+                                    className="card-title"),
+                                dbc.CardBody(
+                                    dcc.Graph(figure=retirement_chart_figure)),
+                                dbc.CardFooter(
+                                    "On chain includes only KlimaDAO retirements",
+                                    className="card-footer",
+                                    style={"paddingTop": "10px"},
+                                ),
+                            ]
+                        )
+                    ],
+                    width=12,
+                ),
+            ]
+        )
+        return ChartContent(content)
 
     def merge_daily_klima_retirements_df(self, df):
 
@@ -212,7 +229,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
 
         merged = pd.concat(frames)
 
-        return ListData(merged)
+        return ListData("Detailed list of Retirements", merged)
 
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(

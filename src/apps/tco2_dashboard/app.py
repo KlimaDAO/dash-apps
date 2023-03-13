@@ -1820,7 +1820,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/carbon_supply_icon.svg",
+                                    src="assets/carbon-supply-icon.png",
                                     className="image-icons",
                                 ),
                                 className="icon-container",
@@ -1834,7 +1834,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/retirement_trends_icon.svg",
+                                    src="assets/retirement-trends-icon.png",
                                     className="image-icons",
                                 ),
                                 className="icon-container",

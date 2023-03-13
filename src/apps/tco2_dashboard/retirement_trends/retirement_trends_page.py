@@ -48,7 +48,7 @@ def create_content_retirement_trends(
 
     header = retirement_trends.create_header()
     top_data_content = retirement_trends.create_top_content()
-    chart_data = retirement_trends.create_chart_data()
+    chart_data = retirement_trends.create_chart_content()
     list_data = retirement_trends.create_list_data()
 
     content = [
@@ -110,23 +110,8 @@ def create_content_retirement_trends(
         content.append(item)
 
     # Adding Klima Daily retirement Chart row
-    content.append(dbc.Row(
-        [
-            dbc.Col(
-                [
-                    dbc.Card(
-                        [
-                            html.H5(chart_data.header,
-                                    className="card-title"),
-                            dbc.CardBody(
-                                dcc.Graph(figure=chart_data.figure)),
-                        ]
-                    )
-                ],
-                width=12,
-            ),
-        ]
-    ))
+    content.append(chart_data.data)
+
     # Adding Klima Retirement List row
     content.append(dbc.Row(
         [
@@ -135,7 +120,7 @@ def create_content_retirement_trends(
                     dbc.Card(
                         [
                             html.H5(
-                                "Detailed List of Retirements",
+                                list_data.header,
                                 className="card-title",
                             ),
                             dash_table.DataTable(
@@ -169,8 +154,6 @@ def create_content_retirement_trends(
                                     'column_id': 'Date', 'direction': 'desc'}],
                             ),
                         ],
-                        style={"margin-top": "0px",
-                               "margin-bottom": "0px"}
                     )
                 ]
             )

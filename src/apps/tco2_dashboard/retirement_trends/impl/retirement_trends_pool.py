@@ -2,9 +2,9 @@ from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
-    import ChartData, ListData, TopContent
+    import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, dcc
 
 
 class RetirementTrendsByPool(RetirementTrendsInterface):
@@ -127,9 +127,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                     className="card-text-retirement-trends",
                                 ),
                             ],
-                            style={"margin-right": "0px",
-                                   "margin-top": "0px",
-                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -178,9 +175,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                     className="card-text-retirement-trends",
                                 ),
                             ],
-                            style={"margin-left": "0px",
-                                   "margin-top": "0px",
-                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -234,8 +228,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                     className="card-text-retirement-trends",
                                 ),
                             ],
-                            style={"margin-right": "0px",
-                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -285,8 +277,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                     className="card-text-retirement-trends",
                                 ),
                             ],
-                            style={"margin-left": "0px",
-                                   "margin-bottom": "0px"}
                         ),
                         lg=6,
                         md=12,
@@ -319,7 +309,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                     className="card-text-retirement-trends",
                                 ),
                             ],
-                            style={"margin-bottom": "0px"}
                         ),
                         lg=12,
                         md=12,
@@ -329,7 +318,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
         return TopContent(top_content_data)
 
-    def create_chart_data(self) -> ChartData:
+    def create_chart_content(self) -> ChartContent:
         bct_df = self.agg_daily_klima_retirements[
             self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
             == "BCT"]
@@ -357,7 +346,25 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             ubo_df,
             nbo_df)
 
-        return ChartData("Retirements by Pool", retirement_chart_figure)
+        content = dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dbc.Card(
+                            [
+                                html.H5("KlimaDAO Retirements by Pool",
+                                        className="card-title"),
+                                dbc.CardBody(
+                                    dcc.Graph(figure=retirement_chart_figure)),
+                            ]
+                        )
+                    ],
+                    width=12,
+                ),
+            ]
+        )
+
+        return ChartContent(content)
 
     def merge_daily_retirements_df(self, df):
 
@@ -386,7 +393,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             self.raw_klima_retirements
         )
 
-        return ListData(klima_retirements_df)
+        return ListData("Detailed list of KlimaDAO Retirements", klima_retirements_df)
 
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(

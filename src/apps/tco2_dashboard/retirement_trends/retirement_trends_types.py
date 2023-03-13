@@ -35,21 +35,21 @@ class TopContent:
         self.data = data
 
 
-class ChartData:
+class ChartContent:
 
     def __init__(
             self,
-            header,
-            figure):
+            data):
 
-        self.header = header
-        self.figure = figure
+        self.data = data
 
 
 class ListData:
 
     def __init__(
             self,
+            header,
             dataframe):
 
+        self.header = header
         self.dataframe = dataframe

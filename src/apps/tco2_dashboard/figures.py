@@ -893,7 +893,7 @@ def chain_klima_retirement_chart(onchain_df, offchain_df):
             ))
     fig.update_layout(
         height=360,
-        # xaxis_title="Date",
+        xaxis_title="Date",
         yaxis_title="Tonnes Retired",
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
