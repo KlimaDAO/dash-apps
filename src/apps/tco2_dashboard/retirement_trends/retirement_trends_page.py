@@ -1,5 +1,4 @@
 from dash import html, dash_table
-from dash import dcc
 import dash_bootstrap_components as dbc
 from src.apps.tco2_dashboard.retirement_trends import retirement_trends_types
 
