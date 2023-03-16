@@ -1,5 +1,5 @@
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types  \
-    import ChartData, ListData, TopContent
+    import ChartContent, ListData, TopContent
 
 
 class RetirementTrendsInterface:
@@ -13,7 +13,7 @@ class RetirementTrendsInterface:
         for the top part for a page of a particular retirement trend"""
         pass
 
-    def create_chart_data(self) -> ChartData:
+    def create_chart_content(self) -> ChartContent:
         """Return all necessary data required
         for the chart part for a page of a particular retirement trend"""
 

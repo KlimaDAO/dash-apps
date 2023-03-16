@@ -2,9 +2,9 @@ from src.apps.tco2_dashboard.figures import token_klima_retirement_chart
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
-    import ChartData, ListData, TopContent
+    import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, dcc
 
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
@@ -82,9 +82,6 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                                 className="card-text-retirement-trends",
                             ),
                         ],
-                        style={"margin-right": "0px",
-                               "margin-top": "0px",
-                               "margin-bottom": "0px"}
                     ),
                     lg=4,
                     md=12
@@ -113,7 +110,6 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                                 className="card-text-retirement-trends",
                             ),
                         ],
-                        style={"margin": "0px"}
                     ),
                     lg=4,
                     md=12
@@ -142,9 +138,6 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                                 className="card-text-retirement-trends",
                             ),
                         ],
-                        style={"margin-left": "0px",
-                               "margin-top": "0px",
-                               "margin-bottom": "0px"}
                     ),
                     lg=4,
                     md=12
@@ -154,7 +147,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         return TopContent(top_content_data)
 
-    def create_chart_data(self) -> ChartData:
+    def create_chart_content(self) -> ChartContent:
         tco2_df, c3t_df = self.merge_daily_retirements_df(
             self.agg_daily_klima_retirements)
 
@@ -167,7 +160,24 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             mco2_df,
             c3t_df)
 
-        return ChartData("Retirements by Token", retirement_chart_figure)
+        content = dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dbc.Card(
+                            [
+                                html.H5("KlimaDAO Retirements by Token",
+                                        className="card-title"),
+                                dbc.CardBody(
+                                    dcc.Graph(figure=retirement_chart_figure)),
+                            ]
+                        )
+                    ],
+                    width=12,
+                ),
+            ]
+        )
+        return ChartContent(content)
 
     def merge_daily_retirements_df(self, df):
 
@@ -196,7 +206,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             self.raw_klima_retirements
         )
 
-        return ListData(klima_retirements_df)
+        return ListData("Detailed list of KlimaDAO Retirements", klima_retirements_df)
 
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(
