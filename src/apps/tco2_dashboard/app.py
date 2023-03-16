@@ -829,7 +829,7 @@ def get_prices():
                 klima_price = klima_usdc_price(web3)
                 token_price = uni_v2_pool_price(
                     web3,
-                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                    web3.to_checksum_address(tokens_dict[i]["Pair Address"]),
                     KLIMA_DECIMALS - tokens_dict[i]["Decimals"],
                 )
                 price = klima_price / token_price
@@ -837,7 +837,7 @@ def get_prices():
                 klima_price = klima_usdc_price(web3)
                 token_price = uni_v2_pool_price(
                     web3,
-                    web3.toChecksumAddress(tokens_dict[i]["Pair Address"]),
+                    web3.to_checksum_address(tokens_dict[i]["Pair Address"]),
                     KLIMA_DECIMALS,
                 )
                 price = token_price * klima_price
