@@ -1782,7 +1782,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/carbon-supply-icon.png",
+                                    src="assets/carbon-supply-icon.svg",
                                     className="image-icons",
                                 ),
                                 className="icon-container",
@@ -1796,7 +1796,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/retirement-trends-icon.png",
+                                    src="assets/retirement-trends-icon.svg",
                                     className="image-icons",
                                 ),
                                 className="icon-container",
@@ -1985,8 +1985,9 @@ def generate_layout():
                             dbc.NavLink(
                                 [
                                     html.Div(
-                                        html.Span(
-                                            "balance", className="material-icons"
+                                        html.Img(
+                                            src="assets/carbon-supply-icon.svg",
+                                            className="image-icons",
                                         ),
                                         className="icon-container",
                                     ),
@@ -1997,6 +1998,24 @@ def generate_layout():
                                 href="/carbon-supply",
                                 active="exact",
                                 id="button-onchain_carbon_supply",
+                                n_clicks=0,
+                            ),
+                            dbc.NavLink(
+                                [
+                                    html.Div(
+                                        html.Img(
+                                            src="assets/retirement-trends-icon.svg",
+                                            className="image-icons",
+                                        ),
+                                        className="icon-container",
+                                    ),
+                                    html.Span(
+                                        "Retirement Trends",
+                                    ),
+                                ],
+                                href="/retirements",
+                                active="partial",
+                                id="button-retirement_trends",
                                 n_clicks=0,
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
