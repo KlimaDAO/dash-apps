@@ -10,9 +10,13 @@ import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
 
-from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
-    import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
-    TYPE_CHAIN, create_retirement_trend_inputs
+from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page import (
+    create_content_retirement_trends,
+    TYPE_POOL,
+    TYPE_TOKEN,
+    TYPE_CHAIN,
+    create_retirement_trend_inputs,
+)
 
 from ...util import get_polygon_web3
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
@@ -112,7 +116,7 @@ from pycoingecko import CoinGeckoAPI
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
+    "https://api.thegraph.com/subgraphs/name/cujowolf/polygon-bridged-carbon-dev"
 )
 CARBON_MOSS_ETH_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
@@ -265,7 +269,6 @@ cache = Cache(
 
 @cache.memoize()
 def get_data():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -326,7 +329,6 @@ def get_data():
 
 @cache.memoize()
 def get_data_pool():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -357,7 +359,6 @@ def get_data_pool():
 
 @cache.memoize()
 def get_data_pool_retired():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -474,7 +475,6 @@ def get_verra_data():
 
 @cache.memoize()
 def get_holders_data():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
     holdings = carbon_data.Query.holdings(
@@ -497,7 +497,6 @@ def get_holders_data():
 
 @cache.memoize()
 def get_eth_carbon_metrics():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
 
@@ -535,7 +534,6 @@ def get_eth_carbon_metrics():
 
 @cache.memoize()
 def get_celo_carbon_metrics():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
 
@@ -571,7 +569,6 @@ def get_celo_carbon_metrics():
 
 @cache.memoize()
 def get_polygon_carbon_metrics():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -592,8 +589,7 @@ def get_polygon_carbon_metrics():
     )
 
     carbon_data.CarbonMetric.tco2KlimaRetired = SyntheticField(
-        lambda bctKlimaRetired, nctKlimaRetired: bctKlimaRetired
-        + nctKlimaRetired,
+        lambda bctKlimaRetired, nctKlimaRetired: bctKlimaRetired + nctKlimaRetired,
         SyntheticField.FLOAT,
         [
             carbon_data.CarbonMetric.bctKlimaRetired,
@@ -602,8 +598,7 @@ def get_polygon_carbon_metrics():
     )
 
     carbon_data.CarbonMetric.c3tKlimaRetired = SyntheticField(
-        lambda uboKlimaRetired, nboKlimaRetired: uboKlimaRetired
-        + nboKlimaRetired,
+        lambda uboKlimaRetired, nboKlimaRetired: uboKlimaRetired + nboKlimaRetired,
         SyntheticField.FLOAT,
         [
             carbon_data.CarbonMetric.uboKlimaRetired,
@@ -654,7 +649,6 @@ def get_polygon_carbon_metrics():
 
 @cache.memoize()
 def get_klima_retirements():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -665,7 +659,7 @@ def get_klima_retirements():
     )
 
     carbon_data.KlimaRetire.proof = SyntheticField(
-        lambda tx_id: f'https://polygonscan.com/tx/{tx_id}',
+        lambda tx_id: f"https://polygonscan.com/tx/{tx_id}",
         SyntheticField.STRING,
         carbon_data.KlimaRetire.transaction.id,
     )
@@ -673,7 +667,7 @@ def get_klima_retirements():
     klimaRetirees = carbon_data.Query.klimaRetires(
         orderBy=carbon_data.KlimaRetire.timestamp,
         orderDirection="desc",
-        first=MAX_RECORDS
+        first=MAX_RECORDS,
     )
 
     df = sg.query_df(
@@ -682,7 +676,7 @@ def get_klima_retirements():
             klimaRetirees.token,
             klimaRetirees.datetime,
             klimaRetirees.amount,
-            klimaRetirees.proof
+            klimaRetirees.proof,
         ]
     )
 
@@ -691,7 +685,6 @@ def get_klima_retirements():
 
 @cache.memoize()
 def get_daily_agg_klima_retirements():
-
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -704,7 +697,7 @@ def get_daily_agg_klima_retirements():
     dailyKlimaRetirements = carbon_data.Query.dailyKlimaRetirements(
         orderBy=carbon_data.DailyKlimaRetirement.timestamp,
         orderDirection="desc",
-        first=MAX_RECORDS
+        first=MAX_RECORDS,
     )
 
     df = sg.query_df(
@@ -1438,8 +1431,7 @@ def generate_layout():
     # --UBO---
 
     # Carbon pool filter
-    df_carbon_c3t["Project ID"] = "VCS-" + \
-        df_carbon_c3t["Project ID"].astype(str)
+    df_carbon_c3t["Project ID"] = "VCS-" + df_carbon_c3t["Project ID"].astype(str)
     ubo_deposited, ubo_redeemed = filter_carbon_pool(
         UBO_ADDRESS, df_deposited, df_redeemed
     )
@@ -1633,28 +1625,23 @@ def generate_layout():
         df_verra_retired,
         df_verra,
         bridges_info_dict,
-        verra_fallback_note
+        verra_fallback_note,
     )
 
     content_token_retirement_trends = create_content_retirement_trends(
-        TYPE_TOKEN,
-        retirement_trend_inputs
+        TYPE_TOKEN, retirement_trend_inputs
     )
-    cache.set("content_token_retirement_trends",
-              content_token_retirement_trends)
+    cache.set("content_token_retirement_trends", content_token_retirement_trends)
 
     content_pool_retirement_trends = create_content_retirement_trends(
-        TYPE_POOL,
-        retirement_trend_inputs
+        TYPE_POOL, retirement_trend_inputs
     )
     cache.set("content_pool_retirement_trends", content_pool_retirement_trends)
 
     content_chain_retirement_trends = create_content_retirement_trends(
-        TYPE_CHAIN,
-        retirement_trend_inputs
+        TYPE_CHAIN, retirement_trend_inputs
     )
-    cache.set("content_chain_retirement_trends",
-              content_chain_retirement_trends)
+    cache.set("content_chain_retirement_trends", content_chain_retirement_trends)
 
     # --- onchain carbon pool comparison ---
     add_fee_redeem_factors_to_dict(tokens_dict, web3)
@@ -2392,7 +2379,6 @@ def update_output_div_c3(summary_type, C3T_type):
     Input(component_id="issued_or_retired", component_property="value"),
 )
 def update_output_on_vs_off(type):
-
     if type == "Issued":
         titles_on_vs_off_issued = cache.get("titles_on_vs_off_issued")
         fig_on_vs_off_issued = cache.get("fig_on_vs_off_issued")
