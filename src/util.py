@@ -11,7 +11,7 @@ def get_polygon_web3():
 
     web3 = Web3(Web3.HTTPProvider(polygon_mainnet_endpoint))
 
-    assert web3.isConnected()
+    assert web3.is_connected()
 
     return web3
 
@@ -21,7 +21,7 @@ def get_eth_web3():
 
     web3_eth = Web3(Web3.HTTPProvider(ethereum_mainnet_endpoint))
 
-    assert web3_eth.isConnected()
+    assert web3_eth.is_connected()
 
     return web3_eth
 
