@@ -404,10 +404,13 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                 'klimaRetires_proof': 'View on PolygonScan',
                 'klimaRetires_amount': 'Amount in Tonnes'})
 
-        df['Amount in Tonnes'] = df['Amount in Tonnes'].apply(
-            lambda x: f'{round(x, 3)}')
-        df['View on PolygonScan'] = df[
-            'View on PolygonScan'].apply(lambda x: f'[Click Here]({x})')
+        df['Amount in Tonnes'] = df[
+            'Amount in Tonnes'].round(3)
+        df['Pledge'] = (
+            '[Click Here](https://www.klimadao.finance/pledge/' +
+            df['Beneficiary Address'] + ')'
+        )
+        df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
         return df
 

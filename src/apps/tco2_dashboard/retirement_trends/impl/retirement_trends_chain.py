@@ -234,19 +234,22 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(
             columns={
-                'klimaRetires_beneficiaryAddress': 'Retiree',
+                'klimaRetires_beneficiaryAddress': 'Beneficiary',
                 'klimaRetires_token': 'On/Off Chain',
                 'klimaRetires_datetime': 'Date',
                 'klimaRetires_proof': 'Proof',
-                'klimaRetires_amount': 'Amount In Tonnes'})
+                'klimaRetires_amount': 'Amount in Tonnes'})
 
-        df['Amount In Tonnes'] = df[
-            'Amount In Tonnes'].apply(lambda x: f'{round(x, 3)}')
+        df['Amount in Tonnes'] = df[
+            'Amount in Tonnes'].round(3)
         df = df.assign(**{"On/Off Chain": 'On'})
-        df['Proof'] = df[
-            'Proof'].apply(lambda x: f'[Click Here]({x})')
+        df['Proof'] = '[Click Here](' + df['Proof'] + ')'
+        df['Pledge'] = (
+            '[Click Here](https://www.klimadao.finance/pledge/' +
+            df['Beneficiary'] + ')'
+        )
         df['Date'] = df[
-            'Date'].apply(lambda x: f'{str(x.split()[0])}')
+            'Date'].astype(str).str.split(n=1)
 
         return df
 
@@ -258,13 +261,13 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                           'Quantity']].copy()
         filtered_df = filtered_df.assign(**{"Credit Type": 'Off'})
         filtered_df['Date'] = filtered_df[
-            'Date'].apply(lambda x: f'{str(x)}')
+            'Date'].astype(str)
 
         filtered_df = filtered_df.rename(
             columns={
-                'Retirement Beneficiary': 'Retiree',
+                'Retirement Beneficiary': 'Beneficiary',
                 'Credit Type': 'On/Off Chain',
                 'Serial Number': 'Proof',
-                'Quantity': 'Amount In Tonnes'})
+                'Quantity': 'Amount in Tonnes'})
 
         return filtered_df
