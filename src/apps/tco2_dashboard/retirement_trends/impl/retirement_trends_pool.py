@@ -1,10 +1,12 @@
-from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart
+from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart_stacked, pool_klima_retirement_table
+from src.apps.tco2_dashboard.helpers import stacked_bar_chart_data_process, summary_table_data_process
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+import pandas as pd
 
 
 class RetirementTrendsByPool(RetirementTrendsInterface):
