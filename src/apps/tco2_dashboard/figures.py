@@ -10,6 +10,9 @@ from .constants import (
     GRAPH_FONT,
     TREEMAP_FONT,
     PIE_CHART_FONT,
+    GRAY, 
+    DARK_GRAY,
+    WHITE
 )
 import pandas as pd
 import circlify
@@ -1851,3 +1854,49 @@ def total_carbon_supply_pie_chart(
     fig.update_traces(textposition="inside")
 
     return fig
+
+
+def pool_klima_retirement_chart_stacked(wrs):
+    fig = go.Figure(data=[
+    go.Bar(name='BCT', x=wrs['month_year'], y=wrs['BCT_%']),
+    go.Bar(name='MCO2', x=wrs['month_year'], y=wrs['MCO2_%']),
+    go.Bar(name='NBO', x=wrs['month_year'], y=wrs['NBO_%']),
+    go.Bar(name='NCT', x=wrs['month_year'], y=wrs['NCT_%']),
+    go.Bar(name='UBO', x=wrs['month_year'], y=wrs['UBO_%'])
+    ])
+
+    fig.update_layout(
+        barmode='stack',
+        height=360,
+        xaxis_title="Date",
+        yaxis_title="Percentage",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=50, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
+    )
+
+    return fig
+
+
+def pool_klima_retirement_table(summary_table):
+    table = dash_table.DataTable(
+        summary_table.to_dict('records'),
+        [{"name": i, "id": i, "presentation": "markdown", "type": "text"} 
+         for i in summary_table.columns],
+         style_header={
+                                    "backgroundColor": GRAY,
+                                    'color': WHITE,
+                                    "text-align": "center"
+                                },
+                                style_data={
+                                    "backgroundColor": DARK_GRAY,
+                                    "color": WHITE
+                                },
+                                style_table={"overflowX": "auto"},
+                                style_cell={'fontSize':11, 'font-family':'sans-serif'})
+    return table
