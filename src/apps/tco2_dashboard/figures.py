@@ -19,6 +19,7 @@ import circlify
 import matplotlib
 from base64 import b64encode
 import math
+from dash import dash_table
 
 matplotlib.use("agg")
 
