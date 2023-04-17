@@ -345,6 +345,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                         className="card-title"),
                                 dbc.CardBody(
                                     dcc.Graph(figure=retirement_chart_figure)),
+                                dbc.CardBody(
+                                    summary_table_final, style={"margin-top": "15px"})
                             ]
                         )
                     ],
