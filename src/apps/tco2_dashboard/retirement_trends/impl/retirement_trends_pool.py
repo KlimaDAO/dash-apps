@@ -321,32 +321,19 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         return TopContent(top_content_data)
 
     def create_chart_content(self) -> ChartContent:
-        bct_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "BCT"]
+        retirements_all = self.agg_daily_klima_retirements[
+            self.agg_daily_klima_retirements['dailyKlimaRetirements_token'].isin(["BCT", "MCO2", "NBO", "NCT", "UBO"])
+        ]
 
-        nct_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "NCT"]
+        retirements_all = retirements_all_data_process(retirements_all)
 
-        mco2_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "MCO2"]
+        wrs = stacked_bar_chart_data_process(retirements_all)
 
-        ubo_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "UBO"]
+        retirement_chart_figure = pool_klima_retirement_chart_stacked(wrs)
 
-        nbo_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "NBO"]
+        summary_table = summary_table_data_process(retirements_all)
 
-        retirement_chart_figure = pool_klima_retirement_chart(
-            bct_df,
-            nct_df,
-            mco2_df,
-            ubo_df,
-            nbo_df)
+        summary_table_final = pool_klima_retirement_table(summary_table)
 
         content = dbc.Row(
             [
