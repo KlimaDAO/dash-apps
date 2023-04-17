@@ -1,5 +1,5 @@
 from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart_stacked, pool_klima_retirement_table
-from src.apps.tco2_dashboard.helpers import stacked_bar_chart_data_process, summary_table_data_process
+from src.apps.tco2_dashboard.helpers import retirements_all_data_process, stacked_bar_chart_data_process, summary_table_data_process
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
