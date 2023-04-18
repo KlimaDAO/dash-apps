@@ -83,6 +83,7 @@ jobs:
       GITHUB_SHA: ${{ github.sha }}
       DIGITALOCEAN_APP_NAME: ${{ secrets.DIGITALOCEAN_APP_NAME }}
       DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
+      DIGITALOCEAN_SIZE_SLUG: ${{ secrets.DIGITALOCEAN_SIZE_SLUG }}
       ENV: ${{ secrets.ENV }}
     steps:
       - name: Check out source repository
@@ -99,6 +100,6 @@ jobs:
       - name: Upsert app
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 20
-          max_attempts: 4
+          timeout_minutes: 60
+          max_attempts: 10
           command: doctl apps update ${{ secrets.DIGITALOCEAN_APP_ID }} --spec app-spec.yml --wait --verbose

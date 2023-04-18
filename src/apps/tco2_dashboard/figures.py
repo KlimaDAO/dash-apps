@@ -791,13 +791,130 @@ def historical_prices(tokens_dict, df_prices, excluded_tokens):
     return fig
 
 
+def token_klima_retirement_chart(tco2_df, mco2_df, c3t_df):
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=tco2_df.dailyKlimaRetirements_datetime,
+            y=tco2_df.dailyKlimaRetirements_amount,
+            mode="lines", name="TCO2"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=mco2_df.dailyKlimaRetirements_datetime,
+            y=mco2_df.dailyKlimaRetirements_amount,
+            mode="lines", name="MCO2"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=c3t_df.dailyKlimaRetirements_datetime,
+            y=c3t_df.dailyKlimaRetirements_amount,
+            mode="lines", name="C3T"
+        ))
+    fig.update_layout(
+        height=360,
+        xaxis_title="Date",
+        yaxis_title="Tonnes Retired",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=50, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
+    )
+    return fig
+
+
+def pool_klima_retirement_chart(bct_df, nct_df, mco2_df, ubo_df, nbo_df):
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=bct_df.dailyKlimaRetirements_datetime,
+            y=bct_df.dailyKlimaRetirements_amount,
+            mode="lines", name="BCT"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=nct_df.dailyKlimaRetirements_datetime,
+            y=nct_df.dailyKlimaRetirements_amount,
+            mode="lines", name="NCT"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=mco2_df.dailyKlimaRetirements_datetime,
+            y=mco2_df.dailyKlimaRetirements_amount,
+            mode="lines", name="MCO2"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=ubo_df.dailyKlimaRetirements_datetime,
+            y=ubo_df.dailyKlimaRetirements_amount,
+            mode="lines", name="UBO"
+        )),
+    fig.add_trace(
+        go.Scatter(
+            x=nbo_df.dailyKlimaRetirements_datetime,
+            y=nbo_df.dailyKlimaRetirements_amount,
+            mode="lines", name="NBO"
+        ))
+    fig.update_layout(
+        height=360,
+        xaxis_title="Date",
+        yaxis_title="Tonnes Retired",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=50, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
+    )
+    return fig
+
+
+def chain_klima_retirement_chart(onchain_df, offchain_df):
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=onchain_df.dailyKlimaRetirements_datetime,
+            y=onchain_df.dailyKlimaRetirements_amount,
+            mode="lines", name="On chain"
+        )),
+
+    if offchain_df is not None:
+        fig.add_trace(
+            go.Scatter(
+                x=offchain_df.Date,
+                y=offchain_df.Quantity,
+                mode="lines", name="Off chain"
+            ))
+    fig.update_layout(
+        height=360,
+        xaxis_title="Date",
+        yaxis_title="Tonnes Retired",
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        margin=dict(t=50, b=20, l=0, r=0),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
+    )
+    return fig
+
+
 def pool_retired_chart(token_cg_dict, df_pool_retired):
     fig = go.Figure()
     for i in token_cg_dict.keys():
         pool_address = token_cg_dict[i]["address"]
         filtered_df = df_pool_retired
         filtered_df[f"Quantity_{i}"] = filtered_df["Quantity"]
-        filtered_df.loc[filtered_df["Pool"] != pool_address, f"Quantity_{i}"] = 0
+        filtered_df.loc[filtered_df["Pool"] !=
+                        pool_address, f"Quantity_{i}"] = 0
         filtered_df = filtered_df.sort_values(by="Date", ascending=True)
         filtered_df[f"Quantity_{i}"] = filtered_df[f"Quantity_{i}"].cumsum()
         fig.add_trace(
@@ -1728,7 +1845,7 @@ def total_carbon_supply_pie_chart(
         paper_bgcolor=FIGURE_BG_COLOR,
         font_color="white",
         font_size=8,
-        margin=dict(t=10, b=0, l=0, r=0),
+        margin=dict(t=30, b=0, l=0, r=0),
         legend=dict(x=1, font=dict(size=12)),
     )
     fig.update_traces(textposition="inside")

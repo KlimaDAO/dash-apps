@@ -14,3 +14,4 @@ matplotlib==3.5.2
 plotly==5.7.0
 kaleido==0.2.1
 boto3==1.26.74
+dash==2.8.1

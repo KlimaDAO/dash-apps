@@ -644,7 +644,7 @@ def get_fee_redeem_factors(token_address, web3):
     if web3 is not None:
         if token_address == BCT_ADDRESS or token_address == NCT_ADDRESS:
             contract = web3.eth.contract(
-                address=web3.toChecksumAddress(token_address),
+                address=web3.to_checksum_address(token_address),
                 abi=load_abi("toucanPoolToken.json"),
             )
             feeRedeemDivider = contract.functions.feeRedeemDivider().call()
@@ -653,7 +653,7 @@ def get_fee_redeem_factors(token_address, web3):
             )
         elif token_address == UBO_ADDRESS or token_address == NBO_ADDRESS:
             contract = web3.eth.contract(
-                address=web3.toChecksumAddress(token_address),
+                address=web3.to_checksum_address(token_address),
                 abi=load_abi("c3PoolToken.json"),
             )
             feeRedeemFactor = contract.functions.feeRedeem().call() / 10000

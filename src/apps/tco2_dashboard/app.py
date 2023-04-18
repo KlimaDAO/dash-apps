@@ -9,6 +9,11 @@ import pandas as pd
 import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
+
+from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
+    import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
+    TYPE_CHAIN, create_retirement_trend_inputs
+
 from ...util import get_polygon_web3
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
@@ -758,6 +763,26 @@ def get_polygon_carbon_metrics(use_backup, client, backup_day, backup_data):
             ],
         )
 
+        carbon_data.CarbonMetric.tco2KlimaRetired = SyntheticField(
+            lambda bctKlimaRetired, nctKlimaRetired: bctKlimaRetired
+            + nctKlimaRetired,
+            SyntheticField.FLOAT,
+            [
+                carbon_data.CarbonMetric.bctKlimaRetired,
+                carbon_data.CarbonMetric.nctKlimaRetired,
+            ],
+        )
+
+        carbon_data.CarbonMetric.c3tKlimaRetired = SyntheticField(
+            lambda uboKlimaRetired, nboKlimaRetired: uboKlimaRetired
+            + nboKlimaRetired,
+            SyntheticField.FLOAT,
+            [
+                carbon_data.CarbonMetric.uboKlimaRetired,
+                carbon_data.CarbonMetric.nboKlimaRetired,
+            ],
+        )
+
         carbonMetrics = carbon_data.Query.carbonMetrics(
             orderBy=carbon_data.CarbonMetric.timestamp,
             orderDirection="desc",
@@ -775,6 +800,10 @@ def get_polygon_carbon_metrics(use_backup, client, backup_day, backup_data):
                 carbonMetrics.mco2Supply,
                 carbonMetrics.uboSupply,
                 carbonMetrics.nboSupply,
+                carbonMetrics.bctRedeemed,
+                carbonMetrics.nctRedeemed,
+                carbonMetrics.uboRedeemed,
+                carbonMetrics.nboRedeemed,
                 carbonMetrics.totalCarbonSupply,
                 carbonMetrics.mco2Retired,
                 carbonMetrics.tco2Retired,
@@ -786,6 +815,8 @@ def get_polygon_carbon_metrics(use_backup, client, backup_day, backup_data):
                 carbonMetrics.uboKlimaRetired,
                 carbonMetrics.nboKlimaRetired,
                 carbonMetrics.totalKlimaRetirements,
+                carbonMetrics.tco2KlimaRetired,
+                carbonMetrics.c3tKlimaRetired,
                 carbonMetrics.not_klima_retired,
             ]
         )
@@ -802,6 +833,74 @@ def get_polygon_carbon_metrics(use_backup, client, backup_day, backup_data):
             DO_SPACES_BUCKET_NAME,
             f"Polygon_Digital_Carbon_Metrics_Data_{backup_day}",
         )
+
+    return df
+
+
+@cache.memoize()
+def get_klima_retirements():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+
+    carbon_data.KlimaRetire.datetime = SyntheticField(
+        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+        SyntheticField.STRING,
+        carbon_data.KlimaRetire.timestamp,
+    )
+
+    carbon_data.KlimaRetire.proof = SyntheticField(
+        lambda tx_id: f'https://polygonscan.com/tx/{tx_id}',
+        SyntheticField.STRING,
+        carbon_data.KlimaRetire.transaction.id,
+    )
+
+    klimaRetirees = carbon_data.Query.klimaRetires(
+        orderBy=carbon_data.KlimaRetire.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS
+    )
+
+    df = sg.query_df(
+        [
+            klimaRetirees.beneficiaryAddress,
+            klimaRetirees.token,
+            klimaRetirees.datetime,
+            klimaRetirees.amount,
+            klimaRetirees.proof
+        ]
+    )
+
+    return df
+
+
+@cache.memoize()
+def get_daily_agg_klima_retirements():
+
+    sg = Subgrounds()
+    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
+
+    carbon_data.DailyKlimaRetirement.datetime = SyntheticField(
+        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
+        SyntheticField.STRING,
+        carbon_data.DailyKlimaRetirement.timestamp,
+    )
+
+    dailyKlimaRetirements = carbon_data.Query.dailyKlimaRetirements(
+        orderBy=carbon_data.DailyKlimaRetirement.timestamp,
+        orderDirection="desc",
+        first=MAX_RECORDS
+    )
+
+    df = sg.query_df(
+        [
+            dailyKlimaRetirements.id,
+            dailyKlimaRetirements.timestamp,
+            dailyKlimaRetirements.datetime,
+            dailyKlimaRetirements.amount,
+            dailyKlimaRetirements.token,
+        ]
+    )
 
     return df
 
@@ -1686,7 +1785,7 @@ def generate_layout():
     # --UBO---
 
     # Carbon pool filter
-    df_carbon_c3t["Project ID"] = "VCS-" + df_carbon_c3t["Project ID"].astype(str)
+    df_carbon_c3t["Project ID"] = df_carbon_c3t["Project ID"]
     ubo_deposited, ubo_redeemed = filter_carbon_pool(
         UBO_ADDRESS, df_deposited, df_redeemed
     )
@@ -1868,6 +1967,41 @@ def generate_layout():
     )
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
+    # Content Retirement trends
+    klima_retirements_df = get_klima_retirements()
+    daily_agg_klima_retirements_df = get_daily_agg_klima_retirements()
+
+    retirement_trend_inputs = create_retirement_trend_inputs(
+        polygon_carbon_metrics_df,
+        eth_carbon_metrics_df,
+        klima_retirements_df,
+        daily_agg_klima_retirements_df,
+        df_verra_retired,
+        df_verra,
+        bridges_info_dict,
+        verra_fallback_note
+    )
+
+    content_token_retirement_trends = create_content_retirement_trends(
+        TYPE_TOKEN,
+        retirement_trend_inputs
+    )
+    cache.set("content_token_retirement_trends",
+              content_token_retirement_trends)
+
+    content_pool_retirement_trends = create_content_retirement_trends(
+        TYPE_POOL,
+        retirement_trend_inputs
+    )
+    cache.set("content_pool_retirement_trends", content_pool_retirement_trends)
+
+    content_chain_retirement_trends = create_content_retirement_trends(
+        TYPE_CHAIN,
+        retirement_trend_inputs
+    )
+    cache.set("content_chain_retirement_trends",
+              content_chain_retirement_trends)
+
     # --- onchain carbon pool comparison ---
     add_fee_redeem_factors_to_dict(tokens_dict, web3)
     fig_historical_prices = historical_prices(
@@ -1994,7 +2128,7 @@ def generate_layout():
                         [
                             html.Div(
                                 html.Img(
-                                    src="assets/carbon_supply_icon.svg",
+                                    src="assets/carbon-supply-icon.svg",
                                     className="image-icons",
                                 ),
                                 className="icon-container",
@@ -2003,6 +2137,20 @@ def generate_layout():
                         ],
                         href="/carbon-supply",
                         active="exact",
+                    ),
+                    dbc.NavLink(
+                        [
+                            html.Div(
+                                html.Img(
+                                    src="assets/retirement-trends-icon.svg",
+                                    className="image-icons",
+                                ),
+                                className="icon-container",
+                            ),
+                            html.Span("Retirement Trends"),
+                        ],
+                        href="/retirements",
+                        active="partial",
                     ),
                     # html.Hr(style={"margin-top": "1.5rem"}),
                     html.A(
@@ -2183,8 +2331,9 @@ def generate_layout():
                             dbc.NavLink(
                                 [
                                     html.Div(
-                                        html.Span(
-                                            "balance", className="material-icons"
+                                        html.Img(
+                                            src="assets/carbon-supply-icon.svg",
+                                            className="image-icons",
                                         ),
                                         className="icon-container",
                                     ),
@@ -2195,6 +2344,24 @@ def generate_layout():
                                 href="/carbon-supply",
                                 active="exact",
                                 id="button-onchain_carbon_supply",
+                                n_clicks=0,
+                            ),
+                            dbc.NavLink(
+                                [
+                                    html.Div(
+                                        html.Img(
+                                            src="assets/retirement-trends-icon.svg",
+                                            className="image-icons",
+                                        ),
+                                        className="icon-container",
+                                    ),
+                                    html.Span(
+                                        "Retirement Trends",
+                                    ),
+                                ],
+                                href="/retirements",
+                                active="partial",
+                                id="button-retirement_trends",
                                 n_clicks=0,
                             ),
                             # html.Hr(style={"margin-top": "1.5rem"}),
@@ -2777,6 +2944,18 @@ def render_page_content(pathname):
 
     elif pathname == "/carbon-supply":
         content_carbon_supply = cache.get("content_carbon_supply")
+        return content_carbon_supply
+
+    elif pathname == "/retirements":
+        content_carbon_supply = cache.get("content_pool_retirement_trends")
+        return content_carbon_supply
+
+    elif pathname == "/retirements/token":
+        content_carbon_supply = cache.get("content_token_retirement_trends")
+        return content_carbon_supply
+
+    elif pathname == "/retirements/chain":
+        content_carbon_supply = cache.get("content_chain_retirement_trends")
         return content_carbon_supply
 
     elif pathname == "/tco2":
