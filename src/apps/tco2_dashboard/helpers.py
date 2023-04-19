@@ -701,76 +701,154 @@ def klima_usdc_price(web3):
 
 
 def retirements_all_data_process(retirements_all):
-    
-    retirements_all["dailyKlimaRetirements_datetime"] = pd.to_datetime(retirements_all["dailyKlimaRetirements_datetime"])
-        
-    retirements_all['month'] = retirements_all['dailyKlimaRetirements_datetime'].dt.month_name()
-        
-    retirements_all['year'] = retirements_all["dailyKlimaRetirements_datetime"].dt.year
-        
+    retirements_all["dailyKlimaRetirements_datetime"] = (
+        pd.to_datetime(retirements_all["dailyKlimaRetirements_datetime"])
+    )
+    retirements_all['month'] = (
+        retirements_all['dailyKlimaRetirements_datetime'].dt.month_name()
+    )
+    retirements_all['year'] = (
+        retirements_all["dailyKlimaRetirements_datetime"].dt.year
+    )
     retirements_all['year'] = retirements_all['year'].apply(str)
-
-    retirements_all['month_year'] = retirements_all.month.str.cat(retirements_all.year, sep='-')
-
-    retirements_all = retirements_all.drop(['year', 'month', 'dailyKlimaRetirements_datetime'], axis =1)
-
+    retirements_all['month_year'] = (
+        retirements_all.month.str.cat(retirements_all.year, sep='-')
+    )
+    retirements_all = retirements_all.drop(
+        ['year', 'month', 'dailyKlimaRetirements_datetime'], axis=1
+        )
     return retirements_all
 
 
 def stacked_bar_chart_data_process(retirements_all):
 
-        retirements_sumed = retirements_all.groupby(['month_year', 'dailyKlimaRetirements_token'])['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
+    retirements_sumed = (
+        retirements_all.groupby(
+            ['month_year', 'dailyKlimaRetirements_token']
+        )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
+    )
 
-        wide_retirements_sumed = pd.pivot(retirements_sumed, index = ['month_year'], columns = 'dailyKlimaRetirements_token', values='dailyKlimaRetirements_amount')
+    wide_retirements_sumed = (
+        pd.pivot(
+            retirements_sumed,
+            index=['month_year'],
+            columns='dailyKlimaRetirements_token',
+            values='dailyKlimaRetirements_amount'
+            )
+    )
 
-        wide_retirements_sumed = wide_retirements_sumed.fillna(0).reset_index()
+    wide_retirements_sumed = wide_retirements_sumed.fillna(0).reset_index()
 
-        wide_retirements_sumed['month_year_dt'] = pd.to_datetime(wide_retirements_sumed['month_year']).dt.strftime("%Y%m%d")
+    wide_retirements_sumed['month_year_dt'] = (
+        pd.to_datetime(
+            wide_retirements_sumed['month_year']
+        ).dt.strftime("%Y%m%d")
+    )
 
-        wide_retirements_sumed = wide_retirements_sumed.sort_values(['month_year_dt'])
+    wide_retirements_sumed = wide_retirements_sumed.sort_values(
+        ['month_year_dt']
+        )
 
-        wrs = wide_retirements_sumed
+    wrs = wide_retirements_sumed
 
-        totals = wrs['BCT'] + wrs['MCO2'] + wrs['NBO'] + wrs['NCT'] + wrs['UBO']
+    totals = wrs['BCT'] + wrs['MCO2'] + wrs['NBO'] + wrs['NCT'] + wrs['UBO']
 
-        totals = totals.to_frame().rename(columns = {0:"total_retired"})
+    totals = (
+        totals.to_frame().rename(columns={0: "total_retired"})
+    )
 
-        wrs = pd.concat([wrs, totals], axis = 1)
-        
-        wrs['BCT_%'] = wrs['BCT'] / wrs['total_retired'] * 100
-        wrs['MCO2_%'] = wrs['MCO2'] / wrs['total_retired'] * 100
-        wrs['NBO_%'] = wrs['NBO'] / wrs['total_retired'] * 100
-        wrs['NCT_%'] = wrs['NCT'] / wrs['total_retired'] * 100
-        wrs['UBO_%'] = wrs['UBO'] / wrs['total_retired'] * 100
+    wrs = pd.concat([wrs, totals], axis=1)
 
-        return wrs 
+    wrs['BCT_%'] = wrs['BCT'] / wrs['total_retired'] * 100
+    wrs['MCO2_%'] = wrs['MCO2'] / wrs['total_retired'] * 100
+    wrs['NBO_%'] = wrs['NBO'] / wrs['total_retired'] * 100
+    wrs['NCT_%'] = wrs['NCT'] / wrs['total_retired'] * 100
+    wrs['UBO_%'] = wrs['UBO'] / wrs['total_retired'] * 100
+
+    return wrs
 
 
 def summary_table_data_process(retirements_all):
-     
-    monthly_transactions = retirements_all.groupby(['month_year'])['dailyKlimaRetirements_id'].count().to_frame().reset_index()
 
-    monthly_transactions.rename(columns={'dailyKlimaRetirements_id': 'monthly_transactions'}, inplace = True)
+    monthly_transactions = retirements_all.groupby(
+        ['month_year']
+        )['dailyKlimaRetirements_id'].count().to_frame().reset_index()
 
-    monthly_total_retired = retirements_all.groupby(['month_year'])['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
-    
-    monthly_total_retired.rename(columns={'dailyKlimaRetirements_amount': 'monthly_total_retired'}, inplace = True)
+    monthly_transactions.rename(
+        columns={'dailyKlimaRetirements_id': 'monthly_transactions'},
+        inplace=True)
 
-    summary_table = pd.merge(monthly_transactions, monthly_total_retired, left_on = ['month_year'], right_on = ['month_year'], how = 'inner')
+    monthly_total_retired = retirements_all.groupby(
+        ['month_year']
+        )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
 
-    summary_table['average_transaction_size'] = summary_table['monthly_total_retired'] / summary_table['monthly_transactions']
+    monthly_total_retired.rename(
+        columns={'dailyKlimaRetirements_amount': 'monthly_total_retired'},
+        inplace=True)
 
-    summary_table['month_year_dt'] = pd.to_datetime(summary_table['month_year']).dt.strftime('%Y%m%d')
+    summary_table = pd.merge(
+        monthly_transactions,
+        monthly_total_retired,
+        left_on=['month_year'],
+        right_on=['month_year'],
+        how='inner')
 
-    summary_table = pd.melt(summary_table, id_vars = ['month_year', 'month_year_dt'], value_vars =['monthly_transactions','monthly_total_retired', 'average_transaction_size'])
+    summary_table['average_transaction_size'] = (
+        summary_table['monthly_total_retired'] /
+        summary_table['monthly_transactions']
+    )
+
+    summary_table['month_year_dt'] = pd.to_datetime(
+        summary_table['month_year']).dt.strftime('%Y%m%d')
+
+    summary_table = pd.melt(
+        summary_table,
+        id_vars=['month_year', 'month_year_dt'],
+        value_vars=['monthly_transactions',
+                    'monthly_total_retired',
+                    'average_transaction_size']
+        )
 
     summary_table = summary_table.sort_values(['month_year_dt'])
 
-    summary_table = pd.pivot(summary_table, index = ['variable'], columns = ['month_year', 'month_year_dt'], values='value')
+    summary_table = pd.pivot(
+        summary_table,
+        index=['variable'],
+        columns=['month_year', 'month_year_dt'],
+        values='value'
+        )
 
     summary_table = summary_table.reset_index()
 
-    summary_table[['April-2022', 'April-2023', 'August-2022','December-2022','February-2023','January-2023','July-2022','June-2022','March-2022','March-2023','May-2022','November-2022','October-2022','September-2022']] = summary_table[['April-2022', 'April-2023', 'August-2022','December-2022','February-2023','January-2023','July-2022','June-2022','March-2022','March-2023','May-2022','November-2022','October-2022','September-2022']].astype(int)
+    summary_table[['April-2022',
+                   'April-2023',
+                   'August-2022',
+                   'December-2022',
+                   'February-2023',
+                   'January-2023',
+                   'July-2022',
+                   'June-2022',
+                   'March-2022',
+                   'March-2023',
+                   'May-2022',
+                   'November-2022',
+                   'October-2022',
+                   'September-2022']] = (
+        summary_table[['April-2022',
+                       'April-2023',
+                       'August-2022',
+                       'December-2022',
+                       'February-2023',
+                       'January-2023',
+                       'July-2022',
+                       'June-2022',
+                       'March-2022',
+                       'March-2023',
+                       'May-2022',
+                       'November-2022',
+                       'October-2022',
+                       'September-2022']].astype(int)
+                   )
 
     summary_table.columns = summary_table.columns.droplevel(-1)
 
