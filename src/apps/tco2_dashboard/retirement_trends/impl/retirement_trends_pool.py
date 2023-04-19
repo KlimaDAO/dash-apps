@@ -322,7 +322,10 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
     def create_chart_content(self) -> ChartContent:
         retirements_all = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token'].isin(["BCT", "MCO2", "NBO", "NCT", "UBO"])
+            self.agg_daily_klima_retirements[
+                'dailyKlimaRetirements_token'].isin(
+                    ["BCT", "MCO2", "NBO", "NCT", "UBO"]
+                    )
         ]
 
         retirements_all = retirements_all_data_process(retirements_all)
@@ -346,7 +349,8 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 dbc.CardBody(
                                     dcc.Graph(figure=retirement_chart_figure)),
                                 dbc.CardBody(
-                                    summary_table_final, style={"margin-top": "15px"})
+                                    summary_table_final, style={
+                                        "margin-top": "15px"})
                             ]
                         )
                     ],
