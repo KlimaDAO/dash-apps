@@ -321,11 +321,11 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         return TopContent(top_content_data)
 
     def create_chart_content(self) -> ChartContent:
+
         retirements_all = self.agg_daily_klima_retirements[
             self.agg_daily_klima_retirements[
                 'dailyKlimaRetirements_token'].isin(
-                    ["BCT", "MCO2", "NBO", "NCT", "UBO"]
-                    )
+                    ["BCT", "MCO2", "NBO", "NCT", "UBO"])
         ]
 
         retirements_all = retirements_all_data_process(retirements_all)
