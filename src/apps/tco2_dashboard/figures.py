@@ -1859,11 +1859,11 @@ def total_carbon_supply_pie_chart(
 
 def pool_klima_retirement_chart_stacked(wrs):
     fig = go.Figure(data=[
-    go.Bar(name='BCT', x=wrs['month_year'], y=wrs['BCT_%']),
-    go.Bar(name='MCO2', x=wrs['month_year'], y=wrs['MCO2_%']),
-    go.Bar(name='NBO', x=wrs['month_year'], y=wrs['NBO_%']),
-    go.Bar(name='NCT', x=wrs['month_year'], y=wrs['NCT_%']),
-    go.Bar(name='UBO', x=wrs['month_year'], y=wrs['UBO_%'])
+        go.Bar(name='BCT', x=wrs['month_year'], y=wrs['BCT_%']),
+        go.Bar(name='MCO2', x=wrs['month_year'], y=wrs['MCO2_%']),
+        go.Bar(name='NBO', x=wrs['month_year'], y=wrs['NBO_%']),
+        go.Bar(name='NCT', x=wrs['month_year'], y=wrs['NCT_%']),
+        go.Bar(name='UBO', x=wrs['month_year'], y=wrs['UBO_%'])
     ])
 
     fig.update_layout(
@@ -1885,19 +1885,22 @@ def pool_klima_retirement_chart_stacked(wrs):
 
 
 def pool_klima_retirement_table(summary_table):
+
     table = dash_table.DataTable(
         summary_table.to_dict('records'),
-        [{"name": i, "id": i, "presentation": "markdown", "type": "text"} 
-         for i in summary_table.columns],
-         style_header={
-                                    "backgroundColor": GRAY,
-                                    'color': WHITE,
-                                    "text-align": "center"
-                                },
-                                style_data={
-                                    "backgroundColor": DARK_GRAY,
-                                    "color": WHITE
-                                },
-                                style_table={"overflowX": "auto"},
-                                style_cell={'fontSize':11, 'font-family':'sans-serif'})
+        [{"name": i,
+          "id": i,
+          "presentation": "markdown",
+          "type": "text"} for i in summary_table.columns],
+        style_header={"backgroundColor": GRAY,
+                      'color': WHITE,
+                      "text-align": "center"},
+        style_data={
+            "backgroundColor": DARK_GRAY,
+            "color": WHITE},
+        style_table={
+            "overflowX": "auto"},
+        style_cell={
+            'fontSize': 11,
+            'font-family': 'sans-serif'})
     return table
