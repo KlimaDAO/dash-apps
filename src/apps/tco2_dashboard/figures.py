@@ -10,7 +10,7 @@ from .constants import (
     GRAPH_FONT,
     TREEMAP_FONT,
     PIE_CHART_FONT,
-    GRAY, 
+    GRAY,
     DARK_GRAY,
     WHITE
 )
