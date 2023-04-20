@@ -716,7 +716,7 @@ def retirements_all_data_process(retirements_all):
     )
     retirements_all = retirements_all.drop(
         ['year', 'month', 'dailyKlimaRetirements_datetime'], axis=1
-        )
+    )
     return retirements_all
 
 
