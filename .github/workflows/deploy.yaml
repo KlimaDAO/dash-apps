@@ -85,6 +85,7 @@ jobs:
       DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
       DIGITALOCEAN_SIZE_SLUG: ${{ secrets.DIGITALOCEAN_SIZE_SLUG }}
       ENV: ${{ secrets.ENV }}
+      GUNICORN_TIMEOUT: ${{ secrets.GUNICORN_TIMEOUT }}
     steps:
       - name: Check out source repository
         uses: actions/checkout@v2
