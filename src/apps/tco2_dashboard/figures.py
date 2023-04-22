@@ -9,17 +9,13 @@ from .constants import (
     FIGURE_BG_COLOR,
     GRAPH_FONT,
     TREEMAP_FONT,
-    PIE_CHART_FONT,
-    GRAY,
-    DARK_GRAY,
-    WHITE
+    PIE_CHART_FONT
 )
 import pandas as pd
 import circlify
 import matplotlib
 from base64 import b64encode
 import math
-from dash import dash_table
 
 matplotlib.use("agg")
 
