@@ -338,10 +338,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
         retirement_chart_figure = pool_klima_retirement_chart_stacked(wrs)
 
-        summary_table = summary_table_data_process(retirements_all)
-
-        summary_table_final = pool_klima_retirement_table(summary_table)
-
         content = dbc.Row(
             [
                 dbc.Col(
@@ -351,10 +347,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                 html.H5("KlimaDAO Retirements by Pool",
                                         className="card-title"),
                                 dbc.CardBody(
-                                    dcc.Graph(figure=retirement_chart_figure)),
-                                dbc.CardBody(
-                                    summary_table_final, style={
-                                        "margin-top": "15px"})
+                                    dcc.Graph(figure=retirement_chart_figure))
                             ]
                         )
                     ],
