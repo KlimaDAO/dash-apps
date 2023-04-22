@@ -775,81 +775,66 @@ def summary_table_data_process(retirements_all):
         )['dailyKlimaRetirements_id'].count().to_frame().reset_index()
 
     monthly_transactions.rename(
-        columns={'dailyKlimaRetirements_id': 'monthly_transactions'},
-        inplace=True)
+            columns={'dailyKlimaRetirements_id': 'Number of transactions'},
+            inplace=True)
 
     monthly_total_retired = retirements_all.groupby(
-        ['month_year']
-        )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
+            ['month_year']
+            )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
 
     monthly_total_retired.rename(
-        columns={'dailyKlimaRetirements_amount': 'monthly_total_retired'},
-        inplace=True)
+            columns={'dailyKlimaRetirements_amount': 'Total tCO2e retired'},
+            inplace=True)
 
     summary_table = pd.merge(
-        monthly_transactions,
-        monthly_total_retired,
-        left_on=['month_year'],
-        right_on=['month_year'],
-        how='inner')
+            monthly_transactions,
+            monthly_total_retired,
+            left_on=['month_year'],
+            right_on=['month_year'],
+            how='inner')
 
-    summary_table['average_transaction_size'] = (
-        summary_table['monthly_total_retired'] /
-        summary_table['monthly_transactions']
-    )
+    summary_table['Average tCO2e per transaction'] = (
+            summary_table['Total tCO2e retired'] /
+            summary_table['Number of transactions']
+        )
 
     summary_table['month_year_dt'] = pd.to_datetime(
-        summary_table['month_year']).dt.strftime('%Y%m%d')
+            summary_table['month_year']).dt.strftime('%Y%m%d')
 
     summary_table = pd.melt(
-        summary_table,
-        id_vars=['month_year', 'month_year_dt'],
-        value_vars=['monthly_transactions',
-                    'monthly_total_retired',
-                    'average_transaction_size']
-        )
+            summary_table,
+            id_vars=['month_year', 'month_year_dt'],
+            value_vars=['Number of transactions',
+                        'Total tCO2e retired',
+                        'Average tCO2e per transaction']
+            )
 
     summary_table = summary_table.sort_values(['month_year_dt'])
 
+    summary_table['value'] = summary_table['value'].astype(int)
+
+    summary_table['value'] = summary_table['value'].apply(
+        lambda x : '{0:,}'.format(x))
+
     summary_table = pd.pivot(
-        summary_table,
-        index=['variable'],
-        columns=['month_year', 'month_year_dt'],
-        values='value'
-        )
+            summary_table,
+            index=['variable'],
+            columns=['month_year', 'month_year_dt'],
+            values='value'
+            )    
+    
+    summary_table = summary_table.reindex(
+        ["Total tCO2e retired", 
+         "Number of transactions", 
+         "Average tCO2e per transaction"])
 
     summary_table = summary_table.reset_index()
 
-    summary_table[['April-2022',
-                   'April-2023',
-                   'August-2022',
-                   'December-2022',
-                   'February-2023',
-                   'January-2023',
-                   'July-2022',
-                   'June-2022',
-                   'March-2022',
-                   'March-2023',
-                   'May-2022',
-                   'November-2022',
-                   'October-2022',
-                   'September-2022']] = (
-        summary_table[['April-2022',
-                       'April-2023',
-                       'August-2022',
-                       'December-2022',
-                       'February-2023',
-                       'January-2023',
-                       'July-2022',
-                       'June-2022',
-                       'March-2022',
-                       'March-2023',
-                       'May-2022',
-                       'November-2022',
-                       'October-2022',
-                       'September-2022']].astype(int)
-                   )
+    summary_table.rename(
+            columns={'variable': ''},
+            inplace=True)
 
     summary_table.columns = summary_table.columns.droplevel(-1)
 
     return summary_table
+
