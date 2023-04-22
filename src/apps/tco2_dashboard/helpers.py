@@ -814,18 +814,18 @@ def summary_table_data_process(retirements_all):
     summary_table['value'] = summary_table['value'].astype(int)
 
     summary_table['value'] = summary_table['value'].apply(
-        lambda x : '{0:,}'.format(x))
+        lambda x: '{0:,}'.format(x))
 
     summary_table = pd.pivot(
             summary_table,
             index=['variable'],
             columns=['month_year', 'month_year_dt'],
             values='value'
-            )    
-    
+            )
+
     summary_table = summary_table.reindex(
-        ["Total tCO2e retired", 
-         "Number of transactions", 
+        ["Total tCO2e retired",
+         "Number of transactions",
          "Average tCO2e per transaction"])
 
     summary_table = summary_table.reset_index()
@@ -837,4 +837,3 @@ def summary_table_data_process(retirements_all):
     summary_table.columns = summary_table.columns.droplevel(-1)
 
     return summary_table
-
