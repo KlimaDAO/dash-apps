@@ -1882,25 +1882,3 @@ def pool_klima_retirement_chart_stacked(wrs):
     )
 
     return fig
-
-
-def pool_klima_retirement_table(summary_table):
-
-    table = dash_table.DataTable(
-        summary_table.to_dict('records'),
-        [{"name": i,
-          "id": i,
-          "presentation": "markdown",
-          "type": "text"} for i in summary_table.columns],
-        style_header={"backgroundColor": GRAY,
-                      'color': WHITE,
-                      "text-align": "center"},
-        style_data={
-            "backgroundColor": DARK_GRAY,
-            "color": WHITE},
-        style_table={
-            "overflowX": "auto"},
-        style_cell={
-            'fontSize': 11,
-            'font-family': 'sans-serif'})
-    return table
