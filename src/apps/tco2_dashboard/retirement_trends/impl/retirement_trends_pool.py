@@ -1,6 +1,5 @@
 from src.apps.tco2_dashboard.figures import (
-    pool_klima_retirement_chart_stacked,
-    pool_klima_retirement_table)
+    pool_klima_retirement_chart_stacked)
 from src.apps.tco2_dashboard.helpers import (
     retirements_all_data_process,
     stacked_bar_chart_data_process,
