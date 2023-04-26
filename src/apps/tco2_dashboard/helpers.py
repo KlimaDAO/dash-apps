@@ -769,11 +769,11 @@ def stacked_bar_chart_data_process(retirements_all):
     wrs['month_year_dt'] = pd.to_datetime(
             wide_retirements_sumed['month_year_dt_formated']
         ).dt.strftime("%b-%g")
-    
+
     if 'Jan-22' in wrs['month_year_dt'].values:
         wrs['month_year_dt'] = np.where(
             wrs.month_year_dt == 'Jan-22',
-            'Jan-23', 
+            'Jan-23',
             wrs.month_year_dt)
 
     return wrs
@@ -826,7 +826,7 @@ def summary_table_data_process(retirements_all):
 
     summary_table['value'] = summary_table['value'].apply(
         lambda x: '{0:,}'.format(x))
-    
+
     summary_table['month_year_dt'] = pd.to_datetime(
             summary_table['month_year_dt_format']
             ).dt.strftime("%b-%g")
@@ -853,6 +853,6 @@ def summary_table_data_process(retirements_all):
 
     if 'Jan-22' in summary_table.columns:
         summary_table = summary_table.rename(
-            columns={'Jan-22':'Jan-23'})
+            columns={'Jan-22': 'Jan-23'})
 
     return summary_table

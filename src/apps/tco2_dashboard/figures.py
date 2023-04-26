@@ -1893,16 +1893,16 @@ def pool_klima_retirement_table(summary_table):
           "presentation": "markdown",
           "type": "text"} for i in summary_table.columns],
         style_header={"backgroundColor": GRAY,
-                      "text-align": "center", 
+                      "text-align": "center",
                       "color": WHITE,
-                      "font_size": "10px", 
+                      "font_size": "10px",
                       "font-family": 'Inter, sans-serif',
                       "fontWeight": "bold"},
         style_data={
             "backgroundColor": DARK_GRAY,
-            "color": WHITE,  
-            "font_size": "10px", 
-            "text-align": "center", 
+            "color": WHITE,
+            "font_size": "10px",
+            "text-align": "center",
             'font-family': 'Inter, sans-serif'},
         style_table={
             "overflowX": "auto"}
