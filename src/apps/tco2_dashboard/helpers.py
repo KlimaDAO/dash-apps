@@ -739,14 +739,14 @@ def stacked_bar_chart_data_process(retirements_all):
 
     wide_retirements_sumed = wide_retirements_sumed.fillna(0).reset_index()
 
-    wide_retirements_sumed['month_year_dt'] = (
+    wide_retirements_sumed['month_year_dt_formated'] = (
         pd.to_datetime(
             wide_retirements_sumed['month_year']
         ).dt.strftime("%Y%m%d")
     )
 
     wide_retirements_sumed = wide_retirements_sumed.sort_values(
-        ['month_year_dt']
+        ['month_year_dt_formated']
         )
 
     wrs = wide_retirements_sumed
@@ -764,6 +764,16 @@ def stacked_bar_chart_data_process(retirements_all):
     wrs['NBO_%'] = wrs['NBO'] / wrs['total_retired'] * 100
     wrs['NCT_%'] = wrs['NCT'] / wrs['total_retired'] * 100
     wrs['UBO_%'] = wrs['UBO'] / wrs['total_retired'] * 100
+
+    wrs['month_year_dt'] = pd.to_datetime(
+            wide_retirements_sumed['month_year_dt_formated']
+        ).dt.strftime("%b-%g")
+    
+    if 'Jan-22' in wrs['month_year_dt'].values:
+        wrs['month_year_dt'] = np.where(
+            wrs.month_year_dt == 'Jan-22',
+            'Jan-23', 
+            wrs.month_year_dt)
 
     return wrs
 
