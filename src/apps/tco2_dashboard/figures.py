@@ -1859,11 +1859,11 @@ def total_carbon_supply_pie_chart(
 
 def pool_klima_retirement_chart_stacked(wrs):
     fig = go.Figure(data=[
-        go.Bar(name='BCT', x=wrs['month_year'], y=wrs['BCT_%']),
-        go.Bar(name='MCO2', x=wrs['month_year'], y=wrs['MCO2_%']),
-        go.Bar(name='NBO', x=wrs['month_year'], y=wrs['NBO_%']),
-        go.Bar(name='NCT', x=wrs['month_year'], y=wrs['NCT_%']),
-        go.Bar(name='UBO', x=wrs['month_year'], y=wrs['UBO_%'])
+        go.Bar(name='BCT', x=wrs['month_year_dt'], y=wrs['BCT_%']),
+        go.Bar(name='MCO2', x=wrs['month_year_dt'], y=wrs['MCO2_%']),
+        go.Bar(name='NBO', x=wrs['month_year_dt'], y=wrs['NBO_%']),
+        go.Bar(name='NCT', x=wrs['month_year_dt'], y=wrs['NCT_%']),
+        go.Bar(name='UBO', x=wrs['month_year_dt'], y=wrs['UBO_%'])
     ])
 
     fig.update_layout(
