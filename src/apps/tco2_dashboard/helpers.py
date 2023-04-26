@@ -783,7 +783,7 @@ def summary_table_data_process(retirements_all):
             )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
 
     monthly_total_retired.rename(
-            columns={'dailyKlimaRetirements_amount': 'Total tCO2e retired'},
+            columns={'dailyKlimaRetirements_amount': 'Total tonnes retired'},
             inplace=True)
 
     summary_table = pd.merge(
@@ -793,28 +793,32 @@ def summary_table_data_process(retirements_all):
             right_on=['month_year'],
             how='inner')
 
-    summary_table['Average tCO2e per transaction'] = (
-            summary_table['Total tCO2e retired'] /
+    summary_table['Average tonnes per transaction'] = (
+            summary_table['Total tonnes retired'] /
             summary_table['Number of transactions']
         )
 
-    summary_table['month_year_dt'] = pd.to_datetime(
+    summary_table['month_year_dt_format'] = pd.to_datetime(
             summary_table['month_year']).dt.strftime('%Y%m%d')
 
     summary_table = pd.melt(
             summary_table,
-            id_vars=['month_year', 'month_year_dt'],
+            id_vars=['month_year', 'month_year_dt_format'],
             value_vars=['Number of transactions',
-                        'Total tCO2e retired',
-                        'Average tCO2e per transaction']
+                        'Total tonnes retired',
+                        'Average tonnes per transaction']
             )
 
-    summary_table = summary_table.sort_values(['month_year_dt'])
+    summary_table = summary_table.sort_values(['month_year_dt_format'])
 
     summary_table['value'] = summary_table['value'].astype(int)
 
     summary_table['value'] = summary_table['value'].apply(
         lambda x: '{0:,}'.format(x))
+    
+    summary_table['month_year_dt'] = pd.to_datetime(
+            summary_table['month_year_dt_format']
+            ).dt.strftime("%b-%g")
 
     summary_table = pd.pivot(
             summary_table,
@@ -824,16 +828,20 @@ def summary_table_data_process(retirements_all):
             )
 
     summary_table = summary_table.reindex(
-        ["Total tCO2e retired",
+        ["Total tonnes retired",
          "Number of transactions",
-         "Average tCO2e per transaction"])
+         "Average tonnes per transaction"])
 
     summary_table = summary_table.reset_index()
 
     summary_table.rename(
-            columns={'variable': ''},
-            inplace=True)
+             columns={'variable': ''},
+             inplace=True)
 
-    summary_table.columns = summary_table.columns.droplevel(-1)
+    summary_table.columns = summary_table.columns.droplevel(-2)
+
+    if 'Jan-22' in summary_table.columns:
+        summary_table = summary_table.rename(
+            columns={'Jan-22':'Jan-23'})
 
     return summary_table
