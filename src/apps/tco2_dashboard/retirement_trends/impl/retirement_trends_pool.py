@@ -1,4 +1,10 @@
-from src.apps.tco2_dashboard.figures import pool_klima_retirement_chart
+from src.apps.tco2_dashboard.figures import (
+    pool_klima_retirement_chart_stacked,
+    pool_klima_retirement_table)
+from src.apps.tco2_dashboard.helpers import (
+    retirements_all_data_process,
+    stacked_bar_chart_data_process,
+    summary_table_data_process)
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
@@ -319,32 +325,22 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         return TopContent(top_content_data)
 
     def create_chart_content(self) -> ChartContent:
-        bct_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "BCT"]
 
-        nct_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "NCT"]
+        retirements_all = self.agg_daily_klima_retirements[
+            self.agg_daily_klima_retirements[
+                'dailyKlimaRetirements_token'].isin(
+                    ["BCT", "MCO2", "NBO", "NCT", "UBO"])
+        ]
 
-        mco2_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "MCO2"]
+        retirements_all = retirements_all_data_process(retirements_all)
 
-        ubo_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "UBO"]
+        wrs = stacked_bar_chart_data_process(retirements_all)
 
-        nbo_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "NBO"]
+        retirement_chart_figure = pool_klima_retirement_chart_stacked(wrs)
 
-        retirement_chart_figure = pool_klima_retirement_chart(
-            bct_df,
-            nct_df,
-            mco2_df,
-            ubo_df,
-            nbo_df)
+        summary_table = summary_table_data_process(retirements_all)
+
+        summary_table_final = pool_klima_retirement_table(summary_table)
 
         content = dbc.Row(
             [
@@ -356,6 +352,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
                                         className="card-title"),
                                 dbc.CardBody(
                                     dcc.Graph(figure=retirement_chart_figure)),
+                                dbc.CardBody(
+                                    summary_table_final, style={
+                                        "margin-top": "15px"})
                             ]
                         )
                     ],

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import datetime as dt
 import os
 import json
@@ -698,3 +699,160 @@ def uni_v2_pool_price(web3, pool_address, decimals, base_price=1):
 
 def klima_usdc_price(web3):
     return uni_v2_pool_price(web3, KLIMA_USDC_ADDRESS, USDC_DECIMALS - KLIMA_DECIMALS)
+
+
+def retirements_all_data_process(retirements_all):
+    retirements_all["dailyKlimaRetirements_datetime"] = (
+        pd.to_datetime(retirements_all["dailyKlimaRetirements_datetime"])
+    )
+    retirements_all['month'] = (
+        retirements_all['dailyKlimaRetirements_datetime'].dt.month_name()
+    )
+    retirements_all['year'] = (
+        retirements_all["dailyKlimaRetirements_datetime"].dt.year
+    )
+    retirements_all['year'] = retirements_all['year'].apply(str)
+    retirements_all['month_year'] = (
+        retirements_all.month.str.cat(retirements_all.year, sep='-')
+    )
+    retirements_all = retirements_all.drop(
+        ['year', 'month', 'dailyKlimaRetirements_datetime'], axis=1
+    )
+    return retirements_all
+
+
+def stacked_bar_chart_data_process(retirements_all):
+
+    retirements_sumed = (
+        retirements_all.groupby(
+            ['month_year', 'dailyKlimaRetirements_token']
+        )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
+    )
+
+    wide_retirements_sumed = (
+        pd.pivot(
+            retirements_sumed,
+            index=['month_year'],
+            columns='dailyKlimaRetirements_token',
+            values='dailyKlimaRetirements_amount'
+            )
+    )
+
+    wide_retirements_sumed = wide_retirements_sumed.fillna(0).reset_index()
+
+    wide_retirements_sumed['month_year_dt_formated'] = (
+        pd.to_datetime(
+            wide_retirements_sumed['month_year']
+        ).dt.strftime("%Y%m%d")
+    )
+
+    wide_retirements_sumed = wide_retirements_sumed.sort_values(
+        ['month_year_dt_formated']
+        )
+
+    wrs = wide_retirements_sumed
+
+    totals = wrs['BCT'] + wrs['MCO2'] + wrs['NBO'] + wrs['NCT'] + wrs['UBO']
+
+    totals = (
+        totals.to_frame().rename(columns={0: "total_retired"})
+    )
+
+    wrs = pd.concat([wrs, totals], axis=1)
+
+    wrs['BCT_%'] = wrs['BCT'] / wrs['total_retired'] * 100
+    wrs['MCO2_%'] = wrs['MCO2'] / wrs['total_retired'] * 100
+    wrs['NBO_%'] = wrs['NBO'] / wrs['total_retired'] * 100
+    wrs['NCT_%'] = wrs['NCT'] / wrs['total_retired'] * 100
+    wrs['UBO_%'] = wrs['UBO'] / wrs['total_retired'] * 100
+
+    wrs['month_year_dt'] = pd.to_datetime(
+            wide_retirements_sumed['month_year_dt_formated']
+        ).dt.strftime("%b-%g")
+
+    if 'Jan-22' in wrs['month_year_dt'].values:
+        wrs['month_year_dt'] = np.where(
+            wrs.month_year_dt == 'Jan-22',
+            'Jan-23',
+            wrs.month_year_dt)
+
+    return wrs
+
+
+def summary_table_data_process(retirements_all):
+
+    monthly_transactions = retirements_all.groupby(
+        ['month_year']
+        )['dailyKlimaRetirements_id'].count().to_frame().reset_index()
+
+    monthly_transactions.rename(
+            columns={'dailyKlimaRetirements_id': 'Number of transactions'},
+            inplace=True)
+
+    monthly_total_retired = retirements_all.groupby(
+            ['month_year']
+            )['dailyKlimaRetirements_amount'].sum().to_frame().reset_index()
+
+    monthly_total_retired.rename(
+            columns={'dailyKlimaRetirements_amount': 'Total tonnes retired'},
+            inplace=True)
+
+    summary_table = pd.merge(
+            monthly_transactions,
+            monthly_total_retired,
+            left_on=['month_year'],
+            right_on=['month_year'],
+            how='inner')
+
+    summary_table['Average tonnes per transaction'] = (
+            summary_table['Total tonnes retired'] /
+            summary_table['Number of transactions']
+        )
+
+    summary_table['month_year_dt_format'] = pd.to_datetime(
+            summary_table['month_year']).dt.strftime('%Y%m%d')
+
+    summary_table = pd.melt(
+            summary_table,
+            id_vars=['month_year', 'month_year_dt_format'],
+            value_vars=['Number of transactions',
+                        'Total tonnes retired',
+                        'Average tonnes per transaction']
+            )
+
+    summary_table = summary_table.sort_values(['month_year_dt_format'])
+
+    summary_table['value'] = summary_table['value'].astype(int)
+
+    summary_table['value'] = summary_table['value'].apply(
+        lambda x: '{0:,}'.format(x))
+
+    summary_table['month_year_dt'] = pd.to_datetime(
+            summary_table['month_year_dt_format']
+            ).dt.strftime("%b-%g")
+
+    summary_table = pd.pivot(
+            summary_table,
+            index=['variable'],
+            columns=['month_year', 'month_year_dt'],
+            values='value'
+            )
+
+    summary_table = summary_table.reindex(
+        ["Total tonnes retired",
+         "Number of transactions",
+         "Average tonnes per transaction"])
+
+    summary_table = summary_table.reset_index()
+
+    summary_table.rename(
+             columns={'variable': ''},
+             inplace=True)
+
+    summary_table.columns = summary_table.columns.droplevel(-2)
+
+    if 'Jan-22' in summary_table.columns:
+        summary_table = summary_table.rename(
+            columns={'Jan-22': 'Jan-23'})
+
+    return summary_table
