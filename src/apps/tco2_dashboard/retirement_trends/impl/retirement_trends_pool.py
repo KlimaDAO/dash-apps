@@ -420,6 +420,19 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
         df.Project_num.fillna('N/A', inplace=True)
 
+        verra_l = 'https://registry.verra.org/app/projectDetail/VCS/'
+
+        df['Project_Link'] = verra_l
+
+        df["Project_Link"] = df["Project_Link"] + df["Project_num"]
+
+        missing_condition_1 = df['Project_Link'].str.match(
+            'https://registry.verra.org/app/projectDetail/VCS/N/A')
+
+        df['Project_Link'] = np.where(
+            missing_condition_1, "N/A", df['Project_Link']
+            )
+
         return df
 
     def replace_klima_retirements_token_values(self, df):
