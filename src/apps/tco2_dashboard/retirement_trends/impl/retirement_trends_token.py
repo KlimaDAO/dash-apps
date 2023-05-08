@@ -5,7 +5,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-
+import pandas as pd
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
 
@@ -212,6 +212,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df = df.rename(
             columns={
                 'klimaRetires_beneficiaryAddress': 'Beneficiary Address',
+                'klimaRetires_offset_projectID': 'Project',
                 'klimaRetires_token': 'Token',
                 'klimaRetires_datetime': 'Date',
                 'klimaRetires_proof': 'View on PolygonScan',
@@ -224,6 +225,9 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             df['Beneficiary Address'] + ')'
         )
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
+
+        df['Project_num'] = df['Project'].apply(lambda x:pd.Series(str(x).split("-")))[1]
+    
 
         df = self.replace_klima_retirements_token_values(df)
 
