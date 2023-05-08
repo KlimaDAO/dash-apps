@@ -10,6 +10,7 @@ import numpy as np
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
 
+
     def __init__(
             self,
             retirement_trend_inputs):
