@@ -14,7 +14,6 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
     def __init__(
             self,
             retirement_trend_inputs):
-
         self.df_carbon_metrics_polygon = \
             retirement_trend_inputs.df_carbon_metrics_polygon
         self.df_carbon_metrics_eth = \
