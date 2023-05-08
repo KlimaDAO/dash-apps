@@ -6,6 +6,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
+import numpy as np
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
 
@@ -233,6 +234,10 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df['Project_Link'] = 'https://registry.verra.org/app/projectDetail/VCS/'
         
         df["Project_Link"] = df["Project_Link"].astype(str) + df["Project_num"].astype(str)
+
+        missing_condition_1 = df['Project_Link'].str.match('https://registry.verra.org/app/projectDetail/VCS/N/A')
+
+        df['Project_Link'] = np.where(missing_condition_1, "N/A", df['Project_Link'])
 
         df = self.replace_klima_retirements_token_values(df)
 
