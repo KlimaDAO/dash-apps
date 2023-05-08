@@ -228,7 +228,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
         df['Project_num'] = df['Project'].apply(
-            lambda x:pd.Series(str(x).split("-"))
+            lambda x: pd.Series(str(x).split("-"))
             )[1]
 
         df.Project_num.fillna('N/A', inplace=True)
