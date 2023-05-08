@@ -465,9 +465,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         return df
 
     def replace_klima_retirements_token_values(self, df):
-        df['Token'] = df['Token'].replace(['BCT'], 'TCO2')
-        df['Token'] = df['Token'].replace(['NCT'], 'TCO2')
-        df['Token'] = df['Token'].replace(['UBO'], 'C3T')
-        df['Token'] = df['Token'].replace(['NBO'], 'C3T')
+        df['Pool'] = df['Pool'].replace(['BCT'], 'TCO2')
+        df['Pool'] = df['Pool'].replace(['NCT'], 'TCO2')
+        df['Pool'] = df['Pool'].replace(['UBO'], 'C3T')
+        df['Pool'] = df['Pool'].replace(['NBO'], 'C3T')
 
         return df
