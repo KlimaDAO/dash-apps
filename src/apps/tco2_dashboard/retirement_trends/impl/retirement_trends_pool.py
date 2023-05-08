@@ -415,7 +415,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
         df['Project_num'] = df['Project'].apply(
-            lambda x:pd.Series(str(x).split("-"))
+            lambda x: pd.Series(str(x).split("-"))
             )[1]
 
         df.Project_num.fillna('N/A', inplace=True)
@@ -432,7 +432,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         df['Project_Link'] = np.where(
             missing_condition_1, "N/A", df['Project_Link']
             )
-        
+
         missing_condition_2 = df['Project_num'].str.match("N/A")
 
         df['Project_Link'] = np.where(
@@ -440,7 +440,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             'N/A',
             "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
             )
-        
+
         pools_condition = df['Pool'].str.match(
             "BCT|NBO|NCT|UBO|MCO2|0x0000000000000000000000000000000000000000")
 
