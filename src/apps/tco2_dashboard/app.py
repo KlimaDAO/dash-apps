@@ -679,6 +679,7 @@ def get_klima_retirements():
     df = sg.query_df(
         [
             klimaRetirees.beneficiaryAddress,
+            klimaRetirees.offset.projectID,
             klimaRetirees.token,
             klimaRetirees.datetime,
             klimaRetirees.amount,
