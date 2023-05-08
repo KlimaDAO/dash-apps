@@ -440,6 +440,11 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             'N/A',
             "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
             )
+        
+        pools_condition = df['Pool'].str.match(
+            "BCT|NBO|NCT|UBO|MCO2|0x0000000000000000000000000000000000000000")
+
+        df['Pool'] = np.where(pools_condition, df['Pool'], 'N/A')
 
         return df
 
