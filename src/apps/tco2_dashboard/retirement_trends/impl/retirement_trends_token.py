@@ -239,6 +239,10 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df['Project_Link'] = np.where(missing_condition_1, "N/A", df['Project_Link'])
 
+        missing_condition_2 = df['Project_num'].str.match("N/A")
+        
+        df['Project_Link'] = np.where(missing_condition_2, 'N/A', "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")")
+
         df = self.replace_klima_retirements_token_values(df)
 
         return df
