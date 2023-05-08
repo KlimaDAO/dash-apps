@@ -214,7 +214,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             columns={
                 'klimaRetires_beneficiaryAddress': 'Beneficiary Address',
                 'klimaRetires_offset_projectID': 'Project',
-                'klimaRetires_token': 'Token',
+                'klimaRetires_token': 'Pool',
                 'klimaRetires_datetime': 'Date',
                 'klimaRetires_proof': 'View on PolygonScan',
                 'klimaRetires_amount': 'Amount in Tonnes'})
@@ -227,27 +227,39 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         )
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
-        df['Project_num'] = df['Project'].apply(lambda x:pd.Series(str(x).split("-")))[1]
+        df['Project_num'] = df['Project'].apply(
+            lambda x:pd.Series(str(x).split("-"))
+            )[1]
 
         df.Project_num.fillna('N/A', inplace=True)
-        
-        df['Project_Link'] = 'https://registry.verra.org/app/projectDetail/VCS/'
-        
-        df["Project_Link"] = df["Project_Link"].astype(str) + df["Project_num"].astype(str)
 
-        missing_condition_1 = df['Project_Link'].str.match('https://registry.verra.org/app/projectDetail/VCS/N/A')
+        verra_l = 'https://registry.verra.org/app/projectDetail/VCS/'
 
-        df['Project_Link'] = np.where(missing_condition_1, "N/A", df['Project_Link'])
+        df['Project_Link'] = verra_l
+
+        df["Project_Link"] = df["Project_Link"] + df["Project_num"]
+
+        missing_condition_1 = df['Project_Link'].str.match(
+            'https://registry.verra.org/app/projectDetail/VCS/N/A')
+
+        df['Project_Link'] = np.where(
+            missing_condition_1, "N/A", df['Project_Link']
+            )
 
         missing_condition_2 = df['Project_num'].str.match("N/A")
-        
-        df['Project_Link'] = np.where(missing_condition_2, 'N/A', "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")")
 
-        pools_condition = df['Pool'].str.match("BCT|NBO|NCT|UBO|MCO2|0x0000000000000000000000000000000000000000")
-        
+        df['Project_Link'] = np.where(
+            missing_condition_2,
+            'N/A',
+            "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
+            )
+
+        pools_condition = df['Pool'].str.match(
+            "BCT|NBO|NCT|UBO|MCO2|0x0000000000000000000000000000000000000000")
+
         df['Pool'] = np.where(pools_condition, df['Pool'], 'N/A')
 
-        df.drop(['Project', 'Project_num'], axis = 1, inplace = True)
+        df.drop(['Project', 'Project_num'], axis=1, inplace=True)
 
         df = df.rename(
               columns={
@@ -255,7 +267,13 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
               }
         )
 
-        df = df[['Beneficiary Address', 'Project', 'Pool', 'Date', 'Amount in Tonnes', 'View on PolygonScan', 'Pledge']]
+        df = df[['Beneficiary Address',
+                 'Project',
+                 'Pool',
+                 'Date',
+                 'Amount in Tonnes',
+                 'View on PolygonScan',
+                 'Pledge']]
 
         df = self.replace_klima_retirements_token_values(df)
 
