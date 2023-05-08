@@ -227,7 +227,12 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
         df['Project_num'] = df['Project'].apply(lambda x:pd.Series(str(x).split("-")))[1]
-    
+
+        df.Project_num.fillna('N/A', inplace=True)
+        
+        df['Project_Link'] = 'https://registry.verra.org/app/projectDetail/VCS/'
+        
+        df["Project_Link"] = df["Project_Link"].astype(str) + df["Project_num"].astype(str)
 
         df = self.replace_klima_retirements_token_values(df)
 
