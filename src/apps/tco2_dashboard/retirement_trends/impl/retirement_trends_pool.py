@@ -446,6 +446,22 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
         df['Pool'] = np.where(pools_condition, df['Pool'], 'N/A')
 
+        df.drop(['Project', 'Project_num'], axis=1, inplace=True)
+
+        df = df.rename(
+              columns={
+                    'Project_Link': 'Project'
+              }
+        )
+
+        df = df[['Beneficiary Address',
+                 'Project',
+                 'Pool',
+                 'Date',
+                 'Amount in Tonnes',
+                 'View on PolygonScan',
+                 'Pledge']]
+
         return df
 
     def replace_klima_retirements_token_values(self, df):
