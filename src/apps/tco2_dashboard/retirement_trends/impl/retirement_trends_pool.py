@@ -414,9 +414,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         )
         df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
 
-        df['Project_num'] = df['Project'].apply(
-            lambda x: pd.Series(str(x).split("-"))
-            )[1]
+        df['Project_num'] = df['Project'].str.split("-", expand = True)[1]
 
         df.Project_num.fillna('N/A', inplace=True)
 
@@ -428,17 +426,11 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
         missing_condition_1 = df['Project_Link'].str.match(
             'https://registry.verra.org/app/projectDetail/VCS/N/A')
+        
+        markdown_link = "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
 
         df['Project_Link'] = np.where(
-            missing_condition_1, "N/A", df['Project_Link']
-            )
-
-        missing_condition_2 = df['Project_num'].str.match("N/A")
-
-        df['Project_Link'] = np.where(
-            missing_condition_2,
-            'N/A',
-            "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
+            missing_condition_1, "N/A", markdown_link
             )
 
         pools_condition = df['Pool'].str.match(
