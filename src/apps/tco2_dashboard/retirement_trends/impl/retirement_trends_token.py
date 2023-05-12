@@ -206,7 +206,9 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             self.raw_klima_retirements
         )
 
-        return ListData("Detailed list of KlimaDAO Retirements", klima_retirements_df)
+        return ListData("Detailed list of KlimaDAO Retirements",
+                        "Date",
+                        klima_retirements_df)
 
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(
@@ -223,7 +225,8 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
             '[Click Here](https://www.klimadao.finance/pledge/' +
             df['Beneficiary Address'] + ')'
         )
-        df['View on PolygonScan'] = '[Click Here](' + df['View on PolygonScan'] + ')'
+        df['View on PolygonScan'] = '[Click Here](' + \
+            df['View on PolygonScan'] + ')'
 
         df = self.replace_klima_retirements_token_values(df)
 

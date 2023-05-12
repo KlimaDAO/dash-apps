@@ -1,6 +1,7 @@
 TYPE_TOKEN = "TOKEN"
 TYPE_POOL = "POOL"
 TYPE_CHAIN = "CHAIN"
+TYPE_BENEFICIARY = "BENEFICIARY"
 
 
 class RetirementTrendInputs:
@@ -49,7 +50,9 @@ class ListData:
     def __init__(
             self,
             header,
+            sort_column,
             dataframe):
 
         self.header = header
+        self.sort_column = sort_column
         self.dataframe = dataframe

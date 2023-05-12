@@ -9,6 +9,7 @@ from ..constants import GRAY, DARK_GRAY
 TYPE_POOL = retirement_trends_types.TYPE_POOL
 TYPE_TOKEN = retirement_trends_types.TYPE_TOKEN
 TYPE_CHAIN = retirement_trends_types.TYPE_CHAIN
+TYPE_BENEFICIARY = retirement_trends_types.TYPE_BENEFICIARY
 
 
 def create_retirement_trend_inputs(
@@ -82,6 +83,15 @@ def create_content_retirement_trends(
                         href="/retirements/chain",
                         active="exact",
                     ),
+                    dbc.NavLink(
+                        [
+                            html.Span(
+                                "By Beneficiary", className="nav-bar-retirement-trends"
+                            ),
+                        ],
+                        href="/retirements/beneficiary",
+                        active="exact",
+                    ),
                 ],
                 horizontal=True,
                 pills=True),
@@ -105,11 +115,13 @@ def create_content_retirement_trends(
             )
         )]
     # Adding top content rows
-    for item in top_data_content.data:
-        content.append(item)
+    if top_data_content is not None:
+        for item in top_data_content.data:
+            content.append(item)
 
     # Adding Klima Daily retirement Chart row
-    content.append(chart_data.data)
+    if chart_data is not None:
+        content.append(chart_data.data)
 
     # Adding Klima Retirement List row
     content.append(dbc.Row(
@@ -150,7 +162,8 @@ def create_content_retirement_trends(
                                     "backgroundColor": GRAY,
                                 },
                                 sort_by=[{
-                                    'column_id': 'Date', 'direction': 'desc'}],
+                                    'column_id': list_data.sort_column,
+                                    'direction': 'desc'}],
                             ),
                         ],
                     )

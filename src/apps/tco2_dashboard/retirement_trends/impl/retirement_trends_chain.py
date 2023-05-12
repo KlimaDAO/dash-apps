@@ -229,7 +229,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
 
         merged = pd.concat(frames)
 
-        return ListData("Detailed list of Retirements", merged)
+        return ListData("Detailed list of Retirements", "Date", merged)
 
     def modify_klima_token_retirements_df(self, df):
         df = df.rename(
