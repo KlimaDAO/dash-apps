@@ -219,7 +219,9 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         )
 
         if self.no_verra_data:
-            return ListData(klima_retirements_df)
+            return ListData("Detailed list of Retirements",
+                            "Date",
+                            klima_retirements_df)
 
         verra_retirements_df = self.modify_verra_retirements_fg(
             self.df_verra_retired

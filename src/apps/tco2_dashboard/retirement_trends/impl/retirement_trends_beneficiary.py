@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
@@ -49,8 +47,8 @@ class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
     def aggregate_beneficiary_retirements(self, df):
 
         agg_beneficiary_retirements = \
-            df.groupby('klimaRetires_beneficiaryAddress').agg(
-                {'klimaRetires_amount': ['sum', 'count']}).reset_index()
+            df.groupby('klimaRetires_beneficiaryAddress')[
+                'klimaRetires_amount'].agg(['sum', 'count']).reset_index()
 
         agg_beneficiary_retirements = agg_beneficiary_retirements.rename(
             columns={
@@ -58,7 +56,10 @@ class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
                 'count': '# of Retirements',
                 'sum': 'Total Tonnes Retired',
             })
-   
+
+        agg_beneficiary_retirements['Total Tonnes Retired'] = \
+            agg_beneficiary_retirements['Total Tonnes Retired'].round(3)
+
         agg_beneficiary_retirements['Pledge'] = (
             '[Click Here](https://www.klimadao.finance/pledge/' +
             agg_beneficiary_retirements['Beneficiary'] + ')'
