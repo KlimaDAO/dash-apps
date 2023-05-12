@@ -10,21 +10,8 @@ class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
             self,
             retirement_trend_inputs):
 
-        self.df_carbon_metrics_polygon = \
-            retirement_trend_inputs.df_carbon_metrics_polygon
-        self.df_carbon_metrics_eth = \
-            retirement_trend_inputs.df_carbon_metrics_eth
         self.raw_klima_retirements = \
             retirement_trend_inputs.raw_klima_retirements_df
-        self.agg_daily_klima_retirements = \
-            retirement_trend_inputs.daily_agg_klima_retirements_df
-
-        self.bridges_info_dict = \
-            retirement_trend_inputs.bridges_info_dict
-
-        self.df_verra = retirement_trend_inputs.df_verra
-        self.df_verra_retired = retirement_trend_inputs.df_verra_retired
-        self.no_verra_data = retirement_trend_inputs.verra_fallback_note != ""
 
     def create_header(self) -> str:
         return "Retirement Trends By Beneficiary"
