@@ -48,23 +48,20 @@ class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
 
     def aggregate_beneficiary_retirements(self, df):
 
-        df['klimaRetires_beneficiaryAddress_duplicate'] = \
-            df.loc[:, 'klimaRetires_beneficiaryAddress']
+        agg_beneficiary_retirements = \
+            df.groupby('klimaRetires_beneficiaryAddress').agg(
+                {'klimaRetires_amount': ['sum', 'count']}).reset_index()
 
-        agg_beneficiary_retirements = pd.pivot_table(
-            df,
-            index=['klimaRetires_beneficiaryAddress'],
-            aggfunc={'klimaRetires_amount': np.sum,
-                     'klimaRetires_beneficiaryAddress_duplicate': len}
-        ).rename(columns={
-            'klimaRetires_beneficiaryAddress': 'Beneficiary',
-            'klimaRetires_beneficiaryAddress_duplicate': '# of Retirements',
-            'klimaRetires_amount': 'Total Tonnes Retired',
-        })
-
+        agg_beneficiary_retirements = agg_beneficiary_retirements.rename(
+            columns={
+                'klimaRetires_beneficiaryAddress': 'Beneficiary',
+                'count': '# of Retirements',
+                'sum': 'Total Tonnes Retired',
+            })
+   
         agg_beneficiary_retirements['Pledge'] = (
             '[Click Here](https://www.klimadao.finance/pledge/' +
-            df['Beneficiary'] + ')'
+            agg_beneficiary_retirements['Beneficiary'] + ')'
         )
 
         return agg_beneficiary_retirements
