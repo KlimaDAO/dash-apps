@@ -207,3 +207,5 @@ holders_rename_map = {
 GRAPH_FONT = dict(size=8, color="white", family="Inter, sans-serif")
 PIE_CHART_FONT = dict(size=12, color="white", family="Inter, sans-serif")
 TREEMAP_FONT = dict(size=12, color="white", family="Inter, sans-serif")
+
+MISPRICED_NCT_SWAP_ID = "0xdb995f975f1bfc3b2157495c47e4efb31196b2ca1679432400"
