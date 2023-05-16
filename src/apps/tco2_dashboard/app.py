@@ -782,12 +782,23 @@ def get_prices():
                 orderBy=price_sg.Swap.timestamp,
                 orderDirection="desc",
                 where=[
-                    (price_sg.Swap.pair == tokens_dict[i]["Pair Address"]) and
-                    (price_sg.Swap.id != MISPRICED_NCT_SWAP_ID)
+                    price_sg.Swap.pair == tokens_dict[i]["Pair Address"]
                 ],
             )
 
-            df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
+            # Pull swap ID for NCT
+            fields = [swaps.pair.id, swaps.close, swaps.timestamp]
+            if i == 'NCT':
+                fields.append(swaps.id)
+
+            df = sg.query_df(fields)
+
+            # Filter out mispriced NCT swap
+            if i == 'NCT':
+                df = df[df.swaps_id != MISPRICED_NCT_SWAP_ID]
+                df = df.drop('swaps_id')
+
+            # Rename and format fields
             rename_prices_map = {
                 "swaps_pair_id": f"{i}_Address",
                 "swaps_close": f"{i}_Price",
