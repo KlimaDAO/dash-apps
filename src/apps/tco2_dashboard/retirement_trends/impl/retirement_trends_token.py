@@ -247,6 +247,11 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
              missing_condition_1, "N/A",
             "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
              )
+        
+        mco2_condition = df['Token'].str.match('MCO2')
+
+        df['Project_Link'] = np.where(mco2_condition, 'N/A', df['Project_Link'])
+
 
         return df
 
