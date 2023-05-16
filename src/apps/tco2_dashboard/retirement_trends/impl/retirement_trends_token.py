@@ -239,6 +239,14 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df["Project_Link"] = df["Project_Link"] + df["Project_num"]
 
+        missing_condition_1 = df['Project_Link'].str.match(
+            'https://registry.verra.org/app/projectDetail/VCS/N/A')
+        
+        df['Project_Link'] = np.where(
+             missing_condition_1, "N/A",
+            "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
+             )
+
         return df
 
     def replace_klima_retirements_token_values(self, df):
