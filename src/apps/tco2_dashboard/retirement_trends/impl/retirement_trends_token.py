@@ -230,7 +230,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df = self.replace_klima_retirements_token_values(df)
 
-        df['Project_num'] = df['Project'].str.split("-", expand = True)[1]
+        df['Project_num'] = df['Project'].str.split("-", expand=True)[1]
 
         df.Project_num.fillna('N/A', inplace=True)
 
@@ -242,15 +242,16 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         missing_condition_1 = df['Project_Link'].str.match(
             'https://registry.verra.org/app/projectDetail/VCS/N/A')
-        
+
         df['Project_Link'] = np.where(
-             missing_condition_1, "N/A",
+            missing_condition_1, "N/A",
             "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
-             )
-        
+            )
+
         mco2_condition = df['Token'].str.match('MCO2')
 
-        df['Project_Link'] = np.where(mco2_condition, 'N/A', df['Project_Link'])
+        df['Project_Link'] = np.where(
+            mco2_condition, 'N/A', df['Project_Link'])
 
         df.drop(['Project', 'Project_num', 'Bridge'], axis=1, inplace=True)
 
@@ -268,7 +269,6 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
                  'View on PolygonScan',
                  'Pledge']]
 
-
         return df
 
     def replace_klima_retirements_token_values(self, df):
@@ -277,13 +277,13 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df['Token'] = df['Token'].replace(['UBO'], 'C3T')
         df['Token'] = df['Token'].replace(['NBO'], 'C3T')
 
-        non_addresses = df['Token'].str.match('TCO2|C3T|MCO2|0x0000000000000000000000000000000000000000')
-        
-        df['Token'] = np.where(non_addresses, df['Token'], df['Bridge'])
-        
-        df['Token'] = df['Token'].replace(['Toucan'], 'TCO2')
-        
-        df['Token'] = df['Token'].replace(['C3'], 'C3T')
+        non_addresses = df['Token'].str.match(
+            'TCO2|C3T|MCO2|0x0000000000000000000000000000000000000000')
 
+        df['Token'] = np.where(non_addresses, df['Token'], df['Bridge'])
+
+        df['Token'] = df['Token'].replace(['Toucan'], 'TCO2')
+
+        df['Token'] = df['Token'].replace(['C3'], 'C3T')
 
         return df
