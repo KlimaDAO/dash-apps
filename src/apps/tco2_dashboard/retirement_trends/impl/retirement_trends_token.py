@@ -212,6 +212,8 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df = df.rename(
             columns={
                 'klimaRetires_beneficiaryAddress': 'Beneficiary Address',
+                'klimaRetires_offset_projectID': 'Project',
+                'klimaRetires_offset_bridge': 'Bridge',
                 'klimaRetires_token': 'Token',
                 'klimaRetires_datetime': 'Date',
                 'klimaRetires_proof': 'View on PolygonScan',
