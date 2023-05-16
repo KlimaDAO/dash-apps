@@ -680,6 +680,7 @@ def get_klima_retirements():
         [
             klimaRetirees.beneficiaryAddress,
             klimaRetirees.offset.projectID,
+            klimaRetirees.offset.bridge,
             klimaRetirees.token,
             klimaRetirees.datetime,
             klimaRetirees.amount,
