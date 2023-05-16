@@ -252,6 +252,22 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df['Project_Link'] = np.where(mco2_condition, 'N/A', df['Project_Link'])
 
+        df.drop(['Project', 'Project_num', 'Bridge'], axis=1, inplace=True)
+
+        df = df.rename(
+              columns={
+                    'Project_Link': 'Project'
+              }
+        )
+
+        df = df[['Beneficiary Address',
+                 'Project',
+                 'Token',
+                 'Date',
+                 'Amount in Tonnes',
+                 'View on PolygonScan',
+                 'Pledge']]
+
 
         return df
 
