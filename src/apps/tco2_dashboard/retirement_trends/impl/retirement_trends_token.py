@@ -229,6 +229,10 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df = self.replace_klima_retirements_token_values(df)
 
+        df['Project_num'] = df['Project'].str.split("-", expand = True)[1]
+
+        df.Project_num.fillna('N/A', inplace=True)
+
         return df
 
     def replace_klima_retirements_token_values(self, df):
