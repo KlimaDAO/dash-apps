@@ -277,4 +277,13 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         df['Token'] = df['Token'].replace(['UBO'], 'C3T')
         df['Token'] = df['Token'].replace(['NBO'], 'C3T')
 
+        non_addresses = df['Token'].str.match('TCO2|C3T|MCO2|0x0000000000000000000000000000000000000000')
+        
+        df['Token'] = np.where(non_addresses, df['Token'], df['Bridge'])
+        
+        df['Token'] = df['Token'].replace(['Toucan'], 'TCO2')
+        
+        df['Token'] = df['Token'].replace(['C3'], 'C3T')
+
+
         return df
