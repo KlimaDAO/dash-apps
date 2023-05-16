@@ -5,6 +5,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+import numpy as np
 
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
