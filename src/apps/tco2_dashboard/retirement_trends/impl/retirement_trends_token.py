@@ -233,6 +233,12 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
         df.Project_num.fillna('N/A', inplace=True)
 
+        verra_l = 'https://registry.verra.org/app/projectDetail/VCS/'
+
+        df['Project_Link'] = verra_l
+
+        df["Project_Link"] = df["Project_Link"] + df["Project_num"]
+
         return df
 
     def replace_klima_retirements_token_values(self, df):
