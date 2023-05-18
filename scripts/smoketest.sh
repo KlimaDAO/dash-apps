@@ -4,7 +4,7 @@ FAILING=0
 
 for a in src/apps/tco2_dashboard/app.py; do
   module="${a////.}"
-  nohup python -m ${module%.py} &
+  nohup python -m ${module%.py} > /tmp/nohup.out 2>&1 &
   DASH_PID=$!
   sleep 30
   RESP_CODE=$(curl --head --location --write-out %{http_code} --silent --output response.txt http://127.0.0.1:8050/)
@@ -14,11 +14,11 @@ for a in src/apps/tco2_dashboard/app.py; do
   then
     echo "$a FAILED! ($RESP_CODE)"
     echo "--------------"
-    echo "Server Logs:"
-    cat nohup.out
-    echo "--------------"
     echo "UI response:"
     cat response.txt
+    echo "--------------"
+    echo "Server Logs:"
+    cat /tmp/nohup.out
     FAILING=1
   else
     echo "$a OK ($RESP_CODE)"
