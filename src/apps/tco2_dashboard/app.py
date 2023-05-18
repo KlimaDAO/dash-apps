@@ -107,6 +107,7 @@ from .constants import (
     BCT_DECIMALS,
     NCT_DECIMALS,
     MCO2_DECIMALS,
+    MISPRICED_NCT_SWAP_ID,
 )
 from pycoingecko import CoinGeckoAPI
 
@@ -780,10 +781,24 @@ def get_prices():
                 first=MAX_RECORDS,
                 orderBy=price_sg.Swap.timestamp,
                 orderDirection="desc",
-                where=[price_sg.Swap.pair == tokens_dict[i]["Pair Address"]],
+                where=[
+                    price_sg.Swap.pair == tokens_dict[i]["Pair Address"]
+                ],
             )
 
-            df = sg.query_df([swaps.pair.id, swaps.close, swaps.timestamp])
+            # Pull swap ID for NCT
+            fields = [swaps.pair.id, swaps.close, swaps.timestamp]
+            if i == 'NCT':
+                fields.append(swaps.id)
+
+            df = sg.query_df(fields)
+
+            # Filter out mispriced NCT swap
+            if i == 'NCT':
+                df = df[df.swaps_id != MISPRICED_NCT_SWAP_ID]
+                df = df.drop('swaps_id', axis=1)
+
+            # Rename and format fields
             rename_prices_map = {
                 "swaps_pair_id": f"{i}_Address",
                 "swaps_close": f"{i}_Price",
