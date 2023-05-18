@@ -796,7 +796,7 @@ def get_prices():
             # Filter out mispriced NCT swap
             if i == 'NCT':
                 df = df[df.swaps_id != MISPRICED_NCT_SWAP_ID]
-                df = df.drop('swaps_id')
+                df = df.drop('swaps_id', axis=1)
 
             # Rename and format fields
             rename_prices_map = {
