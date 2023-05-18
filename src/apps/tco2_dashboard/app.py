@@ -12,7 +12,7 @@ from subgrounds.subgraph import SyntheticField
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
-    TYPE_CHAIN, create_retirement_trend_inputs
+    TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
 from ...util import get_polygon_web3
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
@@ -1655,6 +1655,13 @@ def generate_layout():
     cache.set("content_chain_retirement_trends",
               content_chain_retirement_trends)
 
+    content_beneficiary_retirement_trends = create_content_retirement_trends(
+        TYPE_BENEFICIARY,
+        retirement_trend_inputs
+    )
+    cache.set("content_beneficiary_retirement_trends",
+              content_beneficiary_retirement_trends)
+
     # --- onchain carbon pool comparison ---
     add_fee_redeem_factors_to_dict(tokens_dict, web3)
     fig_historical_prices = historical_prices(
@@ -2609,6 +2616,10 @@ def render_page_content(pathname):
 
     elif pathname == "/retirements/chain":
         content_carbon_supply = cache.get("content_chain_retirement_trends")
+        return content_carbon_supply
+
+    elif pathname == "/retirements/beneficiary":
+        content_carbon_supply = cache.get("content_beneficiary_retirement_trends")
         return content_carbon_supply
 
     elif pathname == "/tco2":

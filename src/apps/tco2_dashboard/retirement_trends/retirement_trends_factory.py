@@ -4,10 +4,12 @@ from src.apps.tco2_dashboard.retirement_trends.impl.retirement_trends_pool \
      import RetirementTrendsByPool
 from src.apps.tco2_dashboard.retirement_trends.impl.retirement_trends_token \
      import RetirementTrendsByToken
+from src.apps.tco2_dashboard.retirement_trends.impl.retirement_trends_beneficiary \
+     import RetirementTrendsByBeneficiary
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
      import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
-     import TYPE_CHAIN, TYPE_POOL, TYPE_TOKEN
+     import TYPE_CHAIN, TYPE_POOL, TYPE_TOKEN, TYPE_BENEFICIARY
 
 
 class RetirementTrendsFactory:
@@ -28,9 +30,12 @@ class RetirementTrendsFactory:
             return RetirementTrendsByToken(
                 self.retirement_trend_inputs
             )
-
         elif type == TYPE_CHAIN:
             return RetirementTrendsByChain(
+                self.retirement_trend_inputs
+            )
+        elif type == TYPE_BENEFICIARY:
+            return RetirementTrendsByBeneficiary(
                 self.retirement_trend_inputs
             )
         else:
