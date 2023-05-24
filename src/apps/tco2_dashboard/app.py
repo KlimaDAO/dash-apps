@@ -14,7 +14,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3
+from ...util import get_polygon_web3, is_production, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -131,8 +131,8 @@ CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
 )
 PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
-MAX_RECORDS = 1000000
-PRICE_DAYS = 5000
+MAX_RECORDS = int(getenv("DASH_MAX_RECORDS", 1000000))
+PRICE_DAYS = int(getenv("DASH_PRICE_DAYS", 5000))
 GOOGLE_API_ICONS = {
     "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
     "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
@@ -158,7 +158,7 @@ external_scripts = (
             "data-domain": "carbon.klimadao.finance",
         }
     ]
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else []
 )
 
@@ -209,7 +209,7 @@ gtm_head_section = (
         })(window,document,'script','dataLayer','GTM-KWFJ9R2');</script>
         <!-- End Google Tag Manager -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
@@ -220,7 +220,7 @@ gtm_body_section = (
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
