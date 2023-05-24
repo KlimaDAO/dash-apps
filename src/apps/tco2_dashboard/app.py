@@ -14,7 +14,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3, is_production, debug, getenv
+from ...util import get_polygon_web3, is_production, load_s3_data, debug, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -82,7 +82,6 @@ from .constants import (
     redeems_rename_map,
     pool_retires_rename_map,
     BCT_ADDRESS,
-    verra_rename_map,
     merge_columns,
     MCO2_ADDRESS,
     verra_columns,
@@ -467,11 +466,7 @@ def get_verra_data():
     else:
         try:
             fallback_note = ""
-            r = requests.post(
-                "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
-                json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
-            )
-            df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
+            df_verra = load_s3_data("raw_verra_data")
         except requests.exceptions.RequestException as err:
             print(err)
             return fallback_verra()
