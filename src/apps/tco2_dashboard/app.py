@@ -14,7 +14,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3, is_production, getenv
+from ...util import get_polygon_web3, is_production, debug, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -266,7 +266,7 @@ cache = Cache(
 
 @cache.memoize()
 def get_data():
-
+    debug("Compute: get_data")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -327,7 +327,7 @@ def get_data():
 
 @cache.memoize()
 def get_data_pool():
-
+    debug("Compute: get_data_pool")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -358,7 +358,7 @@ def get_data_pool():
 
 @cache.memoize()
 def get_data_pool_retired():
-
+    debug("Compute: get_data_pool_retired")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -382,6 +382,7 @@ def get_data_pool_retired():
 
 @cache.memoize()
 def get_mco2_data():
+    debug("Compute: get_mco2_data")
     sg = Subgrounds()
 
     carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
@@ -452,6 +453,7 @@ def get_mco2_data():
 
 @cache.memoize()
 def get_verra_data():
+    debug("Compute: get_verra_data")
     use_fallback_data = False
     if use_fallback_data:
         fallback_note = VERRA_FALLBACK_NOTE
@@ -475,7 +477,7 @@ def get_verra_data():
 
 @cache.memoize()
 def get_holders_data():
-
+    debug("Compute: get_holders_data")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
     holdings = carbon_data.Query.holdings(
@@ -498,7 +500,7 @@ def get_holders_data():
 
 @cache.memoize()
 def get_eth_carbon_metrics():
-
+    debug("Compute: get_eth_carbon_metrics")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
 
@@ -536,7 +538,7 @@ def get_eth_carbon_metrics():
 
 @cache.memoize()
 def get_celo_carbon_metrics():
-
+    debug("Compute: get_celo_carbon_metrics")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
 
@@ -572,7 +574,7 @@ def get_celo_carbon_metrics():
 
 @cache.memoize()
 def get_polygon_carbon_metrics():
-
+    debug("Compute: get_polygon_carbon_metrics")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -655,7 +657,7 @@ def get_polygon_carbon_metrics():
 
 @cache.memoize()
 def get_klima_retirements():
-
+    debug("Compute: get_klima_retirements")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -694,7 +696,7 @@ def get_klima_retirements():
 
 @cache.memoize()
 def get_daily_agg_klima_retirements():
-
+    debug("Compute: get_daily_agg_klima_retirements")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -772,6 +774,7 @@ tokens_dict = {
 
 @cache.memoize()
 def get_prices():
+    debug("Compute: get_prices")
     df_prices = pd.DataFrame()
     sg = Subgrounds()
     current_price_only_token_list = []
@@ -865,6 +868,7 @@ def get_prices():
 
 @cache.memoize()
 def generate_layout():
+    debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
