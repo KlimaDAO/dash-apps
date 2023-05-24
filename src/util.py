@@ -1,6 +1,8 @@
 import os
-
+import s3fs
 import json
+import pandas as pd
+from . import constants
 from web3 import Web3
 
 INFURA_PROJ_ID = os.environ["WEB3_INFURA_PROJECT_ID"]
@@ -35,3 +37,36 @@ def load_abi(filename):
         abi = json.loads(f.read())
 
     return abi
+
+
+def is_production():
+    """ Returns the execution environment (dev, staging or main) """
+    env = os.getenv("ENV", "Development")
+    return env == "Production"
+
+
+def load_s3_data(name):
+    """ Loads json file stored on S3 as a panda dataframe """
+    s3 = s3fs.S3FileSystem(endpoint_url=constants.DIGITAL_OCEAN_S3_ENDPOINT)
+
+    if is_production():
+        bucket = constants.DIGITAL_OCEAN_S3_PROD_BUCKET
+    else:
+        bucket = constants.DIGITAL_OCEAN_S3_DEV_BUCKET
+
+    with s3.open(f'{bucket}/lake/{name}.json', 'rb') as f:
+        data = json.load(f)
+        return pd.DataFrame(data)
+
+
+def debug(text):
+    """ Write text to console if not in production """
+    if not is_production():
+        print(text)
+
+
+def getenv(key, default_value):
+    """ Reads an environment variable and logs it to console if not in production """
+    result = os.getenv(key, default_value)
+    debug(f"{key}={result}")
+    return result

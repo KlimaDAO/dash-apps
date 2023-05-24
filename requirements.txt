@@ -14,3 +14,4 @@ matplotlib==3.5.2
 plotly==5.7.0
 kaleido==0.2.1
 dash==2.8.1
+s3fs==2023.5.0
