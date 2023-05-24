@@ -450,15 +450,14 @@ def get_mco2_data():
     return df_bridged, df_bridged_tx, df_retired, df_moss_retired
 
 
-def fallback_verra():
-    fallback_note = VERRA_FALLBACK_NOTE
-    df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-    df_verra = df_verra[verra_columns]
-    return df_verra, fallback_note
-
-
 @cache.memoize()
 def get_verra_data():
+    def fallback_verra():
+        fallback_note = VERRA_FALLBACK_NOTE
+        df_verra = pd.read_csv(VERRA_FALLBACK_URL)
+        df_verra = df_verra[verra_columns]
+        return df_verra, fallback_note
+
     debug("Compute: get_verra_data")
     use_fallback_data = False
     if use_fallback_data:
