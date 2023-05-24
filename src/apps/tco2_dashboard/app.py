@@ -451,14 +451,19 @@ def get_mco2_data():
     return df_bridged, df_bridged_tx, df_retired, df_moss_retired
 
 
+def fallback_verra():
+    fallback_note = VERRA_FALLBACK_NOTE
+    df_verra = pd.read_csv(VERRA_FALLBACK_URL)
+    df_verra = df_verra[verra_columns]
+    return df_verra, fallback_note
+
+
 @cache.memoize()
 def get_verra_data():
     debug("Compute: get_verra_data")
     use_fallback_data = False
     if use_fallback_data:
-        fallback_note = VERRA_FALLBACK_NOTE
-        df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-        df_verra = df_verra[verra_columns]
+        return fallback_verra()
     else:
         try:
             fallback_note = ""
@@ -469,9 +474,7 @@ def get_verra_data():
             df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
         except requests.exceptions.RequestException as err:
             print(err)
-            fallback_note = VERRA_FALLBACK_NOTE
-            df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-            df_verra = df_verra[verra_columns]
+            return fallback_verra()
     return df_verra, fallback_note
 
 
