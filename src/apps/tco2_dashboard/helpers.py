@@ -1,7 +1,7 @@
+import os
 import pandas as pd
 import numpy as np
 import datetime as dt
-import os
 import json
 from ...util import load_abi
 from .constants import (
