@@ -6,7 +6,6 @@ from dash import html, Input, Output, callback, State
 from dash import dcc
 from flask_caching import Cache
 import pandas as pd
-import requests
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import SyntheticField
 
@@ -14,7 +13,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3
+from ...util import get_polygon_web3, is_production, load_s3_data, debug, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -82,7 +81,6 @@ from .constants import (
     redeems_rename_map,
     pool_retires_rename_map,
     BCT_ADDRESS,
-    verra_rename_map,
     merge_columns,
     MCO2_ADDRESS,
     verra_columns,
@@ -131,8 +129,8 @@ CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
 )
 PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
-MAX_RECORDS = 1000000
-PRICE_DAYS = 5000
+MAX_RECORDS = int(getenv("DASH_MAX_RECORDS", 1000000))
+PRICE_DAYS = int(getenv("DASH_PRICE_DAYS", 5000))
 GOOGLE_API_ICONS = {
     "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
     "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
@@ -158,7 +156,7 @@ external_scripts = (
             "data-domain": "carbon.klimadao.finance",
         }
     ]
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else []
 )
 
@@ -209,7 +207,7 @@ gtm_head_section = (
         })(window,document,'script','dataLayer','GTM-KWFJ9R2');</script>
         <!-- End Google Tag Manager -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
@@ -220,7 +218,7 @@ gtm_body_section = (
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
@@ -266,7 +264,7 @@ cache = Cache(
 
 @cache.memoize()
 def get_data():
-
+    debug("Compute: get_data")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
 
@@ -327,6 +325,7 @@ def get_data():
 
 @cache.memoize()
 def get_data_pool():
+    debug("Compute: get_data_pool")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
@@ -358,6 +357,7 @@ def get_data_pool():
 
 @cache.memoize()
 def get_data_pool_retired():
+    debug("Compute: get_data_pool_retired")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
@@ -382,6 +382,7 @@ def get_data_pool_retired():
 
 @cache.memoize()
 def get_mco2_data():
+    debug("Compute: get_mco2_data")
     sg = Subgrounds()
 
     carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
@@ -450,32 +451,28 @@ def get_mco2_data():
     return df_bridged, df_bridged_tx, df_retired, df_moss_retired
 
 
-@cache.memoize()
-def get_verra_data():
-    use_fallback_data = False
-    if use_fallback_data:
-        fallback_note = VERRA_FALLBACK_NOTE
-        df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-        df_verra = df_verra[verra_columns]
-    else:
-        try:
-            fallback_note = ""
-            r = requests.post(
-                "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
-                json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
-            )
-            df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
-        except requests.exceptions.RequestException as err:
-            print(err)
-            fallback_note = VERRA_FALLBACK_NOTE
-            df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-            df_verra = df_verra[verra_columns]
+def fallback_verra():
+    fallback_note = VERRA_FALLBACK_NOTE
+    df_verra = pd.read_csv(VERRA_FALLBACK_URL)
+    df_verra = df_verra[verra_columns]
     return df_verra, fallback_note
 
 
 @cache.memoize()
-def get_holders_data():
+def get_verra_data():
+    debug("Compute: get_verra_data")
+    use_fallback_data = False
+    if use_fallback_data:
+        return fallback_verra()
+    else:
+        fallback_note = ""
+        df_verra = load_s3_data("raw_verra_data")
+        return df_verra, fallback_note
 
+
+@cache.memoize()
+def get_holders_data():
+    debug("Compute: get_holders_data")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
     holdings = carbon_data.Query.holdings(
@@ -498,6 +495,7 @@ def get_holders_data():
 
 @cache.memoize()
 def get_eth_carbon_metrics():
+    debug("Compute: get_eth_carbon_metrics")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
@@ -536,7 +534,7 @@ def get_eth_carbon_metrics():
 
 @cache.memoize()
 def get_celo_carbon_metrics():
-
+    debug("Compute: get_celo_carbon_metrics")
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
 
@@ -572,6 +570,7 @@ def get_celo_carbon_metrics():
 
 @cache.memoize()
 def get_polygon_carbon_metrics():
+    debug("Compute: get_polygon_carbon_metrics")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
@@ -655,6 +654,7 @@ def get_polygon_carbon_metrics():
 
 @cache.memoize()
 def get_klima_retirements():
+    debug("Compute: get_klima_retirements")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
@@ -694,6 +694,7 @@ def get_klima_retirements():
 
 @cache.memoize()
 def get_daily_agg_klima_retirements():
+    debug("Compute: get_daily_agg_klima_retirements")
 
     sg = Subgrounds()
     carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
@@ -772,6 +773,7 @@ tokens_dict = {
 
 @cache.memoize()
 def get_prices():
+    debug("Compute: get_prices")
     df_prices = pd.DataFrame()
     sg = Subgrounds()
     current_price_only_token_list = []
@@ -865,6 +867,7 @@ def get_prices():
 
 @cache.memoize()
 def generate_layout():
+    debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     df, df_retired = get_data()
     df_deposited, df_redeemed = get_data_pool()
@@ -876,6 +879,7 @@ def generate_layout():
         df_retired_mco2_info,
     ) = get_mco2_data()
     df_verra, verra_fallback_note = get_verra_data()
+
     df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     df_prices, current_price_only_token_list, price_source = get_prices()
     df_holdings = get_holders_data()
