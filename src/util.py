@@ -68,7 +68,7 @@ class DfSerializer(Serializer):
 
 def load_s3_data(slug: str) -> pd.DataFrame:
     """ Loads json file stored on a prefect block as a panda dataframe """
-    block_name = "prod" if is_production() else "dev" 
+    block_name = "prod" if is_production() else "dev"
     block = S3Bucket.load(block_name)
     try:
         file_data = block.read_path(f"{slug}-latest")
