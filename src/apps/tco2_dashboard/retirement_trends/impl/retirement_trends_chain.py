@@ -171,7 +171,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
             if self.no_verra_data else self.merge_daily_verra_retirements_df(
                 self.df_verra_retired)
 
-        off_chain_df.loc[:,['Quantity Issued']] = np.log(
+        off_chain_df.loc[:, ['Quantity Issued']] = np.log(
             off_chain_df['Quantity Issued'])
 
         retirement_chart_figure = chain_klima_retirement_chart(
