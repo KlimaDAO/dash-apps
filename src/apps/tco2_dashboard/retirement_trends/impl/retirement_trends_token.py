@@ -155,10 +155,13 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
         mco2_df = self.agg_daily_klima_retirements[
             self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
             == "MCO2"]
-        
-        tco2_df['dailyKlimaRetirements_amount'] = np.log(tco2_df['dailyKlimaRetirements_amount'])
-        c3t_df['dailyKlimaRetirements_amount'] = np.log(c3t_df['dailyKlimaRetirements_amount'])
-        mco2_df['dailyKlimaRetirements_amount'] = np.log(mco2_df['dailyKlimaRetirements_amount'])
+
+        tco2_df['dailyKlimaRetirements_amount'] = np.log(
+            tco2_df['dailyKlimaRetirements_amount'])
+        c3t_df['dailyKlimaRetirements_amount'] = np.log(
+            c3t_df['dailyKlimaRetirements_amount'])
+        mco2_df['dailyKlimaRetirements_amount'] = np.log(
+            mco2_df['dailyKlimaRetirements_amount'])
 
         retirement_chart_figure = token_klima_retirement_chart(
             tco2_df,
