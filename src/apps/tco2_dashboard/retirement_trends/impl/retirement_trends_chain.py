@@ -164,7 +164,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         on_chain_df = self.merge_daily_klima_retirements_df(
             self.agg_daily_klima_retirements)
 
-        on_chain_df.loc[:,['dailyKlimaRetirements_amount']] = np.log(
+        on_chain_df.loc[:, ['dailyKlimaRetirements_amount']] = np.log(
             on_chain_df['dailyKlimaRetirements_amount'])
 
         off_chain_df = None \
