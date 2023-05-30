@@ -818,7 +818,7 @@ def token_klima_retirement_chart(tco2_df, mco2_df, c3t_df):
     fig.update_layout(
         height=360,
         xaxis_title="Date",
-        yaxis_title="Tonnes Retired",
+        yaxis_title="Tonnes Retired (Log Transformation)",
         paper_bgcolor=FIGURE_BG_COLOR,
         plot_bgcolor=FIGURE_BG_COLOR,
         xaxis=dict(showgrid=False),
