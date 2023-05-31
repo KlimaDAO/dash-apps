@@ -773,7 +773,8 @@ def historical_prices(tokens_dict, df_prices, excluded_tokens):
     for i in tokens_dict.keys():
         if i not in excluded_tokens:
             col_name = f"{i}_Price"
-            filtered_df = df_prices[~df_prices[col_name].isna()]
+            a = df_prices[col_name].isna()
+            filtered_df = df_prices[~a]
             fig.add_trace(
                 go.Scatter(
                     x=filtered_df["Date"], y=filtered_df[col_name], mode="lines", name=i
