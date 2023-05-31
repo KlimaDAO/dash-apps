@@ -70,13 +70,14 @@ def load_s3_data(slug: str) -> pd.DataFrame:
     """ Loads json file stored on a prefect block as a panda dataframe """
     block_name = "prod" if is_production() else "dev"
     block = S3Bucket.load(block_name)
+    filename = f"{slug}-latest"
     try:
-        file_data = block.read_path(f"{slug}-latest")
+        file_data = block.read_path(filename)
         blob = PersistedResultBlob.parse_raw(file_data).data
         res = DfSerializer().loads(blob)
         return res
     except Exception as e:
-        debug(f"S3 Error: {str(e)}")
+        debug(f"S3 Error when reading {block_name}/{filename}: {str(e)}")
         raise e
 
 
