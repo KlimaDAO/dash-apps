@@ -71,11 +71,6 @@ from .helpers import (
     add_fee_redeem_factors_to_dict
 )
 from .constants import (
-    rename_map,
-    retires_rename_map,
-    deposits_rename_map,
-    redeems_rename_map,
-    pool_retires_rename_map,
     BCT_ADDRESS,
     merge_columns,
     MCO2_ADDRESS,
@@ -83,10 +78,6 @@ from .constants import (
     KLIMA_RETIRED_NOTE,
     UBO_ADDRESS,
     NBO_ADDRESS,
-    mco2_bridged_rename_map,
-    bridges_rename_map,
-    holders_rename_map,
-    moss_retires_rename_map,
     BCT_USDC_ADDRESS,
     NCT_USDC_ADDRESS,
     KLIMA_MCO2_ADDRESS,
@@ -331,12 +322,6 @@ def generate_layout():
 
     df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
-
-    # rename_columns
-    df = df.rename(columns=rename_map)
-    df_retired = df_retired.rename(columns=retires_rename_map)
-    df_holdings = df_holdings.rename(columns=holders_rename_map)
-    df_retired_mco2_info = df_retired_mco2_info.rename(columns=moss_retires_rename_map)
 
     # manual adjusments
     df_retired = retirmentManualAdjustments(df_retired)
@@ -746,10 +731,7 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    df_bridged_mco2 = df_bridged_mco2.rename(columns=mco2_bridged_rename_map)
     df_verra_retired = verra_retired(df_verra, df_bridged_mco2)
-    df_retired_mco2 = df_retired_mco2.rename(columns=retires_rename_map)
-    df_bridged_tx_mco2 = df_bridged_tx_mco2.rename(columns=bridges_rename_map)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
     df_bridged_mco2["Project ID"] = "VCS-" + df_bridged_mco2["Project ID"].astype(str)
     df_bridged_mco2 = merge_verra(
@@ -810,16 +792,11 @@ def generate_layout():
 
     # --Carbon Pool Figures---
 
-    # rename_columns
-    df_deposited = df_deposited.rename(columns=deposits_rename_map)
-    df_redeemed = df_redeemed.rename(columns=redeems_rename_map)
 
     # Blacklist manipulations
     # df_deposited = black_list_manipulations(df_deposited)
     # df_redeemed = black_list_manipulations(df_redeemed)
 
-    # rename_columns
-    df_pool_retired = df_pool_retired.rename(columns=pool_retires_rename_map)
     # datetime manipulations
     df_pool_retired = date_manipulations(df_pool_retired)
 
