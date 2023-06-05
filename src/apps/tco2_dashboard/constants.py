@@ -32,17 +32,6 @@ USDC_DECIMALS = 12
 
 BETWEEN_SECTION_STYLE = {"padding-top": "20px"}
 
-
-
-
-
-
-
-
-
-
-
-
 merge_columns = [
     "ID",
     "Name",
@@ -85,8 +74,6 @@ mco2_verra_rename_map = {
     "Project Name": "Name",
     "Quantity of Credits": "Quantity",
 }
-
-
 
 
 GRAPH_FONT = dict(size=8, color="white", family="Inter, sans-serif")

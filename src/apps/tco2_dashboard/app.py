@@ -58,7 +58,6 @@ from .helpers import (
     filter_carbon_pool,
     bridge_manipulations,
     merge_verra,
-    verra_manipulations,
     mco2_verra_manipulations,
     adjust_mco2_bridges,
     verra_retired,
@@ -313,6 +312,8 @@ def generate_layout():
     df_retired_mco2 = get_s3_data("raw_eth_retired_offsets")
     df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
     df_verra = get_s3_data("raw_verra_data")
+    df_verra_toucan = df_verra.query("Toucan")
+    df_verra_c3 = df_verra.query("C3")
     verra_fallback_note = ""
 
     current_price_only_token_list = []
@@ -320,7 +321,6 @@ def generate_layout():
     df_prices = get_s3_data("raw_assets_prices")
     df_holdings = get_s3_data("raw_offsets_holders_data")
 
-    df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
     # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
 
     # manual adjusments
@@ -791,7 +791,6 @@ def generate_layout():
     cache.set("mco2_carbon", mco2_carbon)
 
     # --Carbon Pool Figures---
-
 
     # Blacklist manipulations
     # df_deposited = black_list_manipulations(df_deposited)

@@ -200,29 +200,6 @@ def filter_df_by_pool(df, pool_address):
     return df
 
 
-def verra_manipulations(df_verra):
-    df_verra["Vintage"] = df_verra["Vintage Start"]
-    df_verra["Vintage"] = (
-        pd.to_datetime(df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
-    )
-    df_verra["Quantity"] = df_verra["Quantity Issued"]
-    df_verra["Retirement/Cancellation Date"] = pd.to_datetime(
-        df_verra["Retirement/Cancellation Date"]
-    )
-    df_verra["Date"] = df_verra["Retirement/Cancellation Date"]
-    df_verra.loc[
-        df_verra["Retirement Details"].str.contains("TOUCAN").fillna(False), "Toucan"
-    ] = True
-    df_verra["Toucan"] = df_verra["Toucan"].fillna(False)
-    df_verra.loc[
-        df_verra["Retirement Details"].str.contains("C3T").fillna(False), "C3"
-    ] = True
-    df_verra["C3"] = df_verra["C3"].fillna(False)
-    df_verra_c3 = df_verra.query("C3")
-    df_verra_toucan = df_verra.query("Toucan")
-    return df_verra, df_verra_toucan, df_verra_c3
-
-
 def verra_retired(df_verra, df_bridged_mco2):
     df_verra["Issuance Date"] = pd.to_datetime(df_verra["Issuance Date"])
     df_verra["Retirement/Cancellation Date"] = pd.to_datetime(
