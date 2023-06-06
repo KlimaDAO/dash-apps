@@ -24,6 +24,7 @@ You can control the behaviour of the environment by setting additionnal variable
 ```
 DASH_MAX_RECORDS
 DASH_PRICE_DAYS
+DASH_USE_LOCAL_STORAGE
 ```
 
 ### Launch environment
