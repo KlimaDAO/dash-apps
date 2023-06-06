@@ -304,14 +304,15 @@ def generate_layout():
 
     df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
 
-    df_bridged_mco2_raw = get_s3_data("raw_eth_moss_bridged_offsets")
     df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
     df_bridged_tx_mco2 = get_s3_data("raw_eth_bridged_offsets_transactions")
     df_retired_mco2 = get_s3_data("eth_retired_offsets")
     df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
-    df_verra = get_s3_data("raw_verra_data")
+    df_verra = get_s3_data("verra_data")
     df_verra_toucan = df_verra.query("Toucan")
     df_verra_c3 = df_verra.query("C3")
+    df_verra_retired = verra_retired(df_verra)
+
     verra_fallback_note = ""
 
     current_price_only_token_list = []
@@ -717,7 +718,6 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    df_verra_retired = verra_retired(df_verra, df_bridged_mco2_raw)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
     df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)

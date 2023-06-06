@@ -181,19 +181,7 @@ def filter_df_by_pool(df, pool_address):
     return df
 
 
-def verra_retired(df_verra, df_bridged_mco2):
-    df_verra["Issuance Date"] = pd.to_datetime(df_verra["Issuance Date"])
-    df_verra["Retirement/Cancellation Date"] = pd.to_datetime(
-        df_verra["Retirement/Cancellation Date"]
-    )
-    df_verra["Days to Retirement"] = (
-        df_verra["Retirement/Cancellation Date"] - df_verra["Issuance Date"]
-    ).dt.days
-    df_verra.loc[df_verra["Days to Retirement"] > 0, "Status"] = "Retired"
-    df_verra["Status"] = df_verra["Status"].fillna("Available")
-    lst_sn = list(df_bridged_mco2["Serial Number"])
-    df_verra.loc[df_verra["Serial Number"].isin(lst_sn), "Moss"] = True
-    df_verra["Moss"] = df_verra["Moss"].fillna(False)
+def verra_retired(df_verra):
     df_verra_retired = df_verra.query("~Toucan & ~C3 & ~Moss")
     df_verra_retired = df_verra_retired[df_verra_retired["Status"] == "Retired"]
     df_verra_retired = df_verra_retired.reset_index(drop=True)
