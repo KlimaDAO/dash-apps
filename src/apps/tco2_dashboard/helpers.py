@@ -126,25 +126,6 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-def merge_verra(df, df_verra, merge_columns, drop_columns):
-    df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
-    df_verra["ID"] = df_verra["ID"].astype(str)
-    df_verra = df_verra[merge_columns]
-    df_verra = df_verra.drop_duplicates(subset=["ID"]).reset_index(drop=True)
-    for i in drop_columns:
-        if i in df.columns:
-            df = df.drop(columns=i)
-    df = df.merge(
-        df_verra,
-        how="left",
-        left_on="Project ID Key",
-        right_on="ID",
-        suffixes=("", "_Verra"),
-    )
-
-    return df
-
-
 # def merge_verra_mco2(df, df_verra, merge_columns, drop_columns):
 #     # df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
 #     df_verra = df_verra[merge_columns]
@@ -604,15 +585,6 @@ def create_holders_data(df_holdings):
         data[0]["children"].append({"id": holders_list[i], "datum": quantity_list[i]})
 
     return df_holdings, data, style_dict
-
-
-def retirmentManualAdjustments(df_retired):
-    # Remove DAO MultiSig Address
-    df_retired = df_retired[
-        df_retired["Tx From Address"] != "0x693ad12dba5f6e07de86faa21098b691f60a1bea"
-    ]
-
-    return df_retired
 
 
 def get_fee_redeem_factors(token_address, web3):

@@ -57,7 +57,6 @@ from .helpers import (
     drop_duplicates,
     filter_carbon_pool,
     bridge_manipulations,
-    merge_verra,
     mco2_verra_manipulations,
     adjust_mco2_bridges,
     verra_retired,
@@ -66,12 +65,10 @@ from .helpers import (
     create_retirements_data,
     create_holders_data,
     merge_retirements_data_for_retirement_chart,
-    retirmentManualAdjustments,
     add_fee_redeem_factors_to_dict
 )
 from .constants import (
     BCT_ADDRESS,
-    merge_columns,
     MCO2_ADDRESS,
     NCT_ADDRESS,
     KLIMA_RETIRED_NOTE,
@@ -299,17 +296,18 @@ tokens_dict = {
 def generate_layout():
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
-    df = get_s3_data("raw_polygon_bridged_offsets")
-    df_retired = get_s3_data("raw_polygon_retired_offsets")
+    df = get_s3_data("polygon_bridged_offsets")
+    df_retired = get_s3_data("polygon_retired_offsets")
 
     df_deposited = get_s3_data("raw_polygon_pools_deposited_offsets")
     df_redeemed = get_s3_data("raw_polygon_pools_redeemed_offsets")
 
     df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
 
-    df_bridged_mco2 = get_s3_data("raw_eth_moss_bridged_offsets")
+    df_bridged_mco2_raw = get_s3_data("raw_eth_moss_bridged_offsets")
+    df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
     df_bridged_tx_mco2 = get_s3_data("raw_eth_bridged_offsets_transactions")
-    df_retired_mco2 = get_s3_data("raw_eth_retired_offsets")
+    df_retired_mco2 = get_s3_data("eth_retired_offsets")
     df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
     df_verra = get_s3_data("raw_verra_data")
     df_verra_toucan = df_verra.query("Toucan")
@@ -321,22 +319,10 @@ def generate_layout():
     df_prices = get_s3_data("raw_assets_prices")
     df_holdings = get_s3_data("raw_offsets_holders_data")
 
-    # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
-
-    # manual adjusments
-    df_retired = retirmentManualAdjustments(df_retired)
-
     # -----TCO2_Figures----
     # Bridge manipulations
     df_tc = bridge_manipulations(df, "Toucan")
     df_retired_tc = bridge_manipulations(df_retired, "Toucan")
-    # merge Verra Data
-    df_tc = merge_verra(
-        df_tc, df_verra_toucan, merge_columns, ["Name", "Country", "Project Type"]
-    )
-    df_retired_tc = merge_verra(
-        df_retired_tc, df_verra, merge_columns, ["Name", "Country", "Project Type"]
-    )
     # datetime manipulations
     df_tc = date_manipulations(df_tc)
     df_retired_tc = date_manipulations(df_retired_tc)
@@ -731,21 +717,8 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    df_verra_retired = verra_retired(df_verra, df_bridged_mco2)
+    df_verra_retired = verra_retired(df_verra, df_bridged_mco2_raw)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
-    df_bridged_mco2["Project ID"] = "VCS-" + df_bridged_mco2["Project ID"].astype(str)
-    df_bridged_mco2 = merge_verra(
-        df_bridged_mco2,
-        df_verra,
-        merge_columns + ["Vintage Start"],
-        ["Name", "Country", "Project Type", "Vintage"],
-    )
-    df_bridged_mco2["Vintage"] = (
-        df_bridged_mco2["Serial Number"].astype(str).str[-15:-11].astype(int)
-    )
-    df_retired_mco2 = merge_verra(
-        df_retired_mco2, df_verra, merge_columns, ["Name", "Country", "Project Type"]
-    )
     df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
     df_retired_mco2 = date_manipulations(df_retired_mco2)
