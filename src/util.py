@@ -5,6 +5,7 @@ import json
 import pandas as pd
 from prefect.results import PersistedResultBlob
 from prefect_aws.s3 import S3Bucket
+from prefect.filesystems import LocalFileSystem
 from web3 import Web3
 from prefect.serializers import Serializer
 from typing_extensions import Literal
@@ -68,8 +69,13 @@ class DfSerializer(Serializer):
 
 def load_s3_data(slug: str) -> pd.DataFrame:
     """ Loads json file stored on a prefect block as a panda dataframe """
-    block_name = "prod" if is_production() else "dev"
-    block = S3Bucket.load(block_name)
+    local_storage_base_path = getenv("DASH_USE_LOCAL_STORAGE")
+    if local_storage_base_path:
+        block_name = "local"
+        block = LocalFileSystem(basepath=local_storage_base_path)
+    else:
+        block_name = "prod" if is_production() else "dev"
+        block = S3Bucket.load(block_name)
     filename = f"{slug}-latest"
     try:
         file_data = block.read_path(filename)
@@ -87,7 +93,7 @@ def debug(text: str):
         print(text)
 
 
-def getenv(key: str, default_value) -> str:
+def getenv(key: str, default_value=None) -> str:
     """ Reads an environment variable and logs it to console if not in production """
     result = os.getenv(key, default_value)
     debug(f"Env: {key}={result}")
