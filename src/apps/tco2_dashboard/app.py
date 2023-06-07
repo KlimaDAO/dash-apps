@@ -58,7 +58,6 @@ from .helpers import (
     filter_carbon_pool,
     bridge_manipulations,
     mco2_verra_manipulations,
-    adjust_mco2_bridges,
     verra_retired,
     date_manipulations_verra,
     off_vs_on_data,
@@ -305,7 +304,6 @@ def generate_layout():
     df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
 
     df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
-    df_bridged_tx_mco2 = get_s3_data("raw_eth_bridged_offsets_transactions")
     df_retired_mco2 = get_s3_data("eth_retired_offsets")
     df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
     df_verra = get_s3_data("verra_data")
@@ -719,7 +717,6 @@ def generate_layout():
     # --MCO2 Figures--
 
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
-    df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
     df_retired_mco2 = date_manipulations(df_retired_mco2)
 
