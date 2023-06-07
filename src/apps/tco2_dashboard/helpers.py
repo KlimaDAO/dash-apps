@@ -293,28 +293,6 @@ def read_from_json(filename):
     return data
 
 
-def adjust_mco2_bridges(df, df_tx):
-    df_tx = df_tx[["Date", "Tx Address"]]
-    df = df.merge(
-        df_tx,
-        how="left",
-        left_on="Original Tx Address",
-        right_on="Tx Address",
-        suffixes=("", "_new"),
-    ).reset_index(drop=True)
-    df.loc[
-        df["Original Tx Address"]
-        != "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "Date",
-    ] = df.loc[
-        df["Original Tx Address"]
-        != "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "Date_new",
-    ]
-    df = df.drop(columns=["Tx Address", "Date_new"])
-    return df
-
-
 def group_data_monthly(i):
     i = i[["Date", "Quantity"]]
     i["Date"] = pd.to_datetime(i["Date"]).dt.to_period("m")
