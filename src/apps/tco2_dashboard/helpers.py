@@ -137,15 +137,6 @@ def bridge_manipulations(df, bridge):
 #     return df
 
 
-def region_manipulations(df):
-    df["Region"] = df["Region"].replace("South Korea", "Korea, Republic of")
-    # Belize country credits are categorized under Latin America. Confirmed this with Verra Registry
-    df["Region"] = df["Region"].replace("Latin America", "Belize")
-    df["Region"] = df["Region"].replace("Oceania", "Indonesia")
-    df["Region"] = df["Region"].replace("Asia", "Cambodia")
-    return df
-
-
 def subsets(df):
 
     # 7-day, last 7-day, 30-day and last 30 day time
