@@ -6,15 +6,12 @@ from dash import html, Input, Output, callback, State
 from dash import dcc
 from flask_caching import Cache
 import pandas as pd
-import requests
-from subgrounds.subgrounds import Subgrounds
-from subgrounds.subgraph import SyntheticField
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3
+from ...util import get_polygon_web3, is_production, load_s3_data, debug, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -55,53 +52,31 @@ from .mco2 import create_content_moss
 from .helpers import (
     date_manipulations,
     filter_pool_quantity,
-    region_manipulations,
     subsets,
     drop_duplicates,
     filter_carbon_pool,
     bridge_manipulations,
-    merge_verra,
-    verra_manipulations,
     mco2_verra_manipulations,
-    adjust_mco2_bridges,
     verra_retired,
     date_manipulations_verra,
     off_vs_on_data,
     create_retirements_data,
     create_holders_data,
     merge_retirements_data_for_retirement_chart,
-    retirmentManualAdjustments,
-    add_fee_redeem_factors_to_dict,
-    klima_usdc_price,
-    uni_v2_pool_price,
+    add_fee_redeem_factors_to_dict
 )
 from .constants import (
-    rename_map,
-    retires_rename_map,
-    deposits_rename_map,
-    redeems_rename_map,
-    pool_retires_rename_map,
     BCT_ADDRESS,
-    verra_rename_map,
-    merge_columns,
     MCO2_ADDRESS,
-    verra_columns,
-    VERRA_FALLBACK_NOTE,
-    VERRA_FALLBACK_URL,
     NCT_ADDRESS,
     KLIMA_RETIRED_NOTE,
     UBO_ADDRESS,
     NBO_ADDRESS,
-    mco2_bridged_rename_map,
-    bridges_rename_map,
-    holders_rename_map,
-    moss_retires_rename_map,
     BCT_USDC_ADDRESS,
     NCT_USDC_ADDRESS,
     KLIMA_MCO2_ADDRESS,
     KLIMA_NBO_ADDRESS,
     KLIMA_UBO_ADDRESS,
-    KLIMA_DECIMALS,
     UBO_DECIMALS,
     NBO_DECIMALS,
     BCT_DECIMALS,
@@ -109,7 +84,6 @@ from .constants import (
     MCO2_DECIMALS,
     MISPRICED_NCT_SWAP_ID,
 )
-from pycoingecko import CoinGeckoAPI
 
 CACHE_TIMEOUT = 86400
 CARBON_SUBGRAPH_URL = (
@@ -131,8 +105,8 @@ CARBON_HOLDERS_SUBGRAPH_URL = (
     "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
 )
 PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
-MAX_RECORDS = 1000000
-PRICE_DAYS = 5000
+MAX_RECORDS = int(getenv("DASH_MAX_RECORDS", 1000000))
+PRICE_DAYS = int(getenv("DASH_PRICE_DAYS", 5000))
 GOOGLE_API_ICONS = {
     "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
     "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
@@ -158,7 +132,7 @@ external_scripts = (
             "data-domain": "carbon.klimadao.finance",
         }
     ]
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else []
 )
 
@@ -209,7 +183,7 @@ gtm_head_section = (
         })(window,document,'script','dataLayer','GTM-KWFJ9R2');</script>
         <!-- End Google Tag Manager -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
@@ -220,7 +194,7 @@ gtm_body_section = (
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
 """
-    if os.environ.get("ENV") == "Production"
+    if is_production()
     else ""
 )
 
@@ -265,462 +239,9 @@ cache = Cache(
 
 
 @cache.memoize()
-def get_data():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    carbon_offsets = carbon_data.Query.carbonOffsets(
-        orderBy=carbon_data.CarbonOffset.lastUpdate,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-    )
-
-    df_bridged = sg.query_df(
-        [
-            carbon_offsets.tokenAddress,
-            carbon_offsets.bridge,
-            carbon_offsets.region,
-            carbon_offsets.vintage,
-            carbon_offsets.projectID,
-            carbon_offsets.standard,
-            carbon_offsets.methodology,
-            carbon_offsets.country,
-            carbon_offsets.category,
-            carbon_offsets.name,
-            carbon_offsets.balanceBCT,
-            carbon_offsets.balanceNCT,
-            carbon_offsets.balanceUBO,
-            carbon_offsets.balanceNBO,
-            carbon_offsets.totalBridged,
-            carbon_offsets.bridges.value,
-            carbon_offsets.bridges.timestamp,
-        ]
-    )
-
-    carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
-
-    df_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.offset.tokenAddress,
-            carbon_offsets.offset.bridge,
-            carbon_offsets.offset.region,
-            carbon_offsets.offset.vintage,
-            carbon_offsets.offset.projectID,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.methodology,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.country,
-            carbon_offsets.offset.category,
-            carbon_offsets.offset.name,
-            carbon_offsets.offset.totalRetired,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
-
-    return df_bridged, df_retired
-
-
-@cache.memoize()
-def get_data_pool():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    carbon_offsets = carbon_data.Query.deposits(first=MAX_RECORDS)
-
-    df_deposited = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.pool,
-            # carbon_offsets.offset.region,
-        ]
-    )
-
-    carbon_offsets = carbon_data.Query.redeems(first=MAX_RECORDS)
-
-    df_redeemed = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.pool,
-            # carbon_offsets.offset.region
-        ]
-    )
-
-    return df_deposited, df_redeemed
-
-
-@cache.memoize()
-def get_data_pool_retired():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    klimaretires = carbon_data.Query.klimaRetires(first=MAX_RECORDS)
-
-    df_pool_retired = sg.query_df(
-        [
-            klimaretires.timestamp,
-            klimaretires.pool,
-            klimaretires.amount,
-            klimaretires.retiringAddress,
-            klimaretires.beneficiary,
-            klimaretires.beneficiaryAddress,
-            klimaretires.retirementMessage,
-            klimaretires.transaction.id,
-        ]
-    )
-
-    return df_pool_retired
-
-
-@cache.memoize()
-def get_mco2_data():
-    sg = Subgrounds()
-
-    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.batches(first=MAX_RECORDS)
-    df_bridged = sg.query_df(
-        [
-            carbon_offsets.id,
-            carbon_offsets.serialNumber,
-            carbon_offsets.timestamp,
-            carbon_offsets.tokenAddress,
-            carbon_offsets.vintage,
-            carbon_offsets.projectID,
-            carbon_offsets.value,
-            carbon_offsets.originaltx,
-        ]
-    )
-
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.bridges(first=MAX_RECORDS)
-    df_bridged_tx = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.transaction.id,
-        ]
-    )
-
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.retires(first=MAX_RECORDS)
-    df_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.offset.tokenAddress,
-            carbon_offsets.offset.bridge,
-            carbon_offsets.offset.region,
-            carbon_offsets.offset.vintage,
-            carbon_offsets.offset.projectID,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.methodology,
-            carbon_offsets.offset.standard,
-            carbon_offsets.offset.country,
-            carbon_offsets.offset.category,
-            carbon_offsets.offset.name,
-            carbon_offsets.offset.totalRetired,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
-
-    carbon_data = sg.load_subgraph(CARBON_MOSS_ETH_TEST_SUBGRAPH_URL)
-    carbon_offsets = carbon_data.Query.mossOffsets(first=MAX_RECORDS)
-
-    df_moss_retired = sg.query_df(
-        [
-            carbon_offsets.value,
-            carbon_offsets.timestamp,
-            carbon_offsets.retiree,
-            carbon_offsets.receiptId,
-            carbon_offsets.onBehalfOf,
-            carbon_offsets.transaction.id,
-            carbon_offsets.transaction._select("from"),
-        ]
-    )
-    return df_bridged, df_bridged_tx, df_retired, df_moss_retired
-
-
-@cache.memoize()
-def get_verra_data():
-    use_fallback_data = False
-    if use_fallback_data:
-        fallback_note = VERRA_FALLBACK_NOTE
-        df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-        df_verra = df_verra[verra_columns]
-    else:
-        try:
-            fallback_note = ""
-            r = requests.post(
-                "https://registry.verra.org/uiapi/asset/asset/search?$maxResults=2000&$count=true&$skip=0&format=csv",
-                json={"program": "VCS", "issuanceTypeCodes": ["ISSUE"]},
-            )
-            df_verra = pd.DataFrame(r.json()["value"]).rename(columns=verra_rename_map)
-        except requests.exceptions.RequestException as err:
-            print(err)
-            fallback_note = VERRA_FALLBACK_NOTE
-            df_verra = pd.read_csv(VERRA_FALLBACK_URL)
-            df_verra = df_verra[verra_columns]
-    return df_verra, fallback_note
-
-
-@cache.memoize()
-def get_holders_data():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_HOLDERS_SUBGRAPH_URL)
-    holdings = carbon_data.Query.holdings(
-        orderBy=carbon_data.Holding.timestamp, orderDirection="desc", first=MAX_RECORDS
-    )
-
-    df_holdings = sg.query_df(
-        [
-            holdings.id,
-            holdings.token,
-            holdings.timestamp,
-            holdings.tokenAmount,
-            holdings.carbonValue,
-            holdings.klimate.id,
-        ]
-    )
-
-    return df_holdings
-
-
-@cache.memoize()
-def get_eth_carbon_metrics():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_ETH_SUBGRAPH_URL)
-
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
-
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
-
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.timestamp,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.totalRetirements,
-        ]
-    )
-
-    zeroTimestampIndex = df[(df["carbonMetrics_timestamp"] == "0")].index
-    df.drop(zeroTimestampIndex, inplace=True)
-
-    return df
-
-
-@cache.memoize()
-def get_celo_carbon_metrics():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_CELO_SUBGRAPH_URL)
-
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
-
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
-
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.bctSupply,
-            carbonMetrics.nctSupply,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.totalRetirements,
-        ]
-    )
-
-    return df
-
-
-@cache.memoize()
-def get_polygon_carbon_metrics():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    carbon_data.CarbonMetric.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.CarbonMetric.timestamp,
-    )
-
-    carbon_data.CarbonMetric.not_klima_retired = SyntheticField(
-        lambda totalRetirements, totalKlimaRetirements: totalRetirements
-        - totalKlimaRetirements,
-        SyntheticField.FLOAT,
-        [
-            carbon_data.CarbonMetric.totalRetirements,
-            carbon_data.CarbonMetric.totalKlimaRetirements,
-        ],
-    )
-
-    carbon_data.CarbonMetric.tco2KlimaRetired = SyntheticField(
-        lambda bctKlimaRetired, nctKlimaRetired: bctKlimaRetired
-        + nctKlimaRetired,
-        SyntheticField.FLOAT,
-        [
-            carbon_data.CarbonMetric.bctKlimaRetired,
-            carbon_data.CarbonMetric.nctKlimaRetired,
-        ],
-    )
-
-    carbon_data.CarbonMetric.c3tKlimaRetired = SyntheticField(
-        lambda uboKlimaRetired, nboKlimaRetired: uboKlimaRetired
-        + nboKlimaRetired,
-        SyntheticField.FLOAT,
-        [
-            carbon_data.CarbonMetric.uboKlimaRetired,
-            carbon_data.CarbonMetric.nboKlimaRetired,
-        ],
-    )
-
-    carbonMetrics = carbon_data.Query.carbonMetrics(
-        orderBy=carbon_data.CarbonMetric.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS,
-        where=[carbon_data.CarbonMetric.timestamp > 0],
-    )
-
-    df = sg.query_df(
-        [
-            carbonMetrics.id,
-            carbonMetrics.timestamp,
-            carbonMetrics.datetime,
-            carbonMetrics.bctSupply,
-            carbonMetrics.nctSupply,
-            carbonMetrics.mco2Supply,
-            carbonMetrics.uboSupply,
-            carbonMetrics.nboSupply,
-            carbonMetrics.bctRedeemed,
-            carbonMetrics.nctRedeemed,
-            carbonMetrics.uboRedeemed,
-            carbonMetrics.nboRedeemed,
-            carbonMetrics.totalCarbonSupply,
-            carbonMetrics.mco2Retired,
-            carbonMetrics.tco2Retired,
-            carbonMetrics.c3tRetired,
-            carbonMetrics.totalRetirements,
-            carbonMetrics.bctKlimaRetired,
-            carbonMetrics.nctKlimaRetired,
-            carbonMetrics.mco2KlimaRetired,
-            carbonMetrics.uboKlimaRetired,
-            carbonMetrics.nboKlimaRetired,
-            carbonMetrics.totalKlimaRetirements,
-            carbonMetrics.tco2KlimaRetired,
-            carbonMetrics.c3tKlimaRetired,
-            carbonMetrics.not_klima_retired,
-        ]
-    )
-
-    return df
-
-
-@cache.memoize()
-def get_klima_retirements():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    carbon_data.KlimaRetire.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.KlimaRetire.timestamp,
-    )
-
-    carbon_data.KlimaRetire.proof = SyntheticField(
-        lambda tx_id: f'https://polygonscan.com/tx/{tx_id}',
-        SyntheticField.STRING,
-        carbon_data.KlimaRetire.transaction.id,
-    )
-
-    klimaRetirees = carbon_data.Query.klimaRetires(
-        orderBy=carbon_data.KlimaRetire.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS
-    )
-
-    df = sg.query_df(
-        [
-            klimaRetirees.beneficiaryAddress,
-            klimaRetirees.offset.projectID,
-            klimaRetirees.offset.bridge,
-            klimaRetirees.token,
-            klimaRetirees.datetime,
-            klimaRetirees.amount,
-            klimaRetirees.proof
-        ]
-    )
-
-    return df
-
-
-@cache.memoize()
-def get_daily_agg_klima_retirements():
-
-    sg = Subgrounds()
-    carbon_data = sg.load_subgraph(CARBON_SUBGRAPH_URL)
-
-    carbon_data.DailyKlimaRetirement.datetime = SyntheticField(
-        lambda timestamp: str(datetime.fromtimestamp(timestamp)),
-        SyntheticField.STRING,
-        carbon_data.DailyKlimaRetirement.timestamp,
-    )
-
-    dailyKlimaRetirements = carbon_data.Query.dailyKlimaRetirements(
-        orderBy=carbon_data.DailyKlimaRetirement.timestamp,
-        orderDirection="desc",
-        first=MAX_RECORDS
-    )
-
-    df = sg.query_df(
-        [
-            dailyKlimaRetirements.id,
-            dailyKlimaRetirements.timestamp,
-            dailyKlimaRetirements.datetime,
-            dailyKlimaRetirements.amount,
-            dailyKlimaRetirements.token,
-        ]
-    )
-
-    return df
+def get_s3_data(slug: str) -> pd.DataFrame:
+    debug(f"get s3 data: {slug}")
+    return load_s3_data(slug)
 
 
 web3 = get_polygon_web3() if os.environ.get("WEB3_INFURA_PROJECT_ID") else None
@@ -771,145 +292,43 @@ tokens_dict = {
 
 
 @cache.memoize()
-def get_prices():
-    df_prices = pd.DataFrame()
-    sg = Subgrounds()
-    current_price_only_token_list = []
-    try:
-        price_source = "Subgraph"
-        price_sg = sg.load_subgraph(PAIRS_SUBGRAPH_URL)
-        for i in tokens_dict.keys():
-            swaps = price_sg.Query.swaps(
-                first=MAX_RECORDS,
-                orderBy=price_sg.Swap.timestamp,
-                orderDirection="desc",
-                where=[
-                    price_sg.Swap.pair == tokens_dict[i]["Pair Address"]
-                ],
-            )
-
-            # Pull swap ID for NCT
-            fields = [swaps.pair.id, swaps.close, swaps.timestamp]
-            if i == 'NCT':
-                fields.append(swaps.id)
-
-            df = sg.query_df(fields)
-
-            # Filter out mispriced NCT swap
-            if i == 'NCT':
-                df = df[df.swaps_id != MISPRICED_NCT_SWAP_ID]
-                df = df.drop('swaps_id', axis=1)
-
-            # Rename and format fields
-            rename_prices_map = {
-                "swaps_pair_id": f"{i}_Address",
-                "swaps_close": f"{i}_Price",
-                "swaps_timestamp": "Date",
-            }
-            df = df.rename(columns=rename_prices_map)
-            df["Date"] = (
-                pd.to_datetime(df["Date"], unit="s")
-                .dt.tz_localize("UTC")
-                .dt.floor("D")
-                .dt.date
-            )
-            df = df.drop_duplicates(keep="first", subset=[f"{i}_Address", "Date"])
-            df = df[df[f"{i}_Price"] != 0]
-            if df_prices.empty:
-                df_prices = df
-            else:
-                df_prices = df_prices.merge(df, how="outer", on="Date")
-            df_prices = df_prices.sort_values(by="Date", ascending=False)
-    except Exception:
-        print("using coingecko")
-        price_source = "Coingecko"
-        cg = CoinGeckoAPI()
-        current_price_only_token_list = ["UBO", "NBO"]
-        for i in tokens_dict.keys():
-            if i not in current_price_only_token_list:
-                data = cg.get_coin_market_chart_from_contract_address_by_id(
-                    id=tokens_dict[i]["id"],
-                    vs_currency="usd",
-                    contract_address=tokens_dict[i]["Token Address"],
-                    days=PRICE_DAYS,
-                )
-                df = pd.DataFrame(data["prices"], columns=["Date", f"{i}_Price"])
-                df["Date"] = pd.to_datetime(df["Date"], unit="ms")
-                df["Date"] = df["Date"].dt.floor("D")
-                if df_prices.empty:
-                    df_prices = df
-                else:
-                    df_prices = df_prices.merge(df, how="outer", on="Date")
-                df_prices = df_prices.sort_values(by="Date", ascending=False)
-        for i in current_price_only_token_list:
-            if i == "UBO":
-                klima_price = klima_usdc_price(web3)
-                token_price = uni_v2_pool_price(
-                    web3,
-                    web3.to_checksum_address(tokens_dict[i]["Pair Address"]),
-                    KLIMA_DECIMALS - tokens_dict[i]["Decimals"],
-                )
-                price = klima_price / token_price
-            elif i == "NBO":
-                klima_price = klima_usdc_price(web3)
-                token_price = uni_v2_pool_price(
-                    web3,
-                    web3.to_checksum_address(tokens_dict[i]["Pair Address"]),
-                    KLIMA_DECIMALS,
-                )
-                price = token_price * klima_price
-
-            df_prices[f"{i}_Price"] = price
-    return df_prices, current_price_only_token_list, price_source
-
-
-@cache.memoize()
 def generate_layout():
+    debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
-    df, df_retired = get_data()
-    df_deposited, df_redeemed = get_data_pool()
-    df_pool_retired = get_data_pool_retired()
-    (
-        df_bridged_mco2,
-        df_bridged_tx_mco2,
-        df_retired_mco2,
-        df_retired_mco2_info,
-    ) = get_mco2_data()
-    df_verra, verra_fallback_note = get_verra_data()
-    df_verra, df_verra_toucan, df_verra_c3 = verra_manipulations(df_verra)
-    df_prices, current_price_only_token_list, price_source = get_prices()
-    df_holdings = get_holders_data()
-    # curr_time_str = datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+    df = get_s3_data("polygon_bridged_offsets")
+    df_retired = get_s3_data("polygon_retired_offsets")
 
-    # rename_columns
-    df = df.rename(columns=rename_map)
-    df_retired = df_retired.rename(columns=retires_rename_map)
-    df_holdings = df_holdings.rename(columns=holders_rename_map)
-    df_retired_mco2_info = df_retired_mco2_info.rename(columns=moss_retires_rename_map)
+    df_deposited = get_s3_data("raw_polygon_pools_deposited_offsets")
+    df_redeemed = get_s3_data("raw_polygon_pools_redeemed_offsets")
 
-    # manual adjusments
-    df_retired = retirmentManualAdjustments(df_retired)
+    df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
+
+    df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
+    df_retired_mco2 = get_s3_data("eth_retired_offsets")
+    df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
+    df_verra = get_s3_data("verra_data")
+    df_verra_toucan = df_verra.query("Toucan")
+    df_verra_c3 = df_verra.query("C3")
+    df_verra_retired = verra_retired(df_verra)
+
+    verra_fallback_note = ""
+
+    current_price_only_token_list = []
+    price_source = "Subgraph"
+    df_prices = get_s3_data("raw_assets_prices")
+    df_holdings = get_s3_data("raw_offsets_holders_data")
 
     # -----TCO2_Figures----
     # Bridge manipulations
     df_tc = bridge_manipulations(df, "Toucan")
     df_retired_tc = bridge_manipulations(df_retired, "Toucan")
-    # merge Verra Data
-    df_tc = merge_verra(
-        df_tc, df_verra_toucan, merge_columns, ["Name", "Country", "Project Type"]
-    )
-    df_retired_tc = merge_verra(
-        df_retired_tc, df_verra, merge_columns, ["Name", "Country", "Project Type"]
-    )
     # datetime manipulations
     df_tc = date_manipulations(df_tc)
     df_retired_tc = date_manipulations(df_retired_tc)
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
-    # Region manipulations
-    df_tc = region_manipulations(df_tc)
-    df_retired_tc = region_manipulations(df_retired_tc)
+
     # 7 day and 30 day subsets
     sd_pool_tc, last_sd_pool_tc, td_pool_tc, last_td_pool_tc = subsets(df_tc)
     (
@@ -1008,9 +427,9 @@ def generate_layout():
     )
 
     # Content carbon supply
-    polygon_carbon_metrics_df = get_polygon_carbon_metrics()
-    eth_carbon_metrics_df = get_eth_carbon_metrics()
-    celo_carbon_metrics_df = get_celo_carbon_metrics()
+    polygon_carbon_metrics_df = get_s3_data("raw_polygon_carbon_metrics")
+    eth_carbon_metrics_df = get_s3_data("raw_eth_carbon_metrics")
+    celo_carbon_metrics_df = get_s3_data("raw_celo_carbon_metrics")
     fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart(
         polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
     )
@@ -1107,9 +526,6 @@ def generate_layout():
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
-    # Region manipulations
-    df_c3t = region_manipulations(df_c3t)
-    df_retired_c3t = region_manipulations(df_retired_c3t)
     # 7 day and 30 day subsets
     sd_pool_c3t, last_sd_pool_c3t, td_pool_c3t, last_td_pool_c3t = subsets(df_c3t)
     (
@@ -1295,25 +711,7 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    df_bridged_mco2 = df_bridged_mco2.rename(columns=mco2_bridged_rename_map)
-    df_verra_retired = verra_retired(df_verra, df_bridged_mco2)
-    df_retired_mco2 = df_retired_mco2.rename(columns=retires_rename_map)
-    df_bridged_tx_mco2 = df_bridged_tx_mco2.rename(columns=bridges_rename_map)
     df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
-    df_bridged_mco2["Project ID"] = "VCS-" + df_bridged_mco2["Project ID"].astype(str)
-    df_bridged_mco2 = merge_verra(
-        df_bridged_mco2,
-        df_verra,
-        merge_columns + ["Vintage Start"],
-        ["Name", "Country", "Project Type", "Vintage"],
-    )
-    df_bridged_mco2["Vintage"] = (
-        df_bridged_mco2["Serial Number"].astype(str).str[-15:-11].astype(int)
-    )
-    df_retired_mco2 = merge_verra(
-        df_retired_mco2, df_verra, merge_columns, ["Name", "Country", "Project Type"]
-    )
-    df_bridged_mco2 = adjust_mco2_bridges(df_bridged_mco2, df_bridged_tx_mco2)
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
     df_retired_mco2 = date_manipulations(df_retired_mco2)
 
@@ -1359,16 +757,10 @@ def generate_layout():
 
     # --Carbon Pool Figures---
 
-    # rename_columns
-    df_deposited = df_deposited.rename(columns=deposits_rename_map)
-    df_redeemed = df_redeemed.rename(columns=redeems_rename_map)
-
     # Blacklist manipulations
     # df_deposited = black_list_manipulations(df_deposited)
     # df_redeemed = black_list_manipulations(df_redeemed)
 
-    # rename_columns
-    df_pool_retired = df_pool_retired.rename(columns=pool_retires_rename_map)
     # datetime manipulations
     df_pool_retired = date_manipulations(df_pool_retired)
 
@@ -1638,8 +1030,8 @@ def generate_layout():
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # Content Retirement trends
-    klima_retirements_df = get_klima_retirements()
-    daily_agg_klima_retirements_df = get_daily_agg_klima_retirements()
+    klima_retirements_df = get_s3_data("raw_polygon_klima_retirements")
+    daily_agg_klima_retirements_df = get_s3_data("raw_polygon_klima_retirements_daily")
 
     retirement_trend_inputs = create_retirement_trend_inputs(
         polygon_carbon_metrics_df,

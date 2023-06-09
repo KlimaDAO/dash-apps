@@ -84,6 +84,8 @@ jobs:
       DIGITALOCEAN_APP_NAME: ${{ secrets.DIGITALOCEAN_APP_NAME }}
       DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
       DIGITALOCEAN_SIZE_SLUG: ${{ secrets.DIGITALOCEAN_SIZE_SLUG }}
+      PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
+      PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
       ENV: ${{ secrets.ENV }}
       GUNICORN_TIMEOUT: ${{ secrets.GUNICORN_TIMEOUT }}
     steps:
