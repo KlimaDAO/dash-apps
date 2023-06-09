@@ -82,7 +82,6 @@ from .constants import (
     BCT_DECIMALS,
     NCT_DECIMALS,
     MCO2_DECIMALS,
-    MISPRICED_NCT_SWAP_ID,
 )
 
 CACHE_TIMEOUT = 86400
