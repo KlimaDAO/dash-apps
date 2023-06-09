@@ -94,7 +94,7 @@ def load_s3_data(slug: str) -> pd.DataFrame:
 def debug(text: str):
     """ Write text to console if not in production """
     if not is_production():
-        print(text)
+        print(text, flush=True)
 
 
 def getenv(key: str, default_value=None) -> str:
