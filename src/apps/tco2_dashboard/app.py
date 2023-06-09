@@ -52,7 +52,6 @@ from .mco2 import create_content_moss
 from .helpers import (
     date_manipulations,
     filter_pool_quantity,
-    region_manipulations,
     subsets,
     drop_duplicates,
     filter_carbon_pool,
@@ -328,9 +327,7 @@ def generate_layout():
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
-    # Region manipulations
-    df_tc = region_manipulations(df_tc)
-    df_retired_tc = region_manipulations(df_retired_tc)
+
     # 7 day and 30 day subsets
     sd_pool_tc, last_sd_pool_tc, td_pool_tc, last_td_pool_tc = subsets(df_tc)
     (
@@ -528,9 +525,6 @@ def generate_layout():
     # Blacklist manipulations
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
-    # Region manipulations
-    df_c3t = region_manipulations(df_c3t)
-    df_retired_c3t = region_manipulations(df_retired_c3t)
     # 7 day and 30 day subsets
     sd_pool_c3t, last_sd_pool_c3t, td_pool_c3t, last_td_pool_c3t = subsets(df_c3t)
     (
