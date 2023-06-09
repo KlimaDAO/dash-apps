@@ -75,7 +75,11 @@ def load_s3_data(slug: str) -> pd.DataFrame:
         block = LocalFileSystem(basepath=local_storage_base_path)
     else:
         block_name = "prod" if is_production() else "dev"
-        block = S3Bucket.load(block_name)
+        try:
+            block = S3Bucket.load(block_name)
+        except Exception as e:
+            debug(f"Prefect Error when loading block {block_name}: {str(e)}")
+            raise e
     filename = f"{slug}-latest"
     try:
         file_data = block.read_path(filename)
@@ -83,7 +87,7 @@ def load_s3_data(slug: str) -> pd.DataFrame:
         res = DfSerializer().loads(blob)
         return res
     except Exception as e:
-        debug(f"S3 Error when reading {block_name}/{filename}: {str(e)}")
+        debug(f"Prefect Error when reading {block_name}/{filename}: {str(e)}")
         raise e
 
 
