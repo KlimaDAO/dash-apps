@@ -21,9 +21,10 @@ RUN mkdir -p /opt
 
 WORKDIR /opt
 
-COPY requirements.txt .
+COPY requirements1.txt requirements2.txt .
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements1.txt
+RUN pip install -r requirements2.txt
 
 # *** We use this image to run the bots
 FROM base AS prod
@@ -53,6 +54,7 @@ RUN mkdir -p $GOPATH
 # The latest version (1.68.0) does not return an error code if the deployment fails, so we use a specific git commit
 # The GO111MODULE variable is from: https://newbedev.com/getting-gopath-error-go-cannot-use-path-version-syntax-in-gopath-mode-in-ubuntu-16-04
 RUN GO111MODULE=on go install github.com/digitalocean/doctl/cmd/doctl@2fcbadcb46efd8dca0d93fbef2a3a8394f5981ba
+RUN go clean -modcache -cache
 
 COPY Makefile Makefile
 

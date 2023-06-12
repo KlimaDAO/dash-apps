@@ -2,9 +2,9 @@ alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
 domains:
-- domain: ${DIGITALOCEAN_APP_DOMAIN}
-  type: PRIMARY
-  minimum_tls_version: "1.2"
+  - domain: ${DIGITALOCEAN_APP_DOMAIN}
+    type: PRIMARY
+    minimum_tls_version: "1.2"
 envs:
   - key: ENV
     scope: RUN_TIME
@@ -17,6 +17,14 @@ envs:
     scope: RUN_AND_BUILD_TIME
     type: SECRET
     value: ${WEB3_INFURA_PROJECT_ID}
+  - key: PREFECT_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: ${PREFECT_API_KEY}
+  - key: PREFECT_API_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: ${PREFECT_API_URL}
 name: ${DIGITALOCEAN_APP_NAME}
 region: nyc
 services:

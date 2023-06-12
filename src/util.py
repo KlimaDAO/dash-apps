@@ -76,11 +76,8 @@ def load_s3_data(slug: str) -> pd.DataFrame:
     else:
         block_name = "prod" if is_production() else "dev"
         try:
-            debug('2')
             block = S3Bucket.load(block_name)
-            debug('3')
         except Exception as e:
-            debug('1')
             debug(f"Prefect Error when loading block {block_name}: {str(e)}")
             raise e
     filename = f"{slug}-latest"
