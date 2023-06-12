@@ -3,6 +3,7 @@ import io
 import base64
 import json
 import pandas as pd
+from datetime import datetime
 from prefect.results import PersistedResultBlob
 from prefect_aws.s3 import S3Bucket
 from prefect.filesystems import LocalFileSystem
@@ -65,6 +66,19 @@ class DfSerializer(Serializer):
     def loads(self, blob: bytes) -> pd.DataFrame:
         bytestream = io.BytesIO(base64.decodebytes(blob))
         return pd.read_feather(bytestream)
+
+
+class Perf():
+    def __init__(self):
+        self.start = datetime.now()
+        self.prev = None
+
+    def tag(self, tag):
+        ts = datetime.now() - self.start
+        tp = datetime.now() - self.prev if self.prev else ""
+        with open("perf.txt", "a") as f:
+            f.write(f"{ts} {tp} {tag}\n")
+        self.prev = datetime.now()
 
 
 def load_s3_data(slug: str) -> pd.DataFrame:
