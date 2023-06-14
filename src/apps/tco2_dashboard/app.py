@@ -3,7 +3,7 @@ import dash
 from datetime import datetime
 from dash import html, Input, Output, callback, State
 from dash import dcc
-from flask_caching import Cache
+from .services import cache
 import pandas as pd
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
@@ -14,6 +14,7 @@ from ...util import is_production, load_s3_data, debug
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
+    sub_plots_volume_s,
     sub_plots_volume,
     map,
     total_vintage,
@@ -67,7 +68,6 @@ from .constants import (
     KLIMA_RETIRED_NOTE,
 )
 
-CACHE_TIMEOUT = 86400
 GOOGLE_API_ICONS = {
     "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
     "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
@@ -188,15 +188,7 @@ app.index_string = (
 )
 
 
-# Configure cache
-cache = Cache(
-    app.server,
-    config={
-        "CACHE_TYPE": "FileSystemCache",
-        "CACHE_DIR": "/tmp/cache-directory",
-        "CACHE_DEFAULT_TIMEOUT": CACHE_TIMEOUT,
-    },
-)
+cache.init_app(app.server)
 
 
 @cache.memoize()
@@ -273,8 +265,17 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 7 days"
     )
+    """
     fig_seven_day_volume_tc = sub_plots_volume(
         sd_pool_tc, last_sd_pool_tc, "Credits Bridged (7d)", "", zero_bridging_evt_text
+    )"""
+    
+    fig_seven_day_volume_tc = sub_plots_volume_s(
+        "Toucan",
+        7,
+        "Credits Bridged (7d)",
+        "",
+        zero_bridging_evt_text
     )
     fig_seven_day_volume_retired_tc = sub_plots_volume(
         sd_pool_retired_tc,
@@ -1557,7 +1558,6 @@ def generate_layout():
 
 
 app.layout = generate_layout
-# cache.delete_memoized(app.layout)
 
 
 @callback(

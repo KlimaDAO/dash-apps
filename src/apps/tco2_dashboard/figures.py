@@ -19,8 +19,104 @@ import matplotlib
 from base64 import b64encode
 import math
 from dash import dash_table
+import datetime as dt
+from .services import Offsets
 
 matplotlib.use("agg")
+
+
+def sub_plots_volume_s(bridge,
+                       days, 
+                       title_indicator, 
+                       title_graph,
+                       zero_evt_text):
+    current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
+    period_start = current_time - dt.timedelta(days=days)
+    last_period_start = period_start - dt.timedelta(days=days)
+
+    
+    offsets = Offsets().bridge(bridge).date_range(period_start, current_time)
+    last_offsets = Offsets().bridge(bridge).date_range(last_period_start, period_start)
+
+    df = offsets.dataframe
+    last_df = last_offsets.dataframe
+    quantity = offsets.sum("Quantity")
+    last_quantity = last_offsets.sum("Quantity")
+
+
+
+    if not df.empty and quantity != 0:
+        fig = make_subplots(
+            rows=2,
+            cols=1,
+            specs=[[{"type": "domain"}], [{"type": "xy"}]],
+            subplot_titles=("", title_graph),
+            vertical_spacing=0.1,
+        )
+        fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
+
+        if not last_df.empty and last_quantity != 0:
+            fig.add_trace(
+                go.Indicator(
+                    mode="number+delta",
+                    value=quantity,
+                    title=dict(text=title_indicator, font=dict(size=12)),
+                    number=dict(suffix="", font=dict(size=24)),
+                    delta={
+                        "position": "bottom",
+                        "reference": last_quantity,
+                        "relative": True,
+                        "valueformat": ".1%",
+                    },
+                    domain={"x": [0.25, 0.75], "y": [0.6, 1]},
+                )
+            )
+        else:
+            fig.add_trace(
+                go.Indicator(
+                    mode="number",
+                    value=quantity,
+                    title=dict(text=title_indicator, font=dict(size=12)),
+                    number=dict(suffix="", font=dict(size=24)),
+                    domain={"x": [0.25, 0.75], "y": [0.6, 1]},
+                )
+            )
+
+        add_px_figure(
+            px.bar(
+                df.groupby("Date")["Quantity"].sum().reset_index(),
+                x="Date",
+                y="Quantity",
+                title=title_graph,
+            ).update_traces(marker_line_width=0),
+            fig,
+            row=2,
+            col=1,
+        )
+
+        fig.update_layout(
+            height=300,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            plot_bgcolor=FIGURE_BG_COLOR,
+            xaxis=dict(title_text="Date", showgrid=False),
+            yaxis=dict(title_text="Volume", showgrid=False),
+            font=GRAPH_FONT,
+            hovermode="x unified",
+            hoverlabel=dict(font_color="white", font_size=8),
+        )
+    else:
+        fig = go.Figure()
+        fig.update_layout(
+            height=300,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            plot_bgcolor=FIGURE_BG_COLOR,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            annotations=[
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
+            ],
+        )
+    return fig
 
 
 def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
