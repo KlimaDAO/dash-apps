@@ -93,7 +93,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
             "corresponding emission reduction or removal, permanently removing the carbon "
             "project token from circulation."
         )
-        
+
         top_content_data = \
             [dbc.Row(
                 [
