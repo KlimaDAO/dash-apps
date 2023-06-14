@@ -3,17 +3,6 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import json
-from ...util import load_abi
-from .constants import (
-    BCT_ADDRESS,
-    MCO2_ADDRESS,
-    NCT_ADDRESS,
-    UBO_ADDRESS,
-    NBO_ADDRESS,
-    KLIMA_USDC_ADDRESS,
-    USDC_DECIMALS,
-    KLIMA_DECIMALS,
-)
 
 
 def pct_change(first, second):
@@ -544,39 +533,6 @@ def create_holders_data(df_holdings):
     return df_holdings, data, style_dict
 
 
-def get_fee_redeem_factors(token_address, web3):
-    if web3 is not None:
-        if token_address == BCT_ADDRESS or token_address == NCT_ADDRESS:
-            contract = web3.eth.contract(
-                address=web3.to_checksum_address(token_address),
-                abi=load_abi("toucanPoolToken.json"),
-            )
-            feeRedeemDivider = contract.functions.feeRedeemDivider().call()
-            feeRedeemFactor = (
-                contract.functions.feeRedeemPercentageInBase().call() / feeRedeemDivider
-            )
-        elif token_address == UBO_ADDRESS or token_address == NBO_ADDRESS:
-            contract = web3.eth.contract(
-                address=web3.to_checksum_address(token_address),
-                abi=load_abi("c3PoolToken.json"),
-            )
-            feeRedeemFactor = contract.functions.feeRedeem().call() / 10000
-        elif token_address == MCO2_ADDRESS:
-            feeRedeemFactor = 0
-
-        return feeRedeemFactor
-    else:
-        # If web3 is not connected, just return an invalid value
-        return -1
-
-
-def add_fee_redeem_factors_to_dict(token_dict, web3):
-    for i in token_dict.keys():
-        token_dict[i]["Fee Redeem Factor"] = get_fee_redeem_factors(
-            token_dict[i]["Token Address"], web3
-        )
-
-
 def human_format(num):
     num = float("{:.3g}".format(num))
     magnitude = 0
@@ -586,25 +542,6 @@ def human_format(num):
     return "{}{}".format(
         "{:f}".format(num).rstrip("0").rstrip("."), ["", "K", "M", "B", "T"][magnitude]
     )
-
-
-def uni_v2_pool_price(web3, pool_address, decimals, base_price=1):
-    """
-    Calculate the price of a SushiSwap liquidity pool, using the provided
-    pool address, decimals of the first token, and multiplied by
-    base_price if provided for computing multiple pool hops.
-    """
-    uni_v2_abi = load_abi("uni_v2_pool.json")
-    pool_contract = web3.eth.contract(address=pool_address, abi=uni_v2_abi)
-
-    reserves = pool_contract.functions.getReserves().call()
-    token_price = reserves[0] * base_price * 10**decimals / reserves[1]
-
-    return token_price
-
-
-def klima_usdc_price(web3):
-    return uni_v2_pool_price(web3, KLIMA_USDC_ADDRESS, USDC_DECIMALS - KLIMA_DECIMALS)
 
 
 def retirements_all_data_process(retirements_all):

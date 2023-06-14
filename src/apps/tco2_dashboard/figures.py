@@ -2,7 +2,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import pycountry
-from collections import defaultdict
 from .helpers import add_px_figure, human_format
 from plotly.subplots import make_subplots
 from .constants import (
