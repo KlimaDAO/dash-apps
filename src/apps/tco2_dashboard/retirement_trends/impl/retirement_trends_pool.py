@@ -87,11 +87,9 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         redemption_tooltip_message = (
             "Percentage of the total carbon project tokens redeemed from the carbon pool "
             "and retired via KlimaDAO. \nCarbon pools are composed of similar carbon project "
-            "tokens (TCO2, C3T) which meet specified gating criteria. \nCarbon pool tokens can "
-            "be used to claim or redeem the underlying specific carbon project tokens from a "
-            "carbon pool. \nCarbon project tokens can be retired or spent to claim the "
-            "corresponding emission reduction or removal, permanently removing the carbon "
-            "project token from circulation."
+            "tokens (TCO2, C3T). Carbon pool tokens can be redeemed for the underlying specific "
+            "carbon project tokens from a carbon pool. \nCarbon project tokens can be retired or "
+            "spent to claim the corresponding emission reduction or removal."
         )
 
         top_content_data = \
