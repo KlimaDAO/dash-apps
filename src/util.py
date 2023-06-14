@@ -1,52 +1,17 @@
 import os
 import io
 import base64
-import json
 import pandas as pd
 from datetime import datetime
 from prefect.results import PersistedResultBlob
 from prefect_aws.s3 import S3Bucket
 from prefect.filesystems import LocalFileSystem
-from web3 import Web3
 from prefect.serializers import Serializer
 from typing_extensions import Literal
 
-INFURA_PROJ_ID = os.environ["WEB3_INFURA_PROJECT_ID"]
-
-
-def get_polygon_web3():
-    polygon_mainnet_endpoint = f"https://polygon-mainnet.infura.io/v3/{INFURA_PROJ_ID}"
-
-    web3 = Web3(Web3.HTTPProvider(polygon_mainnet_endpoint))
-
-    assert web3.is_connected()
-
-    return web3
-
-
-def get_eth_web3():
-    ethereum_mainnet_endpoint = f"https://mainnet.infura.io/v3/{INFURA_PROJ_ID}"
-
-    web3_eth = Web3(Web3.HTTPProvider(ethereum_mainnet_endpoint))
-
-    assert web3_eth.is_connected()
-
-    return web3_eth
-
-
-def load_abi(filename):
-    """Load a single ABI from the `abis` folder under `src`"""
-    script_dir = os.path.dirname(__file__)
-    abi_dir = os.path.join(script_dir, "abis")
-
-    with open(os.path.join(abi_dir, filename), "r") as f:
-        abi = json.loads(f.read())
-
-    return abi
-
 
 def is_production() -> bool:
-    """ Returns the execution environment (dev, staging or main) """
+    """ Indicates if we are on a production environment """
     env = os.getenv("ENV", "Development")
     return env == "Production"
 
@@ -69,6 +34,9 @@ class DfSerializer(Serializer):
 
 
 class Perf():
+    """
+    Helper Class to make performance tests
+    """
     def __init__(self):
         self.start = datetime.now()
         self.prev = None

@@ -1,4 +1,3 @@
-import os
 import dash_bootstrap_components as dbc
 import dash
 from datetime import datetime
@@ -11,7 +10,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
 
-from ...util import get_polygon_web3, is_production, load_s3_data, debug, getenv
+from ...util import is_production, load_s3_data, debug
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -63,49 +62,12 @@ from .helpers import (
     create_retirements_data,
     create_holders_data,
     merge_retirements_data_for_retirement_chart,
-    add_fee_redeem_factors_to_dict
 )
 from .constants import (
-    BCT_ADDRESS,
-    MCO2_ADDRESS,
-    NCT_ADDRESS,
     KLIMA_RETIRED_NOTE,
-    UBO_ADDRESS,
-    NBO_ADDRESS,
-    BCT_USDC_ADDRESS,
-    NCT_USDC_ADDRESS,
-    KLIMA_MCO2_ADDRESS,
-    KLIMA_NBO_ADDRESS,
-    KLIMA_UBO_ADDRESS,
-    UBO_DECIMALS,
-    NBO_DECIMALS,
-    BCT_DECIMALS,
-    NCT_DECIMALS,
-    MCO2_DECIMALS,
 )
 
 CACHE_TIMEOUT = 86400
-CARBON_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/polygon-bridged-carbon"
-)
-CARBON_MOSS_ETH_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraph"
-)
-CARBON_MOSS_ETH_TEST_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/originalpkbims/ethcarbonsubgraphtest"
-)
-CARBON_ETH_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/ethereum-bridged-carbon"
-)
-CARBON_CELO_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/celo-bridged-carbon"
-)
-CARBON_HOLDERS_SUBGRAPH_URL = (
-    "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-user-carbon"
-)
-PAIRS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/klimadao/klimadao-pairs"
-MAX_RECORDS = int(getenv("DASH_MAX_RECORDS", 1000000))
-PRICE_DAYS = int(getenv("DASH_PRICE_DAYS", 5000))
 GOOGLE_API_ICONS = {
     "href": "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|"
     "Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
@@ -243,53 +205,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
     return load_s3_data(slug)
 
 
-web3 = get_polygon_web3() if os.environ.get("WEB3_INFURA_PROJECT_ID") else None
-
-tokens_dict = {
-    "BCT": {
-        "address": BCT_ADDRESS,
-        "id": "polygon-pos",
-        "Pair Address": BCT_USDC_ADDRESS,
-        "Token Address": BCT_ADDRESS,
-        "Full Name": "Base Carbon Tonne",
-        "Bridge": "Toucan",
-        "Decimals": BCT_DECIMALS,
-    },
-    "NCT": {
-        "address": NCT_ADDRESS,
-        "id": "polygon-pos",
-        "Pair Address": NCT_USDC_ADDRESS,
-        "Token Address": NCT_ADDRESS,
-        "Full Name": "Nature Carbon Tonne",
-        "Bridge": "Toucan",
-        "Decimals": NCT_DECIMALS,
-    },
-    "MCO2": {
-        "address": MCO2_ADDRESS,
-        "id": "ethereum",
-        "Pair Address": KLIMA_MCO2_ADDRESS,
-        "Token Address": MCO2_ADDRESS,
-        "Full Name": "Moss Carbon Credit",
-        "Bridge": "Moss",
-        "Decimals": MCO2_DECIMALS,
-    },
-    "UBO": {
-        "Pair Address": KLIMA_UBO_ADDRESS,
-        "Token Address": UBO_ADDRESS,
-        "Full Name": "Universal Basic Offset",
-        "Bridge": "C3",
-        "Decimals": UBO_DECIMALS,
-    },
-    "NBO": {
-        "Pair Address": KLIMA_NBO_ADDRESS,
-        "Token Address": NBO_ADDRESS,
-        "Full Name": "Nature Based Offset",
-        "Bridge": "C3",
-        "Decimals": NBO_DECIMALS,
-    },
-}
-
-
 @cache.memoize()
 def generate_layout():
     debug("Render: generate_layout")
@@ -309,8 +224,18 @@ def generate_layout():
     df_verra_toucan = df_verra.query("Toucan")
     df_verra_c3 = df_verra.query("C3")
     df_verra_retired = verra_retired(df_verra)
-
     verra_fallback_note = ""
+
+    tokens_dict = (
+        get_s3_data("tokens_data")
+        .set_index("Name")
+        .transpose()
+        .to_dict(orient='dict')
+    )
+    BCT_ADDRESS = tokens_dict["BCT"]["address"]
+    NCT_ADDRESS = tokens_dict["NCT"]["address"]
+    UBO_ADDRESS = tokens_dict["UBO"]["address"]
+    NBO_ADDRESS = tokens_dict["NBO"]["address"]
 
     current_price_only_token_list = []
     price_source = "Subgraph"
@@ -928,22 +853,6 @@ def generate_layout():
 
     # ----Top Level Page---
 
-    tokens_dict["BCT"]["Current Supply"] = (
-        bct_deposited["Quantity"].sum() - bct_redeemed["Quantity"].sum()
-    )
-    tokens_dict["NCT"]["Current Supply"] = (
-        nct_deposited["Quantity"].sum() - nct_redeemed["Quantity"].sum()
-    )
-    tokens_dict["MCO2"]["Current Supply"] = (
-        df_bridged_mco2["Quantity"].sum() - df_retired_mco2["Quantity"].sum()
-    )
-    tokens_dict["UBO"]["Current Supply"] = (
-        ubo_deposited["Quantity"].sum() - ubo_redeemed["Quantity"].sum()
-    )
-    tokens_dict["NBO"]["Current Supply"] = (
-        nbo_deposited["Quantity"].sum() - nbo_redeemed["Quantity"].sum()
-    )
-
     bridges_info_dict = {
         "Toucan": {"Dataframe": date_manipulations_verra(df_verra_toucan)},
         "Moss": {"Dataframe": df_bridged_mco2},
@@ -1071,7 +980,6 @@ def generate_layout():
               content_beneficiary_retirement_trends)
 
     # --- onchain carbon pool comparison ---
-    add_fee_redeem_factors_to_dict(tokens_dict, web3)
     fig_historical_prices = historical_prices(
         tokens_dict, df_prices, current_price_only_token_list
     )
