@@ -84,8 +84,13 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         )
         mco2KlimaRetiredRatio = mco2KlimaRetired / mco2Retired
 
-        redemption_tooltip_message = \
-            "Percentage of Redemptions tied to Retirements made via KlimaDAO"
+        redemption_tooltip_message = (
+            "Percentage of the total carbon project tokens redeemed from the carbon pool "
+            "and retired via KlimaDAO. \nCarbon pools are composed of similar carbon project "
+            "tokens (TCO2, C3T). Carbon pool tokens can be redeemed for the underlying specific "
+            "carbon project tokens from a carbon pool. \nCarbon project tokens can be retired or "
+            "spent to claim the corresponding emission reduction or removal."
+        )
 
         top_content_data = \
             [dbc.Row(
