@@ -26,24 +26,23 @@ matplotlib.use("agg")
 
 
 def sub_plots_volume_s(bridge,
-                       days, 
-                       title_indicator, 
+                       days,
+                       title_indicator,
                        title_graph,
                        zero_evt_text):
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
     period_start = current_time - dt.timedelta(days=days)
     last_period_start = period_start - dt.timedelta(days=days)
 
-    
     offsets = Offsets().bridge(bridge).date_range(period_start, current_time)
+
+    df = offsets.get()
+    quantity = offsets.copy().sum("Quantity")
     last_offsets = Offsets().bridge(bridge).date_range(last_period_start, period_start)
+    daily_quantity = offsets.copy().daily_agg().sum("Quantity")
 
-    df = offsets.dataframe
-    last_df = last_offsets.dataframe
-    quantity = offsets.sum("Quantity")
-    last_quantity = last_offsets.sum("Quantity")
-
-
+    last_df = last_offsets.get()
+    last_quantity = last_offsets.copy().sum("Quantity")
 
     if not df.empty and quantity != 0:
         fig = make_subplots(
@@ -84,7 +83,7 @@ def sub_plots_volume_s(bridge,
 
         add_px_figure(
             px.bar(
-                df.groupby("Date")["Quantity"].sum().reset_index(),
+                daily_quantity.reset_index(),
                 x="Date",
                 y="Quantity",
                 title=title_graph,

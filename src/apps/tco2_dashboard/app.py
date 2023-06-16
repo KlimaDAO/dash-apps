@@ -201,6 +201,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 def generate_layout():
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
+
     df = get_s3_data("polygon_bridged_offsets")
     df_retired = get_s3_data("polygon_retired_offsets")
 
@@ -265,11 +266,18 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 7 days"
     )
+    fig_seven_day_volume_tc = sub_plots_volume_s(
+        "Toucan",
+        7,
+        "Credits Bridged (7d)",
+        "",
+        zero_bridging_evt_text
+    )
     """
     fig_seven_day_volume_tc = sub_plots_volume(
         sd_pool_tc, last_sd_pool_tc, "Credits Bridged (7d)", "", zero_bridging_evt_text
     )"""
-    
+
     fig_seven_day_volume_tc = sub_plots_volume_s(
         "Toucan",
         7,

@@ -1,62 +1,81 @@
+import pandas as pd
 from .s3 import s3
-from . import KeyCacheable, dynamic_caching
+from . import KeyCacheable, chained_cached_command, final_cached_command
 
 
 class Offsets(KeyCacheable):
-    def __init__(self):
-        super(Offsets, self).__init__()
-        self.filters = {
-            "bridge": None,
-            "date_range": None
-        }
+    def __init__(self, commands=[]):
+        super(Offsets, self).__init__(commands)
 
-    def bridge(self, bridge):
+    @chained_cached_command()
+    def bridge(self, df, bridge):
         """Adds a bridge filter"""
-        self.filters["bridge"] = bridge
-        return self
+        if df is None:
+            df = s3.load("polygon_bridged_offsets")
 
-    def date_range(self, begin, end):
+        return df[df["Bridge"] == bridge].reset_index()
+
+    @chained_cached_command()
+    def date_range(self, df, begin, end):
         """Adds a date range filter"""
-        self.filters["date_range"] = {
-            "begin": begin,
-            "end": end,
-        }
-        return self
-
-    @dynamic_caching(True)
-    def dataframe_cached(self, filters=None):
-        """Returns a cached version of the filtered dataframe"""
-        df = s3.load("polygon_bridged_offsets")
-        bridge = filters["bridge"]
-        date_range = filters["date_range"]
-
-        # Bridge filtering
-        if bridge:
-            df = df[df["Bridge"] == bridge].reset_index()
-
-        # Date range filtering
-        if date_range:
-            end = date_range["end"]
-            begin = date_range["begin"]
-            if type(end) != int:
-                end = end.timestamp()
-            if type(begin) != int:
-                begin = begin.timestamp()
-            df = df[
-                (df["Date"] <= end)
-                & (df["Date"] > begin)
-            ]
+        if type(end) != int:
+            end = end.timestamp()
+        if type(begin) != int:
+            begin = begin.timestamp()
+        df = df[
+            (df["Date"] <= end)
+            & (df["Date"] > begin)
+        ]
         return df
 
-    @property
-    def dataframe(self):
-        """Returns a cached version of the filtered dataframe"""
-        return self.dataframe_cached(self.filters)
+    @chained_cached_command()
+    def daily_agg(self, df):
+        """Adds an aggregation by day"""
+        # Date aggregation
+        df = self.date_manipulations(df)
+        df = df.groupby("Date")
 
-    @dynamic_caching()
-    def sum(self, column):
-        return self.dataframe[column].sum()
+        return df
 
+    @final_cached_command()
+    def sum(self, df, column):
+        """Sums results, works on aggregations"""
+        res = df[column].sum()
 
+        # Reset index if we are computing aggregated sums
+        if type(res) == pd.core.series.Series:
+            res = res.reset_index()
 
-        
+        return res
+
+    def date_manipulations(self, df):
+        df["Date"] = (
+            pd.to_datetime(df["Date"], unit="s")
+            .dt.tz_localize(None)
+            .dt.floor("D")
+            .dt.date
+        )
+        datelist = pd.date_range(
+            start=df["Date"].min() + pd.DateOffset(-1),
+            end=pd.to_datetime("today"),
+            freq="d",
+        )
+        df_date = pd.DataFrame()
+        df_date["Date_continous"] = datelist
+        df_date["Date_continous"] = (
+            pd.to_datetime(df_date["Date_continous"], unit="s")
+            .dt.tz_localize(None)
+            .dt.floor("D")
+            .dt.date
+        )
+        df = df.merge(
+            df_date, how="right", left_on="Date", right_on="Date_continous"
+        ).reset_index(drop=True)
+        df["Date"] = df["Date_continous"]
+        for i in df.columns:
+            if "Quantity" in i:
+                df[i] = df[i].fillna(0)
+            else:
+                df[i] = df[i].fillna("missing")
+                df[i] = df[i].replace("", "missing")
+        return df
