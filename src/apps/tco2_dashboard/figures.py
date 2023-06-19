@@ -25,9 +25,7 @@ from .services import Offsets
 matplotlib.use("agg")
 
 
-def sub_plots_volume(bridge, status, date_range_days=None):
-
-    # Texts
+def sub_plots_info(bridge, status, date_range_days=None):
     if status == "bridged":
         zero_status_text = "bridging"
         title_status_text = "Bridged"
@@ -40,7 +38,6 @@ def sub_plots_volume(bridge, status, date_range_days=None):
     zero_evt_text = (
         f"There haven't been any {zero_status_text} events<br>in the last {date_range_days} days"
     )
-    title_indicator = f"Credits {title_status_text} ({date_range_days}d)"
 
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
     period_start = current_time - dt.timedelta(days=date_range_days)
@@ -52,12 +49,35 @@ def sub_plots_volume(bridge, status, date_range_days=None):
     # Current data
     offsets = base_offsets.copy().date_range(period_start, current_time)
     df = offsets.get()
-    quantity = offsets.copy().sum("Quantity")
-    daily_quantity = offsets.copy().daily_agg().sum("Quantity")
 
     # Preceding data
     last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
     last_df = last_offsets.get()
+
+    return (
+        zero_evt_text,
+        title_status_text,
+        offsets,
+        last_offsets,
+        df,
+        last_df
+    )
+
+
+def sub_plots_volume(bridge, status, date_range_days=None):
+    (
+        zero_evt_text,
+        title_status_text,
+        offsets,
+        last_offsets,
+        df,
+        last_df
+    ) = sub_plots_info(bridge, status, date_range_days)
+
+    title_indicator = f"Credits {title_status_text} ({date_range_days}d)"
+
+    quantity = offsets.copy().sum("Quantity")
+    daily_quantity = offsets.copy().daily_agg().sum("Quantity")
     last_quantity = last_offsets.copy().sum("Quantity")
 
     if not df.empty and quantity != 0:
@@ -135,37 +155,20 @@ def sub_plots_volume(bridge, status, date_range_days=None):
 
 
 def sub_plots_vintage(bridge, status, date_range_days=None):
-    # Texts
-    if status == "bridged":
-        zero_status_text = "bridging"
-    elif status == "retired":
-        zero_status_text = "retiring"
-    else:
-        raise Exception("Unknown offset status filter")
+    (
+        zero_evt_text,
+        _title_status_text,
+        offsets,
+        last_offsets,
+        df,
+        last_df
+    ) = sub_plots_info(bridge, status, date_range_days)
 
-    zero_evt_text = (
-        f"There haven't been any {zero_status_text} events<br>in the last {date_range_days} days"
-    )
     title_indicator = f"Average Credits Vintage ({date_range_days}d)"
 
-    current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    period_start = current_time - dt.timedelta(days=date_range_days)
-    last_period_start = period_start - dt.timedelta(days=date_range_days)
-
-    # Base filter
-    base_offsets = Offsets().filter(bridge, status)
-
-    # Current data
-    offsets = base_offsets.copy().date_range(period_start, current_time)
-    df = offsets.get()
     average = offsets.copy().average("Vintage Year", "Quantity")
     vintage_quantity = offsets.copy().vintage_agg().sum("Quantity")
-
-    # Preceding data
-    last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
-    last_df = last_offsets.get()
     last_average = last_offsets.average("Vintage Year", "Quantity")
-    print(average, last_average)
 
     if not df.empty and average:
         fig = make_subplots(
