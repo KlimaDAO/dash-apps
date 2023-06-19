@@ -25,10 +25,7 @@ from .services import Offsets
 matplotlib.use("agg")
 
 
-def sub_plots_volume(bridge,
-                       status,
-                       date_range_days=None,
-                       ):
+def sub_plots_volume(bridge, status, date_range_days=None):
 
     # Texts
     if status == "bridged":
@@ -51,7 +48,7 @@ def sub_plots_volume(bridge,
 
     # Base filter
     base_offsets = Offsets().filter(bridge, status)
-    
+
     # Current data
     offsets = base_offsets.copy().date_range(period_start, current_time)
     df = offsets.get()
@@ -137,28 +134,56 @@ def sub_plots_volume(bridge,
     return fig
 
 
-def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
-    df = df[df["Vintage"] != "missing"].reset_index(drop=True)
-    last_df = last_df[last_df["Vintage"] != "missing"].reset_index(drop=True)
-    if not (df.empty):
+def sub_plots_vintage(bridge, status, date_range_days=None):
+    # Texts
+    if status == "bridged":
+        zero_status_text = "bridging"
+    elif status == "retired":
+        zero_status_text = "retiring"
+    else:
+        raise Exception("Unknown offset status filter")
+
+    zero_evt_text = (
+        f"There haven't been any {zero_status_text} events<br>in the last {date_range_days} days"
+    )
+    title_indicator = f"Average Credits Vintage ({date_range_days}d)"
+
+    current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
+    period_start = current_time - dt.timedelta(days=date_range_days)
+    last_period_start = period_start - dt.timedelta(days=date_range_days)
+
+    # Base filter
+    base_offsets = Offsets().filter(bridge, status)
+
+    # Current data
+    offsets = base_offsets.copy().date_range(period_start, current_time)
+    df = offsets.get()
+    average = offsets.copy().average("Vintage Year", "Quantity")
+    vintage_quantity = offsets.copy().vintage_agg().sum("Quantity")
+
+    # Preceding data
+    last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
+    last_df = last_offsets.get()
+    last_average = last_offsets.average("Vintage Year", "Quantity")
+    print(average, last_average)
+
+    if not df.empty and average:
         fig = make_subplots(
             rows=2,
             cols=1,
             specs=[[{"type": "domain"}], [{"type": "xy"}]],
-            subplot_titles=("", title_graph),
+            subplot_titles=("", ""),
             vertical_spacing=0.1,
         )
         fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
-        if not (last_df.empty):
+        if not last_df.empty and last_average:
             fig.add_trace(
                 go.Indicator(
                     mode="number+delta",
-                    value=np.average(df["Vintage"], weights=df["Quantity"]),
+                    value=average,
                     number=dict(valueformat=".1f", font=dict(size=24)),
                     delta={
-                        "reference": np.average(
-                            last_df["Vintage"], weights=last_df["Quantity"]
-                        ),
+                        "reference": last_average,
                         "valueformat": ".1f",
                     },
                     title=dict(text=title_indicator, font=dict(size=12)),
@@ -169,7 +194,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
             fig.add_trace(
                 go.Indicator(
                     mode="number",
-                    value=np.average(df["Vintage"], weights=df["Quantity"]),
+                    value=average,
                     number=dict(valueformat=".1f", font=dict(size=24)),
                     title=dict(text=title_indicator, font=dict(size=12)),
                     domain={"x": [0.25, 0.75], "y": [0.6, 1]},
@@ -178,10 +203,10 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
 
         add_px_figure(
             px.bar(
-                df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index(),
-                x="Vintage",
+                vintage_quantity,
+                x="Vintage Year",
                 y="Quantity",
-                title=title_graph,
+                title="",
             ).update_traces(marker_line_width=0),
             fig,
             row=2,
@@ -191,7 +216,7 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
             height=300,
             paper_bgcolor=FIGURE_BG_COLOR,
             plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(title_text="Vintage", showgrid=False),
+            xaxis=dict(title_text="Vintage Year", showgrid=False),
             yaxis=dict(title_text="Volume", showgrid=False),
             font=GRAPH_FONT,
             hovermode="x unified",

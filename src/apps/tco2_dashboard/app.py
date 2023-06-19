@@ -279,18 +279,14 @@ def generate_layout():
     )
 
     fig_seven_day_vintage_tc = sub_plots_vintage(
-        sd_pool_tc,
-        last_sd_pool_tc,
-        "Average Credit Vintage (7d)",
-        "",
-        zero_bridging_evt_text,
+        bridge="Toucan",
+        status="bridged",
+        date_range_days=7,
     )
     fig_seven_day_vintage_retired_tc = sub_plots_vintage(
-        sd_pool_retired_tc,
-        last_sd_pool_retired_tc,
-        "Average Credit Vintage (7d)",
-        "",
-        zero_retiring_evt_text,
+        bridge="Toucan",
+        status="retired",
+        date_range_days=7,
     )
     fig_seven_day_map_tc = map(sd_pool_tc, zero_bridging_evt_text)
     fig_seven_day_map_retired_tc = map(sd_pool_retired_tc, zero_retiring_evt_text)
@@ -316,26 +312,22 @@ def generate_layout():
         status="bridged",
         date_range_days=30
     )
-    
+
     fig_thirty_day_volume_retired_tc = sub_plots_volume(
         bridge="Toucan",
         status="retired",
-        date_range_days=30)
-    
+        date_range_days=30
+    )
 
     fig_thirty_day_vintage_tc = sub_plots_vintage(
-        td_pool_tc,
-        last_td_pool_tc,
-        "Average Credit Vintage (30d)",
-        "",
-        zero_bridging_evt_text,
+        bridge="Toucan",
+        status="bridged",
+        date_range_days=30
     )
     fig_thirty_day_vintage_retired_tc = sub_plots_vintage(
-        td_pool_retired_tc,
-        last_td_pool_retired_tc,
-        "Average Credit Vintage (30d)",
-        "",
-        zero_retiring_evt_text,
+        bridge="Toucan",
+        status="retired",
+        date_range_days=30
     )
     fig_thirty_day_map_tc = map(td_pool_tc, zero_bridging_evt_text)
     fig_thirty_day_map_retired_tc = map(td_pool_retired_tc, zero_retiring_evt_text)
@@ -471,26 +463,24 @@ def generate_layout():
     fig_seven_day_volume_c3t = sub_plots_volume(
         bridge="C3",
         status="bridged",
-        date_range_days=7)
+        date_range_days=7
+    )
 
     fig_seven_day_volume_retired_c3t = sub_plots_volume(
         bridge="C3",
         status="retired",
-        date_range_days=7)
+        date_range_days=7
+    )
 
     fig_seven_day_vintage_c3t = sub_plots_vintage(
-        sd_pool_c3t,
-        last_sd_pool_c3t,
-        "Average Credit Vintage (7d)",
-        "",
-        zero_bridging_evt_text,
+        bridge="C3",
+        status="bridged",
+        date_range_days=7
     )
     fig_seven_day_vintage_retired_c3t = sub_plots_vintage(
-        sd_pool_retired_c3t,
-        last_sd_pool_retired_c3t,
-        "Average Credit Vintage (7d)",
-        "",
-        zero_retiring_evt_text,
+        bridge="C3",
+        status="retired",
+        date_range_days=7
     )
     fig_seven_day_map_c3t = map(sd_pool_c3t, zero_bridging_evt_text)
     fig_seven_day_map_retired_c3t = map(sd_pool_retired_c3t, zero_retiring_evt_text)
@@ -513,27 +503,24 @@ def generate_layout():
     fig_thirty_day_volume_c3t = sub_plots_volume(
         bridge="C3",
         status="bridged",
-        date_range_days=30)
-    
+        date_range_days=30
+    )
 
     fig_thirty_day_volume_retired_c3t = sub_plots_volume(
         bridge="C3",
         status="retired",
-        date_range_days=30)
+        date_range_days=30
+    )
 
     fig_thirty_day_vintage_c3t = sub_plots_vintage(
-        td_pool_c3t,
-        last_td_pool_c3t,
-        "Average Credit Vintage (30d)",
-        "",
-        zero_bridging_evt_text,
+        bridge="C3",
+        status="bridged",
+        date_range_days=30
     )
     fig_thirty_day_vintage_retired_c3t = sub_plots_vintage(
-        td_pool_retired_c3t,
-        last_td_pool_retired_c3t,
-        "Average Credit Vintage (30d)",
-        "",
-        zero_retiring_evt_text,
+        bridge="C3",
+        status="retired",
+        date_range_days=30
     )
     fig_thirty_day_map_c3t = map(td_pool_c3t, zero_bridging_evt_text)
     fig_thirty_day_map_retired_c3t = map(td_pool_retired_c3t, zero_retiring_evt_text)

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from .s3 import s3
 from . import KeyCacheable, chained_cached_command, final_cached_command
 
@@ -15,8 +16,14 @@ class Offsets(KeyCacheable):
         else:
             df = s3.load("polygon_retired_offsets")
 
-        return df[df["Bridge"] == bridge].reset_index()
+        # TODO: Maybe this should be done in the data pipelines
+        if not (df.empty):
+            if "Vintage" in df.columns:
+                df["Vintage Year"] = (
+                    pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
+                )
 
+        return df[df["Bridge"] == bridge].reset_index()
 
     @chained_cached_command()
     def date_range(self, df, begin, end):
@@ -34,10 +41,14 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def daily_agg(self, df):
         """Adds an aggregation by day"""
-        # Date aggregation
         df = self.date_manipulations(df)
         df = df.groupby("Date")
+        return df
 
+    @chained_cached_command()
+    def vintage_agg(self, df):
+        """Adds an aggregation on vintage"""
+        df = df.groupby("Vintage Year")
         return df
 
     @final_cached_command()
@@ -51,7 +62,14 @@ class Offsets(KeyCacheable):
 
         return res
 
+    @final_cached_command()
+    def average(self, df, column, weights):
+        if df[weights].sum() == 0:
+            return 0
+        return np.average(df[column], weights=df[weights])
+
     def date_manipulations(self, df):
+        # TODO: Dates shall be already manipulated at data pipelines level
         if not (df.empty):
             df["Date"] = (
                 pd.to_datetime(df["Date"], unit="s")
