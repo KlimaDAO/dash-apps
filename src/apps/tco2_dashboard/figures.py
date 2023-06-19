@@ -25,13 +25,26 @@ from .services import Offsets
 matplotlib.use("agg")
 
 
-def sub_plots_volume_s(bridge,
+def sub_plots_volume(bridge,
                        status,
-                       title_indicator,
-                       zero_evt_text,
                        date_range_days=None,
-                       title_graph="",
                        ):
+
+    # Texts
+    if status == "bridged":
+        zero_status_text = "bridging"
+        title_status_text = "Bridged"
+    elif status == "retired":
+        zero_status_text = "retiring"
+        title_status_text = "Retired"
+    else:
+        raise Exception("Unknown offset status filter")
+
+    zero_evt_text = (
+        f"There haven't been any {zero_status_text} events<br>in the last {date_range_days} days"
+    )
+    title_indicator = f"Credits {title_status_text} ({date_range_days}d)"
+
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
     period_start = current_time - dt.timedelta(days=date_range_days)
     last_period_start = period_start - dt.timedelta(days=date_range_days)
@@ -55,7 +68,7 @@ def sub_plots_volume_s(bridge,
             rows=2,
             cols=1,
             specs=[[{"type": "domain"}], [{"type": "xy"}]],
-            subplot_titles=("", title_graph),
+            subplot_titles=("", ""),
             vertical_spacing=0.1,
         )
         fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
@@ -92,82 +105,7 @@ def sub_plots_volume_s(bridge,
                 daily_quantity.reset_index(),
                 x="Date",
                 y="Quantity",
-                title=title_graph,
-            ).update_traces(marker_line_width=0),
-            fig,
-            row=2,
-            col=1,
-        )
-
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(title_text="Date", showgrid=False),
-            yaxis=dict(title_text="Volume", showgrid=False),
-            font=GRAPH_FONT,
-            hovermode="x unified",
-            hoverlabel=dict(font_color="white", font_size=8),
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
-
-
-def sub_plots_volume(df, last_df, title_indicator, title_graph, zero_evt_text):
-    if not (df.empty) and (df["Quantity"].sum() != 0):
-        fig = make_subplots(
-            rows=2,
-            cols=1,
-            specs=[[{"type": "domain"}], [{"type": "xy"}]],
-            subplot_titles=("", title_graph),
-            vertical_spacing=0.1,
-        )
-        fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
-
-        if not (last_df.empty) and (last_df["Quantity"].sum() != 0):
-            fig.add_trace(
-                go.Indicator(
-                    mode="number+delta",
-                    value=sum(df["Quantity"]),
-                    title=dict(text=title_indicator, font=dict(size=12)),
-                    number=dict(suffix="", font=dict(size=24)),
-                    delta={
-                        "position": "bottom",
-                        "reference": sum(last_df["Quantity"]),
-                        "relative": True,
-                        "valueformat": ".1%",
-                    },
-                    domain={"x": [0.25, 0.75], "y": [0.6, 1]},
-                )
-            )
-        else:
-            fig.add_trace(
-                go.Indicator(
-                    mode="number",
-                    value=sum(df["Quantity"]),
-                    title=dict(text=title_indicator, font=dict(size=12)),
-                    number=dict(suffix="", font=dict(size=24)),
-                    domain={"x": [0.25, 0.75], "y": [0.6, 1]},
-                )
-            )
-
-        add_px_figure(
-            px.bar(
-                df.groupby("Date")["Quantity"].sum().reset_index(),
-                x="Date",
-                y="Quantity",
-                title=title_graph,
+                title="",
             ).update_traces(marker_line_width=0),
             fig,
             row=2,

@@ -42,7 +42,7 @@ class Offsets(KeyCacheable):
 
     @final_cached_command()
     def sum(self, df, column):
-        """Sums results, works on aggregations"""
+        """Sums results, works also on aggregations"""
         res = df[column].sum()
 
         # Reset index if we are computing aggregated sums

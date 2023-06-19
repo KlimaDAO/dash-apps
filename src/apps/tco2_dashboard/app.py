@@ -14,7 +14,6 @@ from ...util import is_production, load_s3_data, debug
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
-    sub_plots_volume_s,
     sub_plots_volume,
     map,
     total_vintage,
@@ -267,29 +266,18 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 7 days"
     )
-    fig_seven_day_volume_tc = sub_plots_volume_s(
+    fig_seven_day_volume_tc = sub_plots_volume(
         bridge="Toucan",
         status="bridged",
         date_range_days=7,
-        title_indicator="Credits Bridged (7d)",
-        zero_evt_text=zero_bridging_evt_text
-    )
-
-    fig_seven_day_volume_retired_tc = sub_plots_volume_s(
-        bridge="Toucan",
-        status="retired",
-        date_range_days=7,
-        title_indicator="Credits Retired (7d)",
-        zero_evt_text=zero_retiring_evt_text
     )
 
     fig_seven_day_volume_retired_tc = sub_plots_volume(
-        sd_pool_retired_tc,
-        last_sd_pool_retired_tc,
-        "Credits Retired (7d)",
-        "",
-        zero_retiring_evt_text,
+        bridge="Toucan",
+        status="retired",
+        date_range_days=7,
     )
+
     fig_seven_day_vintage_tc = sub_plots_vintage(
         sd_pool_tc,
         last_sd_pool_tc,
@@ -322,23 +310,19 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 30 days"
     )
-    """fig_thirty_day_volume_tc = sub_plots_volume(
-        td_pool_tc, last_td_pool_tc, "Credits Bridged (30d)", "", zero_bridging_evt_text
-    )"""
-    fig_thirty_day_volume_tc = sub_plots_volume_s(
+
+    fig_thirty_day_volume_tc = sub_plots_volume(
         bridge="Toucan",
         status="bridged",
-        date_range_days=30,
-        title_indicator="Credits Bridged (30d)",
-        title_graph="",
-        zero_evt_text=zero_bridging_evt_text)
-    fig_thirty_day_volume_retired_tc = sub_plots_volume(
-        td_pool_retired_tc,
-        last_td_pool_retired_tc,
-        "Credits Retired (30d)",
-        "",
-        zero_retiring_evt_text,
+        date_range_days=30
     )
+    
+    fig_thirty_day_volume_retired_tc = sub_plots_volume(
+        bridge="Toucan",
+        status="retired",
+        date_range_days=30)
+    
+
     fig_thirty_day_vintage_tc = sub_plots_vintage(
         td_pool_tc,
         last_td_pool_tc,
@@ -485,19 +469,15 @@ def generate_layout():
         "There haven't been any retiring events<br>in the last 7 days"
     )
     fig_seven_day_volume_c3t = sub_plots_volume(
-        sd_pool_c3t,
-        last_sd_pool_c3t,
-        "Credits Bridged (7d)",
-        "",
-        zero_bridging_evt_text,
-    )
+        bridge="C3",
+        status="bridged",
+        date_range_days=7)
+
     fig_seven_day_volume_retired_c3t = sub_plots_volume(
-        sd_pool_retired_c3t,
-        last_sd_pool_retired_c3t,
-        "Credits Retired (7d)",
-        "",
-        zero_retiring_evt_text,
-    )
+        bridge="C3",
+        status="retired",
+        date_range_days=7)
+
     fig_seven_day_vintage_c3t = sub_plots_vintage(
         sd_pool_c3t,
         last_sd_pool_c3t,
@@ -531,19 +511,16 @@ def generate_layout():
         "There haven't been any retiring events<br>in the last 30 days"
     )
     fig_thirty_day_volume_c3t = sub_plots_volume(
-        td_pool_c3t,
-        last_td_pool_c3t,
-        "Credits Bridged (30d)",
-        "",
-        zero_bridging_evt_text,
-    )
+        bridge="C3",
+        status="bridged",
+        date_range_days=30)
+    
+
     fig_thirty_day_volume_retired_c3t = sub_plots_volume(
-        td_pool_retired_c3t,
-        last_td_pool_retired_c3t,
-        "Credits Retired (30d)",
-        "",
-        zero_retiring_evt_text,
-    )
+        bridge="C3",
+        status="retired",
+        date_range_days=30)
+
     fig_thirty_day_vintage_c3t = sub_plots_vintage(
         td_pool_c3t,
         last_td_pool_c3t,
