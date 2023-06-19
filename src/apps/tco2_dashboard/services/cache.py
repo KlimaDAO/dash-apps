@@ -6,7 +6,7 @@ from ....util import debug, getenv
 
 # Configure cache
 LAYOUt_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))
-SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 86400))
+SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 10))
 
 layout_cache = Cache(
     config={
@@ -42,11 +42,11 @@ class KeyCacheable():
     def copy(self):
         return self.__class__(copy.deepcopy(self.commands))
 
-    def add_command(self, is_single_command, takes_input, func, *args):
+    def add_command(self, is_final_command, takes_input, func, *args):
         """Adds a command to the command list
 
         Arguments:
-        is_single_command: Is the function should return directly the result
+        is_final_command: Is the function should return directly the result
         takes_input: Should we pass an input to the function
         func: The function to be executed
         args: The function's arguments
@@ -61,7 +61,7 @@ class KeyCacheable():
             "args": args,
             "hash": hash,
             "key": self.cache_key,
-            "is_single_command": is_single_command,
+            "is_final_command": is_final_command,
             "takes_input": takes_input
         })
 

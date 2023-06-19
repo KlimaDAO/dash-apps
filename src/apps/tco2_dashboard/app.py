@@ -16,6 +16,7 @@ from .figures import (
     sub_plots_vintage,
     sub_plots_volume,
     map,
+    total_map,
     total_vintage,
     total_volume,
     methodology_volume,
@@ -266,30 +267,12 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 7 days"
     )
-    fig_seven_day_volume_tc = sub_plots_volume(
-        bridge="Toucan",
-        status="bridged",
-        date_range_days=7,
-    )
-
-    fig_seven_day_volume_retired_tc = sub_plots_volume(
-        bridge="Toucan",
-        status="retired",
-        date_range_days=7,
-    )
-
-    fig_seven_day_vintage_tc = sub_plots_vintage(
-        bridge="Toucan",
-        status="bridged",
-        date_range_days=7,
-    )
-    fig_seven_day_vintage_retired_tc = sub_plots_vintage(
-        bridge="Toucan",
-        status="retired",
-        date_range_days=7,
-    )
-    fig_seven_day_map_tc = map(sd_pool_tc, zero_bridging_evt_text)
-    fig_seven_day_map_retired_tc = map(sd_pool_retired_tc, zero_retiring_evt_text)
+    fig_seven_day_volume_tc = sub_plots_volume("Toucan", "bridged", 7)
+    fig_seven_day_volume_retired_tc = sub_plots_volume("Toucan", "retired", 7)
+    fig_seven_day_vintage_tc = sub_plots_vintage("Toucan", "bridged", 7)
+    fig_seven_day_vintage_retired_tc = sub_plots_vintage("Toucan", "retired", 7)
+    fig_seven_day_map_tc = map("Toucan", "bridged", 7)
+    fig_seven_day_map_retired_tc = map("Toucan", "retired", 7)
     fig_seven_day_metho_tc = methodology_volume(sd_pool_tc, zero_bridging_evt_text)
     fig_seven_day_metho_retired_tc = methodology_volume(
         sd_pool_retired_tc, zero_retiring_evt_text
@@ -307,30 +290,12 @@ def generate_layout():
         "There haven't been any retiring events<br>in the last 30 days"
     )
 
-    fig_thirty_day_volume_tc = sub_plots_volume(
-        bridge="Toucan",
-        status="bridged",
-        date_range_days=30
-    )
-
-    fig_thirty_day_volume_retired_tc = sub_plots_volume(
-        bridge="Toucan",
-        status="retired",
-        date_range_days=30
-    )
-
-    fig_thirty_day_vintage_tc = sub_plots_vintage(
-        bridge="Toucan",
-        status="bridged",
-        date_range_days=30
-    )
-    fig_thirty_day_vintage_retired_tc = sub_plots_vintage(
-        bridge="Toucan",
-        status="retired",
-        date_range_days=30
-    )
-    fig_thirty_day_map_tc = map(td_pool_tc, zero_bridging_evt_text)
-    fig_thirty_day_map_retired_tc = map(td_pool_retired_tc, zero_retiring_evt_text)
+    fig_thirty_day_volume_tc = sub_plots_volume("Toucan", "bridged", 30)
+    fig_thirty_day_volume_retired_tc = sub_plots_volume("Toucan", "retired", 30)
+    fig_thirty_day_vintage_tc = sub_plots_vintage("Toucan", "bridged", 30)
+    fig_thirty_day_vintage_retired_tc = sub_plots_vintage("Toucan", "retired", 30)
+    fig_thirty_day_map_tc = map("Toucan", "bridged", 30)
+    fig_thirty_day_map_retired_tc = map("Toucan", "retired", 30)
     fig_thirty_day_metho_tc = methodology_volume(td_pool_tc, zero_bridging_evt_text)
     fig_thirty_day_metho_retired_tc = methodology_volume(
         td_pool_retired_tc, zero_retiring_evt_text
@@ -367,8 +332,8 @@ def generate_layout():
     )
     fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
     fig_total_vintage_retired_tc = total_vintage(df_retired_tc, zero_retiring_evt_text)
-    fig_total_map_tc = map(df_tc, zero_bridging_evt_text)
-    fig_total_map_retired_tc = map(df_retired_tc, zero_retiring_evt_text)
+    fig_total_map_tc = total_map(df_tc, zero_bridging_evt_text)
+    fig_total_map_retired_tc = total_map(df_retired_tc, zero_retiring_evt_text)
     fig_total_metho_tc = methodology_volume(df_tc, zero_bridging_evt_text)
     fig_total_metho_retired_tc = methodology_volume(
         df_retired_tc, zero_retiring_evt_text
@@ -460,30 +425,12 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 7 days"
     )
-    fig_seven_day_volume_c3t = sub_plots_volume(
-        bridge="C3",
-        status="bridged",
-        date_range_days=7
-    )
-
-    fig_seven_day_volume_retired_c3t = sub_plots_volume(
-        bridge="C3",
-        status="retired",
-        date_range_days=7
-    )
-
-    fig_seven_day_vintage_c3t = sub_plots_vintage(
-        bridge="C3",
-        status="bridged",
-        date_range_days=7
-    )
-    fig_seven_day_vintage_retired_c3t = sub_plots_vintage(
-        bridge="C3",
-        status="retired",
-        date_range_days=7
-    )
-    fig_seven_day_map_c3t = map(sd_pool_c3t, zero_bridging_evt_text)
-    fig_seven_day_map_retired_c3t = map(sd_pool_retired_c3t, zero_retiring_evt_text)
+    fig_seven_day_volume_c3t = sub_plots_volume("C3", "bridged", 7)
+    fig_seven_day_volume_retired_c3t = sub_plots_volume("C3", "retired", 7)
+    fig_seven_day_vintage_c3t = sub_plots_vintage("C3", "bridged", 7)
+    fig_seven_day_vintage_retired_c3t = sub_plots_vintage("C3", "retired", 7)
+    fig_seven_day_map_c3t = map("C3", "bridged", 7)
+    fig_seven_day_map_retired_c3t = map("C3", "retired", 7)
     fig_seven_day_metho_c3t = methodology_volume(sd_pool_c3t, zero_bridging_evt_text)
     fig_seven_day_metho_retired_c3t = methodology_volume(
         sd_pool_retired_c3t, zero_retiring_evt_text
@@ -500,30 +447,13 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 30 days"
     )
-    fig_thirty_day_volume_c3t = sub_plots_volume(
-        bridge="C3",
-        status="bridged",
-        date_range_days=30
-    )
+    fig_thirty_day_volume_c3t = sub_plots_volume("C3", "bridged", 30)
+    fig_thirty_day_volume_retired_c3t = sub_plots_volume("C3", "retired", 30)
+    fig_thirty_day_vintage_c3t = sub_plots_vintage("C3", "bridged", 30)
+    fig_thirty_day_vintage_retired_c3t = sub_plots_vintage("C3", "retired", 30)
+    fig_thirty_day_map_c3t = map("C3", "bridged", 30)
+    fig_thirty_day_map_retired_c3t = map("C3", "retired", 30)
 
-    fig_thirty_day_volume_retired_c3t = sub_plots_volume(
-        bridge="C3",
-        status="retired",
-        date_range_days=30
-    )
-
-    fig_thirty_day_vintage_c3t = sub_plots_vintage(
-        bridge="C3",
-        status="bridged",
-        date_range_days=30
-    )
-    fig_thirty_day_vintage_retired_c3t = sub_plots_vintage(
-        bridge="C3",
-        status="retired",
-        date_range_days=30
-    )
-    fig_thirty_day_map_c3t = map(td_pool_c3t, zero_bridging_evt_text)
-    fig_thirty_day_map_retired_c3t = map(td_pool_retired_c3t, zero_retiring_evt_text)
     fig_thirty_day_metho_c3t = methodology_volume(td_pool_c3t, zero_bridging_evt_text)
     fig_thirty_day_metho_retired_c3t = methodology_volume(
         td_pool_retired_c3t, zero_retiring_evt_text
@@ -546,8 +476,8 @@ def generate_layout():
     fig_total_vintage_retired_c3t = total_vintage(
         df_retired_c3t, zero_retiring_evt_text
     )
-    fig_total_map_c3t = map(df_c3t, zero_bridging_evt_text)
-    fig_total_map_retired_c3t = map(df_retired_c3t, zero_retiring_evt_text)
+    fig_total_map_c3t = total_map(df_c3t, zero_bridging_evt_text)
+    fig_total_map_retired_c3t = total_map(df_retired_c3t, zero_retiring_evt_text)
     fig_total_metho_c3t = methodology_volume(df_c3t, zero_bridging_evt_text)
     fig_total_metho_retired_c3t = methodology_volume(
         df_retired_c3t, zero_retiring_evt_text
@@ -620,7 +550,7 @@ def generate_layout():
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     fig_mco2_total_volume = deposited_over_time(df_bridged_mco2)
     fig_mco2_total_vintage = total_vintage(df_bridged_mco2, zero_bridging_evt_text)
-    fig_mco2_total_map = map(df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_map = total_map(df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_metho = methodology_volume(df_bridged_mco2, zero_bridging_evt_text)
     fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
     df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
@@ -682,7 +612,7 @@ def generate_layout():
     fig_retired_over_time = retired_over_time(BCT_ADDRESS, "BCT", df_pool_retired)
     zero_bridging_evt_text = "The BCT Pool is empty"
     fig_bct_total_vintage = total_vintage(bct_carbon, zero_bridging_evt_text)
-    fig_bct_total_map = map(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_map = total_map(bct_carbon, zero_bridging_evt_text)
     fig_bct_total_metho = methodology_volume(bct_carbon, zero_bridging_evt_text)
     fig_bct_total_project = project_volume(bct_carbon, zero_bridging_evt_text)
 
@@ -722,7 +652,7 @@ def generate_layout():
     fig_retired_over_time = retired_over_time(NCT_ADDRESS, "NCT", df_pool_retired)
     zero_bridging_evt_text = "The NCT Pool is empty"
     fig_nct_total_vintage = total_vintage(nct_carbon, zero_bridging_evt_text)
-    fig_nct_total_map = map(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_map = total_map(nct_carbon, zero_bridging_evt_text)
     fig_nct_total_metho = methodology_volume(nct_carbon, zero_bridging_evt_text)
     fig_nct_total_project = project_volume(nct_carbon, zero_bridging_evt_text)
 
@@ -762,7 +692,7 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
     zero_bridging_evt_text = "The UBO Pool is empty"
     fig_ubo_total_vintage = total_vintage(ubo_carbon, zero_bridging_evt_text)
-    fig_ubo_total_map = map(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_map = total_map(ubo_carbon, zero_bridging_evt_text)
     fig_ubo_total_metho = methodology_volume(ubo_carbon, zero_bridging_evt_text)
     fig_ubo_total_project = project_volume(ubo_carbon, zero_bridging_evt_text)
 
@@ -803,7 +733,7 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
     zero_bridging_evt_text = "The NBO Pool is empty"
     fig_nbo_total_vintage = total_vintage(nbo_carbon, zero_bridging_evt_text)
-    fig_nbo_total_map = map(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_map = total_map(nbo_carbon, zero_bridging_evt_text)
     fig_nbo_total_metho = methodology_volume(nbo_carbon, zero_bridging_evt_text)
     fig_nbo_total_project = project_volume(nbo_carbon, zero_bridging_evt_text)
 

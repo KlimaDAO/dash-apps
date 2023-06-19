@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from .s3 import s3
+from . import S3
+from . import Countries
 from . import KeyCacheable, chained_cached_command, final_cached_command
 
 
@@ -11,6 +12,7 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def filter(self, df, bridge, status):
         """Adds a bridge filter"""
+        s3 = S3()
         if status == "bridged":
             df = s3.load("polygon_bridged_offsets")
         else:
@@ -49,6 +51,15 @@ class Offsets(KeyCacheable):
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
         df = df.groupby("Vintage Year")
+        return df
+
+    @chained_cached_command()
+    def country_agg(self, df):
+        df["Country Code"] = [
+            Countries().get_country(country) for country in df["Country"]
+        ]
+        df["Country Text"] = df["Country Code"].astype(str)
+        df = df.groupby(["Country", "Country Text", "Country Code"])
         return df
 
     @final_cached_command()

@@ -25,7 +25,7 @@ from .services import Offsets
 matplotlib.use("agg")
 
 
-def sub_plots_info(bridge, status, date_range_days=None):
+def plots_info(bridge, status, date_range_days):
     if status == "bridged":
         zero_status_text = "bridging"
         title_status_text = "Bridged"
@@ -36,31 +36,31 @@ def sub_plots_info(bridge, status, date_range_days=None):
         raise Exception("Unknown offset status filter")
 
     zero_evt_text = (
-        f"There haven't been any {zero_status_text} events<br>in the last {date_range_days} days"
+        f"There haven't been any {zero_status_text} events"
+    )
+
+    # Base filter
+    base_offsets = Offsets().filter(bridge, status)
+
+    zero_evt_text = (
+        f"{zero_evt_text}<br/>in the last {date_range_days} days"
     )
 
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
     period_start = current_time - dt.timedelta(days=date_range_days)
     last_period_start = period_start - dt.timedelta(days=date_range_days)
 
-    # Base filter
-    base_offsets = Offsets().filter(bridge, status)
-
     # Current data
     offsets = base_offsets.copy().date_range(period_start, current_time)
-    df = offsets.get()
 
     # Preceding data
     last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
-    last_df = last_offsets.get()
 
     return (
         zero_evt_text,
         title_status_text,
         offsets,
         last_offsets,
-        df,
-        last_df
     )
 
 
@@ -70,9 +70,10 @@ def sub_plots_volume(bridge, status, date_range_days=None):
         title_status_text,
         offsets,
         last_offsets,
-        df,
-        last_df
-    ) = sub_plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, status, date_range_days)
+
+    df = offsets.get()
+    last_df = last_offsets.get()
 
     title_indicator = f"Credits {title_status_text} ({date_range_days}d)"
 
@@ -160,9 +161,9 @@ def sub_plots_vintage(bridge, status, date_range_days=None):
         _title_status_text,
         offsets,
         last_offsets,
-        df,
-        last_df
-    ) = sub_plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, status, date_range_days)
+    df = offsets.get()
+    last_df = last_offsets.get()
 
     title_indicator = f"Average Credits Vintage ({date_range_days}d)"
 
@@ -252,7 +253,62 @@ def get_country(country):
     return country_cache[country]
 
 
-def map(df, zero_evt_text):
+def map(bridge, status, date_range_days=None):
+    (
+        zero_evt_text,
+        _title_status_text,
+        offsets,
+        last_offsets,
+    ) = plots_info(bridge, status, date_range_days)
+    df = offsets.get()
+
+    df = offsets.get()
+    country_volumes = offsets.country_agg().sum("Quantity")
+    if not (df.empty):
+        fig = px.choropleth(
+            country_volumes,
+            locations="Country Code",
+            color="Quantity",
+            hover_name="Country",
+            # hover_data=['text'],
+            # custom_data=['text'],
+            color_continuous_scale=px.colors.sequential.Plasma,
+            height=360,
+        )
+
+        fig.update_layout(
+            height=360,
+            geo=dict(
+                bgcolor="rgba(0,0,0,0)",
+                lakecolor="#4E5D6C",
+                landcolor="darkgrey",
+                subunitcolor="grey",
+            ),
+            font_color="white",
+            dragmode=False,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            hovermode="x unified",
+            hoverlabel=dict(font_color="white", font_size=8),
+            font=GRAPH_FONT,
+            margin=dict(t=50, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(thickness=10, len=0.6),
+        )
+    else:
+        fig = go.Figure()
+        fig.update_layout(
+            height=300,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            plot_bgcolor=FIGURE_BG_COLOR,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            annotations=[
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
+            ],
+        )
+    return fig
+
+
+def total_map(df, zero_evt_text):
     if not (df.empty):
         df = df[df["Country"] != "missing"].reset_index(drop=True)
         country_volumes = (
