@@ -62,6 +62,11 @@ class Offsets(KeyCacheable):
         df = df.groupby(["Country", "Country Text", "Country Code"])
         return df
 
+    @chained_cached_command()
+    def methodology_agg(self, df):
+        df = df.groupby("Methodology")
+        return df
+
     @final_cached_command()
     def sum(self, df, column):
         """Sums results, works also on aggregations"""

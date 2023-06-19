@@ -162,7 +162,6 @@ def sub_plots_vintage(bridge, status, date_range_days=None):
         offsets,
         last_offsets,
     ) = plots_info(bridge, status, date_range_days)
-    df = offsets.get()
     last_df = last_offsets.get()
 
     title_indicator = f"Average Credits Vintage ({date_range_days}d)"
@@ -171,7 +170,7 @@ def sub_plots_vintage(bridge, status, date_range_days=None):
     vintage_quantity = offsets.copy().vintage_agg().sum("Quantity")
     last_average = last_offsets.average("Vintage Year", "Quantity")
 
-    if not df.empty and average:
+    if average:
         fig = make_subplots(
             rows=2,
             cols=1,
@@ -258,13 +257,10 @@ def map(bridge, status, date_range_days=None):
         zero_evt_text,
         _title_status_text,
         offsets,
-        last_offsets,
+        _last_offsets,
     ) = plots_info(bridge, status, date_range_days)
-    df = offsets.get()
-
-    df = offsets.get()
     country_volumes = offsets.country_agg().sum("Quantity")
-    if not (df.empty):
+    if not country_volumes.empty:
         fig = px.choropleth(
             country_volumes,
             locations="Country Code",
@@ -483,7 +479,52 @@ def total_vintage(df, zero_evt_text):
     return fig
 
 
-def methodology_volume(df, zero_evt_text):
+def methodology_volume(bridge, status, date_range_days=None):
+    (
+        zero_evt_text,
+        _title_status_text,
+        offsets,
+        _last_offsets,
+    ) = plots_info(bridge, status, date_range_days)
+
+    methodology_quantity = offsets.methodology_agg().sum("Quantity")
+
+    if not methodology_quantity.empty:
+        fig = px.bar(
+            methodology_quantity,
+            x="Methodology",
+            y="Quantity",
+            title="",
+        )
+        fig.update_traces(marker_line_width=0)
+        fig.update_layout(
+            height=360,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            plot_bgcolor=FIGURE_BG_COLOR,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=False),
+            font_color="white",
+            hovermode="x unified",
+            hoverlabel=dict(font_color="white", font_size=8),
+            font=GRAPH_FONT,
+            margin=dict(t=50, b=0, l=0, r=0),
+        )
+    else:
+        fig = go.Figure()
+        fig.update_layout(
+            height=300,
+            paper_bgcolor=FIGURE_BG_COLOR,
+            plot_bgcolor=FIGURE_BG_COLOR,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            annotations=[
+                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
+            ],
+        )
+    return fig
+
+
+def methodology_volume_total(df, zero_evt_text):
     df = df[df["Methodology"] != "missing"].reset_index(drop=True)
     if not (df.empty):
         fig = px.bar(
