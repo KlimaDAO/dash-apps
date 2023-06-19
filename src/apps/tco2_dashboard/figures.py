@@ -42,19 +42,23 @@ def plots_info(bridge, status, date_range_days):
     # Base filter
     base_offsets = Offsets().filter(bridge, status)
 
-    zero_evt_text = (
-        f"{zero_evt_text}<br/>in the last {date_range_days} days"
-    )
+    if date_range_days:
+        zero_evt_text = (
+            f"{zero_evt_text}<br/>in the last {date_range_days} days"
+        )
 
-    current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    period_start = current_time - dt.timedelta(days=date_range_days)
-    last_period_start = period_start - dt.timedelta(days=date_range_days)
+        current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
+        period_start = current_time - dt.timedelta(days=date_range_days)
+        last_period_start = period_start - dt.timedelta(days=date_range_days)
 
-    # Current data
-    offsets = base_offsets.copy().date_range(period_start, current_time)
+        # Current data
+        offsets = base_offsets.copy().date_range(period_start, current_time)
 
-    # Preceding data
-    last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
+        # Preceding data
+        last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
+    else:
+        offsets = base_offsets
+        last_offsets = None
 
     return (
         zero_evt_text,

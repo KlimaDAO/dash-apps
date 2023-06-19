@@ -13,10 +13,22 @@ class Offsets(KeyCacheable):
     def filter(self, df, bridge, status):
         """Adds a bridge filter"""
         s3 = S3()
-        if status == "bridged":
-            df = s3.load("polygon_bridged_offsets")
+        if bridge in ["Toucan", "C3"]:
+            if status == "bridged":
+                df = s3.load("polygon_bridged_offsets")
+            elif status == "retired":
+                df = s3.load("polygon_retired_offsets")
+            else:
+                raise Exception("Unknown offset status")
+        elif bridge in ["Moss"]:
+            if status == "bridged":
+                df = s3.load("eth_moss_bridged_offsets")
+            elif status == "retired":
+                df = s3.load("eth_retired_offsets")
+            else:
+                raise Exception("Unknown offset status")
         else:
-            df = s3.load("polygon_retired_offsets")
+            raise Exception("Unknown bridge")
 
         # TODO: Maybe this should be done in the data pipelines
         if not (df.empty):
@@ -24,7 +36,6 @@ class Offsets(KeyCacheable):
                 df["Vintage Year"] = (
                     pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
                 )
-
         return df[df["Bridge"] == bridge].reset_index()
 
     @chained_cached_command()

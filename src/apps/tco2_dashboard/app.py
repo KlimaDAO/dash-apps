@@ -202,6 +202,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 @cache.memoize()
 def generate_layout():
     debug("Render: generate_layout")
+    fig_mco2_total_map = map("Moss", "bridged")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
     df = get_s3_data("polygon_bridged_offsets")
@@ -329,12 +330,10 @@ def generate_layout():
     )
     fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
     fig_total_vintage_retired_tc = total_vintage(df_retired_tc, zero_retiring_evt_text)
-    fig_total_map_tc = total_map(df_tc, zero_bridging_evt_text)
-    fig_total_map_retired_tc = total_map(df_retired_tc, zero_retiring_evt_text)
-    fig_total_metho_tc = methodology_volume_total(df_tc, zero_bridging_evt_text)
-    fig_total_metho_retired_tc = methodology_volume_total(
-        df_retired_tc, zero_retiring_evt_text
-    )
+    fig_total_map_tc = map("Toucan", "bridged")
+    fig_total_map_retired_tc = map("Toucan", "retired")
+    fig_total_metho_tc = methodology_volume("Toucan", "bridged")
+    fig_total_metho_retired_tc = methodology_volume("Toucan", "retired")
     fig_total_project_tc = project_volume(df_tc, zero_bridging_evt_text)
     fig_total_project_retired_tc = project_volume(df_retired_tc, zero_retiring_evt_text)
 
@@ -468,12 +467,10 @@ def generate_layout():
     fig_total_vintage_retired_c3t = total_vintage(
         df_retired_c3t, zero_retiring_evt_text
     )
-    fig_total_map_c3t = total_map(df_c3t, zero_bridging_evt_text)
-    fig_total_map_retired_c3t = total_map(df_retired_c3t, zero_retiring_evt_text)
-    fig_total_metho_c3t = methodology_volume_total(df_c3t, zero_bridging_evt_text)
-    fig_total_metho_retired_c3t = methodology_volume_total(
-        df_retired_c3t, zero_retiring_evt_text
-    )
+    fig_total_map_c3t = map("C3", "bridged")
+    fig_total_map_retired_c3t = map("C3", "retired")
+    fig_total_metho_c3t = methodology_volume("C3", "bridged")
+    fig_total_metho_retired_c3t = methodology_volume("C3", "retired")
     fig_total_project_c3t = project_volume(df_c3t, zero_bridging_evt_text)
     fig_total_project_retired_c3t = project_volume(
         df_retired_c3t, zero_retiring_evt_text
@@ -542,8 +539,8 @@ def generate_layout():
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     fig_mco2_total_volume = deposited_over_time(df_bridged_mco2)
     fig_mco2_total_vintage = total_vintage(df_bridged_mco2, zero_bridging_evt_text)
-    fig_mco2_total_map = total_map(df_bridged_mco2, zero_bridging_evt_text)
-    fig_mco2_total_metho = methodology_volume_total(df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_map = map("Moss", "bridged")
+    fig_mco2_total_metho = methodology_volume("Moss", "bridged")
     fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
     df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
     mco2_carbon = (
