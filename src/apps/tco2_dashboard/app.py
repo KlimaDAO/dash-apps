@@ -3,7 +3,7 @@ import dash
 from datetime import datetime
 from dash import html, Input, Output, callback, State
 from dash import dcc
-from .services import cache
+from .services import layout_cache as cache, services_cache
 import pandas as pd
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
@@ -189,6 +189,7 @@ app.index_string = (
 
 
 cache.init_app(app.server)
+services_cache.init_app(app.server)
 
 
 @cache.memoize()
@@ -267,24 +268,21 @@ def generate_layout():
         "There haven't been any retiring events<br>in the last 7 days"
     )
     fig_seven_day_volume_tc = sub_plots_volume_s(
-        "Toucan",
-        7,
-        "Credits Bridged (7d)",
-        "",
-        zero_bridging_evt_text
+        bridge="Toucan",
+        status="bridged",
+        date_range_days=7,
+        title_indicator="Credits Bridged (7d)",
+        zero_evt_text=zero_bridging_evt_text
     )
-    """
-    fig_seven_day_volume_tc = sub_plots_volume(
-        sd_pool_tc, last_sd_pool_tc, "Credits Bridged (7d)", "", zero_bridging_evt_text
-    )"""
 
-    fig_seven_day_volume_tc = sub_plots_volume_s(
-        "Toucan",
-        7,
-        "Credits Bridged (7d)",
-        "",
-        zero_bridging_evt_text
+    fig_seven_day_volume_retired_tc = sub_plots_volume_s(
+        bridge="Toucan",
+        status="retired",
+        date_range_days=7,
+        title_indicator="Credits Retired (7d)",
+        zero_evt_text=zero_retiring_evt_text
     )
+
     fig_seven_day_volume_retired_tc = sub_plots_volume(
         sd_pool_retired_tc,
         last_sd_pool_retired_tc,
@@ -324,9 +322,16 @@ def generate_layout():
     zero_retiring_evt_text = (
         "There haven't been any retiring events<br>in the last 30 days"
     )
-    fig_thirty_day_volume_tc = sub_plots_volume(
+    """fig_thirty_day_volume_tc = sub_plots_volume(
         td_pool_tc, last_td_pool_tc, "Credits Bridged (30d)", "", zero_bridging_evt_text
-    )
+    )"""
+    fig_thirty_day_volume_tc = sub_plots_volume_s(
+        bridge="Toucan",
+        status="bridged",
+        date_range_days=30,
+        title_indicator="Credits Bridged (30d)",
+        title_graph="",
+        zero_evt_text=zero_bridging_evt_text)
     fig_thirty_day_volume_retired_tc = sub_plots_volume(
         td_pool_retired_tc,
         last_td_pool_retired_tc,

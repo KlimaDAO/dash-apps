@@ -26,21 +26,27 @@ matplotlib.use("agg")
 
 
 def sub_plots_volume_s(bridge,
-                       days,
+                       status,
                        title_indicator,
-                       title_graph,
-                       zero_evt_text):
+                       zero_evt_text,
+                       date_range_days=None,
+                       title_graph="",
+                       ):
     current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    period_start = current_time - dt.timedelta(days=days)
-    last_period_start = period_start - dt.timedelta(days=days)
+    period_start = current_time - dt.timedelta(days=date_range_days)
+    last_period_start = period_start - dt.timedelta(days=date_range_days)
 
-    offsets = Offsets().bridge(bridge).date_range(period_start, current_time)
-
+    # Base filter
+    base_offsets = Offsets().filter(bridge, status)
+    
+    # Current data
+    offsets = base_offsets.copy().date_range(period_start, current_time)
     df = offsets.get()
     quantity = offsets.copy().sum("Quantity")
-    last_offsets = Offsets().bridge(bridge).date_range(last_period_start, period_start)
     daily_quantity = offsets.copy().daily_agg().sum("Quantity")
 
+    # Preceding data
+    last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
     last_df = last_offsets.get()
     last_quantity = last_offsets.copy().sum("Quantity")
 

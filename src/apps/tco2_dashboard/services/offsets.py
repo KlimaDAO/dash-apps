@@ -8,12 +8,15 @@ class Offsets(KeyCacheable):
         super(Offsets, self).__init__(commands)
 
     @chained_cached_command()
-    def bridge(self, df, bridge):
+    def filter(self, df, bridge, status):
         """Adds a bridge filter"""
-        if df is None:
+        if status == "bridged":
             df = s3.load("polygon_bridged_offsets")
+        else:
+            df = s3.load("polygon_retired_offsets")
 
         return df[df["Bridge"] == bridge].reset_index()
+
 
     @chained_cached_command()
     def date_range(self, df, begin, end):
@@ -49,33 +52,34 @@ class Offsets(KeyCacheable):
         return res
 
     def date_manipulations(self, df):
-        df["Date"] = (
-            pd.to_datetime(df["Date"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        datelist = pd.date_range(
-            start=df["Date"].min() + pd.DateOffset(-1),
-            end=pd.to_datetime("today"),
-            freq="d",
-        )
-        df_date = pd.DataFrame()
-        df_date["Date_continous"] = datelist
-        df_date["Date_continous"] = (
-            pd.to_datetime(df_date["Date_continous"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        df = df.merge(
-            df_date, how="right", left_on="Date", right_on="Date_continous"
-        ).reset_index(drop=True)
-        df["Date"] = df["Date_continous"]
-        for i in df.columns:
-            if "Quantity" in i:
-                df[i] = df[i].fillna(0)
-            else:
-                df[i] = df[i].fillna("missing")
-                df[i] = df[i].replace("", "missing")
+        if not (df.empty):
+            df["Date"] = (
+                pd.to_datetime(df["Date"], unit="s")
+                .dt.tz_localize(None)
+                .dt.floor("D")
+                .dt.date
+            )
+            datelist = pd.date_range(
+                start=df["Date"].min() + pd.DateOffset(-1),
+                end=pd.to_datetime("today"),
+                freq="d",
+            )
+            df_date = pd.DataFrame()
+            df_date["Date_continous"] = datelist
+            df_date["Date_continous"] = (
+                pd.to_datetime(df_date["Date_continous"], unit="s")
+                .dt.tz_localize(None)
+                .dt.floor("D")
+                .dt.date
+            )
+            df = df.merge(
+                df_date, how="right", left_on="Date", right_on="Date_continous"
+            ).reset_index(drop=True)
+            df["Date"] = df["Date_continous"]
+            for i in df.columns:
+                if "Quantity" in i:
+                    df[i] = df[i].fillna(0)
+                else:
+                    df[i] = df[i].fillna("missing")
+                    df[i] = df[i].replace("", "missing")
         return df
