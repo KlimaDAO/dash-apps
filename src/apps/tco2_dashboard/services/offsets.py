@@ -13,13 +13,20 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def filter(self, df, bridge, pool, status):
         """Filters offsets on bridge pool and status"""
-        # Select bridge
+        # Load dataset
         s3 = S3()
         if bridge in ["Toucan", "C3"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets")
             elif status == "retired":
-                df = s3.load("polygon_retired_offsets")
+                if pool is None:
+                    df = s3.load("polygon_retired_offsets")
+                else:
+                    df = s3.load("raw_polygon_pools_retired_offsets")
+            elif status == "deposited":
+                df = s3.load("raw_polygon_pools_deposited_offsets")
+            elif status == "redeemed":
+                df = s3.load("raw_polygon_pools_redeemed_offsets")
             else:
                 raise Exception("Unknown offset status")
         elif bridge in ["Moss"]:
@@ -98,6 +105,17 @@ class Offsets(KeyCacheable):
             res = res.reset_index()
 
         return res
+
+    @final_cached_command()
+    def sum_over_time(self, df, column):
+        df[column] = df[column].cumsum()
+        df = df.sort_values(by="Date", ascending=True)
+        return df
+
+    @final_cached_command()
+    def cumsum(self, df, column):
+        """Cumulative sum"""
+        return df[column].cumsum()
 
     @final_cached_command()
     def average(self, df, column, weights):
@@ -184,6 +202,11 @@ class Offsets(KeyCacheable):
             ]
         ].reset_index(drop=True)
         return filtered
+
+    def filter_df_by_pool(df, pool_address):
+        df["Pool"] = df["Pool"].str.lower()
+        df = df[(df["Pool"] == pool_address)].reset_index()
+        return df
 
     def drop_duplicates(self, df):
         df = df.drop_duplicates(subset=["Token Address"], keep="first")

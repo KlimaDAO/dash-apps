@@ -155,12 +155,6 @@ def subsets(df):
     return sd_pool, last_sd_pool, td_pool, last_td_pool
 
 
-def filter_df_by_pool(df, pool_address):
-    df["Pool"] = df["Pool"].str.lower()
-    df = df[(df["Pool"] == pool_address)].reset_index()
-    return df
-
-
 def verra_retired(df_verra):
     df_verra_retired = df_verra.query("~Toucan & ~C3 & ~Moss")
     df_verra_retired = df_verra_retired[df_verra_retired["Status"] == "Retired"]
@@ -183,6 +177,12 @@ def mco2_verra_manipulations(df_mco2_bridged):
         df_mco2_bridged["Project ID"].astype(str).str.replace(pat, repl, regex=True)
     )
     return df_mco2_bridged
+
+
+def filter_df_by_pool(df, pool_address):
+    df["Pool"] = df["Pool"].str.lower()
+    df = df[(df["Pool"] == pool_address)].reset_index()
+    return df
 
 
 def filter_carbon_pool(pool_address, *dfs):
