@@ -19,7 +19,6 @@ from .figures import (
     total_vintage,
     total_volume,
     methodology_volume,
-    methodology_volume_total,
     project_volume,
     eligible_pool_pie_chart,
     pool_pie_chart,
@@ -601,7 +600,7 @@ def generate_layout():
     zero_bridging_evt_text = "The BCT Pool is empty"
     fig_bct_total_vintage = total_vintage(bct_carbon, zero_bridging_evt_text)
     fig_bct_total_map = map("Toucan", "BCT", "bridged")
-    fig_bct_total_metho = methodology_volume_total(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_metho = methodology_volume("Toucan", "BCT", "bridged")
     fig_bct_total_project = project_volume(bct_carbon, zero_bridging_evt_text)
 
     content_bct = create_pool_content(
@@ -641,7 +640,7 @@ def generate_layout():
     zero_bridging_evt_text = "The NCT Pool is empty"
     fig_nct_total_vintage = total_vintage(nct_carbon, zero_bridging_evt_text)
     fig_nct_total_map = map("Toucan", "NCT", "bridged")
-    fig_nct_total_metho = methodology_volume_total(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_metho = methodology_volume("Toucan", "NCT", "bridged")
     fig_nct_total_project = project_volume(nct_carbon, zero_bridging_evt_text)
 
     content_nct = create_pool_content(
@@ -680,8 +679,8 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
     zero_bridging_evt_text = "The UBO Pool is empty"
     fig_ubo_total_vintage = total_vintage(ubo_carbon, zero_bridging_evt_text)
-    fig_ubo_total_map = map("Toucan", "UBO", "bridged")
-    fig_ubo_total_metho = methodology_volume_total(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_map = map("C3", "UBO", "bridged")
+    fig_ubo_total_metho = methodology_volume("C3", "UBO", "bridged")
     fig_ubo_total_project = project_volume(ubo_carbon, zero_bridging_evt_text)
 
     content_ubo = create_pool_content(
@@ -721,8 +720,8 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
     zero_bridging_evt_text = "The NBO Pool is empty"
     fig_nbo_total_vintage = total_vintage(nbo_carbon, zero_bridging_evt_text)
-    fig_nbo_total_map = map("Toucan", "NBO", "bridged")
-    fig_nbo_total_metho = methodology_volume_total(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_map = map("C3", "NBO", "bridged")
+    fig_nbo_total_metho = methodology_volume("C3", "NBO", "bridged")
     fig_nbo_total_project = project_volume(nbo_carbon, zero_bridging_evt_text)
 
     content_nbo = create_pool_content(
