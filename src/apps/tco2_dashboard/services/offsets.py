@@ -6,6 +6,7 @@ from . import KeyCacheable, chained_cached_command, final_cached_command
 
 
 class Offsets(KeyCacheable):
+    """Service for offsets"""
     def __init__(self, commands=[]):
         super(Offsets, self).__init__(commands)
 

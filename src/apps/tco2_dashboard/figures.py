@@ -1680,7 +1680,7 @@ def create_retirements_fig(data, style_dict):
     return img_b64, fig
 
 
-def get_supply_breakdown_figure(allowed_tokens, df):
+def get_supply_breakdown_figure(allowed_tokens, metrics):
 
     fig = go.Figure()
 
@@ -1689,8 +1689,8 @@ def get_supply_breakdown_figure(allowed_tokens, df):
         fig.add_trace(
             go.Scatter(
                 name=allowed_token["name"].upper(),
-                x=df["carbonMetrics_datetime"],
-                y=df[col_name],
+                x=metrics["carbonMetrics_datetime"],
+                y=metrics[col_name],
                 mode="lines",
                 stackgroup="one",
                 line={"width": 0.5, "color": allowed_token["color"]},
@@ -1713,13 +1713,13 @@ def get_supply_breakdown_figure(allowed_tokens, df):
     return fig
 
 
-def get_polygon_retirement_breakdown_figure(df):
+def get_polygon_retirement_breakdown_figure(metrics):
 
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"],
-            y=df["carbonMetrics_totalKlimaRetirements"],
+            x=metrics["carbonMetrics_datetime"],
+            y=metrics["carbonMetrics_totalKlimaRetirements"],
             mode="lines",
             name="Retired via KlimaDAO",
             stackgroup="one",
@@ -1728,8 +1728,8 @@ def get_polygon_retirement_breakdown_figure(df):
     )
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"],
-            y=df["carbonMetrics_not_klima_retired"],
+            x=metrics["carbonMetrics_datetime"],
+            y=metrics["carbonMetrics_not_klima_retired"],
             mode="lines",
             name="Not Retired via KlimaDAO",
             stackgroup="one",
@@ -1753,13 +1753,13 @@ def get_polygon_retirement_breakdown_figure(df):
     return fig
 
 
-def get_eth_retirement_breakdown_figure(df):
+def get_eth_retirement_breakdown_figure(metrics):
 
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df["carbonMetrics_datetime"],
-            y=df["carbonMetrics_totalRetirements"],
+            x=metrics["carbonMetrics_datetime"],
+            y=metrics["carbonMetrics_totalRetirements"],
             mode="lines",
             name="Not Retired by Klima",
             stackgroup="one",

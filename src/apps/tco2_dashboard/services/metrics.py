@@ -3,6 +3,7 @@ from . import KeyCacheable, chained_cached_command, final_cached_command
 
 
 class Metrics(KeyCacheable):
+    """Service for carbon metrics"""
     def __init__(self, commands=[]):
         super(Metrics, self).__init__(commands)
 
@@ -10,7 +11,6 @@ class Metrics(KeyCacheable):
     def polygon(self, df):
         """Get polygon carbon metrics"""
         df = S3().load("raw_polygon_carbon_metrics")
-        print(df)
         return df
 
     @chained_cached_command()
@@ -29,3 +29,8 @@ class Metrics(KeyCacheable):
     def latest(self, df):
         """Returns the latest Metric"""
         return df.iloc[0]
+
+    @final_cached_command()
+    def days_ago(self, df, days_ago):
+        """Returns the Metric from days_ago"""
+        return df.iloc[days_ago - 1]

@@ -1,6 +1,7 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
+from .services import Metrics
 
 from src.apps.tco2_dashboard.figures import (
     get_eth_retirement_breakdown_figure,
@@ -36,71 +37,60 @@ celo_carbon_tokens = [
 
 
 def create_carbon_supply_content(
-    df_carbon_metrics_polygon,
-    df_carbon_metrics_eth,
-    df_carbon_metrics_celo,
-    fig_total_carbon_supply_pie_chart,
+    fig_total_carbon_supply_pie_chart
 ):
+    polygon_metrics = Metrics().polygon().get()
+    polygon_now = Metrics().polygon().latest()
+    polygon_ago = Metrics().polygon().days_ago(7)
     # Polygon Supply Info
-    polygonCarbonSupply = int(
-        df_carbon_metrics_polygon["carbonMetrics_totalCarbonSupply"].iloc[0]
-    )
-    polygonCarbonSupply7daysAgo = int(
-        df_carbon_metrics_polygon["carbonMetrics_totalCarbonSupply"].iloc[6]
-    )
+    polygonCarbonSupply = polygon_now["carbonMetrics_totalCarbonSupply"]
+    polygonCarbonSupply7daysAgo = polygon_ago["carbonMetrics_totalCarbonSupply"]
 
     polygonSupplyChangeRatio = float(
         (polygonCarbonSupply - polygonCarbonSupply7daysAgo) / polygonCarbonSupply
     )
 
-    polygonKlimaRetired = float(
-        df_carbon_metrics_polygon["carbonMetrics_totalKlimaRetirements"].iloc[0]
-    )
-    polygonRetired = float(
-        df_carbon_metrics_polygon["carbonMetrics_totalRetirements"].iloc[0]
-    )
+    polygonKlimaRetired = polygon_now["carbonMetrics_totalKlimaRetirements"]
+    polygonRetired = polygon_now["carbonMetrics_totalRetirements"]
     polygonKlimaRetiredRatio = polygonKlimaRetired / polygonRetired
 
     polygon_supply_figure = get_supply_breakdown_figure(
-        polygon_carbon_tokens, df_carbon_metrics_polygon
+        polygon_carbon_tokens, polygon_metrics
     )
     polygon_retirement_figure = get_polygon_retirement_breakdown_figure(
-        df_carbon_metrics_polygon
+        polygon_metrics
     )
 
     # Eth Supply Info
-    ethCarbonSupply = int(
-        df_carbon_metrics_eth["carbonMetrics_totalCarbonSupply"].iloc[0]
-    )
-    ethCarbonSupply7daysAgo = int(
-        df_carbon_metrics_eth["carbonMetrics_totalCarbonSupply"].iloc[6]
-    )
+    eth_metrics = Metrics().eth().get()
+    eth_now = Metrics().eth().latest()
+    eth_ago = Metrics().eth().days_ago(7)
+    ethCarbonSupply = eth_now["carbonMetrics_totalCarbonSupply"]
+    ethCarbonSupply7daysAgo = eth_ago["carbonMetrics_totalCarbonSupply"]
 
     ethSupplyChangeRatio = float(
         (ethCarbonSupply - ethCarbonSupply7daysAgo) / ethCarbonSupply
     )
 
-    ethRetired = float(df_carbon_metrics_eth["carbonMetrics_totalRetirements"].iloc[0])
+    ethRetired = eth_now["carbonMetrics_totalRetirements"]
 
     eth_supply_figure = get_supply_breakdown_figure(
-        eth_carbon_tokens, df_carbon_metrics_eth
+        eth_carbon_tokens, eth_metrics
     )
-    eth_retirement_figure = get_eth_retirement_breakdown_figure(df_carbon_metrics_eth)
+    eth_retirement_figure = get_eth_retirement_breakdown_figure(eth_metrics)
 
     # Celo Supply Info
-    celoCarbonSupply = int(
-        df_carbon_metrics_celo["carbonMetrics_totalCarbonSupply"].iloc[0]
-    )
-    celoCarbonSupply7daysAgo = int(
-        df_carbon_metrics_celo["carbonMetrics_totalCarbonSupply"].iloc[6]
-    )
-
+    celo_metrics = Metrics().celo().get()
+    celo_now = Metrics().celo().latest()
+    celo_ago = Metrics().celo().days_ago(7)
+    celoCarbonSupply = celo_now["carbonMetrics_totalCarbonSupply"]
+    celoCarbonSupply7daysAgo = celo_ago["carbonMetrics_totalCarbonSupply"]
     celoSupplyChangeRatio = float(
         (celoCarbonSupply - celoCarbonSupply7daysAgo) / celoCarbonSupply
     )
 
     celo_supply_figure = get_supply_breakdown_figure(
-        celo_carbon_tokens, df_carbon_metrics_celo
+        celo_carbon_tokens, celo_metrics
     )
 
     content = [
@@ -167,7 +157,7 @@ def create_carbon_supply_content(
                                 className="card-title-carbon-supply",
                             ),
                             dbc.CardBody(
-                                "{:,}".format(polygonCarbonSupply),
+                                "{:,}".format(int(polygonCarbonSupply)),
                                 className="card-text-carbon-supply",
                             ),
                             html.H5(
@@ -271,7 +261,7 @@ def create_carbon_supply_content(
                                 className="card-title-carbon-supply",
                             ),
                             dbc.CardBody(
-                                "{:,}".format(ethCarbonSupply),
+                                "{:,}".format(int(ethCarbonSupply)),
                                 className="card-text-carbon-supply",
                             ),
                             html.H5(
@@ -372,7 +362,7 @@ def create_carbon_supply_content(
                                 className="card-title-carbon-supply",
                             ),
                             dbc.CardBody(
-                                "{:,}".format(celoCarbonSupply),
+                                "{:,}".format(int(celoCarbonSupply)),
                                 className="card-text-carbon-supply",
                             ),
                             html.H5(
