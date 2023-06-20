@@ -20,7 +20,7 @@ from base64 import b64encode
 import math
 from dash import dash_table
 import datetime as dt
-from .services import Offsets
+from .services import Offsets, Metrics
 
 matplotlib.use("agg")
 
@@ -1783,14 +1783,12 @@ def get_eth_retirement_breakdown_figure(df):
     return fig
 
 
-def total_carbon_supply_pie_chart(
-    polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
-):
+def total_carbon_supply_pie_chart():
     labels = ["Polygon", "Ethereum", "Celo"]
     values = [
-        polygon_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
-        eth_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
-        celo_carbon_metrics_df["carbonMetrics_totalCarbonSupply"].iloc[0],
+        Metrics().polygon().latest(),
+        Metrics().eth().latest(),
+        Metrics().celo().latest(),
     ]
     fig = go.Figure()
     fig.add_trace(

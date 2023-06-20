@@ -197,7 +197,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    fig_seven_day_project_tc = project_volume("Toucan", None, "bridged", 7)
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -279,9 +278,7 @@ def generate_layout():
     polygon_carbon_metrics_df = get_s3_data("raw_polygon_carbon_metrics")
     eth_carbon_metrics_df = get_s3_data("raw_eth_carbon_metrics")
     celo_carbon_metrics_df = get_s3_data("raw_celo_carbon_metrics")
-    fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart(
-        polygon_carbon_metrics_df, eth_carbon_metrics_df, celo_carbon_metrics_df
-    )
+    fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart()
     content_carbon_supply = create_carbon_supply_content(
         polygon_carbon_metrics_df,
         eth_carbon_metrics_df,
