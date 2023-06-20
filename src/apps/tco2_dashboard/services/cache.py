@@ -2,7 +2,7 @@ from flask_caching import Cache
 import hashlib
 import pickle
 import copy
-from ....util import debug, getenv
+from ....util import debug, getenv # noqa
 
 # Configure cache
 LAYOUt_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))

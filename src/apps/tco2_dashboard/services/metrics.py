@@ -8,22 +8,19 @@ class Metrics(KeyCacheable):
         super(Metrics, self).__init__(commands)
 
     @chained_cached_command()
-    def polygon(self, df):
+    def polygon(self, _df):
         """Get polygon carbon metrics"""
-        df = S3().load("raw_polygon_carbon_metrics")
-        return df
+        return S3().load("raw_polygon_carbon_metrics")
 
     @chained_cached_command()
-    def eth(self, df):
+    def eth(self, _df):
         """Get eth carbon metrics"""
-        df = S3().load("raw_eth_carbon_metrics")
-        return df
+        return S3().load("raw_eth_carbon_metrics")
 
     @chained_cached_command()
-    def celo(self, df):
+    def celo(self, _df):
         """Get eth carbon metrics"""
-        df = S3().load("raw_celo_carbon_metrics")
-        return df
+        return S3().load("raw_celo_carbon_metrics")
 
     @final_cached_command()
     def latest(self, df):

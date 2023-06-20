@@ -197,10 +197,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart()
-    content_carbon_supply = create_carbon_supply_content(
-        fig_total_carbon_supply_pie_chart
-    )
+    fig_pool_pie_chart_tc = pool_pie_chart("Toucan")
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -300,7 +297,7 @@ def generate_layout():
     fig_total_project_tc = project_volume("Toucan", None, "bridged")
     fig_total_project_retired_tc = project_volume("Toucan", None, "retired")
 
-    fig_pool_pie_chart_tc = pool_pie_chart(df_carbon_tc, ["BCT", "NCT"])
+    fig_pool_pie_chart_tc = pool_pie_chart("Toucan")
     content_tco2 = create_content_toucan(df_tc, df_retired_tc, fig_pool_pie_chart_tc)
 
     fig_seven_day_tc = [
@@ -405,7 +402,7 @@ def generate_layout():
     fig_total_metho_retired_c3t = methodology_volume("C3", None, "retired")
     fig_total_project_c3t = project_volume("C3", None, "bridged")
     fig_total_project_retired_c3t = project_volume("C3", None, "retired")
-    fig_pool_pie_chart_c3t = pool_pie_chart(df_carbon_c3t, ["UBO", "NBO"])
+    fig_pool_pie_chart_c3t = pool_pie_chart("C3")
 
     content_c3t = create_content_c3t(df_c3t, df_retired_c3t, fig_pool_pie_chart_c3t)
 

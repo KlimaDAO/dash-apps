@@ -36,7 +36,10 @@ class Offsets(KeyCacheable):
         # Filter pool
         if pool:
             df = self.drop_duplicates(df)
-            df = self.filter_pool_quantity(df, f"{pool} Quantity")
+            if pool == "all":
+                df = self.filter_pool_quantity(df, "Total Quantity")
+            else:
+                df = self.filter_pool_quantity(df, f"{pool} Quantity")
 
         # TODO: Maybe this should be done in the data pipelines
         if "Vintage" in df.columns:

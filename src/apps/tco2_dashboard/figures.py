@@ -20,7 +20,7 @@ from base64 import b64encode
 import math
 from dash import dash_table
 import datetime as dt
-from .services import Offsets, Metrics
+from .services import Offsets, Metrics, Pools
 
 matplotlib.use("agg")
 
@@ -468,11 +468,11 @@ def project_volume_mco2(df, zero_evt_text):
     return fig
 
 
-def pool_pie_chart(df, labels):
-    values = [df[f"{i} Quantity"].sum() for i in labels]
-    not_pool_qty = df["Total Quantity"].sum() - sum(values)
-    values = values + [not_pool_qty]
-    labels = labels + ["Not Pooled"]
+def pool_pie_chart(bridge):
+    quantities = Pools().filter(bridge).quantities()
+    labels = list(quantities.keys())
+    values = list(quantities.values())
+
     fig = go.Figure()
     fig.add_trace(
         go.Pie(
