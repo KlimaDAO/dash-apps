@@ -98,7 +98,7 @@ class KeyCacheable():
         while idx + 1 < len(self.commands):
             idx = idx + 1
             command = self.commands[idx]
-            debug(f"get no cache | {command['key']}\n")
+            #debug(f"get no cache | {command['key']}\n")
             if command["takes_input"]:
                 res = command["func"](self, res, *command["args"])
             else:

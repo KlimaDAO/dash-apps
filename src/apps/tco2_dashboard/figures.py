@@ -1786,9 +1786,9 @@ def get_eth_retirement_breakdown_figure(df):
 def total_carbon_supply_pie_chart():
     labels = ["Polygon", "Ethereum", "Celo"]
     values = [
-        Metrics().polygon().latest(),
-        Metrics().eth().latest(),
-        Metrics().celo().latest(),
+        Metrics().polygon().latest()["carbonMetrics_totalCarbonSupply"],
+        Metrics().eth().latest()["carbonMetrics_totalCarbonSupply"],
+        Metrics().celo().latest()["carbonMetrics_totalCarbonSupply"],
     ]
     fig = go.Figure()
     fig.add_trace(
