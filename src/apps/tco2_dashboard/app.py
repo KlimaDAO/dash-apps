@@ -197,7 +197,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    fig_pool_pie_chart_tc = pool_pie_chart("Toucan")
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -298,7 +297,7 @@ def generate_layout():
     fig_total_project_retired_tc = project_volume("Toucan", None, "retired")
 
     fig_pool_pie_chart_tc = pool_pie_chart("Toucan")
-    content_tco2 = create_content_toucan(df_tc, df_retired_tc, fig_pool_pie_chart_tc)
+    content_tco2 = create_content_toucan(fig_pool_pie_chart_tc)
 
     fig_seven_day_tc = [
         fig_seven_day_volume_tc,
@@ -402,9 +401,9 @@ def generate_layout():
     fig_total_metho_retired_c3t = methodology_volume("C3", None, "retired")
     fig_total_project_c3t = project_volume("C3", None, "bridged")
     fig_total_project_retired_c3t = project_volume("C3", None, "retired")
-    fig_pool_pie_chart_c3t = pool_pie_chart("C3")
 
-    content_c3t = create_content_c3t(df_c3t, df_retired_c3t, fig_pool_pie_chart_c3t)
+    fig_pool_pie_chart_c3t = pool_pie_chart("C3")
+    content_c3t = create_content_c3t(fig_pool_pie_chart_c3t)
 
     fig_seven_day_c3t = [
         fig_seven_day_volume_c3t,

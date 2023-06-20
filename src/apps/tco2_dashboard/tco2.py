@@ -2,10 +2,12 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import BETWEEN_SECTION_STYLE
+from .services import Offsets
 
 
-def create_content_toucan(df, df_retired, fig_pool_pie_chart):
-
+def create_content_toucan(fig_pool_pie_chart):
+    bridged_quantity = Offsets().filter("Toucan", None, "bridged").sum("Quantity")
+    retired_quantity = Offsets().filter("Toucan", None, "retired").sum("Quantity")
     content_tco2 = [
         dbc.Row(
             dbc.Col(
@@ -29,7 +31,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                         [
                             html.H5("TCO2 Tonnes Bridged", className="card-title"),
                             dbc.CardBody(
-                                "{:,}".format(int(df["Quantity"].sum())),
+                                "{:,}".format(int(bridged_quantity)),
                                 className="card-text",
                             ),
                         ]
@@ -42,7 +44,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                         [
                             html.H5("TCO2 Tonnes Retired", className="card-title"),
                             dbc.CardBody(
-                                "{:,}".format(int(df_retired["Quantity"].sum())),
+                                "{:,}".format(int(retired_quantity)),
                                 className="card-text",
                             ),
                         ]
@@ -56,10 +58,7 @@ def create_content_toucan(df, df_retired, fig_pool_pie_chart):
                             html.H5("TCO2 Tonnes Outstanding", className="card-title"),
                             dbc.CardBody(
                                 "{:,}".format(
-                                    int(
-                                        df["Quantity"].sum()
-                                        - df_retired["Quantity"].sum()
-                                    )
+                                    int(bridged_quantity - retired_quantity)
                                 ),
                                 className="card-text",
                             ),
