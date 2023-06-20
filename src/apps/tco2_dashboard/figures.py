@@ -41,8 +41,9 @@ def plots_info(bridge, pool, status, date_range_days):
 
     # Base filter
     base_offsets = Offsets().filter(bridge, pool, status)
-
+   
     if date_range_days:
+        title_timing_text = f"({date_range_days}d)"
         zero_evt_text = (
             f"{zero_evt_text}<br/>in the last {date_range_days} days"
         )
@@ -57,12 +58,14 @@ def plots_info(bridge, pool, status, date_range_days):
         # Preceding data
         last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
     else:
+        title_timing_text = "(Total)"
         offsets = base_offsets
         last_offsets = None
 
     return (
         zero_evt_text,
         title_status_text,
+        title_timing_text,
         offsets,
         last_offsets,
     )
@@ -72,20 +75,21 @@ def sub_plots_volume(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         title_status_text,
+        title_timing_text,
         offsets,
         last_offsets,
     ) = plots_info(bridge, pool, status, date_range_days)
 
-    df = offsets.get()
-    last_df = last_offsets.get()
-
-    title_indicator = f"Credits {title_status_text} ({date_range_days}d)"
+    title_indicator = f"Credits {title_status_text} {title_timing_text}"
 
     quantity = offsets.copy().sum("Quantity")
     daily_quantity = offsets.copy().daily_agg().sum("Quantity")
-    last_quantity = last_offsets.copy().sum("Quantity")
+    if last_offsets:
+        last_quantity = last_offsets.copy().sum("Quantity")
+    else:
+        last_quantity = 0
 
-    if not df.empty and quantity != 0:
+    if quantity != 0:
         fig = make_subplots(
             rows=2,
             cols=1,
@@ -95,7 +99,7 @@ def sub_plots_volume(bridge, pool, status, date_range_days=None):
         )
         fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
 
-        if not last_df.empty and last_quantity != 0:
+        if last_quantity != 0:
             fig.add_trace(
                 go.Indicator(
                     mode="number+delta",
@@ -163,16 +167,19 @@ def sub_plots_vintage(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
+        title_timing_text,
         offsets,
         last_offsets,
     ) = plots_info(bridge, pool, status, date_range_days)
-    last_df = last_offsets.get()
 
-    title_indicator = f"Average Credits Vintage ({date_range_days}d)"
+    title_indicator = f"Average Credits Vintage {title_timing_text}"
 
     average = offsets.copy().average("Vintage Year", "Quantity")
     vintage_quantity = offsets.copy().vintage_agg().sum("Quantity")
-    last_average = last_offsets.average("Vintage Year", "Quantity")
+    if last_offsets:
+        last_average = last_offsets.average("Vintage Year", "Quantity")
+    else:
+        last_average = 0
 
     if average:
         fig = make_subplots(
@@ -183,7 +190,7 @@ def sub_plots_vintage(bridge, pool, status, date_range_days=None):
             vertical_spacing=0.1,
         )
         fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
-        if not last_df.empty and last_average:
+        if last_average:
             fig.add_trace(
                 go.Indicator(
                     mode="number+delta",
@@ -260,6 +267,7 @@ def map(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
+        _title_timing_text,
         offsets,
         _last_offsets,
     ) = plots_info(bridge, pool, status, date_range_days)
@@ -430,6 +438,7 @@ def methodology_volume(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
+        _title_timing_text,
         offsets,
         _last_offsets,
     ) = plots_info(bridge, pool, status, date_range_days)

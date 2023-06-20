@@ -17,7 +17,6 @@ from .figures import (
     sub_plots_volume,
     map,
     total_vintage,
-    total_volume,
     methodology_volume,
     project_volume,
     eligible_pool_pie_chart,
@@ -320,12 +319,8 @@ def generate_layout():
     # Total
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     zero_retiring_evt_text = "There haven't been any<br>retiring events"
-    fig_total_volume_tc = total_volume(
-        df_tc, "Credits tokenized (total)", zero_bridging_evt_text
-    )
-    fig_total_volume_retired_tc = total_volume(
-        df_retired_tc, "Credits retired (total)", zero_retiring_evt_text
-    )
+    fig_total_volume_tc = sub_plots_volume("Toucan", None, "bridged")
+    fig_total_volume_retired_tc = sub_plots_volume("Toucan", None, "retired")
     fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
     fig_total_vintage_retired_tc = total_vintage(df_retired_tc, zero_retiring_evt_text)
     fig_total_map_tc = map("Toucan", None, "bridged")
@@ -455,12 +450,8 @@ def generate_layout():
     # Total
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     zero_retiring_evt_text = "There haven't been any<br>retiring events"
-    fig_total_volume_c3t = total_volume(
-        df_c3t, "Credits tokenized (total)", zero_bridging_evt_text
-    )
-    fig_total_volume_retired_c3t = total_volume(
-        df_retired_c3t, "Credits retired (total)", zero_retiring_evt_text
-    )
+    fig_total_volume_c3t = sub_plots_volume("C3", None, "bridged")
+    fig_total_volume_retired_c3t = sub_plots_volume("C3", None, "retired")
     fig_total_vintage_c3t = total_vintage(df_c3t, zero_bridging_evt_text)
     fig_total_vintage_retired_c3t = total_vintage(
         df_retired_c3t, zero_retiring_evt_text
