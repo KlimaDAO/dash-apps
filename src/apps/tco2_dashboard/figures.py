@@ -41,7 +41,7 @@ def plots_info(bridge, pool, status, date_range_days):
 
     # Base filter
     base_offsets = Offsets().filter(bridge, pool, status)
-   
+
     if date_range_days:
         title_timing_text = f"({date_range_days}d)"
         zero_evt_text = (
@@ -300,124 +300,6 @@ def map(bridge, pool, status, date_range_days=None):
             font=GRAPH_FONT,
             margin=dict(t=50, b=0, l=0, r=0),
             coloraxis_colorbar=dict(thickness=10, len=0.6),
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
-
-
-def total_volume(df, title, zero_evt_text):
-    if not (df.empty) and (df["Quantity"].sum() != 0):
-
-        fig = make_subplots(
-            rows=2,
-            cols=1,
-            specs=[[{"type": "domain"}], [{"type": "xy"}]],
-            vertical_spacing=0.1,
-            subplot_titles=("", ""),
-        )
-        fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
-
-        fig.add_trace(
-            go.Indicator(
-                mode="number",
-                value=sum(df["Quantity"]),
-                title=dict(text=title, font=dict(size=12)),
-                number=dict(suffix="", font=dict(size=24)),
-                domain={"x": [0.25, 0.75], "y": [0.6, 1]},
-            )
-        )
-
-        add_px_figure(
-            px.bar(
-                df.groupby("Date")["Quantity"].sum().reset_index(),
-                x="Date",
-                y="Quantity",
-                title="",
-            ).update_traces(marker_line_width=0),
-            fig,
-            row=2,
-            col=1,
-        )
-
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(title_text="Date", showgrid=False),
-            yaxis=dict(title_text="Volume", showgrid=False),
-            hovermode="x unified",
-            hoverlabel=dict(font_color="white", font_size=8),
-            font=GRAPH_FONT,
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
-
-
-def total_vintage(df, zero_evt_text):
-    df = df[df["Vintage"] != "missing"].reset_index(drop=True)
-    if not (df.empty):
-        value = np.average(df["Vintage"], weights=df["Quantity"])
-        fig = make_subplots(
-            rows=2,
-            cols=1,
-            specs=[[{"type": "domain"}], [{"type": "xy"}]],
-            vertical_spacing=0.1,
-            subplot_titles=("", ""),
-        )
-        fig.update_layout(font_color="white", margin=dict(t=20, b=0, l=0, r=0))
-
-        fig.add_trace(
-            go.Indicator(
-                mode="number",
-                value=value,
-                number=dict(valueformat=".1f", font=dict(size=24)),
-                title=dict(text="Average Credit Vintage (total)", font=dict(size=12)),
-                domain={"x": [0.25, 0.75], "y": [0.6, 1]},
-            )
-        )
-        add_px_figure(
-            px.bar(
-                df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index(),
-                x="Vintage",
-                y="Quantity",
-                title="",
-            ).update_traces(marker_line_width=0),
-            fig,
-            row=2,
-            col=1,
-        )
-
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(title_text="Vintage", showgrid=False),
-            yaxis=dict(title_text="Volume", showgrid=False),
-            hovermode="x unified",
-            hoverlabel=dict(font_color="white", font_size=8),
-            font=GRAPH_FONT,
         )
     else:
         fig = go.Figure()

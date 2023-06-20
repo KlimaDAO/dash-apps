@@ -35,14 +35,13 @@ class Offsets(KeyCacheable):
         # Filter pool
         if pool:
             df = self.drop_duplicates(df)
-            self.filter_pool_quantity(df, f"{pool} Quantity")
+            df = self.filter_pool_quantity(df, f"{pool} Quantity")
 
         # TODO: Maybe this should be done in the data pipelines
-        if not (df.empty):
-            if "Vintage" in df.columns:
-                df["Vintage Year"] = (
-                    pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
-                )
+        if "Vintage" in df.columns:
+            df["Vintage Year"] = (
+                pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
+            )
         return df
 
     @chained_cached_command()
@@ -68,6 +67,7 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
+        print(df)
         df = df.groupby("Vintage Year")
         return df
 

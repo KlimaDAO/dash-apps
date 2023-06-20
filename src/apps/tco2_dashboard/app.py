@@ -16,7 +16,6 @@ from .figures import (
     sub_plots_vintage,
     sub_plots_volume,
     map,
-    total_vintage,
     methodology_volume,
     project_volume,
     eligible_pool_pie_chart,
@@ -321,8 +320,8 @@ def generate_layout():
     zero_retiring_evt_text = "There haven't been any<br>retiring events"
     fig_total_volume_tc = sub_plots_volume("Toucan", None, "bridged")
     fig_total_volume_retired_tc = sub_plots_volume("Toucan", None, "retired")
-    fig_total_vintage_tc = total_vintage(df_tc, zero_bridging_evt_text)
-    fig_total_vintage_retired_tc = total_vintage(df_retired_tc, zero_retiring_evt_text)
+    fig_total_vintage_tc = sub_plots_vintage("Toucan", None, "bridged")
+    fig_total_vintage_retired_tc = sub_plots_vintage("Toucan", None, "retired")
     fig_total_map_tc = map("Toucan", None, "bridged")
     fig_total_map_retired_tc = map("Toucan", None, "retired")
     fig_total_metho_tc = methodology_volume("Toucan", None, "bridged")
@@ -452,10 +451,8 @@ def generate_layout():
     zero_retiring_evt_text = "There haven't been any<br>retiring events"
     fig_total_volume_c3t = sub_plots_volume("C3", None, "bridged")
     fig_total_volume_retired_c3t = sub_plots_volume("C3", None, "retired")
-    fig_total_vintage_c3t = total_vintage(df_c3t, zero_bridging_evt_text)
-    fig_total_vintage_retired_c3t = total_vintage(
-        df_retired_c3t, zero_retiring_evt_text
-    )
+    fig_total_vintage_c3t = sub_plots_vintage("C3", None, "bridged")
+    fig_total_vintage_retired_c3t = sub_plots_vintage("C3", None, "retired")
     fig_total_map_c3t = map("C3", None, "bridged")
     fig_total_map_retired_c3t = map("C3", None, "retired")
     fig_total_metho_c3t = methodology_volume("C3", None, "bridged")
@@ -527,7 +524,7 @@ def generate_layout():
 
     zero_bridging_evt_text = "There haven't been any<br>bridging events"
     fig_mco2_total_volume = deposited_over_time(df_bridged_mco2)
-    fig_mco2_total_vintage = total_vintage(df_bridged_mco2, zero_bridging_evt_text)
+    fig_mco2_total_vintage = sub_plots_vintage("Moss", None, "bridged")
     fig_mco2_total_map = map("Moss", None, "bridged")
     fig_mco2_total_metho = methodology_volume("Moss", None, "bridged")
     fig_mco2_total_project = project_volume(df_bridged_mco2, zero_bridging_evt_text)
@@ -589,7 +586,7 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
     fig_retired_over_time = retired_over_time(BCT_ADDRESS, "BCT", df_pool_retired)
     zero_bridging_evt_text = "The BCT Pool is empty"
-    fig_bct_total_vintage = total_vintage(bct_carbon, zero_bridging_evt_text)
+    fig_bct_total_vintage = sub_plots_vintage("Toucan", "BCT", "bridged")
     fig_bct_total_map = map("Toucan", "BCT", "bridged")
     fig_bct_total_metho = methodology_volume("Toucan", "BCT", "bridged")
     fig_bct_total_project = project_volume(bct_carbon, zero_bridging_evt_text)
@@ -629,7 +626,7 @@ def generate_layout():
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
     fig_retired_over_time = retired_over_time(NCT_ADDRESS, "NCT", df_pool_retired)
     zero_bridging_evt_text = "The NCT Pool is empty"
-    fig_nct_total_vintage = total_vintage(nct_carbon, zero_bridging_evt_text)
+    fig_nct_total_vintage = sub_plots_vintage("Toucan", "NCT", "bridged")
     fig_nct_total_map = map("Toucan", "NCT", "bridged")
     fig_nct_total_metho = methodology_volume("Toucan", "NCT", "bridged")
     fig_nct_total_project = project_volume(nct_carbon, zero_bridging_evt_text)
@@ -669,7 +666,7 @@ def generate_layout():
     fig_deposited_over_time = deposited_over_time(ubo_deposited)
     fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
     zero_bridging_evt_text = "The UBO Pool is empty"
-    fig_ubo_total_vintage = total_vintage(ubo_carbon, zero_bridging_evt_text)
+    fig_ubo_total_vintage = sub_plots_vintage("Toucan", "UBO", "bridged")
     fig_ubo_total_map = map("C3", "UBO", "bridged")
     fig_ubo_total_metho = methodology_volume("C3", "UBO", "bridged")
     fig_ubo_total_project = project_volume(ubo_carbon, zero_bridging_evt_text)
@@ -710,7 +707,7 @@ def generate_layout():
     fig_deposited_over_time = deposited_over_time(nbo_deposited)
     fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
     zero_bridging_evt_text = "The NBO Pool is empty"
-    fig_nbo_total_vintage = total_vintage(nbo_carbon, zero_bridging_evt_text)
+    fig_nbo_total_vintage = sub_plots_vintage("C3", "NBO", "bridged")
     fig_nbo_total_map = map("C3", "NBO", "bridged")
     fig_nbo_total_metho = methodology_volume("C3", "NBO", "bridged")
     fig_nbo_total_project = project_volume(nbo_carbon, zero_bridging_evt_text)
