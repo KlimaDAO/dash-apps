@@ -1,6 +1,7 @@
 from .cache import ( # noqa
     layout_cache,
-    services_cache,
+    services_slow_cache,
+    services_fast_cache,
     chained_cached_command,
     final_cached_command,
     single_cached_command,

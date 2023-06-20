@@ -15,11 +15,16 @@ layout_cache = Cache(
         "CACHE_DEFAULT_TIMEOUT": LAYOUt_CACHE_TIMEOUT,
     },
 )
-services_cache = Cache(
+services_slow_cache = Cache(
     config={
         "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": "/tmp/cache-directory/services",
         "CACHE_DEFAULT_TIMEOUT": SERVICES_CACHE_TIMEOUT,
+    },
+)
+services_fast_cache = Cache(
+    config={
+        "CACHE_TYPE": "SimpleCache",
     },
 )
 
@@ -33,8 +38,9 @@ def key_hash(key: str):
 
 class KeyCacheable():
     """A base class that enabe extending classes to use the cache decorators"""
-    def __init__(self, commands=[]):
+    def __init__(self, commands=[], cache=services_slow_cache):
         self.cache_key: str = None
+        self.cache = cache
         self.commands = commands.copy()
         if commands:
             self.cache_key = commands[-1]["key"]
@@ -70,7 +76,7 @@ class KeyCacheable():
         idx = len(self.commands) - 1
         while idx >= 0:
             command = self.commands[idx]
-            res = services_cache.get(command["hash"])
+            res = self.cache.get(command["hash"])
             if res is not None:
                 return idx
             idx = idx - 1
@@ -85,7 +91,7 @@ class KeyCacheable():
         res = None
         if idx >= 0:
             command = self.commands[idx]
-            res = services_cache.get(command["hash"])
+            res = self.cache.get(command["hash"])
             debug(f"get wt cache | {command['key']}\n")
 
         # Resolve the rest without cache
@@ -99,7 +105,7 @@ class KeyCacheable():
                 res = command["func"](self, *command["args"])
 
             # Cache the results
-            services_cache.set(command["hash"], res)
+            self.cache.set(command["hash"], res)
 
         return res
 

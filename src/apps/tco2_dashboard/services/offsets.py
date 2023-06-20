@@ -10,8 +10,9 @@ class Offsets(KeyCacheable):
         super(Offsets, self).__init__(commands)
 
     @chained_cached_command()
-    def filter(self, df, bridge, status):
-        """Adds a bridge filter"""
+    def filter(self, df, bridge, pool, status):
+        """Filters offsets on bridge pool and status"""
+        # Select bridge
         s3 = S3()
         if bridge in ["Toucan", "C3"]:
             if status == "bridged":
@@ -29,6 +30,12 @@ class Offsets(KeyCacheable):
                 raise Exception("Unknown offset status")
         else:
             raise Exception("Unknown bridge")
+        df = df[df["Bridge"] == bridge].reset_index()
+
+        # Filter pool
+        if pool:
+            df = self.drop_duplicates(df)
+            self.filter_pool_quantity(df, f"{pool} Quantity")
 
         # TODO: Maybe this should be done in the data pipelines
         if not (df.empty):
@@ -36,7 +43,7 @@ class Offsets(KeyCacheable):
                 df["Vintage Year"] = (
                     pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
                 )
-        return df[df["Bridge"] == bridge].reset_index()
+        return df
 
     @chained_cached_command()
     def date_range(self, df, begin, end):
@@ -127,4 +134,55 @@ class Offsets(KeyCacheable):
                 else:
                     df[i] = df[i].fillna("missing")
                     df[i] = df[i].replace("", "missing")
+        return df
+
+    def filter_pool_quantity(self, df, quantity_column):
+        filtered = df[df[quantity_column] > 0]
+        filtered["Quantity"] = filtered[quantity_column]
+        filtered = filtered[
+            [
+                "Project ID",
+                "Vintage",
+                "Quantity",
+                "Country",
+                "Name",
+                "Project Type",
+                "Methodology",
+                "Token Address",
+            ]
+        ]
+        pat = r"VCS-(?P<id>\d+)"
+        repl = (
+            lambda m: "[VCS-"
+            + m.group("id")
+            + "](https://registry.verra.org/app/projectDetail/VCS/"
+            + m.group("id")
+            + ")"
+        )
+        filtered["Project ID"] = filtered["Project ID"].str.replace(pat, repl, regex=True)
+        filtered["View on PolygonScan"] = (
+            "["
+            + "Click Here"
+            + "](https://polygonscan.com/address/"
+            + filtered["Token Address"]
+            + ")"
+        )
+        filtered = filtered[
+            [
+                "Project ID",
+                "Token Address",
+                "View on PolygonScan",
+                "Quantity",
+                "Vintage",
+                "Country",
+                "Project Type",
+                "Methodology",
+                "Name",
+            ]
+        ].reset_index(drop=True)
+        return filtered
+
+    def drop_duplicates(self, df):
+        df = df.drop_duplicates(subset=["Token Address"], keep="first")
+        df = df.reset_index(drop=True)
         return df

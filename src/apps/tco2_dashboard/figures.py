@@ -25,7 +25,7 @@ from .services import Offsets
 matplotlib.use("agg")
 
 
-def plots_info(bridge, status, date_range_days):
+def plots_info(bridge, pool, status, date_range_days):
     if status == "bridged":
         zero_status_text = "bridging"
         title_status_text = "Bridged"
@@ -40,7 +40,7 @@ def plots_info(bridge, status, date_range_days):
     )
 
     # Base filter
-    base_offsets = Offsets().filter(bridge, status)
+    base_offsets = Offsets().filter(bridge, pool, status)
 
     if date_range_days:
         zero_evt_text = (
@@ -68,13 +68,13 @@ def plots_info(bridge, status, date_range_days):
     )
 
 
-def sub_plots_volume(bridge, status, date_range_days=None):
+def sub_plots_volume(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         title_status_text,
         offsets,
         last_offsets,
-    ) = plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, pool, status, date_range_days)
 
     df = offsets.get()
     last_df = last_offsets.get()
@@ -159,13 +159,13 @@ def sub_plots_volume(bridge, status, date_range_days=None):
     return fig
 
 
-def sub_plots_vintage(bridge, status, date_range_days=None):
+def sub_plots_vintage(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
         offsets,
         last_offsets,
-    ) = plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, pool, status, date_range_days)
     last_df = last_offsets.get()
 
     title_indicator = f"Average Credits Vintage ({date_range_days}d)"
@@ -256,72 +256,15 @@ def get_country(country):
     return country_cache[country]
 
 
-def map(bridge, status, date_range_days=None):
+def map(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
         offsets,
         _last_offsets,
-    ) = plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, pool, status, date_range_days)
     country_volumes = offsets.country_agg().sum("Quantity")
     if not country_volumes.empty:
-        fig = px.choropleth(
-            country_volumes,
-            locations="Country Code",
-            color="Quantity",
-            hover_name="Country",
-            # hover_data=['text'],
-            # custom_data=['text'],
-            color_continuous_scale=px.colors.sequential.Plasma,
-            height=360,
-        )
-
-        fig.update_layout(
-            height=360,
-            geo=dict(
-                bgcolor="rgba(0,0,0,0)",
-                lakecolor="#4E5D6C",
-                landcolor="darkgrey",
-                subunitcolor="grey",
-            ),
-            font_color="white",
-            dragmode=False,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            hovermode="x unified",
-            hoverlabel=dict(font_color="white", font_size=8),
-            font=GRAPH_FONT,
-            margin=dict(t=50, b=0, l=0, r=0),
-            coloraxis_colorbar=dict(thickness=10, len=0.6),
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
-
-
-def total_map(df, zero_evt_text):
-    if not (df.empty):
-        df = df[df["Country"] != "missing"].reset_index(drop=True)
-        country_volumes = (
-            df.groupby("Country")["Quantity"]
-            .sum()
-            .sort_values(ascending=False)
-            .to_frame()
-            .reset_index()
-        )
-        country_volumes["Country Code"] = [
-            get_country(country) for country in country_volumes["Country"]
-        ]
-        country_volumes["text"] = country_volumes["Country Code"].astype(str)
         fig = px.choropleth(
             country_volumes,
             locations="Country Code",
@@ -483,13 +426,13 @@ def total_vintage(df, zero_evt_text):
     return fig
 
 
-def methodology_volume(bridge, status, date_range_days=None):
+def methodology_volume(bridge, pool, status, date_range_days=None):
     (
         zero_evt_text,
         _title_status_text,
         offsets,
         _last_offsets,
-    ) = plots_info(bridge, status, date_range_days)
+    ) = plots_info(bridge, pool, status, date_range_days)
 
     methodology_quantity = offsets.methodology_agg().sum("Quantity")
 
