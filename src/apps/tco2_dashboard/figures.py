@@ -2,7 +2,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import pycountry
-from collections import defaultdict
 from .helpers import add_px_figure, human_format
 from plotly.subplots import make_subplots
 from .constants import (
@@ -174,17 +173,21 @@ def sub_plots_vintage(df, last_df, title_indicator, title_graph, zero_evt_text):
     return fig
 
 
+country_cache: dict = dict()
+
+
+def get_country(country):
+    if country not in country_cache:
+        res = None
+        if country != "nan":
+            res = pycountry.countries.search_fuzzy(country)[0].alpha_3
+        country_cache[country] = res if res else country
+    return country_cache[country]
+
+
 def map(df, zero_evt_text):
     if not (df.empty):
         df = df[df["Country"] != "missing"].reset_index(drop=True)
-        country_index = defaultdict(
-            str,
-            {
-                country: pycountry.countries.search_fuzzy(country)[0].alpha_3
-                for country in df.Country.astype(str).unique()
-                if country != "nan"
-            },
-        )
         country_volumes = (
             df.groupby("Country")["Quantity"]
             .sum()
@@ -193,7 +196,7 @@ def map(df, zero_evt_text):
             .reset_index()
         )
         country_volumes["Country Code"] = [
-            country_index[country] for country in country_volumes["Country"]
+            get_country(country) for country in country_volumes["Country"]
         ]
         country_volumes["text"] = country_volumes["Country Code"].astype(str)
         fig = px.choropleth(
@@ -664,16 +667,9 @@ def verra_map(df_verra, df_verra_toucan):
     df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
         drop=True
     )
-    country_index = defaultdict(
-        str,
-        {
-            country: pycountry.countries.search_fuzzy(country)[0].alpha_3
-            for country in df_verra_grouped.Country.astype(str).unique()
-            if country != "nan"
-        },
-    )
+
     df_verra_grouped["Country Code"] = [
-        country_index[country] for country in df_verra_grouped["Country"]
+        get_country(country) for country in df_verra_grouped["Country"]
     ]
     fig = px.choropleth(
         df_verra_grouped,
@@ -773,7 +769,8 @@ def historical_prices(tokens_dict, df_prices, excluded_tokens):
     for i in tokens_dict.keys():
         if i not in excluded_tokens:
             col_name = f"{i}_Price"
-            filtered_df = df_prices[~df_prices[col_name].isna()]
+            a = df_prices[col_name].isna()
+            filtered_df = df_prices[~a]
             fig.add_trace(
                 go.Scatter(
                     x=filtered_df["Date"], y=filtered_df[col_name], mode="lines", name=i
@@ -1133,16 +1130,8 @@ def on_vs_off_map(df_verra, bridges_info_dict):
     df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
         drop=True
     )
-    country_index = defaultdict(
-        str,
-        {
-            country: pycountry.countries.search_fuzzy(country)[0].alpha_3
-            for country in df_verra_grouped.Country.astype(str).unique()
-            if country != "nan"
-        },
-    )
     df_verra_grouped["Country Code"] = [
-        country_index[country] for country in df_verra_grouped["Country"]
+        get_country(country) for country in df_verra_grouped["Country"]
     ]
 
     cut_bins = [-np.inf, 0, 2, 5, 10, 100]
@@ -1243,16 +1232,9 @@ def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
     df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
         drop=True
     )
-    country_index = defaultdict(
-        str,
-        {
-            country: pycountry.countries.search_fuzzy(country)[0].alpha_3
-            for country in df_verra_grouped.Country.astype(str).unique()
-            if country != "nan"
-        },
-    )
+
     df_verra_grouped["Country Code"] = [
-        country_index[country] for country in df_verra_grouped["Country"]
+        get_country(country) for country in df_verra_grouped["Country"]
     ]
 
     cut_bins = [-np.inf, 0, 2, 5, 10, 100]

@@ -31,6 +31,9 @@ jobs:
     env:
       POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
       WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
+      PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
+      PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
+      PYTHONUNBUFFERED: 1
     steps:
       - name: Check out source repository
         uses: actions/checkout@v2
@@ -41,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements1.txt -r requirements2.txt
       # - name: Run tests with pytest
       #   run: pytest
       - name: Run smoketest
@@ -84,6 +87,8 @@ jobs:
       DIGITALOCEAN_APP_NAME: ${{ secrets.DIGITALOCEAN_APP_NAME }}
       DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
       DIGITALOCEAN_SIZE_SLUG: ${{ secrets.DIGITALOCEAN_SIZE_SLUG }}
+      PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
+      PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
       ENV: ${{ secrets.ENV }}
       GUNICORN_TIMEOUT: ${{ secrets.GUNICORN_TIMEOUT }}
     steps:

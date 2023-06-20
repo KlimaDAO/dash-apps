@@ -2,5 +2,5 @@
 
 !src
 !Makefile
-!requirements.txt
+!requirements*.txt
 !app-spec.yml

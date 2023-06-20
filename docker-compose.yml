@@ -1,10 +1,11 @@
-version: '3.5'
+version: "3.5"
 
 services:
   tco2-dashboard:
     build:
       context: ./
     working_dir: /src
+    env_file: .env
     entrypoint: python
     command: ["-m", "src.apps.tco2_dashboard.app"]
     ports:

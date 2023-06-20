@@ -1,19 +1,8 @@
+import os
 import pandas as pd
 import numpy as np
 import datetime as dt
-import os
 import json
-from ...util import load_abi
-from .constants import (
-    BCT_ADDRESS,
-    MCO2_ADDRESS,
-    NCT_ADDRESS,
-    UBO_ADDRESS,
-    NBO_ADDRESS,
-    KLIMA_USDC_ADDRESS,
-    USDC_DECIMALS,
-    KLIMA_DECIMALS,
-)
 
 
 def pct_change(first, second):
@@ -126,25 +115,6 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-def merge_verra(df, df_verra, merge_columns, drop_columns):
-    df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
-    df_verra["ID"] = df_verra["ID"].astype(str)
-    df_verra = df_verra[merge_columns]
-    df_verra = df_verra.drop_duplicates(subset=["ID"]).reset_index(drop=True)
-    for i in drop_columns:
-        if i in df.columns:
-            df = df.drop(columns=i)
-    df = df.merge(
-        df_verra,
-        how="left",
-        left_on="Project ID Key",
-        right_on="ID",
-        suffixes=("", "_Verra"),
-    )
-
-    return df
-
-
 # def merge_verra_mco2(df, df_verra, merge_columns, drop_columns):
 #     # df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
 #     df_verra = df_verra[merge_columns]
@@ -154,15 +124,6 @@ def merge_verra(df, df_verra, merge_columns, drop_columns):
 #     df = df.merge(df_verra, how='left', left_on="Serial Number",
 #                   right_on='Serial Number', suffixes=('', '_Verra'))
 #     return df
-
-
-def region_manipulations(df):
-    df["Region"] = df["Region"].replace("South Korea", "Korea, Republic of")
-    # Belize country credits are categorized under Latin America. Confirmed this with Verra Registry
-    df["Region"] = df["Region"].replace("Latin America", "Belize")
-    df["Region"] = df["Region"].replace("Oceania", "Indonesia")
-    df["Region"] = df["Region"].replace("Asia", "Cambodia")
-    return df
 
 
 def subsets(df):
@@ -200,42 +161,7 @@ def filter_df_by_pool(df, pool_address):
     return df
 
 
-def verra_manipulations(df_verra):
-    df_verra["Vintage"] = df_verra["Vintage Start"]
-    df_verra["Vintage"] = (
-        pd.to_datetime(df_verra["Vintage Start"]).dt.tz_localize(None).dt.year
-    )
-    df_verra["Quantity"] = df_verra["Quantity Issued"]
-    df_verra["Retirement/Cancellation Date"] = pd.to_datetime(
-        df_verra["Retirement/Cancellation Date"]
-    )
-    df_verra["Date"] = df_verra["Retirement/Cancellation Date"]
-    df_verra.loc[
-        df_verra["Retirement Details"].str.contains("TOUCAN").fillna(False), "Toucan"
-    ] = True
-    df_verra["Toucan"] = df_verra["Toucan"].fillna(False)
-    df_verra.loc[
-        df_verra["Retirement Details"].str.contains("C3T").fillna(False), "C3"
-    ] = True
-    df_verra["C3"] = df_verra["C3"].fillna(False)
-    df_verra_c3 = df_verra.query("C3")
-    df_verra_toucan = df_verra.query("Toucan")
-    return df_verra, df_verra_toucan, df_verra_c3
-
-
-def verra_retired(df_verra, df_bridged_mco2):
-    df_verra["Issuance Date"] = pd.to_datetime(df_verra["Issuance Date"])
-    df_verra["Retirement/Cancellation Date"] = pd.to_datetime(
-        df_verra["Retirement/Cancellation Date"]
-    )
-    df_verra["Days to Retirement"] = (
-        df_verra["Retirement/Cancellation Date"] - df_verra["Issuance Date"]
-    ).dt.days
-    df_verra.loc[df_verra["Days to Retirement"] > 0, "Status"] = "Retired"
-    df_verra["Status"] = df_verra["Status"].fillna("Available")
-    lst_sn = list(df_bridged_mco2["Serial Number"])
-    df_verra.loc[df_verra["Serial Number"].isin(lst_sn), "Moss"] = True
-    df_verra["Moss"] = df_verra["Moss"].fillna(False)
+def verra_retired(df_verra):
     df_verra_retired = df_verra.query("~Toucan & ~C3 & ~Moss")
     df_verra_retired = df_verra_retired[df_verra_retired["Status"] == "Retired"]
     df_verra_retired = df_verra_retired.reset_index(drop=True)
@@ -345,28 +271,6 @@ def read_from_json(filename):
         data = json.load(json_file)
         data = json.loads(data)
     return data
-
-
-def adjust_mco2_bridges(df, df_tx):
-    df_tx = df_tx[["Date", "Tx Address"]]
-    df = df.merge(
-        df_tx,
-        how="left",
-        left_on="Original Tx Address",
-        right_on="Tx Address",
-        suffixes=("", "_new"),
-    ).reset_index(drop=True)
-    df.loc[
-        df["Original Tx Address"]
-        != "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "Date",
-    ] = df.loc[
-        df["Original Tx Address"]
-        != "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "Date_new",
-    ]
-    df = df.drop(columns=["Tx Address", "Date_new"])
-    return df
 
 
 def group_data_monthly(i):
@@ -629,48 +533,6 @@ def create_holders_data(df_holdings):
     return df_holdings, data, style_dict
 
 
-def retirmentManualAdjustments(df_retired):
-    # Remove DAO MultiSig Address
-    df_retired = df_retired[
-        df_retired["Tx From Address"] != "0x693ad12dba5f6e07de86faa21098b691f60a1bea"
-    ]
-
-    return df_retired
-
-
-def get_fee_redeem_factors(token_address, web3):
-    if web3 is not None:
-        if token_address == BCT_ADDRESS or token_address == NCT_ADDRESS:
-            contract = web3.eth.contract(
-                address=web3.to_checksum_address(token_address),
-                abi=load_abi("toucanPoolToken.json"),
-            )
-            feeRedeemDivider = contract.functions.feeRedeemDivider().call()
-            feeRedeemFactor = (
-                contract.functions.feeRedeemPercentageInBase().call() / feeRedeemDivider
-            )
-        elif token_address == UBO_ADDRESS or token_address == NBO_ADDRESS:
-            contract = web3.eth.contract(
-                address=web3.to_checksum_address(token_address),
-                abi=load_abi("c3PoolToken.json"),
-            )
-            feeRedeemFactor = contract.functions.feeRedeem().call() / 10000
-        elif token_address == MCO2_ADDRESS:
-            feeRedeemFactor = 0
-
-        return feeRedeemFactor
-    else:
-        # If web3 is not connected, just return an invalid value
-        return -1
-
-
-def add_fee_redeem_factors_to_dict(token_dict, web3):
-    for i in token_dict.keys():
-        token_dict[i]["Fee Redeem Factor"] = get_fee_redeem_factors(
-            token_dict[i]["Token Address"], web3
-        )
-
-
 def human_format(num):
     num = float("{:.3g}".format(num))
     magnitude = 0
@@ -680,25 +542,6 @@ def human_format(num):
     return "{}{}".format(
         "{:f}".format(num).rstrip("0").rstrip("."), ["", "K", "M", "B", "T"][magnitude]
     )
-
-
-def uni_v2_pool_price(web3, pool_address, decimals, base_price=1):
-    """
-    Calculate the price of a SushiSwap liquidity pool, using the provided
-    pool address, decimals of the first token, and multiplied by
-    base_price if provided for computing multiple pool hops.
-    """
-    uni_v2_abi = load_abi("uni_v2_pool.json")
-    pool_contract = web3.eth.contract(address=pool_address, abi=uni_v2_abi)
-
-    reserves = pool_contract.functions.getReserves().call()
-    token_price = reserves[0] * base_price * 10**decimals / reserves[1]
-
-    return token_price
-
-
-def klima_usdc_price(web3):
-    return uni_v2_pool_price(web3, KLIMA_USDC_ADDRESS, USDC_DECIMALS - KLIMA_DECIMALS)
 
 
 def retirements_all_data_process(retirements_all):
