@@ -67,7 +67,6 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
-        print(df)
         df = df.groupby("Vintage Year")
         return df
 

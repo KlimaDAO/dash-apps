@@ -92,7 +92,7 @@ class KeyCacheable():
         if idx >= 0:
             command = self.commands[idx]
             res = self.cache.get(command["hash"])
-            debug(f"get wt cache | {command['key']}\n")
+            # debug(f"get wt cache | {command['key']}\n")
 
         # Resolve the rest without cache
         while idx + 1 < len(self.commands):

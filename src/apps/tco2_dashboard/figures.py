@@ -62,6 +62,9 @@ def plots_info(bridge, pool, status, date_range_days):
         offsets = base_offsets
         last_offsets = None
 
+    if pool:
+        zero_evt_text = f"The {pool} pool is empty"
+
     return (
         zero_evt_text,
         title_status_text,
@@ -362,45 +365,17 @@ def methodology_volume(bridge, pool, status, date_range_days=None):
     return fig
 
 
-def methodology_volume_total(df, zero_evt_text):
-    df = df[df["Methodology"] != "missing"].reset_index(drop=True)
-    if not (df.empty):
-        fig = px.bar(
-            df.groupby("Methodology")["Quantity"].sum().to_frame().reset_index(),
-            x="Methodology",
-            y="Quantity",
-            title="",
-        )
-        fig.update_traces(marker_line_width=0)
-        fig.update_layout(
-            height=360,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=False),
-            font_color="white",
-            hovermode="x unified",
-            hoverlabel=dict(font_color="white", font_size=8),
-            font=GRAPH_FONT,
-            margin=dict(t=50, b=0, l=0, r=0),
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
+def project_volume(bridge, pool, status, date_range_days=None):
+    (
+        zero_evt_text,
+        _title_status_text,
+        _title_timing_text,
+        offsets,
+        _last_offsets,
+    ) = plots_info(bridge, pool, status, date_range_days)
 
+    df = offsets.get()
 
-def project_volume(df, zero_evt_text):
-    df = df[df["Project Type"] != "missing"].reset_index(drop=True)
     if not (df.empty):
         fig = px.treemap(
             df,
