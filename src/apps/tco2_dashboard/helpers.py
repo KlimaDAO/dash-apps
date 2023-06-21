@@ -162,23 +162,6 @@ def verra_retired(df_verra):
     return df_verra_retired
 
 
-def mco2_verra_manipulations(df_mco2_bridged):
-    df_mco2_bridged = df_mco2_bridged[df_mco2_bridged["Project ID"] != "missing"]
-    df_mco2_bridged["Quantity"] = df_mco2_bridged["Quantity"].astype(int)
-    pat = r"VCS-(?P<id>\d+)"
-    repl = (
-        lambda m: "[VCS-"
-        + m.group("id")
-        + "](https://registry.verra.org/app/projectDetail/VCS/"
-        + m.group("id")
-        + ")"
-    )
-    df_mco2_bridged["Project ID"] = (
-        df_mco2_bridged["Project ID"].astype(str).str.replace(pat, repl, regex=True)
-    )
-    return df_mco2_bridged
-
-
 def filter_df_by_pool(df, pool_address):
     df["Pool"] = df["Pool"].str.lower()
     df = df[(df["Pool"] == pool_address)].reset_index()

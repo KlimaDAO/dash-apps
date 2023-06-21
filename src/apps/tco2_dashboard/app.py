@@ -3,7 +3,7 @@ import dash
 from datetime import datetime
 from dash import html, Input, Output, callback, State
 from dash import dcc
-from .services import layout_cache as cache, services_slow_cache, services_fast_cache
+from .services import layout_cache as cache, services_slow_cache, services_fast_cache, Offsets
 import pandas as pd
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
@@ -50,7 +50,6 @@ from .helpers import (
     drop_duplicates,
     filter_carbon_pool,
     bridge_manipulations,
-    mco2_verra_manipulations,
     verra_retired,
     date_manipulations_verra,
     off_vs_on_data,
@@ -195,6 +194,13 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
+    content_mco2 = create_content_moss(
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -465,30 +471,8 @@ def generate_layout():
     fig_mco2_total_map = map("Moss", None, "bridged")
     fig_mco2_total_metho = methodology_volume("Moss", None, "bridged")
     fig_mco2_total_project = project_volume("Moss", None, "bridged")
-    df_bridged_mco2_summary = mco2_verra_manipulations(df_bridged_mco2)
-    mco2_carbon = (
-        df_bridged_mco2_summary.groupby(
-            ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
-        )["Quantity"]
-        .sum()
-        .to_frame()
-        .reset_index()
-    )
-    mco2_carbon = mco2_carbon[
-        [
-            "Project ID",
-            "Quantity",
-            "Vintage",
-            "Country",
-            "Project Type",
-            "Methodology",
-            "Name",
-        ]
-    ]
+
     content_mco2 = create_content_moss(
-        df_bridged_mco2_summary,
-        df_retired_mco2,
-        mco2_carbon,
         fig_mco2_total_volume,
         fig_mco2_total_vintage,
         fig_mco2_total_map,
@@ -496,6 +480,7 @@ def generate_layout():
         fig_mco2_total_project,
     )
 
+    mco2_carbon = Offsets().filter("Moss", None, "bridged").summary()
     cache.set("content_mco2", content_mco2)
     cache.set("mco2_carbon", mco2_carbon)
 

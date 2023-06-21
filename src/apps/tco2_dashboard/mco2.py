@@ -2,12 +2,10 @@ from dash import html, dash_table
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import GRAY, DARK_GRAY, BETWEEN_SECTION_STYLE
+from .services import Offsets
 
 
 def create_content_moss(
-    df_mco2_bridged,
-    df_mco2_retired,
-    mco2_carbon,
     fig_mco2_total_volume,
     fig_mco2_total_vintage,
     fig_mco2_total_map,
@@ -19,6 +17,13 @@ def create_content_moss(
             return "numeric"
         else:
             return "text"
+
+    bridged = Offsets().filter("Moss", None, "bridged")
+    retired = Offsets().filter("Moss", None, "retired")
+
+    bridged_quantity = bridged.copy().sum("Quantity")
+    retired_quantity = retired.copy().sum("Quantity")
+    mco2_carbon = bridged.copy().summary()
 
     content_mco2 = [
         dbc.Row(
@@ -43,7 +48,7 @@ def create_content_moss(
                         [
                             html.H5("MCO2 Tonnes Bridged", className="card-title"),
                             dbc.CardBody(
-                                "{:,}".format(int(df_mco2_bridged["Quantity"].sum())),
+                                "{:,}".format(int(bridged_quantity)),
                                 className="card-text",
                             ),
                         ]
@@ -56,7 +61,7 @@ def create_content_moss(
                         [
                             html.H5("MCO2 Tonnes Retired", className="card-title"),
                             dbc.CardBody(
-                                "{:,}".format(int(df_mco2_retired["Quantity"].sum())),
+                                "{:,}".format(int(retired_quantity)),
                                 className="card-text",
                             ),
                         ]
@@ -70,10 +75,7 @@ def create_content_moss(
                             html.H5("MCO2 Tonnes Outstanding", className="card-title"),
                             dbc.CardBody(
                                 "{:,}".format(
-                                    int(
-                                        df_mco2_bridged["Quantity"].sum()
-                                        - df_mco2_retired["Quantity"].sum()
-                                    )
+                                    int(bridged_quantity - retired_quantity)
                                 ),
                                 className="card-text",
                             ),

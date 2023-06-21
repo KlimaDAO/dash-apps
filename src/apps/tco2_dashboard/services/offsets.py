@@ -125,6 +125,29 @@ class Offsets(KeyCacheable):
         return res
 
     @final_cached_command()
+    def summary(self, df):
+        df = (
+            df.groupby(
+                ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
+            )["Quantity"]
+            .sum()
+            .to_frame()
+            .reset_index()
+        )
+        df = df[
+            [
+                "Project ID",
+                "Quantity",
+                "Vintage",
+                "Country",
+                "Project Type",
+                "Methodology",
+                "Name",
+            ]
+        ]
+        return df
+
+    @final_cached_command()
     def sum_over_time(self, df, date_column, column):
         df = self.date_manipulations(df, date_column)
         df = df.sort_values(by=date_column, ascending=True)
