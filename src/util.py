@@ -18,7 +18,7 @@ def is_production() -> bool:
 
 class DfSerializer(Serializer):
     """
-    Serializes Dataframes using feather.
+    Serializes and deserializes Dataframes using feather.
     """
     type: Literal["pandas_feather"] = "pandas_feather"
 

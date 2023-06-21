@@ -86,7 +86,7 @@ def sub_plots_volume(bridge, pool, status, date_range_days=None):
     title_indicator = f"Credits {title_status_text} {title_timing_text}"
 
     quantity = offsets.copy().sum("Quantity")
-    daily_quantity = offsets.copy().daily_agg().sum("Quantity")
+    daily_quantity = offsets.copy().daily_agg("Date").sum("Quantity")
     if last_offsets:
         last_quantity = last_offsets.copy().sum("Quantity")
     else:
@@ -374,7 +374,7 @@ def project_volume(bridge, pool, status, date_range_days=None):
         _last_offsets,
     ) = plots_info(bridge, pool, status, date_range_days)
 
-    df = offsets.get()
+    df = offsets.resolve()
 
     if not (df.empty):
         fig = px.treemap(

@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-from . import S3
-from . import Countries
+from . import S3, Countries, Tokens
 from . import KeyCacheable, chained_cached_command, final_cached_command
 
 
@@ -15,18 +14,30 @@ class Offsets(KeyCacheable):
         """Filters offsets on bridge pool and status"""
         # Load dataset
         s3 = S3()
-        if bridge in ["Toucan", "C3"]:
+        is_pool_df = False
+        if bridge in ["offchain"]:
+            df = s3.load("verra_data")
+            if status == "issued":
+                pass
+            elif status == "retired":
+                df = self.verra_retired(df)
+            else:
+                raise Exception("Unknown offset status")
+        elif bridge in ["Toucan", "C3"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets")
             elif status == "retired":
                 if pool is None:
                     df = s3.load("polygon_retired_offsets")
                 else:
-                    df = s3.load("raw_polygon_pools_retired_offsets")
+                    df = s3.load("polygon_pools_retired_offsets")
+                    is_pool_df = True
             elif status == "deposited":
-                df = s3.load("raw_polygon_pools_deposited_offsets")
+                df = s3.load("polygon_pools_deposited_offsets")
+                is_pool_df = True
             elif status == "redeemed":
-                df = s3.load("raw_polygon_pools_redeemed_offsets")
+                df = s3.load("polygon_pools_redeemed_offsets")
+                is_pool_df = True
             else:
                 raise Exception("Unknown offset status")
         elif bridge in ["Moss"]:
@@ -38,15 +49,22 @@ class Offsets(KeyCacheable):
                 raise Exception("Unknown offset status")
         else:
             raise Exception("Unknown bridge")
-        df = df[df["Bridge"] == bridge].reset_index()
+
+        # Filter bridge
+        if not is_pool_df:
+            if bridge != "offchain":
+                df = df[df["Bridge"] == bridge].reset_index()
 
         # Filter pool
         if pool:
-            df = self.drop_duplicates(df)
-            if pool == "all":
-                df = self.filter_pool_quantity(df, "Total Quantity")
+            if not is_pool_df:
+                df = self.drop_duplicates(df)
+                if pool == "all":
+                    df = self.filter_pool_quantity(df, "Total Quantity")
+                else:
+                    df = self.filter_pool_quantity(df, f"{pool} Quantity")
             else:
-                df = self.filter_pool_quantity(df, f"{pool} Quantity")
+                df = self.filter_df_by_pool(df, pool)
 
         # TODO: Maybe this should be done in the data pipelines
         if "Vintage" in df.columns:
@@ -69,10 +87,10 @@ class Offsets(KeyCacheable):
         return df
 
     @chained_cached_command()
-    def daily_agg(self, df):
+    def daily_agg(self, df, date_column):
         """Adds an aggregation by day"""
-        df = self.date_manipulations(df)
-        df = df.groupby("Date")
+        df = self.date_manipulations(df, date_column)
+        df = df.groupby(date_column)
         return df
 
     @chained_cached_command()
@@ -107,9 +125,10 @@ class Offsets(KeyCacheable):
         return res
 
     @final_cached_command()
-    def sum_over_time(self, df, column):
+    def sum_over_time(self, df, date_column, column):
+        df = self.date_manipulations(df, date_column)
+        df = df.sort_values(by=date_column, ascending=True)
         df[column] = df[column].cumsum()
-        df = df.sort_values(by="Date", ascending=True)
         return df
 
     @final_cached_command()
@@ -123,17 +142,17 @@ class Offsets(KeyCacheable):
             return 0
         return np.average(df[column], weights=df[weights])
 
-    def date_manipulations(self, df):
-        # TODO: Dates shall be already manipulated at data pipelines level
+    def date_manipulations(self, df, date_column):
         if not (df.empty):
-            df["Date"] = (
-                pd.to_datetime(df["Date"], unit="s")
+            # TODO: dates should already in date format
+            df[date_column] = (
+                pd.to_datetime(df[date_column], unit="s")
                 .dt.tz_localize(None)
                 .dt.floor("D")
                 .dt.date
             )
             datelist = pd.date_range(
-                start=df["Date"].min() + pd.DateOffset(-1),
+                start=df[date_column].min() + pd.DateOffset(-1),
                 end=pd.to_datetime("today"),
                 freq="d",
             )
@@ -146,9 +165,9 @@ class Offsets(KeyCacheable):
                 .dt.date
             )
             df = df.merge(
-                df_date, how="right", left_on="Date", right_on="Date_continous"
+                df_date, how="right", left_on=date_column, right_on="Date_continous"
             ).reset_index(drop=True)
-            df["Date"] = df["Date_continous"]
+            df[date_column] = df["Date_continous"]
             for i in df.columns:
                 if "Quantity" in i:
                     df[i] = df[i].fillna(0)
@@ -203,12 +222,19 @@ class Offsets(KeyCacheable):
         ].reset_index(drop=True)
         return filtered
 
-    def filter_df_by_pool(df, pool_address):
+    def filter_df_by_pool(self, df, pool):
+        pool_address = Tokens().get(pool)["address"]
         df["Pool"] = df["Pool"].str.lower()
         df = df[(df["Pool"] == pool_address)].reset_index()
         return df
 
     def drop_duplicates(self, df):
         df = df.drop_duplicates(subset=["Token Address"], keep="first")
+        df = df.reset_index(drop=True)
+        return df
+
+    def verra_retired(self, df):
+        df = df.query("~Toucan & ~C3 & ~Moss")
+        df = df[df["Status"] == "Retired"]
         df = df.reset_index(drop=True)
         return df

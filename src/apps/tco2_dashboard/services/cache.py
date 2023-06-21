@@ -83,7 +83,7 @@ class KeyCacheable():
 
         return idx
 
-    def get(self):
+    def resolve(self):
         """Resolves the command list"""
 
         # Get the most precise cached command
@@ -99,6 +99,7 @@ class KeyCacheable():
             idx = idx + 1
             command = self.commands[idx]
             # debug(f"get no cache | {command['key']}\n")
+
             if command["takes_input"]:
                 res = command["func"](self, res, *command["args"])
             else:
@@ -118,7 +119,7 @@ def cached_command(is_final_command, takes_input):
             if not is_final_command:
                 return self
             else:
-                return self.get()
+                return self.resolve()
         return wrapper
     return inner
 

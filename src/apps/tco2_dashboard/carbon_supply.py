@@ -39,7 +39,7 @@ celo_carbon_tokens = [
 def create_carbon_supply_content(
     fig_total_carbon_supply_pie_chart
 ):
-    polygon_metrics = Metrics().polygon().get()
+    polygon_metrics = Metrics().polygon().resolve()
     polygon_now = Metrics().polygon().latest()
     polygon_ago = Metrics().polygon().days_ago(7)
     # Polygon Supply Info
@@ -62,7 +62,7 @@ def create_carbon_supply_content(
     )
 
     # Eth Supply Info
-    eth_metrics = Metrics().eth().get()
+    eth_metrics = Metrics().eth().resolve()
     eth_now = Metrics().eth().latest()
     eth_ago = Metrics().eth().days_ago(7)
     ethCarbonSupply = eth_now["carbonMetrics_totalCarbonSupply"]
@@ -80,7 +80,7 @@ def create_carbon_supply_content(
     eth_retirement_figure = get_eth_retirement_breakdown_figure(eth_metrics)
 
     # Celo Supply Info
-    celo_metrics = Metrics().celo().get()
+    celo_metrics = Metrics().celo().resolve()
     celo_now = Metrics().celo().latest()
     celo_ago = Metrics().celo().days_ago(7)
     celoCarbonSupply = celo_now["carbonMetrics_totalCarbonSupply"]

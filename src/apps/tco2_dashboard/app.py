@@ -36,7 +36,6 @@ from .figures import (
 )
 from .figures_carbon_pool import (
     deposited_over_time,
-    deposited_over_time_s,
     redeemed_over_time,
     retired_over_time,
 )
@@ -198,7 +197,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    fig_deposited_over_time = deposited_over_time("Toucan", "BCT", "deposited")
+    fig_deposited_over_time = deposited_over_time("Date", "C3", "UBO", "deposited")
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -464,7 +463,7 @@ def generate_layout():
     df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
     df_retired_mco2 = date_manipulations(df_retired_mco2)
 
-    fig_mco2_total_volume = deposited_over_time("Moss", None, "bridged")
+    fig_mco2_total_volume = deposited_over_time("Date", "Moss", None, "bridged")
     fig_mco2_total_vintage = sub_plots_vintage("Moss", None, "bridged")
     fig_mco2_total_map = map("Moss", None, "bridged")
     fig_mco2_total_metho = methodology_volume("Moss", None, "bridged")
@@ -523,7 +522,7 @@ def generate_layout():
     bct_carbon = filter_pool_quantity(df_carbon_tc, "BCT Quantity")
 
     # BCT Figures
-    fig_deposited_over_time = deposited_over_time("Toucan", "BCT", "deposited")
+    fig_deposited_over_time = deposited_over_time("Date", "Toucan", "BCT", "deposited")
     fig_redeemed_over_time = redeemed_over_time(bct_redeemed)
     fig_retired_over_time = retired_over_time(BCT_ADDRESS, "BCT", df_pool_retired)
     fig_bct_total_vintage = sub_plots_vintage("Toucan", "BCT", "bridged")
@@ -562,7 +561,7 @@ def generate_layout():
     nct_carbon = filter_pool_quantity(df_carbon_tc, "NCT Quantity")
 
     # NCT Figures
-    fig_deposited_over_time = deposited_over_time_s(nct_deposited)
+    fig_deposited_over_time = deposited_over_time("Date", "Toucan", "NCT", "deposited")
     fig_redeemed_over_time = redeemed_over_time(nct_redeemed)
     fig_retired_over_time = retired_over_time(NCT_ADDRESS, "NCT", df_pool_retired)
     fig_nct_total_vintage = sub_plots_vintage("Toucan", "NCT", "bridged")
@@ -602,9 +601,9 @@ def generate_layout():
     ubo_carbon = filter_pool_quantity(df_carbon_c3t, "UBO Quantity")
 
     # UBO Figures
-    fig_deposited_over_time = deposited_over_time_s(ubo_deposited)
+    fig_deposited_over_time = deposited_over_time("Date", "C3", "UBO", "deposited")
     fig_redeemed_over_time = redeemed_over_time(ubo_redeemed)
-    fig_ubo_total_vintage = sub_plots_vintage("Toucan", "UBO", "bridged")
+    fig_ubo_total_vintage = sub_plots_vintage("C3", "UBO", "bridged")
     fig_ubo_total_map = map("C3", "UBO", "bridged")
     fig_ubo_total_metho = methodology_volume("C3", "UBO", "bridged")
     fig_ubo_total_project = project_volume("C3", "UBO", "bridged")
@@ -642,7 +641,7 @@ def generate_layout():
     nbo_carbon = filter_pool_quantity(df_carbon_c3t, "NBO Quantity")
 
     # NBO Figures
-    fig_deposited_over_time = deposited_over_time_s(nbo_deposited)
+    fig_deposited_over_time = deposited_over_time("Date", "C3", "NBO", "deposited")
     fig_redeemed_over_time = redeemed_over_time(nbo_redeemed)
     fig_nbo_total_vintage = sub_plots_vintage("C3", "NBO", "bridged")
     fig_nbo_total_map = map("C3", "NBO", "bridged")
@@ -692,7 +691,7 @@ def generate_layout():
     df_verra_retired = date_manipulations_verra(df_verra_retired)
 
     # Issued Figures
-    fig_issued_over_time = deposited_over_time_s(df_verra)
+    fig_issued_over_time = deposited_over_time("Issuance Date", "offchain", None, "issued")
     fig_tokenized_over_time = tokenized_volume(bridges_info_dict)
     fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
     fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
@@ -717,7 +716,7 @@ def generate_layout():
     cache.set("titles_on_vs_off_issued", titles_on_vs_off_issued)
 
     # Retired Figures
-    fig_offchain_retired_over_time = deposited_over_time_s(df_verra_retired)
+    fig_offchain_retired_over_time = deposited_over_time("Issuance Date", "offchain", None, "retired")
     fig_onchain_retired_over_time = tokenized_volume(retires_info_dict)
     fig_on_vs_off_vintage_retired = on_vs_off_vintage_retired(
         df_verra_retired, retires_info_dict
