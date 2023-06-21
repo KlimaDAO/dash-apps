@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pandas as pd
 import numpy as np
 from . import S3, Countries, Tokens
@@ -124,28 +125,46 @@ class Offsets(KeyCacheable):
 
         return res
 
-    @final_cached_command()
-    def summary(self, df):
+    def _summary(self, df, result_cols):
+        """Creates a summary"""
+        group_by_cols = result_cols.copy()
+        group_by_cols.remove("Quantity")
         df = (
-            df.groupby(
-                ["Project ID", "Country", "Methodology", "Project Type", "Name", "Vintage"]
-            )["Quantity"]
+            df.groupby(group_by_cols)["Quantity"]
             .sum()
             .to_frame()
             .reset_index()
         )
-        df = df[
-            [
-                "Project ID",
-                "Quantity",
-                "Vintage",
-                "Country",
-                "Project Type",
-                "Methodology",
-                "Name",
-            ]
-        ]
+        df = df[result_cols]
         return df
+
+    @final_cached_command()
+    def pool_summary(self, df):
+        """Creates a summary for pool data"""
+        return self._summary(df, [
+            "Project ID",
+            "Token Address",
+            "View on PolygonScan",
+            "Quantity",
+            "Vintage",
+            "Country",
+            "Project Type",
+            "Methodology",
+            "Name"
+         ])
+
+    @final_cached_command()
+    def bridge_summary(self, df):
+        """Creates a summary for bridge data"""
+        return self._summary(df, [
+            "Project ID",
+            "Quantity",
+            "Vintage",
+            "Country",
+            "Project Type",
+            "Methodology",
+            "Name"
+        ])
 
     @final_cached_command()
     def sum_over_time(self, df, date_column, column):

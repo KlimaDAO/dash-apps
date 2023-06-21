@@ -2,15 +2,12 @@ from dash import html, dash_table
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import GRAY, DARK_GRAY, BETWEEN_SECTION_STYLE
+from .services import Offsets
 
 
 def create_pool_content(
     pool_ticker,
     pool_name,
-    deposited,
-    redeemed,
-    retired,
-    detail_df,
     fig_deposited_over_time,
     fig_redeemed_over_time,
     fig_retired_over_time,
@@ -23,19 +20,16 @@ def create_pool_content(
     bridge_ticker="TCO2",
 ):
 
-    detail_df = detail_df[
-        [
-            "Project ID",
-            "Token Address",
-            "View on PolygonScan",
-            "Quantity",
-            "Vintage",
-            "Country",
-            "Project Type",
-            "Methodology",
-            "Name",
-        ]
-    ]
+    bridged = Offsets().filter(bridge_name, pool_ticker, "bridged")
+    deposited = Offsets().filter(bridge_name, pool_ticker, "deposited")
+    retired = Offsets().filter(bridge_name, pool_ticker, "retired")
+    redeemed = Offsets().filter(bridge_name, pool_ticker, "redeemed")
+
+    deposited_quantity = deposited.copy().sum("Quantity")
+    retired_quantity = retired.copy().sum("Quantity")
+    redeemed_quantity = redeemed.copy().sum("Quantity")
+
+    detail_df = bridged.copy().pool_summary()
 
     if retired is None:
         retired_card = dbc.Card(
@@ -66,7 +60,7 @@ def create_pool_content(
                     className="card-title",
                 ),
                 dbc.CardBody(
-                    "{:,}".format(int(retired["Quantity"].sum())), className="card-text"
+                    "{:,}".format(int(retired_quantity)), className="card-text"
                 ),
                 dbc.CardFooter(
                     retire_note, className="card-footer", id="klima_retire_note"
@@ -89,7 +83,7 @@ def create_pool_content(
             className="card-graph",
         )
 
-    if redeemed["Quantity"].sum() == 0 or redeemed.empty:
+    if redeemed_quantity == 0:
         redeemed_graph = dbc.Card(
             [
                 html.H5(
@@ -145,7 +139,7 @@ def create_pool_content(
                                 className="card-title",
                             ),
                             dbc.CardBody(
-                                "{:,}".format(int(deposited["Quantity"].sum())),
+                                "{:,}".format(int(deposited_quantity)),
                                 className="card-text",
                             ),
                         ],
@@ -162,7 +156,7 @@ def create_pool_content(
                                 className="card-title",
                             ),
                             dbc.CardBody(
-                                "{:,}".format(int(redeemed["Quantity"].sum())),
+                                "{:,}".format(int(redeemed_quantity)),
                                 className="card-text",
                             ),
                         ],

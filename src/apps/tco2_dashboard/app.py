@@ -46,7 +46,6 @@ from .pool import create_pool_content
 from .mco2 import create_content_moss
 from .helpers import (
     date_manipulations,
-    filter_pool_quantity,
     drop_duplicates,
     filter_carbon_pool,
     bridge_manipulations,
@@ -194,13 +193,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    content_mco2 = create_content_moss(
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -480,7 +472,7 @@ def generate_layout():
         fig_mco2_total_project,
     )
 
-    mco2_carbon = Offsets().filter("Moss", None, "bridged").summary()
+    mco2_carbon = Offsets().filter("Moss", None, "bridged").bridge_summary()
     cache.set("content_mco2", content_mco2)
     cache.set("mco2_carbon", mco2_carbon)
 
@@ -501,7 +493,7 @@ def generate_layout():
     )
     bct_deposited = date_manipulations(bct_deposited)
     bct_redeemed = date_manipulations(bct_redeemed)
-    bct_carbon = filter_pool_quantity(df_carbon_tc, "BCT Quantity")
+    bct_carbon = Offsets().filter("Toucan", "BCT", "bridged").pool_summary()
 
     # BCT Figures
     fig_deposited_over_time = stats_over_time("Date", "Toucan", "BCT", "deposited")
@@ -515,10 +507,6 @@ def generate_layout():
     content_bct = create_pool_content(
         "BCT",
         "Base Carbon Tonne",
-        bct_deposited,
-        bct_redeemed,
-        bct_retired,
-        bct_carbon,
         fig_deposited_over_time,
         fig_redeemed_over_time,
         fig_retired_over_time,
@@ -540,7 +528,7 @@ def generate_layout():
     )
     nct_deposited = date_manipulations(nct_deposited)
     nct_redeemed = date_manipulations(nct_redeemed)
-    nct_carbon = filter_pool_quantity(df_carbon_tc, "NCT Quantity")
+    nct_carbon = Offsets().filter("Toucan", "NCT", "bridged").pool_summary()
 
     # NCT Figures
     fig_deposited_over_time = stats_over_time("Date", "Toucan", "NCT", "deposited")
@@ -554,10 +542,6 @@ def generate_layout():
     content_nct = create_pool_content(
         "NCT",
         "Nature Carbon Tonne",
-        nct_deposited,
-        nct_redeemed,
-        nct_retired,
-        nct_carbon,
         fig_deposited_over_time,
         fig_redeemed_over_time,
         fig_retired_over_time,
@@ -580,7 +564,7 @@ def generate_layout():
     )
     ubo_deposited = date_manipulations(ubo_deposited)
     ubo_redeemed = date_manipulations(ubo_redeemed)
-    ubo_carbon = filter_pool_quantity(df_carbon_c3t, "UBO Quantity")
+    ubo_carbon = Offsets().filter("C3", "UBO", "bridged").pool_summary()
 
     # UBO Figures
     fig_deposited_over_time = stats_over_time("Date", "C3", "UBO", "deposited")
@@ -593,10 +577,6 @@ def generate_layout():
     content_ubo = create_pool_content(
         "UBO",
         "Universal Base Offset",
-        ubo_deposited,
-        ubo_redeemed,
-        None,
-        ubo_carbon,
         fig_deposited_over_time,
         fig_redeemed_over_time,
         None,
@@ -620,7 +600,7 @@ def generate_layout():
     )
     nbo_deposited = date_manipulations(nbo_deposited)
     nbo_redeemed = date_manipulations(nbo_redeemed)
-    nbo_carbon = filter_pool_quantity(df_carbon_c3t, "NBO Quantity")
+    nbo_carbon = Offsets().filter("C3", "NBO", "bridged").pool_summary()
 
     # NBO Figures
     fig_deposited_over_time = stats_over_time("Date", "C3", "NBO", "deposited")
@@ -633,10 +613,6 @@ def generate_layout():
     content_nbo = create_pool_content(
         "NBO",
         "Nature Base Offset",
-        nbo_deposited,
-        nbo_redeemed,
-        None,
-        nbo_carbon,
         fig_deposited_over_time,
         fig_redeemed_over_time,
         None,

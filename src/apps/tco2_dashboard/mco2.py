@@ -23,7 +23,7 @@ def create_content_moss(
 
     bridged_quantity = bridged.copy().sum("Quantity")
     retired_quantity = retired.copy().sum("Quantity")
-    mco2_carbon = bridged.copy().summary()
+    mco2_carbon = bridged.copy().bridge_summary()
 
     content_mco2 = [
         dbc.Row(
