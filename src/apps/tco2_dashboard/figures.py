@@ -920,16 +920,16 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
     return fig
 
 
-def tokenized_volume(bridges_info_dict):
+def tokenized_volume(bridges, status):
     fig = go.Figure()
-    for i in bridges_info_dict.keys():
-        df = bridges_info_dict[i]["Dataframe"]
-        df = df.sort_values(by="Date", ascending=True)
-        df["Quantity"] = df["Quantity"].cumsum()
-        df["Type"] = f"{i} Bridged Credits"
+    for bridge in bridges:
+        offsets = (
+            Offsets().filter(bridge, None, status).sum_over_time("Date", "Quantity")
+        )
+        offsets["Type"] = f"{bridge} Bridged Credits"
         fig.add_trace(
             go.Scatter(
-                x=df["Date"], y=df["Quantity"], mode="lines", name=i, stackgroup="one"
+                x=offsets["Date"], y=offsets["Quantity"], mode="lines", name=bridge, stackgroup="one"
             )
         )
         fig.update_layout(
