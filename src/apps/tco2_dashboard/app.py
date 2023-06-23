@@ -27,7 +27,6 @@ from .figures import (
     on_vs_off_project,
     tokenized_volume,
     on_vs_off_vintage_retired,
-    on_vs_off_map_retired,
     on_vs_off_project_retired,
     # create_offchain_vs_onchain_figs,
     create_offchain_vs_onchain_fig,
@@ -652,7 +651,7 @@ def generate_layout():
     fig_issued_over_time = stats_over_time("Issuance Date", "offchain", None, "issued")
     fig_tokenized_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "bridged")
     fig_on_vs_off_vintage = on_vs_off_vintage(["Toucan", "Moss", "C3"])
-    fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
+    fig_on_vs_off_map = on_vs_off_map(["Toucan", "Moss", "C3"], "bridged")
     fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
 
     fig_on_vs_off_issued = [
@@ -674,12 +673,10 @@ def generate_layout():
     cache.set("titles_on_vs_off_issued", titles_on_vs_off_issued)
 
     # Retired Figures
-    fig_offchain_retired_over_time = stats_over_time("Issuance Date", "offchain", None, "retired")
+    fig_offchain_retired_over_time = stats_over_time("Date", "offchain", None, "retired")
     fig_onchain_retired_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "retired")
     fig_on_vs_off_vintage_retired = on_vs_off_vintage_retired(["Toucan", "C3"])
-    fig_on_vs_off_map_retired = on_vs_off_map_retired(
-        df_verra_retired, retires_info_dict
-    )
+    fig_on_vs_off_map_retired = on_vs_off_map(["Toucan", "Moss", "C3"], "retired")
     fig_on_vs_off_project_retired = on_vs_off_project_retired(
         df_verra_retired, retires_info_dict
     )

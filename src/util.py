@@ -9,6 +9,8 @@ from prefect.filesystems import LocalFileSystem
 from prefect.serializers import Serializer
 from typing_extensions import Literal
 
+pd.set_option('display.max_rows', 1000)
+pd.set_option('display.max_columns', 1000)
 
 def is_production() -> bool:
     """ Indicates if we are on a production environment """

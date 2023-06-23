@@ -9,6 +9,6 @@ class Countries(KeyCacheable):
     @single_cached_command()
     def get_country(self, country):
         """Returns a pycountry coutnry object"""
-        if country != "nan":
-            return pycountry.countries.search_fuzzy(country)[0].alpha_3
-        return country
+        if country == "nan" or country is None:
+            return "None"
+        return pycountry.countries.search_fuzzy(country)[0].alpha_3

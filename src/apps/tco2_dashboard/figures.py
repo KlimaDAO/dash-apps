@@ -1050,70 +1050,68 @@ def on_vs_off_vintage_retired(bridges):
     return fig
 
 
-def on_vs_off_map(df_verra, bridges_info_dict):
-    df_verra = df_verra[df_verra["Country"] != "missing"]
-    df_verra_grouped = (
-        df_verra.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_grouped["Text_Bridges"] = ""
-    df_verra_grouped["Quantity_Bridges"] = 0
-    for i in bridges_info_dict.keys():
-        df = bridges_info_dict[i]["Dataframe"]
-        df = df[df["Country"] != "missing"]
-        df = df.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-        df["Type"] = f"{i} Bridged VCUs"
-        df_verra_grouped = df_verra_grouped.merge(
-            df,
+def on_vs_off_map(bridges, status):
+    if status == "bridged":
+        offchain_status = "issued"
+        verb = "Bridged"
+    elif status == "retired":
+        offchain_status = "retired"
+        verb = "Bridged"
+    else:
+        raise Exception(f"You cannot use status {status} with the on_vs_off_map function")
+
+    offchain_summary = Offsets().filter("offchain", None, offchain_status).country_agg().sum("Quantity")
+    offchain_summary["Text_Bridges"] = ""
+    offchain_summary["Quantity_Bridges"] = 0
+    all_summaries = offchain_summary
+    for bridge in bridges:
+        bridge_summary = Offsets().filter(bridge, None, status).country_agg().sum("Quantity")
+        bridge_summary["Type"] = f"{bridge} {verb} VCUs"
+        all_summaries = all_summaries.merge(
+            bridge_summary,
             how="left",
             left_on="Country",
             right_on="Country",
-            suffixes=("", f"_{i}"),
+            suffixes=("", f"_{bridge}"),
         )
-        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(0)
-        df_verra_grouped["Quantity_Bridges"] = (
-            df_verra_grouped["Quantity_Bridges"] + df_verra_grouped[f"Quantity_{i}"]
+        all_summaries[f"Quantity_{bridge}"] = all_summaries[f"Quantity_{bridge}"].fillna(0)
+        all_summaries["Quantity_Bridges"] = (
+            all_summaries["Quantity_Bridges"] + all_summaries[f"Quantity_{bridge}"]
         )
-        df_verra_grouped["Text_Bridges"] = (
-            df_verra_grouped["Text_Bridges"]
-            + f"{i} Bridged VCUs = "
-            + df_verra_grouped[f"Quantity_{i}"].map("{:,.0f}".format).astype(str)
+        all_summaries["Text_Bridges"] = (
+            all_summaries["Text_Bridges"]
+            + f"{bridge} {verb} VCUs = "
+            + all_summaries[f"Quantity_{bridge}"].map("{:,.0f}".format).astype(str)
             + "<br>"
         )
-    df_verra_grouped["Percentage"] = (
-        (df_verra_grouped["Quantity_Bridges"] / df_verra_grouped["Quantity"]) * 100
+    all_summaries["Percentage"] = (
+        (all_summaries["Quantity_Bridges"] / all_summaries["Quantity"]) * 100
     ).round(decimals=4)
-    df_verra_grouped["text"] = (
-        df_verra_grouped["Country"]
+    all_summaries["text"] = (
+        all_summaries["Country"]
         + "<br>"
         + "<br>"
-        + df_verra_grouped["Text_Bridges"]
+        + all_summaries["Text_Bridges"]
         + "Total Tokenized VCUs = "
-        + df_verra_grouped["Quantity_Bridges"].map("{:,.0f}".format).astype(str)
+        + all_summaries["Quantity_Bridges"].map("{:,.0f}".format).astype(str)
         + "<br>"
         + "Verra Issued Credits = "
-        + df_verra_grouped["Quantity"].map("{:,.0f}".format).astype(str)
+        + all_summaries["Quantity"].map("{:,.0f}".format).astype(str)
         + "<br>"
         + "Percentage = "
-        + df_verra_grouped["Percentage"].astype(str)
+        + all_summaries["Percentage"].astype(str)
         + "%"
         + "<br>"
     )
-    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
-        drop=True
-    )
-    df_verra_grouped["Country Code"] = [
-        get_country(country) for country in df_verra_grouped["Country"]
-    ]
 
-    cut_bins = [-np.inf, 0, 2, 5, 10, 100]
+    cut_bins = [-np.inf, 0, 2, 5, 10, np.inf]
     bin_labels = ["0", "(0-2]", "(2-5]", "(5-10]", "(10-100]"]
-    df_verra_grouped["Percentage Bins"] = pd.cut(
-        df_verra_grouped["Percentage"], bins=cut_bins, labels=bin_labels
+    all_summaries["Percentage Bins"] = pd.cut(
+        all_summaries["Percentage"], bins=cut_bins, labels=bin_labels
     )
-    df_verra_grouped = df_verra_grouped.sort_values(by=["Percentage"])
-
+    all_summaries = all_summaries.sort_values(by=["Percentage"])
     fig = px.choropleth(
-        df_verra_grouped,
+        all_summaries,
         locations="Country Code",
         color="Percentage Bins",
         hover_name="Country",
@@ -1141,110 +1139,11 @@ def on_vs_off_map(df_verra, bridges_info_dict):
         legend=dict(
             font=dict(size=8),
             tracegroupgap=0,
-            title="     Percentage <br> Tokenized Credits",
-            y=0.5,
-        ),
-    )
-    return fig
-
-
-def on_vs_off_map_retired(df_verra_retired, retires_info_dict):
-    df_verra_retired = df_verra_retired[df_verra_retired["Country"] != "missing"]
-    df_verra_grouped = (
-        df_verra_retired.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_grouped["Text_Retires"] = ""
-    df_verra_grouped["Quantity_Retires"] = 0
-    for i in retires_info_dict.keys():
-        df = retires_info_dict[i]["Dataframe"]
-        df = df[df["Country"] != "missing"]
-        df = df.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-        df["Type"] = f"{i} Retired VCUs"
-        df_verra_grouped = df_verra_grouped.merge(
-            df,
-            how="left",
-            left_on="Country",
-            right_on="Country",
-            suffixes=("", f"_{i}"),
-        )
-        df_verra_grouped[f"Quantity_{i}"] = df_verra_grouped[f"Quantity_{i}"].fillna(0)
-        df_verra_grouped["Quantity_Retires"] = (
-            df_verra_grouped["Quantity_Retires"] + df_verra_grouped[f"Quantity_{i}"]
-        )
-        df_verra_grouped["Text_Retires"] = (
-            df_verra_grouped["Text_Retires"]
-            + f"{i} Retired VCUs = "
-            + df_verra_grouped[f"Quantity_{i}"].map("{:,.0f}".format).astype(str)
-            + "<br>"
-        )
-    df_verra_grouped["Percentage"] = (
-        (
-            df_verra_grouped["Quantity_Retires"]
-            / (df_verra_grouped["Quantity_Retires"] + df_verra_grouped["Quantity"])
-        )
-        * 100
-    ).round(decimals=4)
-    df_verra_grouped["text"] = (
-        df_verra_grouped["Country"]
-        + "<br>"
-        + "<br>"
-        + df_verra_grouped["Text_Retires"]
-        + "Total On-Chain Retired VCUs = "
-        + df_verra_grouped["Quantity_Retires"].map("{:,.0f}".format).astype(str)
-        + "<br>"
-        + "Total Verra Retired Credits = "
-        + df_verra_grouped["Quantity"].map("{:,.0f}".format).astype(str)
-        + "<br>"
-        + "Percentage = "
-        + df_verra_grouped["Percentage"].astype(str)
-        + "%"
-        + "<br>"
-    )
-    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
-        drop=True
-    )
-
-    df_verra_grouped["Country Code"] = [
-        get_country(country) for country in df_verra_grouped["Country"]
-    ]
-
-    cut_bins = [-np.inf, 0, 2, 5, 10, 100]
-    bin_labels = ["0", "(0-2]", "(2-5]", "(5-10]", "(10-100]"]
-    df_verra_grouped["Percentage Bins"] = pd.cut(
-        df_verra_grouped["Percentage"], bins=cut_bins, labels=bin_labels
-    )
-    df_verra_grouped = df_verra_grouped.sort_values(by=["Percentage"])
-
-    fig = px.choropleth(
-        df_verra_grouped,
-        locations="Country Code",
-        color="Percentage Bins",
-        hover_name="Country",
-        custom_data=["text"],
-        color_discrete_sequence=px.colors.sequential.Plasma_r,
-        height=300,
-    )
-
-    fig.update_traces(hovertemplate="%{customdata}")
-
-    fig.update_layout(
-        height=360,
-        geo=dict(
-            bgcolor="rgba(0,0,0,0)",
-            lakecolor="#4E5D6C",
-            landcolor="darkgrey",
-            subunitcolor="grey",
-        ),
-        dragmode=False,
-        paper_bgcolor=FIGURE_BG_COLOR,
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
-        font=GRAPH_FONT,
-        margin=dict(t=20, b=20, l=0, r=0),
-        legend=dict(
-            font=dict(size=8),
-            tracegroupgap=0,
-            title=" Percentage On-Chain <br>    Retired Credits",
+            title=(
+                "     Percentage <br> Tokenized Credits"
+                if status == "bridged"
+                else " Percentage On-Chain <br>    Retired Credits"
+            ),
             y=0.5,
         ),
     )
