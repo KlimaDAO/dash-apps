@@ -948,48 +948,43 @@ def tokenized_volume(bridges, status):
     return fig
 
 
-def on_vs_off_vintage(df_verra, bridges_info_dict):
-    df_verra = df_verra[df_verra["Vintage"] != "missing"]
-    df_verra_grouped = (
-        df_verra.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
-    )
+def on_vs_off_vintage(bridges, status):
+    vintage_summary = Offsets().filter("offchain", None, "issued").vintage_agg().sum("Quantity")
     df_verra_other_grouped = pd.DataFrame()
     dfs = []
-    for i in bridges_info_dict.keys():
-        df = bridges_info_dict[i]["Dataframe"]
-        df = df[df["Vintage"] != "missing"]
-        df = df.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
-        df["Type"] = f"{i} Bridged VCUs"
-        dfs.append(df)
+    for bridge in bridges:
+        bridge_summary = Offsets().filter(bridge, None, status).vintage_agg().sum("Quantity")
+        bridge_summary["Type"] = f"{bridge} Bridged VCUs"
+        dfs.append(bridge_summary)
         if df_verra_other_grouped.empty:
-            df_verra_other_grouped = df_verra_grouped.merge(
-                df,
+            df_verra_other_grouped = vintage_summary.merge(
+                bridge_summary,
                 how="left",
-                left_on="Vintage",
-                right_on="Vintage",
-                suffixes=("", f"_{i}"),
+                left_on="Vintage Year",
+                right_on="Vintage Year",
+                suffixes=("", f"_{bridge}"),
             )
         else:
             df_verra_other_grouped = df_verra_other_grouped.merge(
-                df,
+                bridge_summary,
                 how="left",
-                left_on="Vintage",
-                right_on="Vintage",
-                suffixes=("", f"_{i}"),
+                left_on="Vintage Year",
+                right_on="Vintage Year",
+                suffixes=("", f"_{bridge}"),
             )
-        df_verra_other_grouped[f"Quantity_{i}"] = df_verra_other_grouped[
-            f"Quantity_{i}"
+        df_verra_other_grouped[f"Quantity_{bridge}"] = df_verra_other_grouped[
+            f"Quantity_{bridge}"
         ].fillna(0)
         df_verra_other_grouped["Quantity"] = (
-            df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{i}"]
+            df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{bridge}"]
         )
-        df_verra_other_grouped = df_verra_other_grouped[["Vintage", "Quantity"]]
+        df_verra_other_grouped = df_verra_other_grouped[["Vintage Year", "Quantity"]]
         df_verra_other_grouped["Type"] = "Rest of Issued VCUs"
 
     df_other_and_bridges = pd.concat(dfs + [df_verra_other_grouped]).reset_index()
     fig = px.bar(
         df_other_and_bridges,
-        x="Vintage",
+        x="Vintage Year",
         y="Quantity",
         color="Type",
         title="",

@@ -193,7 +193,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    tokenized_volume(["Toucan", "Moss", "C3"], "bridged")
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -652,7 +651,7 @@ def generate_layout():
     # Issued Figures
     fig_issued_over_time = stats_over_time("Issuance Date", "offchain", None, "issued")
     fig_tokenized_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "bridged")
-    fig_on_vs_off_vintage = on_vs_off_vintage(df_verra, bridges_info_dict)
+    fig_on_vs_off_vintage = on_vs_off_vintage(["Toucan", "Moss", "C3"], "bridged")
     fig_on_vs_off_map = on_vs_off_map(df_verra, bridges_info_dict)
     fig_on_vs_off_project = on_vs_off_project(df_verra, bridges_info_dict)
 

@@ -69,9 +69,12 @@ class Offsets(KeyCacheable):
 
         # TODO: Maybe this should be done in the data pipelines
         if "Vintage" in df.columns:
-            df["Vintage Year"] = (
-                pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
-            )
+            if bridge not in ["offchain", "Moss"]:
+                df["Vintage Year"] = (
+                    pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
+                )
+            else:
+                df["Vintage Year"] = df["Vintage"]
         return df
 
     @chained_cached_command()
