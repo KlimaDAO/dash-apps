@@ -697,14 +697,7 @@ def generate_layout():
     cache.set("fig_on_vs_off_retired", fig_on_vs_off_retired)
     cache.set("titles_on_vs_off_retired", titles_on_vs_off_retired)
 
-    content_offchain_vs_onchain = create_offchain_vs_onchain_content(
-        bridges_info_dict,
-        retires_info_dict,
-        df_verra,
-        df_verra_retired,
-        fig_bridges_pie_chart,
-        verra_fallback_note,
-    )
+    content_offchain_vs_onchain = create_offchain_vs_onchain_content(fig_bridges_pie_chart)
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # Content Retirement trends

@@ -1,50 +1,37 @@
+from functools import reduce
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import BETWEEN_SECTION_STYLE
+from .services import Offsets
 
 
 def create_offchain_vs_onchain_content(
-    bridges_info_dict,
-    retires_info_dict,
-    df_verra,
-    df_verra_retired,
     fig_bridges_pie_chart,
-    verra_fallback_note,
 ):
 
-    if verra_fallback_note != "":
-        header = dbc.Row(
-            dbc.Col(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(html.H1("State of Digital Carbon")),
-                        dbc.CardFooter(verra_fallback_note, id="fallback_indicator"),
-                    ]
-                ),
-                width=12,
-                style={"textAlign": "center"},
-            ),
-        )
-    else:
-        header = dbc.Row(
-            dbc.Col(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(html.H1("State of Digital Carbon")),
-                    ]
-                ),
-                width=12,
-                style={"textAlign": "center"},
-            ),
-        )
+    def total_quantity(bridges, status):
+        return reduce(
+            lambda acc, bridge: acc + Offsets().filter(bridge, None, status).sum("Quantity"),
+            bridges,
+            0)
 
-    sum_total_tokenized = sum(
-        d["Dataframe"]["Quantity"].sum() for d in bridges_info_dict.values()
+    header = dbc.Row(
+        dbc.Col(
+            dbc.Card(
+                [
+                    dbc.CardHeader(html.H1("State of Digital Carbon")),
+                ]
+            ),
+            width=12,
+            style={"textAlign": "center"},
+        ),
     )
-    sum_total_onchain_retired = sum(
-        d["Dataframe"]["Quantity"].sum() for d in retires_info_dict.values()
-    )
+
+    sum_total_tokenized = total_quantity(["Toucan", "Moss", "C3"], "bridged")
+    sum_total_onchain_retired = total_quantity(["Toucan", "Moss", "C3"], "retired")
+    sum_offchain = Offsets().filter("offchain", None, "issued").sum("Quantity")
+    sum_offchain_retired = Offsets().filter("offchain", None, "retired").sum("Quantity")
 
     offchain_retired_card = dbc.Col(
         [
@@ -59,7 +46,7 @@ def create_offchain_vs_onchain_content(
                                 ),
                                 dbc.CardBody(
                                     "{:,}".format(
-                                        int(df_verra_retired["Quantity"].sum())
+                                        int(sum_offchain_retired)
                                     ),
                                     className="card-text-continuation",
                                 ),
@@ -77,9 +64,9 @@ def create_offchain_vs_onchain_content(
                                 ),
                                 dbc.CardBody(
                                     "{:.2%}".format(
-                                        df_verra_retired["Quantity"].sum()
+                                        sum_offchain_retired
                                         / (
-                                            df_verra["Quantity"].sum()
+                                            sum_offchain
                                             - sum_total_tokenized
                                         )
                                     ),
@@ -153,7 +140,7 @@ def create_offchain_vs_onchain_content(
                                 "Verra Registry Credits Issued", className="card-title"
                             ),
                             dbc.CardBody(
-                                "{:,}".format(int(df_verra["Quantity"].sum())),
+                                "{:,}".format(int(sum_offchain)),
                                 className="card-text",
                             ),
                         ]
@@ -186,7 +173,7 @@ def create_offchain_vs_onchain_content(
                             ),
                             dbc.CardBody(
                                 "{:.2%}".format(
-                                    (sum_total_tokenized / df_verra["Quantity"].sum())
+                                    (sum_total_tokenized / sum_offchain)
                                 ),
                                 className="card-text",
                             ),
