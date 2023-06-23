@@ -22,9 +22,7 @@ class RetirementTrendsFactory:
 
     def get_instance(self, type) -> RetirementTrendsInterface:
         if type == TYPE_POOL:
-            return RetirementTrendsByPool(
-                self.retirement_trend_inputs
-            )
+            return RetirementTrendsByPool()
 
         elif type == TYPE_TOKEN:
             return RetirementTrendsByToken(

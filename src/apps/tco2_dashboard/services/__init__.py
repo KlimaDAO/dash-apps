@@ -12,3 +12,4 @@ from .tokens import Tokens  # noqa
 from .offsets import Offsets  # noqa
 from .pools import Pools  # noqa
 from .metrics import Metrics  # noqa
+from .klima_retirements import KlimaRetirements # noqa

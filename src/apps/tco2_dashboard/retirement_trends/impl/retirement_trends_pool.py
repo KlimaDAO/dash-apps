@@ -12,76 +12,38 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import numpy as np
+from ...services import Metrics, KlimaRetirements
 
 
 class RetirementTrendsByPool(RetirementTrendsInterface):
-
-    def __init__(
-            self,
-            retirement_trend_inputs):
-
-        self.df_carbon_metrics_polygon = \
-            retirement_trend_inputs.df_carbon_metrics_polygon
-        self.df_carbon_metrics_eth = \
-            retirement_trend_inputs.df_carbon_metrics_eth
-        self.raw_klima_retirements = \
-            retirement_trend_inputs.raw_klima_retirements_df
-        self.agg_daily_klima_retirements = \
-            retirement_trend_inputs.daily_agg_klima_retirements_df
-
     def create_header(self) -> str:
         return "Retirement Trends By Pool"
 
     def create_top_content(self) -> TopContent:
-
         # BCT Redeemed Info
-        bctRedeemed = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_bctRedeemed"].iloc[0]
-        )
-
-        bctKlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_bctKlimaRetired"].iloc[0]
-        )
+        bctRedeemed = Metrics().polygon().latest()["carbonMetrics_bctRedeemed"]
+        bctKlimaRetired = Metrics().polygon().latest()["carbonMetrics_bctKlimaRetired"]
         bctKlimaRedeemedRatio = bctKlimaRetired / bctRedeemed
 
         # NCT Redeemed Info
-        nctRedeemed = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_nctRedeemed"].iloc[0]
-        )
-
-        nctKlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_nctKlimaRetired"].iloc[0]
-        )
+        nctRedeemed = Metrics().polygon().latest()["carbonMetrics_nctRedeemed"]
+        nctKlimaRetired = Metrics().polygon().latest()["carbonMetrics_nctKlimaRetired"]
         nctKlimaRedeemedRatio = nctKlimaRetired / nctRedeemed
 
         # UBO Redeemed Info
-        uboRedeemed = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_uboRedeemed"].iloc[0]
-        )
-
-        uboKlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_uboKlimaRetired"].iloc[0]
-        )
+        uboRedeemed = Metrics().polygon().latest()["carbonMetrics_uboRedeemed"]
+        uboKlimaRetired = Metrics().polygon().latest()["carbonMetrics_uboKlimaRetired"]
         uboKlimaRedeemedRatio = uboKlimaRetired / uboRedeemed
 
         # NBO Redeemed Info
-        nboRedeemed = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_nboRedeemed"].iloc[0]
-        )
-
-        nboKlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_nboKlimaRetired"].iloc[0]
-        )
+        nboRedeemed = Metrics().polygon().latest()["carbonMetrics_nboRedeemed"]
+        nboKlimaRetired = Metrics().polygon().latest()["carbonMetrics_nboKlimaRetired"]
         nboKlimaRedeemedRatio = nboKlimaRetired / nboRedeemed
 
         # MCO2 Retired Info
-        mco2Retired = float(
-            # Note: We are taking MCO2 retirements from ETH
-            self.df_carbon_metrics_eth["carbonMetrics_mco2Retired"].iloc[0]
-        )
-        mco2KlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_mco2KlimaRetired"].iloc[0]
-        )
+        print(Metrics().eth().latest())
+        mco2Retired = Metrics().eth().latest()["carbonMetrics_mco2Retired"]
+        mco2KlimaRetired = Metrics().polygon().latest()["carbonMetrics_mco2KlimaRetired"]
         mco2KlimaRetiredRatio = mco2KlimaRetired / mco2Retired
 
         redemption_tooltip_message = (
@@ -332,11 +294,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
     def create_chart_content(self) -> ChartContent:
 
-        retirements_all = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements[
-                'dailyKlimaRetirements_token'].isin(
-                    ["BCT", "MCO2", "NBO", "NCT", "UBO"])
-        ]
+        retirements_all = KlimaRetirements().daily_agg().filter_tokens(["BCT", "MCO2", "NBO", "NCT", "UBO"])
 
         retirements_all = retirements_all_data_process(retirements_all)
 
@@ -395,7 +353,7 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
 
     def create_list_data(self) -> ListData:
         klima_retirements_df = self.modify_klima_token_retirements_df(
-            self.raw_klima_retirements
+            KlimaRetirements().raw()
         )
 
         return ListData("Detailed list of KlimaDAO Retirements",

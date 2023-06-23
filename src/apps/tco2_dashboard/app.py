@@ -45,8 +45,6 @@ from .pool import create_pool_content
 from .mco2 import create_content_moss
 from .helpers import (
     date_manipulations,
-    drop_duplicates,
-    filter_carbon_pool,
     bridge_manipulations,
     verra_retired,
     date_manipulations_verra,
@@ -192,14 +190,15 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
+    content_pool_retirement_trends = create_content_retirement_trends(
+        TYPE_POOL,
+        None
+    )
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
     df = get_s3_data("polygon_bridged_offsets")
     df_retired = get_s3_data("polygon_retired_offsets")
-
-    df_deposited = get_s3_data("raw_polygon_pools_deposited_offsets")
-    df_redeemed = get_s3_data("raw_polygon_pools_redeemed_offsets")
 
     df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
 
@@ -218,10 +217,6 @@ def generate_layout():
         .transpose()
         .to_dict(orient='dict')
     )
-    BCT_ADDRESS = tokens_dict["BCT"]["address"]
-    NCT_ADDRESS = tokens_dict["NCT"]["address"]
-    UBO_ADDRESS = tokens_dict["UBO"]["address"]
-    NBO_ADDRESS = tokens_dict["NBO"]["address"]
 
     current_price_only_token_list = []
     price_source = "Subgraph"
@@ -241,8 +236,6 @@ def generate_layout():
 
     # 7 day and 30 day subsets
     # drop duplicates data for Carbon Pool calculations
-    df_carbon_tc = drop_duplicates(df_tc)
-    cache.set("df_carbon_tc", df_carbon_tc)
 
     # Figures
     # 7-day-performance
@@ -356,9 +349,6 @@ def generate_layout():
     # df = black_list_manipulations(df)
     # df_retired = black_list_manipulations(df_retired)
     # 7 day and 30 day subsets
-    # drop duplicates data for Carbon Pool calculations
-    df_carbon_c3t = drop_duplicates(df_c3t)
-    cache.set("df_carbon_c3t", df_carbon_c3t)
 
     # Figures
     # 7-day-performance
@@ -487,11 +477,6 @@ def generate_layout():
     # --BCT---
 
     # Carbon pool filter
-    bct_deposited, bct_redeemed, bct_retired = filter_carbon_pool(
-        BCT_ADDRESS, df_deposited, df_redeemed, df_pool_retired
-    )
-    bct_deposited = date_manipulations(bct_deposited)
-    bct_redeemed = date_manipulations(bct_redeemed)
     bct_carbon = Offsets().filter("Toucan", "BCT", "bridged").pool_summary()
 
     # BCT Figures
@@ -522,11 +507,6 @@ def generate_layout():
     # --NCT--
 
     # Carbon pool filter
-    nct_deposited, nct_redeemed, nct_retired = filter_carbon_pool(
-        NCT_ADDRESS, df_deposited, df_redeemed, df_pool_retired
-    )
-    nct_deposited = date_manipulations(nct_deposited)
-    nct_redeemed = date_manipulations(nct_redeemed)
     nct_carbon = Offsets().filter("Toucan", "NCT", "bridged").pool_summary()
 
     # NCT Figures
@@ -557,12 +537,6 @@ def generate_layout():
     # --UBO---
 
     # Carbon pool filter
-    df_carbon_c3t["Project ID"] = df_carbon_c3t["Project ID"]
-    ubo_deposited, ubo_redeemed = filter_carbon_pool(
-        UBO_ADDRESS, df_deposited, df_redeemed
-    )
-    ubo_deposited = date_manipulations(ubo_deposited)
-    ubo_redeemed = date_manipulations(ubo_redeemed)
     ubo_carbon = Offsets().filter("C3", "UBO", "bridged").pool_summary()
 
     # UBO Figures
@@ -594,11 +568,6 @@ def generate_layout():
     # --NBO---
 
     # Carbon pool filter
-    nbo_deposited, nbo_redeemed = filter_carbon_pool(
-        NBO_ADDRESS, df_deposited, df_redeemed
-    )
-    nbo_deposited = date_manipulations(nbo_deposited)
-    nbo_redeemed = date_manipulations(nbo_redeemed)
     nbo_carbon = Offsets().filter("C3", "NBO", "bridged").pool_summary()
 
     # NBO Figures
