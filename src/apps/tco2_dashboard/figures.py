@@ -1150,50 +1150,45 @@ def on_vs_off_map(bridges, status):
     return fig
 
 
-def on_vs_off_project(df_verra, bridges_info_dict):
-    df_verra = df_verra[df_verra["Project Type"] != "missing"]
-    df_verra_grouped = (
-        df_verra.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_other_grouped = pd.DataFrame()
-    dfs = []
+def on_vs_off_project(bridges):
+    offchain_summary = Offsets().filter("offchain", None, "issued").project_agg().sum("Quantity")
+    offchain_other_summaries = pd.DataFrame()
+    bridge_summaries = []
     colors = {}
-    for i in bridges_info_dict.keys():
-        df = bridges_info_dict[i]["Dataframe"]
-        df = df[df["Project Type"] != "missing"]
-        df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
-        df["Type"] = f"{i} Bridged VCUs"
-        colors[f"{i} Bridged VCUs"] = "#00CC33"
-        dfs.append(df)
-        if df_verra_other_grouped.empty:
-            df_verra_other_grouped = df_verra_grouped.merge(
-                df,
+    for bridge in bridges:
+        bridge_summary = Offsets().filter(bridge, None, "bridged").project_agg().sum("Quantity")
+        bridge_summary["Type"] = f"{bridge} Bridged VCUs"
+        colors[f"{bridge} Bridged VCUs"] = "#00CC33"
+        bridge_summaries.append(bridge_summary)
+        if offchain_other_summaries.empty:
+            offchain_other_summaries = offchain_summary.merge(
+                bridge_summary,
                 how="left",
                 left_on="Project Type",
                 right_on="Project Type",
-                suffixes=("", f"_{i}"),
+                suffixes=("", f"_{bridge}"),
             )
         else:
-            df_verra_other_grouped = df_verra_other_grouped.merge(
-                df,
+            offchain_other_summaries = offchain_other_summaries.merge(
+                bridge_summary,
                 how="left",
                 left_on="Project Type",
                 right_on="Project Type",
-                suffixes=("", f"_{i}"),
+                suffixes=("", f"_{bridge}"),
             )
-        df_verra_other_grouped[f"Quantity_{i}"] = df_verra_other_grouped[
-            f"Quantity_{i}"
+        offchain_other_summaries[f"Quantity_{bridge}"] = offchain_other_summaries[
+            f"Quantity_{bridge}"
         ].fillna(0)
-        df_verra_other_grouped["Quantity"] = (
-            df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{i}"]
+        offchain_other_summaries["Quantity"] = (
+            offchain_other_summaries["Quantity"] - offchain_other_summaries[f"Quantity_{bridge}"]
         )
-        df_verra_other_grouped = df_verra_other_grouped[["Project Type", "Quantity"]]
-        df_verra_other_grouped["Type"] = "Rest of Issued VCUs"
+        offchain_other_summaries = offchain_other_summaries[["Project Type", "Quantity"]]
+        offchain_other_summaries["Type"] = "Rest of Issued VCUs"
     colors["Rest of Issued VCUs"] = "#536C9C"
     colors["(?)"] = "#6E6E6E"
-    df_other_and_bridges = pd.concat(dfs + [df_verra_other_grouped]).reset_index()
+    all_summaries = pd.concat(bridge_summaries + [offchain_other_summaries]).reset_index()
     fig = px.treemap(
-        df_other_and_bridges,
+        all_summaries,
         path=[px.Constant("All Projects"), "Project Type", "Type"],
         values="Quantity",
         color_discrete_map=colors,
@@ -1227,29 +1222,21 @@ def on_vs_off_project(df_verra, bridges_info_dict):
     return fig
 
 
-def on_vs_off_project_retired(df_verra_retired, retires_info_dict):
-    df_verra_retired = df_verra_retired[df_verra_retired["Project Type"] != "missing"]
-    df_verra_grouped = (
-        df_verra_retired.groupby("Project Type")["Quantity"]
-        .sum()
-        .to_frame()
-        .reset_index()
-    )
+def on_vs_off_project_retired(bridges):
+    offchain_summary = Offsets().filter("offchain", None, "retired").project_agg().sum("Quantity")
+    bridge_summaries = []
     colors = {}
-    dfs = []
-    for i in retires_info_dict.keys():
-        df = retires_info_dict[i]["Dataframe"]
-        df = df[df["Project Type"] != "missing"]
-        df = df.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
-        df["Type"] = f"{i} Retired VCUs"
-        colors[f"{i} Retired VCUs"] = "#00CC33"
-        dfs.append(df)
-    df_verra_grouped["Type"] = "Off-Chain Retired VCUs"
+    for bridge in bridges:
+        bridge_summary = Offsets().filter(bridge, None, "retired").project_agg().sum("Quantity")
+        bridge_summary["Type"] = f"{bridge} Retired VCUs"
+        colors[f"{bridge} Retired VCUs"] = "#00CC33"
+        bridge_summaries.append(bridge_summary)
+    offchain_summary["Type"] = "Off-Chain Retired VCUs"
     colors["Off-Chain Retired VCUs"] = "#536C9C"
     colors["(?)"] = "#6E6E6E"
-    df_other_and_bridges = pd.concat(dfs + [df_verra_grouped]).reset_index()
+    all_summaries = pd.concat(bridge_summaries + [offchain_summary]).reset_index()
     fig = px.treemap(
-        df_other_and_bridges,
+        all_summaries,
         path=[px.Constant("All Projects"), "Project Type", "Type"],
         values="Quantity",
         color_discrete_map=colors,

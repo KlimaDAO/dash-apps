@@ -113,6 +113,11 @@ class Offsets(KeyCacheable):
         return df
 
     @chained_cached_command()
+    def project_agg(self, df):
+        df = df.groupby("Project Type")
+        return df
+
+    @chained_cached_command()
     def methodology_agg(self, df):
         df = df.groupby("Methodology")
         return df
