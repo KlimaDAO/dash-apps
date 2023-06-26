@@ -5,11 +5,12 @@ from . import KeyCacheable, single_cached_command
 class Tokens(KeyCacheable):
     """Service for offsets"""
     def __init__(self, commands=[]):
+        self.df = S3().load("tokens_data")
         super(Tokens, self).__init__(commands)
 
     def get_dict(self):
         return (
-            S3().load("tokens_data")
+            self.df
             .set_index("Name")
             .transpose()
             .to_dict(orient='dict')

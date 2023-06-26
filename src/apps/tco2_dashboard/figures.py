@@ -20,7 +20,7 @@ from base64 import b64encode
 import math
 from dash import dash_table
 import datetime as dt
-from .services import Offsets, Metrics, Pools
+from .services import Offsets, Metrics, Pools, Tokens, Prices
 
 matplotlib.use("agg")
 
@@ -741,16 +741,16 @@ def verra_project(df_verra, df_verra_toucan):
     return fig
 
 
-def historical_prices(tokens_dict, df_prices, excluded_tokens):
+def historical_prices(excluded_tokens=[]):
+    tokens_dict = Tokens().get_dict()
+
     fig = go.Figure()
-    for i in tokens_dict.keys():
-        if i not in excluded_tokens:
-            col_name = f"{i}_Price"
-            a = df_prices[col_name].isna()
-            filtered_df = df_prices[~a]
+    for token in tokens_dict.keys():
+        if token not in excluded_tokens:
+            prices = Prices().token(token)
             fig.add_trace(
                 go.Scatter(
-                    x=filtered_df["Date"], y=filtered_df[col_name], mode="lines", name=i
+                    x=prices["Date"], y=prices["Price"], mode="lines", name=token
                 )
             )
     fig.update_layout(

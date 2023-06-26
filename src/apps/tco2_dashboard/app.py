@@ -188,7 +188,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
     return load_s3_data(slug)
 
 
-@cache.memoize()
+# @cache.memoize()
 def generate_layout():
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
@@ -206,16 +206,6 @@ def generate_layout():
     df_verra_c3 = df_verra.query("C3")
     df_verra_retired = verra_retired(df_verra)
 
-    tokens_dict = (
-        get_s3_data("tokens_data")
-        .set_index("Name")
-        .transpose()
-        .to_dict(orient='dict')
-    )
-
-    current_price_only_token_list = []
-    price_source = "Subgraph"
-    df_prices = get_s3_data("raw_assets_prices")
     df_holdings = get_s3_data("raw_offsets_holders_data")
 
     # -----TCO2_Figures----
@@ -687,11 +677,9 @@ def generate_layout():
               content_beneficiary_retirement_trends)
 
     # --- onchain carbon pool comparison ---
-    fig_historical_prices = historical_prices(
-        tokens_dict, df_prices, current_price_only_token_list
-    )
+    fig_historical_prices = historical_prices()
     content_onchain_pool_comp = create_onchain_pool_comp_content(
-        tokens_dict, df_prices, fig_historical_prices, price_source
+        fig_historical_prices
     )
     cache.set("content_onchain_pool_comp", content_onchain_pool_comp)
 
