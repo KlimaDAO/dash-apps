@@ -2,17 +2,10 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
+from ...services import KlimaRetirements
 
 
 class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
-
-    def __init__(
-            self,
-            retirement_trend_inputs):
-
-        self.raw_klima_retirements = \
-            retirement_trend_inputs.raw_klima_retirements_df
-
     def create_header(self) -> str:
         return "Retirement Trends By Beneficiary"
 
@@ -24,7 +17,7 @@ class RetirementTrendsByBeneficiary(RetirementTrendsInterface):
 
     def create_list_data(self) -> ListData:
         agg_beneficiary_retirements = self.aggregate_beneficiary_retirements(
-            self.raw_klima_retirements
+            KlimaRetirements().raw()
         )
 
         return ListData("Detailed list of Retirements",

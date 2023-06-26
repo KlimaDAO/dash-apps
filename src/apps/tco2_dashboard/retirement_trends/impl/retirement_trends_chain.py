@@ -6,30 +6,10 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+from ...services import Offsets, KlimaRetirements, Metrics
 
 
 class RetirementTrendsByChain(RetirementTrendsInterface):
-
-    def __init__(
-            self,
-            retirement_trend_inputs):
-
-        self.df_carbon_metrics_polygon = \
-            retirement_trend_inputs.df_carbon_metrics_polygon
-        self.df_carbon_metrics_eth = \
-            retirement_trend_inputs.df_carbon_metrics_eth
-        self.raw_klima_retirements = \
-            retirement_trend_inputs.raw_klima_retirements_df
-        self.agg_daily_klima_retirements = \
-            retirement_trend_inputs.daily_agg_klima_retirements_df
-
-        self.bridges_info_dict = \
-            retirement_trend_inputs.bridges_info_dict
-
-        self.df_verra = retirement_trend_inputs.df_verra
-        self.df_verra_retired = retirement_trend_inputs.df_verra_retired
-        self.no_verra_data = retirement_trend_inputs.verra_fallback_note != ""
-
     def create_header(self) -> str:
         return "Retirement Trends By Chain"
 
@@ -52,18 +32,12 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         total_ret_string = "carbonMetrics_totalRetirements"
         total_klima_ret_string = "carbonMetrics_totalKlimaRetirements"
 
-        polygon_on_chain_retirements = \
-            self.df_carbon_metrics_polygon[total_ret_string].iloc[0]
-
-        eth_on_chain_retirements = \
-            self.df_carbon_metrics_eth[total_ret_string].iloc[0]
-
+        polygon_on_chain_retirements = Metrics().polygon().latest()[total_ret_string]
+        eth_on_chain_retirements = Metrics().eth().latest()[total_ret_string]
         total_on_chain_retirements = \
             polygon_on_chain_retirements + eth_on_chain_retirements
 
-        klima_on_chain_retirements = \
-            self.df_carbon_metrics_polygon[total_klima_ret_string].iloc[0]
-
+        klima_on_chain_retirements = Metrics().polygon().latest()[total_klima_ret_string]
         klima_retirments_ratio = \
             klima_on_chain_retirements / total_on_chain_retirements
 
@@ -98,16 +72,19 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         )
 
     def create_top_right_column(self):
-        verra_retired = "Unknown" \
-            if self.no_verra_data else "{:,}".format(int(
-                self.df_verra_retired["Quantity"].sum()))
+        offchain_quantity = Offsets().filter("offchain", None, "issued").sum("Quantity")
+        offchain_retired_quantity = Offsets().filter("offchain", None, "retired").sum("Quantity")
+        bridged_quantity = sum(
+            Offsets().filter(bridge, None, "bridged").sum("Quantity")
+            for bridge in
+            ["Toucan", "Moss", "C3"]
+        )
 
-        verra_perc_retired = "Unknown" \
-            if self.no_verra_data else "{:.2%}".format(self.df_verra_retired[
-                "Quantity"].sum() / (self.df_verra["Quantity"].sum()
-                                     - sum(d["Dataframe"]["Quantity"].sum()
-                                           for d in
-                                           self.bridges_info_dict.values())))
+        verra_retired = "{:,}".format(int(offchain_retired_quantity))
+
+        verra_perc_retired = "{:.2%}".format(offchain_retired_quantity /
+                                             (offchain_quantity - bridged_quantity)
+                                             )
         return dbc.Col(
             dbc.Card(
                 [
@@ -161,12 +138,9 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
 
     def create_chart_content(self) -> ChartContent:
         on_chain_df = self.merge_daily_klima_retirements_df(
-            self.agg_daily_klima_retirements)
+            KlimaRetirements().daily_agg().resolve())
 
-        off_chain_df = None \
-            if self.no_verra_data else self.merge_daily_verra_retirements_df(
-                self.df_verra_retired)
-
+        off_chain_df = Offsets().filter("offchain", None, "retired").daily_agg("Date").sum("Quantity")
         retirement_chart_figure = chain_klima_retirement_chart(
             on_chain_df,
             off_chain_df)
@@ -215,19 +189,17 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
 
     def create_list_data(self) -> ListData:
         klima_retirements_df = self.modify_klima_token_retirements_df(
-            self.raw_klima_retirements
+            KlimaRetirements().raw()
         )
 
-        if self.no_verra_data:
-            return ListData("Detailed list of Retirements",
-                            "Date",
-                            klima_retirements_df)
-
+        offchain_retirements = Offsets().filter("offchain", None, "retired").resolve()
+        print(offchain_retirements.columns)
+        offchain_retirements["Date"] = offchain_retirements["Retirement/Cancellation Date"]
         verra_retirements_df = self.modify_verra_retirements_fg(
-            self.df_verra_retired
+            offchain_retirements
         )
 
-        frames = [klima_retirements_df, verra_retirements_df]
+        frames = [verra_retirements_df, klima_retirements_df]
 
         merged = pd.concat(frames)
 
@@ -251,7 +223,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
             df['Beneficiary'] + ')'
         )
         df['Date'] = df[
-            'Date'].astype(str).str.split(n=1)
+            'Date'].astype(str).str.split(n=1).str[0]
 
         return df
 

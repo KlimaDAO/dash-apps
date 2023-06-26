@@ -12,37 +12,10 @@ TYPE_CHAIN = retirement_trends_types.TYPE_CHAIN
 TYPE_BENEFICIARY = retirement_trends_types.TYPE_BENEFICIARY
 
 
-def create_retirement_trend_inputs(
-    df_carbon_metrics_polygon,
-    df_carbon_metrics_eth,
-    raw_klima_retirements_df,
-    daily_agg_klima_retirements_df,
-    verra_retired_df,
-    df_verra,
-    bridges_info_dict,
-    verra_fallback_note
-):
-
-    return retirement_trends_types.RetirementTrendInputs(
-        df_carbon_metrics_polygon,
-        df_carbon_metrics_eth,
-        raw_klima_retirements_df,
-        daily_agg_klima_retirements_df,
-        verra_retired_df,
-        df_verra,
-        bridges_info_dict,
-        verra_fallback_note
-    )
-
-
 def create_content_retirement_trends(
     type,
-    retirement_trend_inputs
 ):
-
-    retirement_trends_factory = RetirementTrendsFactory(
-        retirement_trend_inputs
-    )
+    retirement_trends_factory = RetirementTrendsFactory()
 
     retirement_trends = retirement_trends_factory.get_instance(type)
 

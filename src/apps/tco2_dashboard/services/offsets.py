@@ -21,6 +21,7 @@ class Offsets(KeyCacheable):
             if status == "issued":
                 pass
             elif status == "retired":
+                print(df)
                 df = self.verra_retired(df)
             else:
                 raise Exception("Unknown offset status")
@@ -284,6 +285,7 @@ class Offsets(KeyCacheable):
         return df
 
     def verra_retired(self, df):
+        print(df)
         df = df.query("~Toucan & ~C3 & ~Moss")
         df = df[df["Status"] == "Retired"]
         df = df.reset_index(drop=True)

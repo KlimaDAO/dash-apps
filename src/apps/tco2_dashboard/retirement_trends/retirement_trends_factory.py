@@ -13,28 +13,15 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
 
 
 class RetirementTrendsFactory:
-
-    def __init__(
-            self,
-            retirement_trend_inputs):
-
-        self.retirement_trend_inputs = retirement_trend_inputs
-
     def get_instance(self, type) -> RetirementTrendsInterface:
         if type == TYPE_POOL:
             return RetirementTrendsByPool()
 
         elif type == TYPE_TOKEN:
-            return RetirementTrendsByToken(
-                self.retirement_trend_inputs
-            )
+            return RetirementTrendsByToken()
         elif type == TYPE_CHAIN:
-            return RetirementTrendsByChain(
-                self.retirement_trend_inputs
-            )
+            return RetirementTrendsByChain()
         elif type == TYPE_BENEFICIARY:
-            return RetirementTrendsByBeneficiary(
-                self.retirement_trend_inputs
-            )
+            return RetirementTrendsByBeneficiary()
         else:
             raise KeyError("Wrong type")

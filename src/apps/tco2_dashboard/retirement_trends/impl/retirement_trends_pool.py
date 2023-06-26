@@ -41,7 +41,6 @@ class RetirementTrendsByPool(RetirementTrendsInterface):
         nboKlimaRedeemedRatio = nboKlimaRetired / nboRedeemed
 
         # MCO2 Retired Info
-        print(Metrics().eth().latest())
         mco2Retired = Metrics().eth().latest()["carbonMetrics_mco2Retired"]
         mco2KlimaRetired = Metrics().polygon().latest()["carbonMetrics_mco2KlimaRetired"]
         mco2KlimaRetiredRatio = mco2KlimaRetired / mco2Retired

@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
-    TYPE_CHAIN, TYPE_BENEFICIARY, create_retirement_trend_inputs
+    TYPE_CHAIN, TYPE_BENEFICIARY
 
 from ...util import is_production, load_s3_data, debug
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
@@ -190,10 +190,6 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    content_pool_retirement_trends = create_content_retirement_trends(
-        TYPE_POOL,
-        None
-    )
     debug("Render: generate_layout")
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
@@ -209,7 +205,6 @@ def generate_layout():
     df_verra_toucan = df_verra.query("Toucan")
     df_verra_c3 = df_verra.query("C3")
     df_verra_retired = verra_retired(df_verra)
-    verra_fallback_note = ""
 
     tokens_dict = (
         get_s3_data("tokens_data")
@@ -263,8 +258,6 @@ def generate_layout():
     fig_thirty_day_project_retired_tc = project_volume("Toucan", None, "retired", 30)
 
     # Content carbon supply
-    polygon_carbon_metrics_df = get_s3_data("raw_polygon_carbon_metrics")
-    eth_carbon_metrics_df = get_s3_data("raw_eth_carbon_metrics")
     fig_total_carbon_supply_pie_chart = total_carbon_supply_pie_chart()
     content_carbon_supply = create_carbon_supply_content(
         fig_total_carbon_supply_pie_chart
@@ -670,43 +663,25 @@ def generate_layout():
     cache.set("content_offchain_vs_onchain", content_offchain_vs_onchain)
 
     # Content Retirement trends
-    klima_retirements_df = get_s3_data("raw_polygon_klima_retirements")
-    daily_agg_klima_retirements_df = get_s3_data("raw_polygon_klima_retirements_daily")
-
-    retirement_trend_inputs = create_retirement_trend_inputs(
-        polygon_carbon_metrics_df,
-        eth_carbon_metrics_df,
-        klima_retirements_df,
-        daily_agg_klima_retirements_df,
-        df_verra_retired,
-        df_verra,
-        bridges_info_dict,
-        verra_fallback_note
-    )
-
     content_token_retirement_trends = create_content_retirement_trends(
         TYPE_TOKEN,
-        retirement_trend_inputs
     )
     cache.set("content_token_retirement_trends",
               content_token_retirement_trends)
 
     content_pool_retirement_trends = create_content_retirement_trends(
         TYPE_POOL,
-        retirement_trend_inputs
     )
     cache.set("content_pool_retirement_trends", content_pool_retirement_trends)
 
     content_chain_retirement_trends = create_content_retirement_trends(
         TYPE_CHAIN,
-        retirement_trend_inputs
     )
     cache.set("content_chain_retirement_trends",
               content_chain_retirement_trends)
 
     content_beneficiary_retirement_trends = create_content_retirement_trends(
         TYPE_BENEFICIARY,
-        retirement_trend_inputs
     )
     cache.set("content_beneficiary_retirement_trends",
               content_beneficiary_retirement_trends)

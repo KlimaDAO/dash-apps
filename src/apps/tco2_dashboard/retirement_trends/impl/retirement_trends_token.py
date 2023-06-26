@@ -6,55 +6,28 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import numpy as np
+from ...services import Metrics, KlimaRetirements
 
 
 class RetirementTrendsByToken(RetirementTrendsInterface):
-
-    def __init__(
-            self,
-            retirement_trend_inputs):
-
-        self.df_carbon_metrics_polygon = \
-            retirement_trend_inputs.df_carbon_metrics_polygon
-        self.df_carbon_metrics_eth = \
-            retirement_trend_inputs.df_carbon_metrics_eth
-        self.raw_klima_retirements = \
-            retirement_trend_inputs.raw_klima_retirements_df
-        self.agg_daily_klima_retirements = \
-            retirement_trend_inputs.daily_agg_klima_retirements_df
-
     def create_header(self) -> str:
         return "Retirement Trends By Token"
 
     def create_top_content(self) -> TopContent:
-
         # C3T Retired Info
-        c3tRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_c3tRetired"].iloc[0]
-        )
-
-        c3tKlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_c3tKlimaRetired"].iloc[0]
-        )
+        c3tRetired = Metrics().polygon().latest()["carbonMetrics_c3tRetired"]
+        c3tKlimaRetired = Metrics().polygon().latest()["carbonMetrics_c3tKlimaRetired"]
         c3tklimaRetiredRatio = c3tKlimaRetired / c3tRetired
 
         # TCO2 Retired Info
-        tco2Retired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_tco2Retired"].iloc[0]
-        )
-        tco2KlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_tco2KlimaRetired"].iloc[0]
-        )
+        tco2Retired = Metrics().polygon().latest()["carbonMetrics_tco2Retired"]
+        tco2KlimaRetired = Metrics().polygon().latest()["carbonMetrics_tco2KlimaRetired"]
         tco2klimaRetiredRatio = tco2KlimaRetired / tco2Retired
 
         # MCO2 Retired Info
-        mco2Retired = float(
-            # Note: We are taking MCO2 retirements from ETH
-            self.df_carbon_metrics_eth["carbonMetrics_mco2Retired"].iloc[0]
-        )
-        mco2KlimaRetired = float(
-            self.df_carbon_metrics_polygon["carbonMetrics_mco2KlimaRetired"].iloc[0]
-        )
+        # Note: We are taking MCO2 retirements from ETH
+        mco2Retired = Metrics().eth().latest()["carbonMetrics_mco2Retired"]
+        mco2KlimaRetired = Metrics().polygon().latest()["carbonMetrics_mco2KlimaRetired"]
         mco2klimaRetiredRatio = mco2KlimaRetired / mco2Retired
 
         top_content_data = dbc.Row(
@@ -150,11 +123,9 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
     def create_chart_content(self) -> ChartContent:
         tco2_df, c3t_df = self.merge_daily_retirements_df(
-            self.agg_daily_klima_retirements)
+            KlimaRetirements().daily_agg().resolve())
 
-        mco2_df = self.agg_daily_klima_retirements[
-            self.agg_daily_klima_retirements['dailyKlimaRetirements_token']
-            == "MCO2"]
+        mco2_df = KlimaRetirements().daily_agg().filter_tokens(["MCO2"])
 
         retirement_chart_figure = token_klima_retirement_chart(
             tco2_df,
@@ -204,7 +175,7 @@ class RetirementTrendsByToken(RetirementTrendsInterface):
 
     def create_list_data(self) -> ListData:
         klima_retirements_df = self.modify_klima_token_retirements_df(
-            self.raw_klima_retirements
+            KlimaRetirements().raw()
         )
 
         return ListData("Detailed list of KlimaDAO Retirements",
