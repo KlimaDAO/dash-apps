@@ -924,7 +924,7 @@ def tokenized_volume(bridges, status):
     fig = go.Figure()
     for bridge in bridges:
         offsets = (
-            Offsets().filter(bridge, None, status).sum_over_time("Date", "Quantity")
+            Offsets().filter(bridge, None, status).sum_over_time("Date", "Quantity", "daily")
         )
         offsets["Type"] = f"{bridge} Bridged Credits"
         fig.add_trace(
@@ -1273,7 +1273,6 @@ def on_vs_off_project_retired(bridges):
 def create_offchain_vs_onchain_fig(
     df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
 ):
-
     issued = df_offchain["Quantity"].iat[-1] + df_onchain["Quantity"].iat[-1]
     tokenized = df_onchain["Quantity"].iat[-1]
     offchain_retired = df_offchain_retired["Quantity"].iat[-1]

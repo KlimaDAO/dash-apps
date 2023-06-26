@@ -72,7 +72,6 @@ def getSocialShareFeature(clipboardId):
 
 def create_homepage_content(
     curr_time_str,
-    df_retired,
     df_offchain,
     df_offchain_retired,
     df_onchain,
@@ -130,6 +129,7 @@ def create_homepage_content(
         ],
         className="heading-card",
     )
+
     offchain = human_format(
         df_offchain["Quantity"].iloc[-1] + df_onchain["Quantity"].iloc[-1]
     )

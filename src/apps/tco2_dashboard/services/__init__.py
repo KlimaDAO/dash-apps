@@ -14,3 +14,4 @@ from .pools import Pools  # noqa
 from .metrics import Metrics  # noqa
 from .klima_retirements import KlimaRetirements # noqa
 from .prices import Prices # noqa
+from .holdings import Holdings # noqa

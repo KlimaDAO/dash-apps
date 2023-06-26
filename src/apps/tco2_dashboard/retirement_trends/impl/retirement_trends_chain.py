@@ -193,7 +193,6 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         )
 
         offchain_retirements = Offsets().filter("offchain", None, "retired").resolve()
-        print(offchain_retirements.columns)
         offchain_retirements["Date"] = offchain_retirements["Retirement/Cancellation Date"]
         verra_retirements_df = self.modify_verra_retirements_fg(
             offchain_retirements

@@ -188,11 +188,11 @@ def get_s3_data(slug: str) -> pd.DataFrame:
     return load_s3_data(slug)
 
 
-# @cache.memoize()
+@cache.memoize()
 def generate_layout():
     debug("Render: generate_layout")
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
 
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
     df = get_s3_data("polygon_bridged_offsets")
     df_retired = get_s3_data("polygon_retired_offsets")
 
@@ -200,13 +200,10 @@ def generate_layout():
 
     df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
     df_retired_mco2 = get_s3_data("eth_retired_offsets")
-    df_retired_mco2_info = get_s3_data("raw_eth_moss_retired_offsets")
     df_verra = get_s3_data("verra_data")
     df_verra_toucan = df_verra.query("Toucan")
     df_verra_c3 = df_verra.query("C3")
     df_verra_retired = verra_retired(df_verra)
-
-    df_holdings = get_s3_data("raw_offsets_holders_data")
 
     # -----TCO2_Figures----
     # Bridge manipulations
@@ -587,11 +584,6 @@ def generate_layout():
         "C3": {"Dataframe": date_manipulations_verra(df_verra_c3)},
     }
 
-    retires_info_dict = {
-        "Toucan": {"Dataframe": df_retired_tc},
-        "Moss": {"Dataframe": df_retired_mco2},
-        "C3": {"Dataframe": df_retired_c3t},
-    }
     fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
 
     # ---offchain vs onchain---
@@ -684,22 +676,18 @@ def generate_layout():
     cache.set("content_onchain_pool_comp", content_onchain_pool_comp)
 
     # --- homepage ---
-    df_offchain, df_offchain_retired, df_onchain, df_onchain_retired = off_vs_on_data(
-        df_verra, df_verra_retired, bridges_info_dict, retires_info_dict
-    )
+    df_offchain, df_offchain_retired, df_onchain, df_onchain_retired = off_vs_on_data()
 
     fig_on_vs_off_time, fig_on_vs_off_time_download = create_offchain_vs_onchain_fig(
         df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
     )
 
-    df_retired_merged = merge_retirements_data_for_retirement_chart(
-        df_retired, df_pool_retired, df_retired_mco2, df_retired_mco2_info
-    )
+    df_retired_merged = merge_retirements_data_for_retirement_chart()
 
     df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
         df_retired_merged
     )
-    df_holders, holders_data, holders_style_dict = create_holders_data(df_holdings)
+    df_holders, holders_data, holders_style_dict = create_holders_data()
     fig_retirements, fig_retirements_download = create_retirements_fig(
         retirements_data, retirements_style_dict
     )
@@ -708,7 +696,6 @@ def generate_layout():
     )
     content_homepage = create_homepage_content(
         curr_time_str,
-        df_retired,
         df_offchain,
         df_offchain_retired,
         df_onchain,

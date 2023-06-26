@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import json
+from .services import Offsets, Holdings
 
 
 def pct_change(first, second):
@@ -265,17 +266,16 @@ def group_data_monthly(i):
     return i
 
 
-def off_vs_on_data(df_verra, df_verra_retired, bridges_info_dict, retires_info_dict):
-    bridge_df = pd.concat(
-        [i["Dataframe"][["Date", "Quantity"]] for i in bridges_info_dict.values()]
-    )
-    retire_df = pd.concat(
-        [i["Dataframe"][["Date", "Quantity"]] for i in retires_info_dict.values()]
-    )
-    df_verra = group_data_monthly(df_verra)
-    bridge_df = group_data_monthly(bridge_df)
-    df_verra_retired = group_data_monthly(df_verra_retired)
-    retire_df = group_data_monthly(retire_df)
+def off_vs_on_data():
+    bridge_df = Offsets().filter("all", None, "bridged").sum_over_time("Date", "Quantity", "monthly")
+    retire_df = Offsets().filter("all", None, "retired").sum_over_time("Date", "Quantity", "monthly")
+    df_verra = Offsets().filter("offchain", None, "issued").sum_over_time("Date", "Quantity", "monthly")
+    df_verra_retired = Offsets().filter("offchain", None, "retired").sum_over_time("Date", "Quantity", "monthly")
+
+    bridge_df = bridge_df[["Date", "Quantity"]]
+    retire_df = retire_df[["Date", "Quantity"]]
+    df_verra = df_verra[["Date", "Quantity"]]
+    df_verra_retired = df_verra_retired[["Date", "Quantity"]]
 
     df_verra = df_verra.merge(
         bridge_df,
@@ -289,14 +289,14 @@ def off_vs_on_data(df_verra, df_verra_retired, bridges_info_dict, retires_info_d
     return df_verra, df_verra_retired, bridge_df, retire_df
 
 
-def merge_retirements_data_for_retirement_chart(
-    df_retired_polygon, df_klima_agg_retired, df_retired_eth, df_retired_moss
-):
+def merge_retirements_data_for_retirement_chart():
+    df_retired_polygon = Offsets().filter("Polygon", None, "retired").resolve()
+    df_klima_agg_retired = Offsets().filter("Polygon", "all", "retired").resolve()
+    df_retired_eth = Offsets().filter("Eth", None, "retired").resolve()
 
     df_retired_polygon = df_retired_polygon[df_retired_polygon["Quantity"] > 0]
     df_klima_agg_retired = df_klima_agg_retired[df_klima_agg_retired["Quantity"] > 0]
     df_retired_eth = df_retired_eth[df_retired_eth["Quantity"] > 0]
-    df_retired_moss = df_retired_moss[df_retired_moss["Quantity"] > 0]
 
     df_retired_polygon["Quantity"] = df_retired_polygon["Quantity"].round(4)
     df_klima_agg_retired["Quantity"] = df_klima_agg_retired["Quantity"].round(4)
@@ -343,24 +343,14 @@ def merge_retirements_data_for_retirement_chart(
     df_retired_polygon_merged = df_retired_polygon_merged.sort_values(
         by="Quantity", ascending=False
     ).reset_index()
-
-    df_retired_eth_merged = df_retired_eth.merge(
-        df_retired_moss,
-        how="left",
-        left_on="Tx ID",
-        right_on="Tx ID",
-        suffixes=("", "_moss"),
-    )
-
-    df_retired_eth_merged["Beneficiary"] = df_retired_eth_merged["Retiree_moss"]
     moss_corporate_wallet_list = [
         "0x3424b93bda014d41b828f6b31ef08134f983a8fc",
         "0x70d5eadcb367bcf733fc98b441def1c7c5eec187",
         "0x225e489114291d74bd3960e3e5383e523ce8a462",
     ]
     klima_retire_wallet = "0xedaefcf60e12bd331c092341d5b3d8901c1c05a8"
-    df_retired_eth_merged = df_retired_eth_merged[
-        df_retired_eth_merged["Retiree_moss"] != klima_retire_wallet
+    df_retired_eth_merged = df_retired_eth[
+        df_retired_eth["Retiree_moss"] != klima_retire_wallet
     ]
     df_retired_eth_merged.loc[
         df_retired_eth_merged["Retiree_moss"].isin(moss_corporate_wallet_list),
@@ -449,7 +439,8 @@ def create_retirements_data(df_retired):
     return df_retired, data, style_dict
 
 
-def create_holders_data(df_holdings):
+def create_holders_data():
+    df_holdings = Holdings().get()
     df_holdings["Key"] = df_holdings["Klimate_Address"] + "-" + df_holdings["Token"]
     df_holdings = df_holdings.sort_values(by=["Key", "Date"], ascending=False)
     df_holdings = df_holdings.drop_duplicates(subset=["Key"], keep="first")

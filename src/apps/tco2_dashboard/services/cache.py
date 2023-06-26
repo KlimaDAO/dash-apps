@@ -71,28 +71,24 @@ class KeyCacheable():
             "takes_input": takes_input
         })
 
-    def get_most_recent_cached_command_index(self):
+    def get_most_recent_cached_result(self):
         """ Returns the index of the latest command with a cached result """
         idx = len(self.commands) - 1
+        res = None
         while idx >= 0:
             command = self.commands[idx]
             res = self.cache.get(command["hash"])
             if res is not None:
-                return idx
+                break
             idx = idx - 1
 
-        return idx
+        return res, idx
 
     def resolve(self):
         """Resolves the command list"""
 
         # Get the most precise cached command
-        idx = self.get_most_recent_cached_command_index()
-        res = None
-        if idx >= 0:
-            command = self.commands[idx]
-            res = self.cache.get(command["hash"])
-            # debug(f"get wt cache | {command['key']}\n")
+        res, idx = self.get_most_recent_cached_result()
 
         # Resolve the rest without cache
         while idx + 1 < len(self.commands):

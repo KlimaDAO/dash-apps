@@ -4,7 +4,7 @@ from .services import Offsets
 
 
 def stats_over_time(date_column, bridge, pool, status):
-    offsets = Offsets().filter(bridge, pool, status).sum_over_time(date_column, "Quantity")
+    offsets = Offsets().filter(bridge, pool, status).sum_over_time(date_column, "Quantity", "daily")
     fig = px.area(offsets, x=date_column, y="Quantity")
     fig.update_layout(
         height=300,

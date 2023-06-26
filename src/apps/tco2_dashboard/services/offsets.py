@@ -4,28 +4,28 @@ import numpy as np
 from . import S3, Countries, Tokens
 from . import KeyCacheable, chained_cached_command, final_cached_command
 
+ALL_BRIDGES = ["Toucan", "C3", "Moss"]
+
 
 class Offsets(KeyCacheable):
     """Service for offsets"""
     def __init__(self, commands=[]):
         super(Offsets, self).__init__(commands)
 
-    @chained_cached_command()
-    def filter(self, df, bridge, pool, status):
-        """Filters offsets on bridge pool and status"""
-        # Load dataset
-        s3 = S3()
+    def load_df(self, bridge, pool, status):
         is_pool_df = False
+        s3 = S3()
+        # Offchain data
         if bridge in ["offchain"]:
             df = s3.load("verra_data")
             if status == "issued":
                 pass
             elif status == "retired":
-                print(df)
                 df = self.verra_retired(df)
             else:
                 raise Exception("Unknown offset status")
-        elif bridge in ["Toucan", "C3"]:
+        # One Bridge data
+        elif bridge in ["Toucan", "C3", "Polygon"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets")
             elif status == "retired":
@@ -42,19 +42,28 @@ class Offsets(KeyCacheable):
                 is_pool_df = True
             else:
                 raise Exception("Unknown offset status")
-        elif bridge in ["Moss"]:
+        elif bridge in ["Moss", "Eth"]:
             if status == "bridged":
                 df = s3.load("eth_moss_bridged_offsets")
             elif status == "retired":
                 df = s3.load("eth_retired_offsets")
             else:
                 raise Exception("Unknown offset status")
+        # All bridges data concatenated
+        elif bridge == "all":
+            dfs = []
+            for bridg in ALL_BRIDGES:
+                bridg_df = self.load_df(bridg, pool, status)
+                bridg_df = bridg_df[["Date", "Quantity", "Bridge"]]
+                dfs.append(bridg_df)
+
+            df = pd.concat(dfs)
         else:
             raise Exception("Unknown bridge")
 
         # Filter bridge
         if not is_pool_df:
-            if bridge != "offchain":
+            if bridge in ALL_BRIDGES:
                 df = df[df["Bridge"] == bridge].reset_index()
 
         # Filter pool
@@ -65,7 +74,7 @@ class Offsets(KeyCacheable):
                     df = self.filter_pool_quantity(df, "Total Quantity")
                 else:
                     df = self.filter_pool_quantity(df, f"{pool} Quantity")
-            else:
+            elif pool != "all":
                 df = self.filter_df_by_pool(df, pool)
 
         # TODO: Maybe this should be done in the data pipelines
@@ -76,6 +85,14 @@ class Offsets(KeyCacheable):
                 )
             else:
                 df["Vintage Year"] = df["Vintage"]
+
+        return df
+
+    @chained_cached_command()
+    def filter(self, df, bridge, pool, status):
+        """Filters offsets on bridge pool and status"""
+        # Load dataset
+        df = self.load_df(bridge, pool, status)
         return df
 
     @chained_cached_command()
@@ -94,7 +111,14 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def daily_agg(self, df, date_column):
         """Adds an aggregation by day"""
-        df = self.date_manipulations(df, date_column)
+        df = self.date_manipulations(df, date_column, "daily")
+        df = df.groupby(date_column)
+        return df
+
+    @chained_cached_command()
+    def monthly_agg(self, df, date_column):
+        """Adds an aggregation by day"""
+        df = self.date_manipulations(df, date_column, "monthly")
         df = df.groupby(date_column)
         return df
 
@@ -176,8 +200,8 @@ class Offsets(KeyCacheable):
         ])
 
     @final_cached_command()
-    def sum_over_time(self, df, date_column, column):
-        df = self.date_manipulations(df, date_column)
+    def sum_over_time(self, df, date_column, column, freq):
+        df = self.date_manipulations(df, date_column, freq)
         df = df.sort_values(by=date_column, ascending=True)
         df[column] = df[column].cumsum()
         return df
@@ -193,7 +217,17 @@ class Offsets(KeyCacheable):
             return 0
         return np.average(df[column], weights=df[weights])
 
-    def date_manipulations(self, df, date_column):
+    def date_manipulations(self, df, date_column, freq):
+        if freq == "daily":
+            return self.date_manipulations_daily(df, date_column)
+        elif freq == "monthly":
+            return self.date_manipulations_monthly(df, date_column)
+
+    def date_manipulations_monthly(self, df, date_column):
+        df[date_column] = pd.to_datetime(df[date_column]).dt.to_period("M")
+        return df
+
+    def date_manipulations_daily(self, df, date_column):
         if not (df.empty):
             # TODO: dates should already in date format
             df[date_column] = (
@@ -205,7 +239,7 @@ class Offsets(KeyCacheable):
             datelist = pd.date_range(
                 start=df[date_column].min() + pd.DateOffset(-1),
                 end=pd.to_datetime("today"),
-                freq="d",
+                freq="D",
             )
             df_date = pd.DataFrame()
             df_date["Date_continous"] = datelist
@@ -285,7 +319,6 @@ class Offsets(KeyCacheable):
         return df
 
     def verra_retired(self, df):
-        print(df)
         df = df.query("~Toucan & ~C3 & ~Moss")
         df = df[df["Status"] == "Retired"]
         df = df.reset_index(drop=True)
