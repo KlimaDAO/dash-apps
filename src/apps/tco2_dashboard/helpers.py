@@ -228,15 +228,7 @@ def create_holders_data():
         df_holdings.sort_values(by="Quantity", ascending=False).reset_index().head(4)
     )
     data = [{"id": "World", "datum": df_holdings["Quantity"].sum(), "children": []}]
-    holders_list = []
-    df_holdings["Klimate Name"] = df_holdings["Klimate_Address"]
-    for i in df_holdings["Klimate_Address"].tolist():
-        if i == "0x7dd4f0b986f032a44f913bf92c9e8b7c17d77ad7":
-            holders_list.append("KlimaDAO")
-        elif i == "0x1e67124681b402064cd0abe8ed1b5c79d2e02f64":
-            holders_list.append("Olympus DAO")
-        else:
-            holders_list.append(i[:4] + "..." + i[-1])
+    holders_list = df_holdings["Klimate Name"].tolist()
     quantity_list = df_holdings["Quantity"].tolist()
     dummy_holders_list = ["..."] * 20
     dummy_quantity_list = [100000] * 20
