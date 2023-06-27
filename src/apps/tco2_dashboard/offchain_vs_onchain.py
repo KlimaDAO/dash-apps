@@ -3,7 +3,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import BETWEEN_SECTION_STYLE
-from .services import Offsets
+from src.apps.services import Offsets
 
 
 def create_offchain_vs_onchain_content(

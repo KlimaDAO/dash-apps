@@ -2,7 +2,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_interface \
     import RetirementTrendsInterface
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
-from ...services import KlimaRetirements
+from src.apps.services import KlimaRetirements
 
 
 class RetirementTrendsByBeneficiary(RetirementTrendsInterface):

@@ -2,7 +2,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import BETWEEN_SECTION_STYLE
-from .services import Tokens, Prices
+from src.apps.services import Tokens, Prices
 
 
 def create_onchain_pool_comp_content(

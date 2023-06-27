@@ -1,5 +1,4 @@
-from . import S3
-from . import KeyCacheable, chained_cached_command, final_cached_command
+from . import S3, KeyCacheable, chained_cached_command, final_cached_command
 
 
 class Metrics(KeyCacheable):

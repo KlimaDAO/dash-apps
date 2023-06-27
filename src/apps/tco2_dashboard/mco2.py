@@ -2,7 +2,7 @@ from dash import html, dash_table
 from dash import dcc
 import dash_bootstrap_components as dbc
 from .constants import GRAY, DARK_GRAY, BETWEEN_SECTION_STYLE
-from .services import Offsets
+from src.apps.services import Offsets
 
 
 def create_content_moss(

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import json
-from .services import Offsets, Holdings
+from src.apps.services import Offsets, Holdings
 
 
 def pct_change(first, second):

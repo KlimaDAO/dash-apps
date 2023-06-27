@@ -2,11 +2,11 @@ from flask_caching import Cache
 import hashlib
 import pickle
 import copy
-from ....util import debug, getenv # noqa
+from ...util import getenv # noqa
 
 # Configure cache
 LAYOUt_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))
-SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 10))
+SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 86400))
 
 layout_cache = Cache(
     config={
@@ -94,7 +94,6 @@ class KeyCacheable():
         while idx + 1 < len(self.commands):
             idx = idx + 1
             command = self.commands[idx]
-            # debug(f"get no cache | {command['key']}\n")
 
             if command["takes_input"]:
                 res = command["func"](self, res, *command["args"])

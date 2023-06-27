@@ -1,5 +1,4 @@
-from . import Offsets
-from . import KeyCacheable, chained_cached_command, final_cached_command
+from . import Offsets, KeyCacheable, chained_cached_command, final_cached_command
 
 
 class Pools(KeyCacheable):

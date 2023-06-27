@@ -20,7 +20,7 @@ from base64 import b64encode
 import math
 from dash import dash_table
 import datetime as dt
-from .services import Offsets, Metrics, Pools, Tokens, Prices, constants
+from src.apps.services import Offsets, Metrics, Pools, Tokens, Prices, constants
 
 matplotlib.use("agg")
 

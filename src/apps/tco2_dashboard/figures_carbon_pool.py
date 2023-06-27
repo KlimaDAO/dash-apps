@@ -1,6 +1,6 @@
 import plotly.express as px
 from .constants import FIGURE_BG_COLOR, GRAPH_FONT
-from .services import Offsets
+from src.apps.services import Offsets
 
 
 def stats_over_time(date_column, bridge, pool, status):

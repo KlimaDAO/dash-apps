@@ -1,7 +1,7 @@
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
-from .services import Metrics
+from src.apps.services import Metrics
 
 from src.apps.tco2_dashboard.figures import (
     get_eth_retirement_breakdown_figure,

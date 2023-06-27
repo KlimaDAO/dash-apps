@@ -3,7 +3,7 @@ import dash
 from datetime import datetime
 from dash import html, Input, Output, callback, State
 from dash import dcc
-from .services import layout_cache as cache, services_slow_cache, services_fast_cache, Offsets
+from ..services import layout_cache as cache, services_slow_cache, services_fast_cache, Offsets
 import pandas as pd
 
 from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \

@@ -1,5 +1,4 @@
-from . import S3
-from . import KeyCacheable, single_cached_command
+from . import S3, KeyCacheable, single_cached_command
 
 
 class Tokens(KeyCacheable):

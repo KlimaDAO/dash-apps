@@ -1,5 +1,4 @@
-from . import KeyCacheable
-from . import S3
+from . import S3, KeyCacheable
 
 
 class Holdings(KeyCacheable):

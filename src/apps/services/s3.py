@@ -1,4 +1,4 @@
-from ....util import load_s3_data
+from ...util import load_s3_data
 from . import KeyCacheable, single_cached_command
 
 
