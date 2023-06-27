@@ -186,37 +186,7 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
-    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
-    df_offchain, df_offchain_retired, df_onchain, df_onchain_retired = off_vs_on_data()
-
-    fig_on_vs_off_time, fig_on_vs_off_time_download = create_offchain_vs_onchain_fig(
-        df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
-    )
-
-    df_retired_merged = merge_retirements_data_for_retirement_chart()
-
-    df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
-        df_retired_merged
-    )
     df_holders, holders_data, holders_style_dict = create_holders_data()
-    fig_retirements, fig_retirements_download = create_retirements_fig(
-        retirements_data, retirements_style_dict
-    )
-    fig_holders, fig_holders_download = create_retirements_fig(
-        holders_data, holders_style_dict
-    )
-    content_homepage = create_homepage_content(
-        curr_time_str,
-        df_offchain,
-        df_offchain_retired,
-        df_onchain,
-        df_onchain_retired,
-        df_retirements,
-        df_holders,
-        fig_on_vs_off_time,
-        fig_retirements,
-        fig_holders,
-    )
     debug("Render: generate_layout")
 
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")

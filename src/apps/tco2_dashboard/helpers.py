@@ -5,20 +5,6 @@ import json
 from src.apps.services import Offsets, Holdings
 
 
-def pct_change(first, second):
-    diff = second - first
-    change = 0
-    try:
-        if diff > 0:
-            change = (diff / first) * 100
-        elif diff < 0:
-            diff = first - second
-            change = -((diff / first) * 100)
-    except ZeroDivisionError:
-        return float("inf")
-    return change
-
-
 def add_px_figure(pxfig, layout, row, col):
     for trace in pxfig["data"]:
         layout.add_trace(trace, row=row, col=col)
@@ -334,28 +320,17 @@ def create_retirements_data(df_retired):
 
 def create_holders_data():
     df_holdings = Holdings().get()
-    df_holdings["Key"] = df_holdings["Klimate_Address"] + "-" + df_holdings["Token"]
-    df_holdings = df_holdings.sort_values(by=["Key", "Date"], ascending=False)
-    df_holdings = df_holdings.drop_duplicates(subset=["Key"], keep="first")
-    df_holdings = (
-        df_holdings.groupby("Klimate_Address")["Quantity"]
-        .sum()
-        .to_frame()
-        .reset_index()
-    )
     df_holdings = (
         df_holdings.sort_values(by="Quantity", ascending=False).reset_index().head(4)
     )
     data = [{"id": "World", "datum": df_holdings["Quantity"].sum(), "children": []}]
     holders_list = []
     df_holdings["Klimate Name"] = df_holdings["Klimate_Address"]
-    for index, i in enumerate(df_holdings["Klimate_Address"].tolist()):
+    for i in df_holdings["Klimate_Address"].tolist():
         if i == "0x7dd4f0b986f032a44f913bf92c9e8b7c17d77ad7":
             holders_list.append("KlimaDAO")
-            df_holdings.loc[index, "Klimate Name"] = "KlimaDAO"
         elif i == "0x1e67124681b402064cd0abe8ed1b5c79d2e02f64":
             holders_list.append("Olympus DAO")
-            df_holdings.loc[index, "Klimate Name"] = "Olympus DAO"
         else:
             holders_list.append(i[:4] + "..." + i[-1])
     quantity_list = df_holdings["Quantity"].tolist()
