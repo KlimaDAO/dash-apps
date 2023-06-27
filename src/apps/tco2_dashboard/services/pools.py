@@ -20,9 +20,7 @@ class Pools(KeyCacheable):
             pool_labels = ["UBO", "NBO"]
         else:
             raise Exception("Unknown bridge")
-        values = []
-        for pool in pool_labels:
-            values.append(Offsets().filter(bridge, pool, "bridged").sum("Quantity"))
+        values = [Offsets().filter(bridge, pool, "bridged").sum("Quantity") for pool in pool_labels]
 
         pool_labels = pool_labels + ["Not Pooled"]
         not_pool_qty = Offsets().filter(bridge, "all", "bridged").sum("Quantity") - sum(values)
