@@ -51,7 +51,8 @@ class Offsets(KeyCacheable):
             dfs = []
             for bridg in constants.ALL_BRIDGES:
                 bridg_df = self.load_df(bridg, pool, status)
-                bridg_df = bridg_df[["Date", "Quantity", "Bridge"]]
+                date_column = Offsets.status_date_column(status)
+                bridg_df = bridg_df[[date_column, "Quantity", "Bridge"]]
                 dfs.append(bridg_df)
 
             df = pd.concat(dfs)
@@ -74,15 +75,6 @@ class Offsets(KeyCacheable):
             elif pool != "all":
                 df = self.filter_df_by_pool(df, pool)
 
-        # TODO: Maybe this should be done in the data pipelines
-        if "Vintage" in df.columns:
-            if bridge not in ["offchain", "Moss"]:
-                df["Vintage Year"] = (
-                    pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
-                )
-            else:
-                df["Vintage Year"] = df["Vintage"]
-
         return df
 
     @chained_cached_command()
@@ -93,15 +85,15 @@ class Offsets(KeyCacheable):
         return df
 
     @chained_cached_command()
-    def date_range(self, df, begin, end):
+    def date_range(self, df, date_column, begin, end):
         """Adds a date range filter"""
         if type(end) != int:
-            end = end.timestamp()
+            end = end
         if type(begin) != int:
-            begin = begin.timestamp()
+            begin = begin
         df = df[
-            (df["Date"] <= end)
-            & (df["Date"] > begin)
+            (df[date_column] <= end)
+            & (df[date_column] > begin)
         ]
         return df
 
@@ -122,7 +114,7 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
-        df = df.groupby("Vintage Year")
+        df = df.groupby("Vintage")
         return df
 
     @chained_cached_command()
@@ -227,8 +219,10 @@ class Offsets(KeyCacheable):
     def date_manipulations_daily(self, df, date_column):
         if not (df.empty):
             # TODO: dates should already in date format
+            print(date_column)
+            print(df.columns)
             df[date_column] = (
-                pd.to_datetime(df[date_column], unit="s")
+                df[date_column]
                 .dt.tz_localize(None)
                 .dt.floor("D")
                 .dt.date
@@ -320,3 +314,18 @@ class Offsets(KeyCacheable):
         df = df[df["Status"] == "Retired"]
         df = df.reset_index(drop=True)
         return df
+
+    @staticmethod
+    def status_date_column(status):
+        if status == "issued":
+            return "Issuance Date"
+        elif status == "bridged":
+            return "Bridged Date"
+        elif status == "retired":
+            return "Retirement Date"
+        elif status == "redeemed":
+            return "Redeemed Date"
+        elif status == "deposited":
+            return "Deposited Date"
+        else:
+            raise Exception("Unknown status")

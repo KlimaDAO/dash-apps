@@ -186,6 +186,37 @@ def get_s3_data(slug: str) -> pd.DataFrame:
 
 @cache.memoize()
 def generate_layout():
+    curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
+    df_offchain, df_offchain_retired, df_onchain, df_onchain_retired = off_vs_on_data()
+
+    fig_on_vs_off_time, fig_on_vs_off_time_download = create_offchain_vs_onchain_fig(
+        df_offchain, df_offchain_retired, df_onchain, df_onchain_retired
+    )
+
+    df_retired_merged = merge_retirements_data_for_retirement_chart()
+
+    df_retirements, retirements_data, retirements_style_dict = create_retirements_data(
+        df_retired_merged
+    )
+    df_holders, holders_data, holders_style_dict = create_holders_data()
+    fig_retirements, fig_retirements_download = create_retirements_fig(
+        retirements_data, retirements_style_dict
+    )
+    fig_holders, fig_holders_download = create_retirements_fig(
+        holders_data, holders_style_dict
+    )
+    content_homepage = create_homepage_content(
+        curr_time_str,
+        df_offchain,
+        df_offchain_retired,
+        df_onchain,
+        df_onchain_retired,
+        df_retirements,
+        df_holders,
+        fig_on_vs_off_time,
+        fig_retirements,
+        fig_holders,
+    )
     debug("Render: generate_layout")
 
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
@@ -387,7 +418,7 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    fig_mco2_total_volume = stats_over_time("Date", "Moss", None, "bridged")
+    fig_mco2_total_volume = stats_over_time("Moss", None, "bridged")
     fig_mco2_total_vintage = sub_plots_vintage("Moss", None, "bridged")
     fig_mco2_total_map = map("Moss", None, "bridged")
     fig_mco2_total_metho = methodology_volume("Moss", None, "bridged")
@@ -412,9 +443,9 @@ def generate_layout():
     bct_carbon = Offsets().filter("Toucan", "BCT", "bridged").pool_summary()
 
     # BCT Figures
-    fig_deposited_over_time = stats_over_time("Date", "Toucan", "BCT", "deposited")
-    fig_redeemed_over_time = stats_over_time("Date", "Toucan", "BCT", "redeemed")
-    fig_retired_over_time = stats_over_time("Date", "Toucan", "BCT", "retired")
+    fig_deposited_over_time = stats_over_time("Toucan", "BCT", "deposited")
+    fig_redeemed_over_time = stats_over_time("Toucan", "BCT", "redeemed")
+    fig_retired_over_time = stats_over_time("Toucan", "BCT", "retired")
     fig_bct_total_vintage = sub_plots_vintage("Toucan", "BCT", "bridged")
     fig_bct_total_map = map("Toucan", "BCT", "bridged")
     fig_bct_total_metho = methodology_volume("Toucan", "BCT", "bridged")
@@ -442,9 +473,9 @@ def generate_layout():
     nct_carbon = Offsets().filter("Toucan", "NCT", "bridged").pool_summary()
 
     # NCT Figures
-    fig_deposited_over_time = stats_over_time("Date", "Toucan", "NCT", "deposited")
-    fig_redeemed_over_time = stats_over_time("Date", "Toucan", "NCT", "redeemed")
-    fig_retired_over_time = stats_over_time("Date", "Toucan", "NCT", "retired")
+    fig_deposited_over_time = stats_over_time("Toucan", "NCT", "deposited")
+    fig_redeemed_over_time = stats_over_time("Toucan", "NCT", "redeemed")
+    fig_retired_over_time = stats_over_time("Toucan", "NCT", "retired")
     fig_nct_total_vintage = sub_plots_vintage("Toucan", "NCT", "bridged")
     fig_nct_total_map = map("Toucan", "NCT", "bridged")
     fig_nct_total_metho = methodology_volume("Toucan", "NCT", "bridged")
@@ -472,8 +503,8 @@ def generate_layout():
     ubo_carbon = Offsets().filter("C3", "UBO", "bridged").pool_summary()
 
     # UBO Figures
-    fig_deposited_over_time = stats_over_time("Date", "C3", "UBO", "deposited")
-    fig_redeemed_over_time = stats_over_time("Date", "C3", "UBO", "redeemed")
+    fig_deposited_over_time = stats_over_time("C3", "UBO", "deposited")
+    fig_redeemed_over_time = stats_over_time("C3", "UBO", "redeemed")
     fig_ubo_total_vintage = sub_plots_vintage("C3", "UBO", "bridged")
     fig_ubo_total_map = map("C3", "UBO", "bridged")
     fig_ubo_total_metho = methodology_volume("C3", "UBO", "bridged")
@@ -503,8 +534,8 @@ def generate_layout():
     nbo_carbon = Offsets().filter("C3", "NBO", "bridged").pool_summary()
 
     # NBO Figures
-    fig_deposited_over_time = stats_over_time("Date", "C3", "NBO", "deposited")
-    fig_redeemed_over_time = stats_over_time("Date", "C3", "NBO", "redeemed")
+    fig_deposited_over_time = stats_over_time("C3", "NBO", "deposited")
+    fig_redeemed_over_time = stats_over_time("C3", "NBO", "redeemed")
     fig_nbo_total_vintage = sub_plots_vintage("C3", "NBO", "bridged")
     fig_nbo_total_map = map("C3", "NBO", "bridged")
     fig_nbo_total_metho = methodology_volume("C3", "NBO", "bridged")
@@ -534,7 +565,7 @@ def generate_layout():
 
     # ---offchain vs onchain---
     # Issued Figures
-    fig_issued_over_time = stats_over_time("Issuance Date", "offchain", None, "issued")
+    fig_issued_over_time = stats_over_time("offchain", None, "issued")
     fig_tokenized_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "bridged")
     fig_on_vs_off_vintage = on_vs_off_vintage(["Toucan", "Moss", "C3"])
     fig_on_vs_off_map = on_vs_off_map(["Toucan", "Moss", "C3"], "bridged")
@@ -559,7 +590,7 @@ def generate_layout():
     cache.set("titles_on_vs_off_issued", titles_on_vs_off_issued)
 
     # Retired Figures
-    fig_offchain_retired_over_time = stats_over_time("Date", "offchain", None, "retired")
+    fig_offchain_retired_over_time = stats_over_time("offchain", None, "retired")
     fig_onchain_retired_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "retired")
     fig_on_vs_off_vintage_retired = on_vs_off_vintage_retired(["Toucan", "C3"])
     fig_on_vs_off_map_retired = on_vs_off_map(["Toucan", "Moss", "C3"], "retired")

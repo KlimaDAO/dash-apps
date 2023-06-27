@@ -9,6 +9,7 @@ from prefect.filesystems import LocalFileSystem
 from prefect.serializers import Serializer
 from typing_extensions import Literal
 
+
 def is_production() -> bool:
     """ Indicates if we are on a production environment """
     env = os.getenv("ENV", "Development")

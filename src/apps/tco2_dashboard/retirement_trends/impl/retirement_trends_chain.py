@@ -140,7 +140,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         on_chain_df = self.merge_daily_klima_retirements_df(
             KlimaRetirements().daily_agg().resolve())
 
-        off_chain_df = Offsets().filter("offchain", None, "retired").daily_agg("Date").sum("Quantity")
+        off_chain_df = Offsets().filter("offchain", None, "retired").daily_agg("Retirement Date").sum("Quantity")
         retirement_chart_figure = chain_klima_retirement_chart(
             on_chain_df,
             off_chain_df)

@@ -3,9 +3,11 @@ from .constants import FIGURE_BG_COLOR, GRAPH_FONT
 from src.apps.services import Offsets
 
 
-def stats_over_time(date_column, bridge, pool, status):
+def stats_over_time(bridge, pool, status):
+    date_column = Offsets.status_date_column(status)
     offsets = Offsets().filter(bridge, pool, status).sum_over_time(date_column, "Quantity", "daily")
-    fig = px.area(offsets, x=date_column, y="Quantity")
+    offsets["Date"] = offsets[date_column]
+    fig = px.area(offsets, x="Date", y="Quantity")
     fig.update_layout(
         height=300,
         paper_bgcolor=FIGURE_BG_COLOR,

@@ -2,7 +2,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import pycountry
-from .helpers import add_px_figure, human_format
+from .helpers import add_px_figure, human_format, rename_date
 from plotly.subplots import make_subplots
 from .constants import (
     FIGURE_BG_COLOR,
@@ -25,15 +25,23 @@ from src.apps.services import Offsets, Metrics, Pools, Tokens, Prices, constants
 matplotlib.use("agg")
 
 
+def status_verb(status):
+    if status == "bridged":
+        return "Bridged"
+    elif status == "retired":
+        return "Retired"
+    else:
+        raise Exception("Unknown offset status filter")
+
+
 def plots_info(bridge, pool, status, date_range_days):
     if status == "bridged":
         zero_status_text = "bridging"
-        title_status_text = "Bridged"
     elif status == "retired":
         zero_status_text = "retiring"
-        title_status_text = "Retired"
     else:
         raise Exception("Unknown offset status filter")
+    title_status_text = status_verb(status)
 
     zero_evt_text = (
         f"There haven't been any {zero_status_text} events"
@@ -41,6 +49,7 @@ def plots_info(bridge, pool, status, date_range_days):
 
     # Base filter
     base_offsets = Offsets().filter(bridge, pool, status)
+    date_column = Offsets.status_date_column(status)
 
     if date_range_days:
         title_timing_text = f"({date_range_days}d)"
@@ -53,10 +62,10 @@ def plots_info(bridge, pool, status, date_range_days):
         last_period_start = period_start - dt.timedelta(days=date_range_days)
 
         # Current data
-        offsets = base_offsets.copy().date_range(period_start, current_time)
+        offsets = base_offsets.copy().date_range(date_column, period_start, current_time)
 
         # Preceding data
-        last_offsets = base_offsets.copy().date_range(last_period_start, period_start)
+        last_offsets = base_offsets.copy().date_range(date_column, last_period_start, period_start)
     else:
         title_timing_text = "(Total)"
         offsets = base_offsets
@@ -71,6 +80,7 @@ def plots_info(bridge, pool, status, date_range_days):
         title_timing_text,
         offsets,
         last_offsets,
+        date_column
     )
 
 
@@ -81,12 +91,13 @@ def sub_plots_volume(bridge, pool, status, date_range_days=None):
         title_timing_text,
         offsets,
         last_offsets,
+        date_column
     ) = plots_info(bridge, pool, status, date_range_days)
-
     title_indicator = f"Credits {title_status_text} {title_timing_text}"
 
     quantity = offsets.copy().sum("Quantity")
-    daily_quantity = offsets.copy().daily_agg("Date").sum("Quantity")
+    daily_quantity = offsets.copy().daily_agg(date_column).sum("Quantity")
+    daily_quantity = rename_date(daily_quantity, date_column)
     if last_offsets:
         last_quantity = last_offsets.copy().sum("Quantity")
     else:
@@ -173,14 +184,15 @@ def sub_plots_vintage(bridge, pool, status, date_range_days=None):
         title_timing_text,
         offsets,
         last_offsets,
+        date_column,
     ) = plots_info(bridge, pool, status, date_range_days)
 
     title_indicator = f"Average Credits Vintage {title_timing_text}"
 
-    average = offsets.copy().average("Vintage Year", "Quantity")
+    average = offsets.copy().average("Vintage", "Quantity")
     vintage_quantity = offsets.copy().vintage_agg().sum("Quantity")
     if last_offsets:
-        last_average = last_offsets.average("Vintage Year", "Quantity")
+        last_average = last_offsets.average("Vintage", "Quantity")
     else:
         last_average = 0
 
@@ -221,7 +233,7 @@ def sub_plots_vintage(bridge, pool, status, date_range_days=None):
         add_px_figure(
             px.bar(
                 vintage_quantity,
-                x="Vintage Year",
+                x="Vintage",
                 y="Quantity",
                 title="",
             ).update_traces(marker_line_width=0),
@@ -233,7 +245,7 @@ def sub_plots_vintage(bridge, pool, status, date_range_days=None):
             height=300,
             paper_bgcolor=FIGURE_BG_COLOR,
             plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(title_text="Vintage Year", showgrid=False),
+            xaxis=dict(title_text="Vintage", showgrid=False),
             yaxis=dict(title_text="Volume", showgrid=False),
             font=GRAPH_FONT,
             hovermode="x unified",
@@ -273,6 +285,7 @@ def map(bridge, pool, status, date_range_days=None):
         _title_timing_text,
         offsets,
         _last_offsets,
+        date_column
     ) = plots_info(bridge, pool, status, date_range_days)
     country_volumes = offsets.country_agg().sum("Quantity")
     if not country_volumes.empty:
@@ -326,6 +339,7 @@ def methodology_volume(bridge, pool, status, date_range_days=None):
         _title_timing_text,
         offsets,
         _last_offsets,
+        date_column
     ) = plots_info(bridge, pool, status, date_range_days)
 
     methodology_quantity = offsets.methodology_agg().sum("Quantity")
@@ -372,6 +386,7 @@ def project_volume(bridge, pool, status, date_range_days=None):
         _title_timing_text,
         offsets,
         _last_offsets,
+        date_column
     ) = plots_info(bridge, pool, status, date_range_days)
 
     df = offsets.resolve()
@@ -865,7 +880,7 @@ def chain_klima_retirement_chart(onchain_df, offchain_df):
     if offchain_df is not None:
         fig.add_trace(
             go.Scatter(
-                x=offchain_df.Date,
+                x=offchain_df["Retirement Date"],
                 y=offchain_df.Quantity,
                 mode="lines", name="Off chain"
             ))
@@ -923,13 +938,14 @@ def pool_retired_chart(token_cg_dict, df_pool_retired):
 def tokenized_volume(bridges, status):
     fig = go.Figure()
     for bridge in bridges:
+        date_column = Offsets.status_date_column(status)
         offsets = (
-            Offsets().filter(bridge, None, status).sum_over_time("Date", "Quantity", "daily")
+            Offsets().filter(bridge, None, status).sum_over_time(date_column, "Quantity", "daily")
         )
-        offsets["Type"] = f"{bridge} Bridged Credits"
+        offsets["Type"] = f"{bridge} {status_verb(status)} Credits"
         fig.add_trace(
             go.Scatter(
-                x=offsets["Date"], y=offsets["Quantity"], mode="lines", name=bridge, stackgroup="one"
+                x=offsets[date_column], y=offsets["Quantity"], mode="lines", name=bridge, stackgroup="one"
             )
         )
         fig.update_layout(
@@ -960,16 +976,16 @@ def on_vs_off_vintage(bridges):
             df_verra_other_grouped = offchain_summary.merge(
                 bridged_summary,
                 how="left",
-                left_on="Vintage Year",
-                right_on="Vintage Year",
+                left_on="Vintage",
+                right_on="Vintage",
                 suffixes=("", f"_{bridge}"),
             )
         else:
             df_verra_other_grouped = df_verra_other_grouped.merge(
                 bridged_summary,
                 how="left",
-                left_on="Vintage Year",
-                right_on="Vintage Year",
+                left_on="Vintage",
+                right_on="Vintage",
                 suffixes=("", f"_{bridge}"),
             )
         df_verra_other_grouped[f"Quantity_{bridge}"] = df_verra_other_grouped[
@@ -978,13 +994,13 @@ def on_vs_off_vintage(bridges):
         df_verra_other_grouped["Quantity"] = (
             df_verra_other_grouped["Quantity"] - df_verra_other_grouped[f"Quantity_{bridge}"]
         )
-        df_verra_other_grouped = df_verra_other_grouped[["Vintage Year", "Quantity"]]
+        df_verra_other_grouped = df_verra_other_grouped[["Vintage", "Quantity"]]
         df_verra_other_grouped["Type"] = "Rest of Issued VCUs"
 
     all_summaries = pd.concat(bridged_summaries + [df_verra_other_grouped]).reset_index()
     fig = px.bar(
         all_summaries,
-        x="Vintage Year",
+        x="Vintage",
         y="Quantity",
         color="Type",
         title="",
@@ -1025,7 +1041,7 @@ def on_vs_off_vintage_retired(bridges):
     all_summaries = pd.concat(bridged_summaries + [offchain_summary]).reset_index()
     fig = px.bar(
         all_summaries,
-        x="Vintage Year",
+        x="Vintage",
         y="Quantity",
         color="Type",
         title="",

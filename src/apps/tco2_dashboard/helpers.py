@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import numpy as np
-import datetime as dt
 import json
 from src.apps.services import Offsets, Holdings
 
@@ -31,78 +30,6 @@ def drop_duplicates(df):
     return df
 
 
-def date_manipulations(df):
-    if not (df.empty):
-        if "Vintage" in df.columns:
-            df["Vintage"] = (
-                pd.to_datetime(df["Vintage"], unit="s").dt.tz_localize(None).dt.year
-            )
-        df["Date"] = (
-            pd.to_datetime(df["Date"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        datelist = pd.date_range(
-            start=df["Date"].min() + pd.DateOffset(-1),
-            end=pd.to_datetime("today"),
-            freq="d",
-        )
-        df_date = pd.DataFrame()
-        df_date["Date_continous"] = datelist
-        df_date["Date_continous"] = (
-            pd.to_datetime(df_date["Date_continous"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        df = df.merge(
-            df_date, how="right", left_on="Date", right_on="Date_continous"
-        ).reset_index(drop=True)
-        df["Date"] = df["Date_continous"]
-        for i in df.columns:
-            if "Quantity" in i:
-                df[i] = df[i].fillna(0)
-            else:
-                df[i] = df[i].fillna("missing")
-                df[i] = df[i].replace("", "missing")
-    return df
-
-
-def date_manipulations_verra(df):
-    if not (df.empty):
-        df["Date"] = (
-            pd.to_datetime(df["Date"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        datelist = pd.date_range(
-            start=df["Date"].min() + pd.DateOffset(-1),
-            end=pd.to_datetime("today"),
-            freq="d",
-        )
-        df_date = pd.DataFrame()
-        df_date["Date_continous"] = datelist
-        df_date["Date_continous"] = (
-            pd.to_datetime(df_date["Date_continous"], unit="s")
-            .dt.tz_localize(None)
-            .dt.floor("D")
-            .dt.date
-        )
-        df = df.merge(
-            df_date, how="right", left_on="Date", right_on="Date_continous"
-        ).reset_index(drop=True)
-        df["Date"] = df["Date_continous"]
-        for i in df.columns:
-            if "Quantity" in i:
-                df[i] = df[i].fillna(0)
-            else:
-                df[i] = df[i].fillna("missing")
-                df[i] = df[i].replace("", "missing")
-    return df
-
-
 def black_list_manipulations(df):
     # Dropping rows where Region = "", these tokenized carbon credits are black-listed
     # Black listed because their methodology = "AM0001"
@@ -116,44 +43,8 @@ def bridge_manipulations(df, bridge):
     return df
 
 
-# def merge_verra_mco2(df, df_verra, merge_columns, drop_columns):
-#     # df["Project ID Key"] = df["Project ID"].astype(str).str[4:]
-#     df_verra = df_verra[merge_columns]
-#     for i in drop_columns:
-#         if i in df.columns:
-#             df = df.drop(columns=i)
-#     df = df.merge(df_verra, how='left', left_on="Serial Number",
-#                   right_on='Serial Number', suffixes=('', '_Verra'))
-#     return df
-
-
-def subsets(df):
-
-    # 7-day, last 7-day, 30-day and last 30 day time
-    current_time = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    seven_day_start = current_time - dt.timedelta(days=7)
-    last_seven_day_start = seven_day_start - dt.timedelta(days=7)
-    thirty_day_start = current_time - dt.timedelta(days=30)
-    last_thirty_day_start = thirty_day_start - dt.timedelta(days=30)
-
-    # Seven day pool subsets
-    sd_pool = df[
-        (df["Date"] <= current_time.date()) & (df["Date"] > seven_day_start.date())
-    ]
-    last_sd_pool = df[
-        (df["Date"] <= seven_day_start.date())
-        & (df["Date"] > last_seven_day_start.date())
-    ]
-    # # Thirty day pool subsets
-    td_pool = df[
-        (df["Date"] <= current_time.date()) & (df["Date"] > thirty_day_start.date())
-    ]
-    last_td_pool = df[
-        (df["Date"] <= thirty_day_start.date())
-        & (df["Date"] > last_thirty_day_start.date())
-    ]
-
-    return sd_pool, last_sd_pool, td_pool, last_td_pool
+def rename_date(df, date_column):
+    return df.rename(columns={date_column: "Date"})
 
 
 def verra_retired(df_verra):
@@ -267,15 +158,17 @@ def group_data_monthly(i):
 
 
 def off_vs_on_data():
-    bridge_df = Offsets().filter("all", None, "bridged").sum_over_time("Date", "Quantity", "monthly")
-    retire_df = Offsets().filter("all", None, "retired").sum_over_time("Date", "Quantity", "monthly")
-    df_verra = Offsets().filter("offchain", None, "issued").sum_over_time("Date", "Quantity", "monthly")
-    df_verra_retired = Offsets().filter("offchain", None, "retired").sum_over_time("Date", "Quantity", "monthly")
+    bridge_df = Offsets().filter("all", None, "bridged").sum_over_time("Bridged Date", "Quantity", "monthly")
+    retire_df = Offsets().filter("all", None, "retired").sum_over_time("Retirement Date", "Quantity", "monthly")
+    df_verra = Offsets().filter("offchain", None, "issued").sum_over_time("Issuance Date", "Quantity", "monthly")
+    df_verra_retired = (
+        Offsets().filter("offchain", None, "retired").sum_over_time("Retirement Date", "Quantity", "monthly")
+    )
 
-    bridge_df = bridge_df[["Date", "Quantity"]]
-    retire_df = retire_df[["Date", "Quantity"]]
-    df_verra = df_verra[["Date", "Quantity"]]
-    df_verra_retired = df_verra_retired[["Date", "Quantity"]]
+    bridge_df = rename_date(bridge_df, "Bridged Date")[["Date", "Quantity"]]
+    retire_df = rename_date(retire_df, "Retirement Date")[["Date", "Quantity"]]
+    df_verra = rename_date(df_verra, "Issuance Date")[["Date", "Quantity"]]
+    df_verra_retired = rename_date(df_verra_retired, "Retirement Date")[["Date", "Quantity"]]
 
     df_verra = df_verra.merge(
         bridge_df,
