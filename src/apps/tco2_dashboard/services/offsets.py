@@ -1,10 +1,8 @@
 from __future__ import annotations
 import pandas as pd
 import numpy as np
-from . import S3, Countries, Tokens
+from . import S3, Countries, Tokens, constants
 from . import KeyCacheable, chained_cached_command, final_cached_command
-
-ALL_BRIDGES = ["Toucan", "C3", "Moss"]
 
 
 class Offsets(KeyCacheable):
@@ -52,7 +50,7 @@ class Offsets(KeyCacheable):
         # All bridges data concatenated
         elif bridge == "all":
             dfs = []
-            for bridg in ALL_BRIDGES:
+            for bridg in constants.ALL_BRIDGES:
                 bridg_df = self.load_df(bridg, pool, status)
                 bridg_df = bridg_df[["Date", "Quantity", "Bridge"]]
                 dfs.append(bridg_df)
@@ -63,7 +61,7 @@ class Offsets(KeyCacheable):
 
         # Filter bridge
         if not is_pool_df:
-            if bridge in ALL_BRIDGES:
+            if bridge in constants.ALL_BRIDGES:
                 df = df[df["Bridge"] == bridge].reset_index()
 
         # Filter pool

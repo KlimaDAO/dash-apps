@@ -20,7 +20,7 @@ from base64 import b64encode
 import math
 from dash import dash_table
 import datetime as dt
-from .services import Offsets, Metrics, Pools, Tokens, Prices
+from .services import Offsets, Metrics, Pools, Tokens, Prices, constants
 
 matplotlib.use("agg")
 
@@ -497,9 +497,9 @@ def pool_pie_chart(bridge):
     return fig
 
 
-def bridges_pie_chart(bridges_info_dict):
-    labels = list(bridges_info_dict.keys())
-    values = [d["Dataframe"]["Quantity"].sum() for d in bridges_info_dict.values()]
+def bridges_pie_chart():
+    labels = constants.ALL_BRIDGES
+    values = [Offsets().filter(bridge, None, "bridged").sum("Quantity") for bridge in labels]
     fig = go.Figure()
     fig.add_trace(
         go.Pie(

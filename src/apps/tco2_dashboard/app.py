@@ -10,7 +10,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_page \
     import create_content_retirement_trends, TYPE_POOL, TYPE_TOKEN, \
     TYPE_CHAIN, TYPE_BENEFICIARY
 
-from ...util import is_production, load_s3_data, debug
+from ...util import is_production, load_s3_data, debug, getenv
 from src.apps.tco2_dashboard.carbon_supply import create_carbon_supply_content
 from .figures import (
     sub_plots_vintage,
@@ -44,10 +44,6 @@ from .c3t import create_content_c3t
 from .pool import create_pool_content
 from .mco2 import create_content_moss
 from .helpers import (
-    date_manipulations,
-    bridge_manipulations,
-    verra_retired,
-    date_manipulations_verra,
     off_vs_on_data,
     create_retirements_data,
     create_holders_data,
@@ -193,32 +189,9 @@ def generate_layout():
     debug("Render: generate_layout")
 
     curr_time_str = datetime.utcnow().strftime("%b %d %Y %H:%M:%S UTC")
-    df = get_s3_data("polygon_bridged_offsets")
-    df_retired = get_s3_data("polygon_retired_offsets")
-
-    df_pool_retired = get_s3_data("raw_polygon_pools_retired_offsets")
-
-    df_bridged_mco2 = get_s3_data("eth_moss_bridged_offsets")
-    df_retired_mco2 = get_s3_data("eth_retired_offsets")
-    df_verra = get_s3_data("verra_data")
-    df_verra_toucan = df_verra.query("Toucan")
-    df_verra_c3 = df_verra.query("C3")
-    df_verra_retired = verra_retired(df_verra)
 
     # -----TCO2_Figures----
-    # Bridge manipulations
-    df_tc = bridge_manipulations(df, "Toucan")
-    df_retired_tc = bridge_manipulations(df_retired, "Toucan")
-    # datetime manipulations
-    df_tc = date_manipulations(df_tc)
-    df_retired_tc = date_manipulations(df_retired_tc)
-    # Blacklist manipulations
-    # df = black_list_manipulations(df)
-    # df_retired = black_list_manipulations(df_retired)
-
     # 7 day and 30 day subsets
-    # drop duplicates data for Carbon Pool calculations
-
     # Figures
     # 7-day-performance
     fig_seven_day_volume_tc = sub_plots_volume("Toucan", None, "bridged", 7)
@@ -319,15 +292,6 @@ def generate_layout():
     cache.set("content_tco2", content_tco2)
 
     # -----C3_Figures----
-    # Bridge manipulations
-    df_c3t = bridge_manipulations(df, "C3")
-    df_retired_c3t = bridge_manipulations(df_retired, "C3")
-    # datetime manipulations
-    df_c3t = date_manipulations(df_c3t)
-    df_retired_c3t = date_manipulations(df_retired_c3t)
-    # Blacklist manipulations
-    # df = black_list_manipulations(df)
-    # df_retired = black_list_manipulations(df_retired)
     # 7 day and 30 day subsets
 
     # Figures
@@ -423,10 +387,6 @@ def generate_layout():
 
     # --MCO2 Figures--
 
-    df_retired_mco2 = bridge_manipulations(df_retired_mco2, "Moss")
-    df_bridged_mco2 = date_manipulations_verra(df_bridged_mco2)
-    df_retired_mco2 = date_manipulations(df_retired_mco2)
-
     fig_mco2_total_volume = stats_over_time("Date", "Moss", None, "bridged")
     fig_mco2_total_vintage = sub_plots_vintage("Moss", None, "bridged")
     fig_mco2_total_map = map("Moss", None, "bridged")
@@ -446,14 +406,6 @@ def generate_layout():
     cache.set("mco2_carbon", mco2_carbon)
 
     # --Carbon Pool Figures---
-
-    # Blacklist manipulations
-    # df_deposited = black_list_manipulations(df_deposited)
-    # df_redeemed = black_list_manipulations(df_redeemed)
-
-    # datetime manipulations
-    df_pool_retired = date_manipulations(df_pool_retired)
-
     # --BCT---
 
     # Carbon pool filter
@@ -578,19 +530,9 @@ def generate_layout():
 
     # ----Top Level Page---
 
-    bridges_info_dict = {
-        "Toucan": {"Dataframe": date_manipulations_verra(df_verra_toucan)},
-        "Moss": {"Dataframe": df_bridged_mco2},
-        "C3": {"Dataframe": date_manipulations_verra(df_verra_c3)},
-    }
-
-    fig_bridges_pie_chart = bridges_pie_chart(bridges_info_dict)
+    fig_bridges_pie_chart = bridges_pie_chart()
 
     # ---offchain vs onchain---
-    df_verra["Date"] = df_verra["Issuance Date"]
-    df_verra = date_manipulations_verra(df_verra)
-    df_verra_retired = date_manipulations_verra(df_verra_retired)
-
     # Issued Figures
     fig_issued_over_time = stats_over_time("Issuance Date", "offchain", None, "issued")
     fig_tokenized_over_time = tokenized_volume(["Toucan", "Moss", "C3"], "bridged")
@@ -1734,4 +1676,4 @@ for o, d in redirects.items():
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host="0.0.0.0")
+    app.run_server(debug=True, host="0.0.0.0", dev_tools_hot_reload=getenv("HOT_RELOAD", True) != "false")
