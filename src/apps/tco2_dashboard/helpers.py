@@ -10,95 +10,8 @@ def add_px_figure(pxfig, layout, row, col):
         layout.add_trace(trace, row=row, col=col)
 
 
-def drop_duplicates(df):
-    df = df.drop_duplicates(subset=["Token Address"], keep="first")
-    df = df.reset_index(drop=True)
-    return df
-
-
-def black_list_manipulations(df):
-    # Dropping rows where Region = "", these tokenized carbon credits are black-listed
-    # Black listed because their methodology = "AM0001"
-    df = df[df["Region"] != ""].reset_index()
-    return df
-
-
-def bridge_manipulations(df, bridge):
-    # Filter dataframe based on bridge
-    df = df[df["Bridge"] == bridge].reset_index()
-    return df
-
-
 def rename_date(df, date_column):
     return df.rename(columns={date_column: "Date"})
-
-
-def verra_retired(df_verra):
-    df_verra_retired = df_verra.query("~Toucan & ~C3 & ~Moss")
-    df_verra_retired = df_verra_retired[df_verra_retired["Status"] == "Retired"]
-    df_verra_retired = df_verra_retired.reset_index(drop=True)
-    return df_verra_retired
-
-
-def filter_df_by_pool(df, pool_address):
-    df["Pool"] = df["Pool"].str.lower()
-    df = df[(df["Pool"] == pool_address)].reset_index()
-    return df
-
-
-def filter_carbon_pool(pool_address, *dfs):
-    filtered = []
-    for df in dfs:
-        filtered.append(filter_df_by_pool(df, pool_address))
-
-    return filtered
-
-
-def filter_pool_quantity(df, quantity_column):
-    filtered = df[df[quantity_column] > 0]
-    filtered["Quantity"] = filtered[quantity_column]
-    filtered = filtered[
-        [
-            "Project ID",
-            "Vintage",
-            "Quantity",
-            "Country",
-            "Name",
-            "Project Type",
-            "Methodology",
-            "Token Address",
-        ]
-    ]
-    pat = r"VCS-(?P<id>\d+)"
-    repl = (
-        lambda m: "[VCS-"
-        + m.group("id")
-        + "](https://registry.verra.org/app/projectDetail/VCS/"
-        + m.group("id")
-        + ")"
-    )
-    filtered["Project ID"] = filtered["Project ID"].str.replace(pat, repl, regex=True)
-    filtered["View on PolygonScan"] = (
-        "["
-        + "Click Here"
-        + "](https://polygonscan.com/address/"
-        + filtered["Token Address"]
-        + ")"
-    )
-    filtered = filtered[
-        [
-            "Project ID",
-            "Token Address",
-            "View on PolygonScan",
-            "Quantity",
-            "Vintage",
-            "Country",
-            "Project Type",
-            "Methodology",
-            "Name",
-        ]
-    ].reset_index(drop=True)
-    return filtered
 
 
 def read_csv(filename):
@@ -132,15 +45,6 @@ def read_from_json(filename):
         data = json.load(json_file)
         data = json.loads(data)
     return data
-
-
-def group_data_monthly(i):
-    i = i[["Date", "Quantity"]]
-    i["Date"] = pd.to_datetime(i["Date"]).dt.to_period("m")
-    i = i.groupby("Date")["Quantity"].sum().to_frame().reset_index()
-    i = i.sort_values(by="Date", ascending=True)
-    i["Quantity"] = i["Quantity"].cumsum()
-    return i
 
 
 def off_vs_on_data():

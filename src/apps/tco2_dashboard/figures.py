@@ -436,53 +436,6 @@ def project_volume(bridge, pool, status, date_range_days=None):
     return fig
 
 
-def project_volume_mco2(df, zero_evt_text):
-    df = df[df["Project Type"] != "missing"].reset_index(drop=True)
-    if not (df.empty):
-        fig = px.treemap(
-            df,
-            path=[px.Constant("All Projects"), "Project Type", "Name"],
-            values="Quantity",
-            hover_data=["Name", "Quantity"],
-            color_discrete_sequence=px.colors.qualitative.Antique,
-            height=480,
-            title="",
-        )
-        fig.update_traces(
-            textfont=dict(color="white"),
-            textinfo="label+value+percent parent+percent entry+percent root",
-            texttemplate="<br>".join(
-                [
-                    "%{label}",
-                    "Quantity=%{value}",
-                    "%{percentParent} of Parent",
-                    "%{percentEntry} of Entry",
-                    "%{percentRoot} of Root",
-                ]
-            ),
-        )
-        fig.update_layout(
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            hoverlabel=dict(font_color="white", font_size=8),
-            font=TREEMAP_FONT,
-            margin=dict(t=20, b=20, l=0, r=0),
-        )
-    else:
-        fig = go.Figure()
-        fig.update_layout(
-            height=300,
-            paper_bgcolor=FIGURE_BG_COLOR,
-            plot_bgcolor=FIGURE_BG_COLOR,
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            annotations=[
-                dict(text=zero_evt_text, font=dict(color="white"), showarrow=False)
-            ],
-        )
-    return fig
-
-
 def pool_pie_chart(bridge):
     quantities = Pools().filter(bridge).quantities()
     labels = list(quantities.keys())
@@ -569,191 +522,6 @@ def eligible_pool_pie_chart(df, pool_key):
         margin=dict(t=0, b=0, l=0, r=0),
     )
     return fig_eligible
-
-
-def verra_vintage(df_verra, df_verra_toucan):
-    df_verra_toucan_grouped = (
-        df_verra_toucan.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_grouped = (
-        df_verra.groupby("Vintage")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_other_grouped = df_verra_grouped.merge(
-        df_verra_toucan_grouped,
-        how="left",
-        left_on="Vintage",
-        right_on="Vintage",
-        suffixes=("", "_Toucan"),
-    )
-    df_verra_other_grouped["Quantity_Toucan"] = df_verra_other_grouped[
-        "Quantity_Toucan"
-    ].fillna(0)
-    df_verra_other_grouped["Quantity"] = (
-        df_verra_other_grouped["Quantity"] - df_verra_other_grouped["Quantity_Toucan"]
-    )
-    df_verra_other_grouped = df_verra_other_grouped[["Vintage", "Quantity"]]
-    df_verra_other_grouped["Type"] = "Rest of Issued VCU"
-    df_verra_toucan_grouped["Type"] = "Toucan Bridged Credit"
-    df_other_and_toucan = pd.concat(
-        [df_verra_toucan_grouped, df_verra_other_grouped]
-    ).reset_index()
-    fig = px.bar(
-        df_other_and_toucan,
-        x="Vintage",
-        y="Quantity",
-        color="Type",
-        title="",
-        height=360,
-    )
-    fig.update_layout(
-        height=360,
-        paper_bgcolor=FIGURE_BG_COLOR,
-        plot_bgcolor=FIGURE_BG_COLOR,
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False),
-        font_color="white",
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
-        font=GRAPH_FONT,
-        legend=dict(
-            title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
-        ),
-    )
-
-    return fig
-
-
-def verra_map(df_verra, df_verra_toucan):
-    df_verra_toucan_grouped = (
-        df_verra_toucan.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_grouped = (
-        df_verra.groupby("Country")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_grouped = df_verra_grouped.merge(
-        df_verra_toucan_grouped,
-        how="left",
-        left_on="Country",
-        right_on="Country",
-        suffixes=("", "_Toucan"),
-    )
-    df_verra_grouped["Quantity_Toucan"] = df_verra_grouped["Quantity_Toucan"].fillna(0)
-    df_verra_grouped["Ratio"] = (
-        df_verra_grouped["Quantity_Toucan"] / df_verra_grouped["Quantity"]
-    )
-    df_verra_grouped = df_verra_grouped[df_verra_grouped["Ratio"] != 0]
-    df_verra_grouped["text"] = (
-        df_verra_grouped["Country"]
-        + "<br>"
-        + "<br>"
-        + "Tokenized Credits = "
-        + df_verra_grouped["Quantity_Toucan"].map("{:,.0f}".format).astype(str)
-        + "<br>"
-        + "Verra Issued Credits = "
-        + df_verra_grouped["Quantity"].map("{:,.0f}".format).astype(str)
-        + "<br>"
-        + "Ratio = "
-        + df_verra_grouped["Ratio"].map("{:.4f}".format).astype(str)
-        + "<br>"
-    )
-    df_verra_grouped = df_verra_grouped[df_verra_grouped["Country"] != ""].reset_index(
-        drop=True
-    )
-
-    df_verra_grouped["Country Code"] = [
-        get_country(country) for country in df_verra_grouped["Country"]
-    ]
-    fig = px.choropleth(
-        df_verra_grouped,
-        locations="Country Code",
-        color="Ratio",
-        hover_name="Country",
-        custom_data=["text"],
-        color_continuous_scale=px.colors.diverging.Picnic,
-        height=360,
-    )
-
-    fig.update_traces(hovertemplate="%{customdata}")
-
-    fig.update_layout(
-        height=360,
-        geo=dict(
-            bgcolor="rgba(0,0,0,0)",
-            lakecolor="#4E5D6C",
-            landcolor="darkgrey",
-            subunitcolor="grey",
-        ),
-        font_color="white",
-        dragmode=False,
-        paper_bgcolor=FIGURE_BG_COLOR,
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8),
-        font=GRAPH_FONT,
-        margin=dict(t=50, b=0, l=0, r=0),
-        coloraxis_colorbar=dict(thickness=10, len=0.6),
-    )
-    return fig
-
-
-def verra_project(df_verra, df_verra_toucan):
-    df_verra_toucan_grouped = (
-        df_verra_toucan.groupby("Project Type")["Quantity"]
-        .sum()
-        .to_frame()
-        .reset_index()
-    )
-    df_verra_grouped = (
-        df_verra.groupby("Project Type")["Quantity"].sum().to_frame().reset_index()
-    )
-    df_verra_other_grouped = df_verra_grouped.merge(
-        df_verra_toucan_grouped,
-        how="left",
-        left_on="Project Type",
-        right_on="Project Type",
-        suffixes=("", "_Toucan"),
-    )
-    df_verra_other_grouped["Quantity_Toucan"] = df_verra_other_grouped[
-        "Quantity_Toucan"
-    ].fillna(0)
-    df_verra_other_grouped["Quantity"] = (
-        df_verra_other_grouped["Quantity"] - df_verra_other_grouped["Quantity_Toucan"]
-    )
-    df_verra_other_grouped["Type"] = "Rest of Issued VCU"
-    df_verra_toucan_grouped["Type"] = "Toucan Bridged Credit"
-    df_other_and_toucan = pd.concat(
-        [df_verra_toucan_grouped, df_verra_other_grouped]
-    ).reset_index()
-    fig = px.treemap(
-        df_other_and_toucan,
-        path=[px.Constant("All Projects"), "Project Type", "Type"],
-        values="Quantity",
-        hover_data=["Type", "Quantity"],
-        color_discrete_sequence=px.colors.qualitative.Antique,
-        height=480,
-        title="",
-    )
-    fig.update_traces(
-        textfont=dict(color="white"),
-        textinfo="label+value+percent parent+percent entry+percent root",
-        texttemplate="<br>".join(
-            [
-                "%{label}",
-                "Quantity=%{value}",
-                "%{percentParent} of Parent",
-                "%{percentEntry} of Entry",
-                "%{percentRoot} of Root",
-            ]
-        ),
-    )
-    fig.update_layout(
-        paper_bgcolor=FIGURE_BG_COLOR,
-        plot_bgcolor=FIGURE_BG_COLOR,
-        hoverlabel=dict(font_color="white", font_size=8),
-        font=TREEMAP_FONT,
-        margin=dict(t=20, b=20, l=0, r=0),
-    )
-
-    return fig
 
 
 def historical_prices(excluded_tokens=[]):
@@ -896,41 +664,6 @@ def chain_klima_retirement_chart(onchain_df, offchain_df):
         hovermode="x unified",
         hoverlabel=dict(font_color="white", font_size=8),
         font=GRAPH_FONT,
-    )
-    return fig
-
-
-def pool_retired_chart(token_cg_dict, df_pool_retired):
-    fig = go.Figure()
-    for i in token_cg_dict.keys():
-        pool_address = token_cg_dict[i]["address"]
-        filtered_df = df_pool_retired
-        filtered_df[f"Quantity_{i}"] = filtered_df["Quantity"]
-        filtered_df.loc[filtered_df["Pool"] !=
-                        pool_address, f"Quantity_{i}"] = 0
-        filtered_df = filtered_df.sort_values(by="Date", ascending=True)
-        filtered_df[f"Quantity_{i}"] = filtered_df[f"Quantity_{i}"].cumsum()
-        fig.add_trace(
-            go.Scatter(
-                x=filtered_df["Date"],
-                y=filtered_df[f"Quantity_{i}"],
-                mode="lines",
-                name=i,
-                stackgroup="one",
-            )
-        )
-    fig.update_layout(
-        height=300,
-        font=dict(color="white"),
-        xaxis_title="Date",
-        yaxis_title="Quantity",
-        paper_bgcolor=FIGURE_BG_COLOR,
-        plot_bgcolor=FIGURE_BG_COLOR,
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False),
-        margin=dict(t=20, b=20, l=0, r=0),
-        hovermode="x unified",
-        hoverlabel=dict(font_color="white", font_size=8, font=GRAPH_FONT),
     )
     return fig
 
@@ -1760,3 +1493,22 @@ def pool_klima_retirement_table(summary_table):
             "overflowX": "auto"}
     )
     return table
+
+
+def stats_over_time(bridge, pool, status):
+    date_column = Offsets.status_date_column(status)
+    offsets = Offsets().filter(bridge, pool, status).sum_over_time(date_column, "Quantity", "daily")
+    offsets["Date"] = offsets[date_column]
+    fig = px.area(offsets, x="Date", y="Quantity")
+    fig.update_layout(
+        height=300,
+        paper_bgcolor=FIGURE_BG_COLOR,
+        plot_bgcolor=FIGURE_BG_COLOR,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
+        hovermode="x unified",
+        hoverlabel=dict(font_color="white", font_size=8),
+        font=GRAPH_FONT,
+        margin=dict(t=50, b=0, l=0, r=0),
+    )
+    return fig

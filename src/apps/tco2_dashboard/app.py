@@ -28,12 +28,9 @@ from .figures import (
     tokenized_volume,
     on_vs_off_vintage_retired,
     on_vs_off_project_retired,
-    # create_offchain_vs_onchain_figs,
     create_offchain_vs_onchain_fig,
     create_retirements_fig,
     total_carbon_supply_pie_chart,
-)
-from .figures_carbon_pool import (
     stats_over_time,
 )
 from .offchain_vs_onchain import create_offchain_vs_onchain_content

@@ -219,8 +219,6 @@ class Offsets(KeyCacheable):
     def date_manipulations_daily(self, df, date_column):
         if not (df.empty):
             # TODO: dates should already in date format
-            print(date_column)
-            print(df.columns)
             df[date_column] = (
                 df[date_column]
                 .dt.tz_localize(None)
