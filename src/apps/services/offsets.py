@@ -14,20 +14,20 @@ class Offsets(KeyCacheable):
         s3 = S3()
         # Offchain data
         if bridge in ["offchain"]:
-            df = s3.load("verra_data")
+            df = s3.load("verra_data_v2")
             if status == "issued":
                 pass
             elif status == "retired":
                 df = self.verra_retired(df)
             else:
-                raise Exception("Unknown offset status")
+                raise Exception(f"Unknown offset status {status}")
         # One Bridge data
         elif bridge in ["Toucan", "C3", "Polygon"]:
             if status == "bridged":
-                df = s3.load("polygon_bridged_offsets")
+                df = s3.load("polygon_bridged_offsets_v2")
             elif status == "retired":
                 if pool is None:
-                    df = s3.load("polygon_retired_offsets")
+                    df = s3.load("polygon_retired_offsets_v2")
                 else:
                     df = s3.load("polygon_pools_retired_offsets")
                     is_pool_df = True
@@ -38,14 +38,14 @@ class Offsets(KeyCacheable):
                 df = s3.load("polygon_pools_redeemed_offsets")
                 is_pool_df = True
             else:
-                raise Exception("Unknown offset status")
+                raise Exception(f"Unknown offset status {status}")
         elif bridge in ["Moss", "Eth"]:
             if status == "bridged":
-                df = s3.load("eth_moss_bridged_offsets")
+                df = s3.load("eth_moss_bridged_offsets_v2")
             elif status == "retired":
-                df = s3.load("eth_retired_offsets")
+                df = s3.load("eth_retired_offsets_v2")
             else:
-                raise Exception("Unknown offset status")
+                raise Exception(f"Unknown offset status {status}")
         # All bridges data concatenated
         elif bridge == "all":
             dfs = []
@@ -57,7 +57,7 @@ class Offsets(KeyCacheable):
 
             df = pd.concat(dfs)
         else:
-            raise Exception("Unknown bridge")
+            raise Exception(f"Unknown bridge {bridge}")
 
         # Filter bridge
         if not is_pool_df:
