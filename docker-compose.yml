@@ -2,6 +2,7 @@ version: "3.5"
 
 services:
   tco2-dashboard:
+    image: dash-apps
     build:
       context: ./
     working_dir: /src
@@ -10,5 +11,16 @@ services:
     command: ["-m", "src.apps.tco2_dashboard.app"]
     ports:
       - 8050:8050
+    volumes:
+      - ./:/src
+
+  api:
+    image: dash-apps
+    working_dir: /src
+    env_file: .env
+    entrypoint: python
+    command: ["-m", "src.apps.api.app"]
+    ports:
+      - 8051:8051
     volumes:
       - ./:/src
