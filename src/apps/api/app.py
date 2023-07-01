@@ -30,7 +30,9 @@ class Info(Resource):
     def get(self):
         return {
             'api': 'dash-api',
-            'version': '0.0.1'
+            'version': '0.0.1',
+            'endpoints': ["offsets"],
+            'help': 'use <api_url>/<endpoint>?help for assistance'
         }
 
 
