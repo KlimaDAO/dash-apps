@@ -125,3 +125,15 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
     def get(self):
         offsets = self.get_offsets().methodology_agg().sum("Quantity")
         return offsets
+
+
+class OffsetsGlobalAggregation(AbstractOffsets):
+    @services_slow_cache.cached(query_string=True)
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        """
+    )
+    def get(self):
+        return {
+            "value": self.get_offsets().sum("Quantity")
+        }

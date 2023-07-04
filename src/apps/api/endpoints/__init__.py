@@ -4,5 +4,6 @@ from .offsets import (  # noqa
     OffsetsDateAggregation,
     OffsetsCountriesAggregation,
     OffsetsProjectsAggregation,
-    OffsetsMethodologiesAggregation
+    OffsetsMethodologiesAggregation,
+    OffsetsGlobalAggregation
 )

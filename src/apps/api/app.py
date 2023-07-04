@@ -38,6 +38,7 @@ class Info(Resource):
 
 
 api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
+api.add_resource(endpoints.OffsetsGlobalAggregation, '/offsets/agg')
 api.add_resource(endpoints.OffsetsDateAggregation, '/offsets/agg/<string:freq>')
 api.add_resource(endpoints.OffsetsCountriesAggregation, '/offsets/agg/countries')
 api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')

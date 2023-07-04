@@ -3,6 +3,7 @@ import math
 from flask_restful import reqparse
 import dateutil
 import os
+from src.apps.services import KeyCacheable
 
 
 API_URL = os.getenv("DASH_API_URL", "http://localhost:8051")
@@ -76,7 +77,7 @@ def with_output_formatter(func):
         df: pd.DataFrame = func(*func_args, **kwargs)
 
         # Resolve result if necessary
-        if type(df) != pd.DataFrame:
+        if isinstance(df, KeyCacheable):
             df = df.resolve()
 
         # Parse pagination arguments
