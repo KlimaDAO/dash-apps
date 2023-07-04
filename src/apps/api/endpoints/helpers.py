@@ -91,7 +91,6 @@ def with_output_formatter(func):
 
         # Slice dataframe
         df = df[page_size * page:page_size * (page + 1)]
-        print(df)
         # Return result
         if format == "json":
             return {

@@ -86,3 +86,42 @@ class OffsetsDateAggregation(AbstractOffsets):
             offsets.sum_over_time(date_column, "Quantity", freq)
 
         return offsets
+
+
+class OffsetsCountriesAggregation(AbstractOffsets):
+    @services_slow_cache.cached(query_string=True)
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.PAGINATION_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        offsets = self.get_offsets().country_agg().sum("Quantity")
+        return offsets
+
+
+class OffsetsProjectsAggregation(AbstractOffsets):
+    @services_slow_cache.cached(query_string=True)
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.PAGINATION_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        offsets = self.get_offsets().project_agg().sum("Quantity")
+        return offsets
+
+
+class OffsetsMethodologiesAggregation(AbstractOffsets):
+    @services_slow_cache.cached(query_string=True)
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.PAGINATION_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        offsets = self.get_offsets().methodology_agg().sum("Quantity")
+        return offsets
