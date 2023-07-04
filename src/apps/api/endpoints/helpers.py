@@ -2,6 +2,20 @@ import pandas as pd
 import math
 from flask_restful import reqparse
 import dateutil
+import os
+
+
+API_URL = os.getenv("DASH_API_URL", "http://localhost:8051")
+API_VERSION = "0.0.1"
+
+
+def subendpoints_help(endpoints):
+    return {
+        'api': 'dash-api',
+        'version': API_VERSION,
+        'endpoints': endpoints,
+        'help': f'Use {API_URL}/<endpoint>?help for assistance'
+    }
 
 
 def validate_list(valid_values):
@@ -21,13 +35,13 @@ help_parser.add_argument('help', default="no")
 def with_help(help_text):
     """Sends a help message if requested to or execute normal command"""
     def Inner(func):
-        def wrapper(*args, **kwargs):
+        def wrapper(*func_args, **kwargs):
             args = help_parser.parse_args()
             if args["help"] != "no":
                 return {
                     "help": help_text
                 }
-            return func(*args, **kwargs)
+            return func(*func_args, **kwargs)
         return wrapper
     return Inner
 
@@ -77,7 +91,7 @@ def with_output_formatter(func):
 
         # Slice dataframe
         df = df[page_size * page:page_size * (page + 1)]
-
+        print(df)
         # Return result
         if format == "json":
             return {

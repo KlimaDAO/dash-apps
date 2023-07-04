@@ -5,14 +5,14 @@ import copy
 from ...util import getenv # noqa
 
 # Configure cache
-LAYOUt_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))
+LAYOUT_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))
 SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 86400))
 
 layout_cache = Cache(
     config={
         "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": "/tmp/cache-directory/layout",
-        "CACHE_DEFAULT_TIMEOUT": LAYOUt_CACHE_TIMEOUT,
+        "CACHE_DEFAULT_TIMEOUT": LAYOUT_CACHE_TIMEOUT,
     },
 )
 services_slow_cache = Cache(

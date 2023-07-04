@@ -1,5 +1,6 @@
 from flask import Flask, make_response
 from flask_restful import Resource, Api
+import pandas as pd
 import json
 from . import endpoints
 from src.apps.services import services_slow_cache, services_fast_cache
@@ -16,6 +17,8 @@ def json_default_serializer(obj):
     """JSON serializer for objects not serializable by default json code"""
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
+    elif isinstance(obj, (pd.Period)):
+        return obj.to_timestamp().to_pydatetime()
     raise Exception("Type %s not serializable" % type(obj))
 
 
@@ -28,15 +31,14 @@ def output_json(data, code, headers=None):
 
 class Info(Resource):
     def get(self):
-        return {
-            'api': 'dash-api',
-            'version': '0.0.1',
-            'endpoints': ["offsets"],
-            'help': 'use <api_url>/<endpoint>?help for assistance'
-        }
+        return endpoints.subendpoints_help([
+            "offsets/raw",
+            "offsets/agg/daily"
+            ])
 
 
 api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
+api.add_resource(endpoints.OffsetsDateAggregation, '/offsets/agg/<string:freq>')
 api.add_resource(Info, '/')
 
 

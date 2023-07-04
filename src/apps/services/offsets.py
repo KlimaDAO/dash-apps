@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa
 import pandas as pd
 import numpy as np
 from . import S3, Countries, Tokens, constants, KeyCacheable, chained_cached_command, final_cached_command
@@ -96,6 +96,14 @@ class Offsets(KeyCacheable):
                 (df[date_column] > begin)
             ]
         return df
+
+    def date_agg(self, date_column, freq):
+        if freq == "daily":
+            return self.daily_agg(date_column)
+        elif freq == "monthly":
+            return self.monthly_agg(date_column)
+        else:
+            raise Exception("Unknown date aggregation frequency")
 
     @chained_cached_command()
     def daily_agg(self, df, date_column):
