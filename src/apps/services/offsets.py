@@ -87,14 +87,14 @@ class Offsets(KeyCacheable):
     @chained_cached_command()
     def date_range(self, df, date_column, begin, end):
         """Adds a date range filter"""
-        if type(end) != int:
-            end = end
-        if type(begin) != int:
-            begin = begin
-        df = df[
-            (df[date_column] <= end)
-            & (df[date_column] > begin)
-        ]
+        if end is not None:
+            df = df[
+                (df[date_column] <= end)
+            ]
+        if begin is not None:
+            df = df[
+                (df[date_column] > begin)
+            ]
         return df
 
     @chained_cached_command()

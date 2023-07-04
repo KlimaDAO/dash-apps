@@ -30,7 +30,12 @@ class Offsets(Resource):
         {helpers.PAGINATION_HELP}
         """
     )
-    @helpers.with_pagination
+    @helpers.with_pagination_filter
+    @helpers.with_daterange_filter("bridged_date", "Bridged Date")
+    @helpers.with_daterange_filter("issuance_date", "Issuance Date")
+    @helpers.with_daterange_filter("retirement_date", "Retirement Date")
+    @helpers.with_daterange_filter("deposit_date", "Deposited Date")
+    @helpers.with_daterange_filter("redeemed_date", "Redeemed Date")
     def get(self):
         # Parse arguments
         args = parser.parse_args()
@@ -41,4 +46,4 @@ class Offsets(Resource):
             offset_status = "issued" if bridge == "offchain" else "bridged"
 
         # Fetch and slice data
-        return Service().filter(bridge, pool, offset_status).resolve()
+        return Service().filter(bridge, pool, offset_status)

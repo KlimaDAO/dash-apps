@@ -1,6 +1,7 @@
 import pandas as pd
 import math
 from flask_restful import reqparse
+import dateutil
 
 help_parser = reqparse.RequestParser()
 help_parser.add_argument('help', default="no")
@@ -41,13 +42,17 @@ def validate_page_size(s):
 pagination_parser = reqparse.RequestParser()
 pagination_parser.add_argument('help', default="no")
 pagination_parser.add_argument('page', type=int, default=0)
-pagination_parser.add_argument('page_size', type=validate_page_size, default=0)
+pagination_parser.add_argument('page_size', type=validate_page_size, default=MAX_PAGE_SIZE)
 
 
-def with_pagination(func):
+def with_pagination_filter(func):
     def wrapper(*func_args, **kwargs):
         # Execute comamnd
         df: pd.DataFrame = func(*func_args, **kwargs)
+
+        # Resolve result if necessary
+        if type(df) != pd.DataFrame:
+            df = df.resolve()
 
         # Parse pagination arguments
         args = pagination_parser.parse_args()
@@ -72,7 +77,32 @@ def with_pagination(func):
 
 
 PAGINATION_HELP = (
-        """page: page to query
-        page_size: between 1 and {helpers.MAX_PAGE_SIZE}
+        f"""page: page to query
+        page_size: between 1 and {MAX_PAGE_SIZE}
         """
 )
+
+
+# DATE RANGE Filter
+def isotime(s):
+    return dateutil.parser.parse(s)
+
+
+def with_daterange_filter(slug, column):
+    """Sends a help message if requested to or execute normal command"""
+    daterange_parser = reqparse.RequestParser()
+    daterange_parser.add_argument(f'{slug}_gt', type=isotime)
+    daterange_parser.add_argument(f'{slug}_lt', type=isotime)
+
+    def Inner(func):
+        def wrapper(*func_args, **kwargs):
+            # Execute comamnd
+            cacheable = func(*func_args, **kwargs)
+            args = daterange_parser.parse_args()
+            greater_than = args[f'{slug}_gt']
+            lower_than = args[f'{slug}_lt']
+            cacheable.date_range(column, greater_than, lower_than)
+            return cacheable
+
+        return wrapper
+    return Inner
