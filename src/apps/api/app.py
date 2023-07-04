@@ -1,7 +1,7 @@
 from flask import Flask, make_response
 from flask_restful import Resource, Api
 import json
-from .endpoints import Offsets
+from . import endpoints
 from src.apps.services import services_slow_cache, services_fast_cache
 from datetime import date, datetime
 
@@ -36,7 +36,7 @@ class Info(Resource):
         }
 
 
-api.add_resource(Offsets, '/offsets')
+api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
 api.add_resource(Info, '/')
 
 

@@ -1,14 +1,6 @@
 from flask_restful import Resource, reqparse
-from src.apps.services import Offsets as Service
+from src.apps.services import Offsets as Service, services_slow_cache
 from . import helpers
-
-
-def validate_list(valid_values):
-    def func(s):
-        if s in valid_values:
-            return s
-        raise Exception(f"Valid values are {', '.join(valid_values)}")
-    return func
 
 
 BRIDGES = ["all", "offchain", "Toucan", "C3", "Moss", "Polygon", "Eth"]
@@ -16,12 +8,13 @@ POOLS = ["UBO", "NBO", "NCT", "BCT"]
 STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
 
 parser = reqparse.RequestParser()
-parser.add_argument('bridge', type=validate_list(BRIDGES), default="all")
-parser.add_argument('pool', type=validate_list(POOLS + [None]), default=None)
-parser.add_argument('offset_status', type=validate_list(STATUSES + [None]), default=None)
+parser.add_argument('bridge', type=helpers.validate_list(BRIDGES), default="all")
+parser.add_argument('pool', type=helpers.validate_list(POOLS + [None]), default=None)
+parser.add_argument('offset_status', type=helpers.validate_list(STATUSES + [None]), default=None)
 
 
-class Offsets(Resource):
+class OffsetsRaw(Resource):
+    @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""Query Parameters
         bridge: one of {BRIDGES}
@@ -30,7 +23,7 @@ class Offsets(Resource):
         {helpers.PAGINATION_HELP}
         """
     )
-    @helpers.with_pagination_filter
+    @helpers.with_output_formatter
     @helpers.with_daterange_filter("bridged_date", "Bridged Date")
     @helpers.with_daterange_filter("issuance_date", "Issuance Date")
     @helpers.with_daterange_filter("retirement_date", "Retirement Date")
