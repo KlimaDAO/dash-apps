@@ -46,7 +46,7 @@ def with_help(help_text):
         return wrapper
     return Inner
 
-# PAGINATION DECORATOR
+# OUTPUT FORMATTER DECORATOR
 
 
 MAX_PAGE_SIZE = 2000000
@@ -64,13 +64,13 @@ def validate_page_size(s):
     raise Exception(f"page_size must be between 1 and {MAX_PAGE_SIZE}")
 
 
-pagination_parser = reqparse.RequestParser()
-pagination_parser.add_argument('help', default="no")
-pagination_parser.add_argument('format', type=validate_list(["json", "csv"]), default="json")
-pagination_parser.add_argument('page', type=int, default=0)
-pagination_parser.add_argument('page_size', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
-pagination_parser.add_argument('sort_by', default=0)
-pagination_parser.add_argument('sort_order', type=validate_list(["asc", "desc"]), default="asc")
+output_formatter_parser = reqparse.RequestParser()
+output_formatter_parser.add_argument('help', default="no")
+output_formatter_parser.add_argument('format', type=validate_list(["json", "csv"]), default="json")
+output_formatter_parser.add_argument('page', type=int, default=0)
+output_formatter_parser.add_argument('page_size', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
+output_formatter_parser.add_argument('sort_by', default=0)
+output_formatter_parser.add_argument('sort_order', type=validate_list(["asc", "desc"]), default="asc")
 
 
 def with_output_formatter(func):
@@ -83,7 +83,7 @@ def with_output_formatter(func):
             df = df.resolve()
 
         # Parse pagination arguments
-        args = pagination_parser.parse_args()
+        args = output_formatter_parser.parse_args()
 
         # Sort results
         sort_by = args["sort_by"]
@@ -116,7 +116,7 @@ def with_output_formatter(func):
     return wrapper
 
 
-PAGINATION_HELP = (
+OUTPUT_FORMATTER_HELP = (
         f"""page: Page to query
         page_size: Between 1 and {MAX_PAGE_SIZE}
         format: One of 'json' or 'csv'

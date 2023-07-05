@@ -7,7 +7,7 @@ class Prices(Resource):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         """
     )
     @helpers.with_output_formatter

@@ -47,7 +47,7 @@ class OffsetsRaw(AbstractOffsets):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         {helpers.DATES_FILTER_HELP}
         """
     )
@@ -67,7 +67,7 @@ class OffsetsDateAggregation(AbstractOffsets):
         f"""{BASE_HELP}
         date_field: Field on which to perform the aggregation. One of {DATE_FIELDS}
         operator: one of {OPERATORS}
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         {helpers.DATES_FILTER_HELP}
         """
     )
@@ -94,7 +94,7 @@ class OffsetsCountriesAggregation(AbstractOffsets):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         """
     )
     @helpers.with_output_formatter
@@ -107,7 +107,7 @@ class OffsetsProjectsAggregation(AbstractOffsets):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         """
     )
     @helpers.with_output_formatter
@@ -120,7 +120,7 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
-        {helpers.PAGINATION_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
         """
     )
     @helpers.with_output_formatter
