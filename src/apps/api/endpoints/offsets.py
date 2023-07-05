@@ -39,7 +39,7 @@ class AbstractOffsets(Resource):
         if offset_status is None:
             offset_status = "issued" if bridge == "offchain" else "bridged"
 
-        # Fetch and slice data
+        # Return offsets
         return Service().filter(bridge, pool, offset_status)
 
 
@@ -48,6 +48,7 @@ class OffsetsRaw(AbstractOffsets):
     @helpers.with_help(
         f"""{BASE_HELP}
         {helpers.PAGINATION_HELP}
+        {helpers.DATES_FILTER_HELP}
         """
     )
     @helpers.with_output_formatter
@@ -67,6 +68,7 @@ class OffsetsDateAggregation(AbstractOffsets):
         date_field: Field on which to perform the aggregation. One of {DATE_FIELDS}
         operator: one of {OPERATORS}
         {helpers.PAGINATION_HELP}
+        {helpers.DATES_FILTER_HELP}
         """
     )
     @helpers.with_output_formatter

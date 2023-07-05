@@ -120,8 +120,14 @@ PAGINATION_HELP = (
         f"""page: Page to query
         page_size: Between 1 and {MAX_PAGE_SIZE}
         format: One of 'json' or 'csv'
+        sort_by: Column to sort results on
+        sort_order: asc or desc
+        You can filter dates using '<date_column> gt' and '<date_column> gt'
         """
 )
+
+
+DATES_FILTER_HELP = """You can filter dates using '<date_column> gt' and '<date_column> gt'"""
 
 
 # DATE RANGE Filter
