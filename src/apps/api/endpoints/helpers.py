@@ -69,6 +69,8 @@ pagination_parser.add_argument('help', default="no")
 pagination_parser.add_argument('format', type=validate_list(["json", "csv"]), default="json")
 pagination_parser.add_argument('page', type=int, default=0)
 pagination_parser.add_argument('page_size', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
+pagination_parser.add_argument('sort_by', default=0)
+pagination_parser.add_argument('sort_order', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
 
 
 def with_output_formatter(func):
@@ -119,19 +121,19 @@ def isotime(s):
     return dateutil.parser.parse(s)
 
 
-def with_daterange_filter(slug, column):
+def with_daterange_filter(column):
     """Sends a help message if requested to or execute normal command"""
     daterange_parser = reqparse.RequestParser()
-    daterange_parser.add_argument(f'{slug}_gt', type=isotime)
-    daterange_parser.add_argument(f'{slug}_lt', type=isotime)
+    daterange_parser.add_argument(f'{column} gt', type=isotime)
+    daterange_parser.add_argument(f'{column} lt', type=isotime)
 
     def Inner(func):
         def wrapper(*func_args, **kwargs):
             # Execute comamnd
             cacheable = func(*func_args, **kwargs)
             args = daterange_parser.parse_args()
-            greater_than = args[f'{slug}_gt']
-            lower_than = args[f'{slug}_lt']
+            greater_than = args[f'{column} gt']
+            lower_than = args[f'{column} lt']
             cacheable.date_range(column, greater_than, lower_than)
             return cacheable
 

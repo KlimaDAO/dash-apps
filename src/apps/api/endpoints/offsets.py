@@ -7,13 +7,13 @@ BRIDGES = ["all", "offchain", "Toucan", "C3", "Moss", "Polygon", "Eth"]
 POOLS = ["UBO", "NBO", "NCT", "BCT"]
 STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
 OPERATORS = ["sum", "cumsum"]
-DATE_FIELDS = {
-    "bridged_date": "Bridged Date",
-    "issuance_date": "Issuance Date",
-    "retirement_date": "Retirement Date",
-    "deposit_date": "Deposited Date",
-    "redeemed_date": "Redeemed Date"
-}
+DATE_FIELDS = [
+    "Bridged Date",
+    "Issuance Date",
+    "Retirement Date",
+    "Deposited Date",
+    "Redeemed Date"
+]
 BASE_HELP = f"""Query Parameters
         bridge: one of {BRIDGES}
         pool: one of {POOLS}
@@ -26,7 +26,7 @@ offsets_filter_parser.add_argument('pool', type=helpers.validate_list(POOLS + [N
 offsets_filter_parser.add_argument('offset_status', type=helpers.validate_list(STATUSES + [None]), default=None)
 
 offsets_agg_parser = reqparse.RequestParser()
-offsets_agg_parser.add_argument('date_field', type=helpers.validate_list(DATE_FIELDS.keys()), required=True)
+offsets_agg_parser.add_argument('date_field', type=helpers.validate_list(DATE_FIELDS), required=True)
 offsets_agg_parser.add_argument('operator', type=helpers.validate_list(OPERATORS), default="sum")
 
 
@@ -51,11 +51,11 @@ class OffsetsRaw(AbstractOffsets):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date", "Bridged Date")
-    @helpers.with_daterange_filter("issuance_date", "Issuance Date")
-    @helpers.with_daterange_filter("retirement_date", "Retirement Date")
-    @helpers.with_daterange_filter("deposit_date", "Deposited Date")
-    @helpers.with_daterange_filter("redeemed_date", "Redeemed Date")
+    @helpers.with_daterange_filter("Bridged Date")
+    @helpers.with_daterange_filter("Issuance Date")
+    @helpers.with_daterange_filter("Retirement Date")
+    @helpers.with_daterange_filter("Deposited Date")
+    @helpers.with_daterange_filter("Redeemed Date")
     def get(self):
         return self.get_offsets()
 
@@ -64,20 +64,20 @@ class OffsetsDateAggregation(AbstractOffsets):
     @services_slow_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
-        date_field: Field on which to perform the aggregation. One of {list(DATE_FIELDS.keys())}
+        date_field: Field on which to perform the aggregation. One of {DATE_FIELDS}
         operator: one of {OPERATORS}
         {helpers.PAGINATION_HELP}
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date", "Bridged Date")
-    @helpers.with_daterange_filter("issuance_date", "Issuance Date")
-    @helpers.with_daterange_filter("retirement_date", "Retirement Date")
-    @helpers.with_daterange_filter("deposit_date", "Deposited Date")
-    @helpers.with_daterange_filter("redeemed_date", "Redeemed Date")
+    @helpers.with_daterange_filter("Bridged Date")
+    @helpers.with_daterange_filter("Issuance Date")
+    @helpers.with_daterange_filter("Retirement Date")
+    @helpers.with_daterange_filter("Deposited Date")
+    @helpers.with_daterange_filter("Redeemed Date")
     def get(self, freq):
         args = offsets_agg_parser.parse_args()
-        date_column = DATE_FIELDS[args["date_field"]]
+        date_column = args["date_field"]
         operator = args["operator"]
         offsets = self.get_offsets()
         if operator == "sum":
