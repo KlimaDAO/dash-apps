@@ -8,3 +8,4 @@ from .offsets import (  # noqa
     OffsetsGlobalAggregation
 )
 from .holders import Holders  # noqa
+from .prices import Prices  # noqa

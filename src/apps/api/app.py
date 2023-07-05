@@ -44,6 +44,7 @@ api.add_resource(endpoints.OffsetsCountriesAggregation, '/offsets/agg/countries'
 api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
 api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
 api.add_resource(endpoints.Holders, '/holders')
+api.add_resource(endpoints.Prices, '/prices')
 
 api.add_resource(Info, '/')
 

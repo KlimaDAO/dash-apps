@@ -8,7 +8,12 @@ class Prices(KeyCacheable):
         super(Prices, self).__init__(commands)
 
     @single_cached_command()
+    def dataset(self):
+        return self.df
+
+    @single_cached_command()
     def token(self, token):
+        print(self.df.columns)
         col_name = f"{token}_Price"
         a = self.df[col_name].isna()
         return self.df[~a].rename(columns={
