@@ -7,3 +7,4 @@ from .offsets import (  # noqa
     OffsetsMethodologiesAggregation,
     OffsetsGlobalAggregation
 )
+from .holders import Holders  # noqa

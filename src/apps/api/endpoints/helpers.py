@@ -70,7 +70,7 @@ pagination_parser.add_argument('format', type=validate_list(["json", "csv"]), de
 pagination_parser.add_argument('page', type=int, default=0)
 pagination_parser.add_argument('page_size', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
 pagination_parser.add_argument('sort_by', default=0)
-pagination_parser.add_argument('sort_order', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
+pagination_parser.add_argument('sort_order', type=validate_list(["asc", "desc"]), default="asc")
 
 
 def with_output_formatter(func):
@@ -84,6 +84,14 @@ def with_output_formatter(func):
 
         # Parse pagination arguments
         args = pagination_parser.parse_args()
+
+        # Sort results
+        sort_by = args["sort_by"]
+        sort_order = args["sort_order"]
+        if sort_by:
+            df = df.sort_values(by=sort_by, ascending=sort_order == "asc")
+
+        # Paginate results
         page = args["page"]
         page_size = args["page_size"]
         format = args["format"]
