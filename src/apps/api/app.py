@@ -35,7 +35,20 @@ class Info(Resource):
         return endpoints.subendpoints_help([
             "offsets/raw",
             "offsets/agg/daily",
-            "offsets/agg/daily"
+            "offsets/agg/monthly",
+            "offsets/agg/countries",
+            "offsets/agg/projects",
+            "offsets/agg/methodologies",
+            "holders",
+            "prices",
+            "carbon_metrics/polygon",
+            "carbon_metrics/eth",
+            "carbon_metrics/celo",
+            "retirements/raw",
+            "retirements/klima/agg",
+            "retirements/klima/agg/daily",
+            "retirements/klima/agg/monthly",
+            "retirements/klima/agg/beneficiaries",
 
             ])
 
@@ -49,10 +62,11 @@ api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/method
 api.add_resource(endpoints.Holders, '/holders')
 api.add_resource(endpoints.Prices, '/prices')
 api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:bridge>')
-api.add_resource(endpoints.RetirementsRaw, '/retirements/raw')
-api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/agg')
-api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/agg/<string:freq>')
-api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/agg/beneficiaries')
+api.add_resource(endpoints.RetirementsRaw, '/retirements/<string:filter>/raw')
+api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/<string:filter>/agg')
+api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/<string:filter>/agg/<string:freq>')
+api.add_resource(endpoints.RetirementsTokensAggregation, '/retirements/klima/agg/tokens/<string:freq>')
+api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/<string:filter>/agg/beneficiaries')
 
 
 api.add_resource(Info, '/')

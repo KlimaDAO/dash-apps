@@ -22,11 +22,10 @@ class Offsets(DfCacheable):
         s3 = S3()
         # Offchain data
         if bridge in ["offchain"]:
-            df = s3.load("verra_data_v2")
             if status == "issued":
-                pass
+                df = s3.load("verra_data_v2")
             elif status == "retired":
-                df = self.verra_retired(df)
+                df = s3.load("verra_retirements")
             else:
                 raise Exception(f"Unknown offset status {status}")
         # One Bridge data
@@ -218,12 +217,6 @@ class Offsets(DfCacheable):
 
     def drop_duplicates(self, df):
         df = df.drop_duplicates(subset=["Token Address"], keep="first")
-        df = df.reset_index(drop=True)
-        return df
-
-    def verra_retired(self, df):
-        df = df.query("~Toucan & ~C3 & ~Moss")
-        df = df[df["Status"] == "Retired"]
         df = df.reset_index(drop=True)
         return df
 
