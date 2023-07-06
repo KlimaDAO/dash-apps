@@ -92,7 +92,6 @@ class Offsets(DfCacheable):
         df = self.load_df(bridge, pool, status)
         return df
 
-
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
@@ -100,7 +99,7 @@ class Offsets(DfCacheable):
         return df
 
     @chained_cached_command()
-    def country_agg(self, df):
+    def countries_agg(self, df):
         df["Country Code"] = [
             Countries().get_country(country) for country in df["Country"]
         ]
@@ -109,12 +108,12 @@ class Offsets(DfCacheable):
         return df
 
     @chained_cached_command()
-    def project_agg(self, df):
+    def projects_agg(self, df):
         df = df.groupby("Project Type")
         return df
 
     @chained_cached_command()
-    def methodology_agg(self, df):
+    def methodologies_agg(self, df):
         df = df.groupby("Methodology")
         return df
 

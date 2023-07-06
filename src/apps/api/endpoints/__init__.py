@@ -1,7 +1,7 @@
 from .helpers import API_URL, subendpoints_help  # noqa
 from .offsets import (  # noqa
     OffsetsRaw,
-    OffsetsDateAggregation,
+    OffsetsDatesAggregation,
     OffsetsCountriesAggregation,
     OffsetsProjectsAggregation,
     OffsetsMethodologiesAggregation,
@@ -12,5 +12,7 @@ from .prices import Prices  # noqa
 from .carbon_metrics import CarbonMetrics  # noqa
 from .retirements import (  # noqa
     RetirementsRaw,
-    RetirementsDateAggregation
+    RetirementsDatesAggregation,
+    RetirementsBeneficiariesAggregation,
+    RetirementsGlobalAggregation
 )

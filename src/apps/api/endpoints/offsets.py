@@ -61,7 +61,7 @@ class OffsetsRaw(AbstractOffsets):
         return self.get_offsets()
 
 
-class OffsetsDateAggregation(AbstractOffsets):
+class OffsetsDatesAggregation(AbstractOffsets):
     @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
@@ -99,7 +99,7 @@ class OffsetsCountriesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().country_agg().sum("Quantity")
+        offsets = self.get_offsets().countries_agg().sum("Quantity")
         return offsets
 
 
@@ -112,7 +112,7 @@ class OffsetsProjectsAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().project_agg().sum("Quantity")
+        offsets = self.get_offsets().projects_agg().sum("Quantity")
         return offsets
 
 
@@ -125,7 +125,7 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().methodology_agg().sum("Quantity")
+        offsets = self.get_offsets().methodologies_agg().sum("Quantity")
         return offsets
 
 

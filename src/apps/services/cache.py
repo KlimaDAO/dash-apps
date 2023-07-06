@@ -179,6 +179,17 @@ class DfCacheable(KeyCacheable):
         return df
 
     @final_cached_command()
+    def agg(self, df, column, operators):
+        """Sums results, works also on aggregations"""
+        res = (
+            df[column]
+            .agg(list(operators.keys()))
+            .reset_index()
+            .rename(columns=operators)
+        )
+        return res
+
+    @final_cached_command()
     def sum(self, df, column):
         """Sums results, works also on aggregations"""
         res = df[column].sum()

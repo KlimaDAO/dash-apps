@@ -34,13 +34,15 @@ class Info(Resource):
     def get(self):
         return endpoints.subendpoints_help([
             "offsets/raw",
+            "offsets/agg/daily",
             "offsets/agg/daily"
+
             ])
 
 
 api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
 api.add_resource(endpoints.OffsetsGlobalAggregation, '/offsets/agg')
-api.add_resource(endpoints.OffsetsDateAggregation, '/offsets/agg/<string:freq>')
+api.add_resource(endpoints.OffsetsDatesAggregation, '/offsets/agg/<string:freq>')
 api.add_resource(endpoints.OffsetsCountriesAggregation, '/offsets/agg/countries')
 api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
 api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
@@ -48,7 +50,10 @@ api.add_resource(endpoints.Holders, '/holders')
 api.add_resource(endpoints.Prices, '/prices')
 api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:bridge>')
 api.add_resource(endpoints.RetirementsRaw, '/retirements/raw')
-api.add_resource(endpoints.RetirementsDateAggregation, '/retirements/agg/<string:freq>')
+api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/agg')
+api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/agg/<string:freq>')
+api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/agg/beneficiaries')
+
 
 api.add_resource(Info, '/')
 

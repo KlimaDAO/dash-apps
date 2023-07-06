@@ -5,7 +5,7 @@ class KlimaRetirements(DfCacheable):
     """Service for carbon metrics"""
     def __init__(self, commands=[]):
         super(KlimaRetirements, self).__init__(commands)
-    
+
     def getDf(self):
         """Get klima retirements"""
         return S3().load("polygon_klima_retirements")
@@ -29,3 +29,8 @@ class KlimaRetirements(DfCacheable):
         return df[
             df['dailyKlimaRetirements_token'].isin(tokens)
         ]
+
+    @chained_cached_command()
+    def beneficiaries_agg(self, df):
+        df = df.groupby("Beneficiary Address")
+        return df
