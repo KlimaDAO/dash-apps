@@ -3,13 +3,14 @@ from flask_restful import Resource, Api
 import pandas as pd
 import json
 from . import endpoints
-from src.apps.services import services_slow_cache, services_fast_cache
+from src.apps.services import services_slow_cache, services_fast_cache, layout_cache
 from datetime import date, datetime
 
 app = Flask(__name__)
 api = Api(app)
 services_slow_cache.init_app(app)
 services_fast_cache.init_app(app)
+layout_cache.init_app(app)
 
 
 # Fixes for json serialisation of date and datetime
@@ -46,6 +47,8 @@ api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/method
 api.add_resource(endpoints.Holders, '/holders')
 api.add_resource(endpoints.Prices, '/prices')
 api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:bridge>')
+api.add_resource(endpoints.RetirementsRaw, '/retirements/raw')
+api.add_resource(endpoints.RetirementsDateAggregation, '/retirements/agg/<string:freq>')
 
 api.add_resource(Info, '/')
 

@@ -5,6 +5,7 @@ from .cache import ( # noqa
     chained_cached_command,
     final_cached_command,
     single_cached_command,
+    DfCacheable,
     KeyCacheable)
 
 from . import constants  # noqa

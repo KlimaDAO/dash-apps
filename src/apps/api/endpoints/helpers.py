@@ -81,7 +81,6 @@ def with_output_formatter(func):
         # Resolve result if necessary
         if isinstance(df, KeyCacheable):
             df = df.resolve()
-
         # Parse pagination arguments
         args = output_formatter_parser.parse_args()
 

@@ -1,10 +1,10 @@
 from flask_restful import Resource
-from src.apps.services import Metrics as Service, services_slow_cache
+from src.apps.services import Metrics as Service, layout_cache
 from . import helpers
 
 
 class CarbonMetrics(Resource):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""
         {helpers.OUTPUT_FORMATTER_HELP}

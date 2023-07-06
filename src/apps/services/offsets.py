@@ -1,10 +1,18 @@
 from __future__ import annotations  # noqa
 import pandas as pd
 import numpy as np
-from . import S3, Countries, Tokens, constants, KeyCacheable, chained_cached_command, final_cached_command
+from . import (
+    S3,
+    Countries,
+    Tokens,
+    constants,
+    DfCacheable,
+    chained_cached_command,
+    final_cached_command,
+)
 
 
-class Offsets(KeyCacheable):
+class Offsets(DfCacheable):
     """Service for offsets"""
     def __init__(self, commands=[]):
         super(Offsets, self).__init__(commands)
@@ -84,40 +92,6 @@ class Offsets(KeyCacheable):
         df = self.load_df(bridge, pool, status)
         return df
 
-    @chained_cached_command()
-    def date_range(self, df, date_column, begin, end):
-        """Adds a date range filter"""
-        if end is not None:
-            df = df[
-                (df[date_column] <= end)
-            ]
-        if begin is not None:
-            df = df[
-                (df[date_column] > begin)
-            ]
-        return df
-
-    def date_agg(self, date_column, freq):
-        if freq == "daily":
-            return self.daily_agg(date_column)
-        elif freq == "monthly":
-            return self.monthly_agg(date_column)
-        else:
-            raise Exception("Unknown date aggregation frequency")
-
-    @chained_cached_command()
-    def daily_agg(self, df, date_column):
-        """Adds an aggregation by day"""
-        df = self.date_manipulations(df, date_column, "daily")
-        df = df.groupby(date_column)
-        return df
-
-    @chained_cached_command()
-    def monthly_agg(self, df, date_column):
-        """Adds an aggregation by day"""
-        df = self.date_manipulations(df, date_column, "monthly")
-        df = df.groupby(date_column)
-        return df
 
     @chained_cached_command()
     def vintage_agg(self, df):
@@ -143,17 +117,6 @@ class Offsets(KeyCacheable):
     def methodology_agg(self, df):
         df = df.groupby("Methodology")
         return df
-
-    @final_cached_command()
-    def sum(self, df, column):
-        """Sums results, works also on aggregations"""
-        res = df[column].sum()
-
-        # Reset index if we are computing aggregated sums
-        if type(res) == pd.core.series.Series:
-            res = res.reset_index()
-
-        return res
 
     def _summary(self, df, result_cols):
         """Creates a summary"""
@@ -197,66 +160,10 @@ class Offsets(KeyCacheable):
         ])
 
     @final_cached_command()
-    def sum_over_time(self, df, date_column, column, freq):
-        df = self.date_manipulations(df, date_column, freq)
-        df = df.sort_values(by=date_column, ascending=True)
-        df[column] = df[column].cumsum()
-        return df
-
-    @final_cached_command()
-    def cumsum(self, df, column):
-        """Cumulative sum"""
-        return df[column].cumsum()
-
-    @final_cached_command()
     def average(self, df, column, weights):
         if df[weights].sum() == 0:
             return 0
         return np.average(df[column], weights=df[weights])
-
-    def date_manipulations(self, df, date_column, freq):
-        if freq == "daily":
-            return self.date_manipulations_daily(df, date_column)
-        elif freq == "monthly":
-            return self.date_manipulations_monthly(df, date_column)
-
-    def date_manipulations_monthly(self, df, date_column):
-        df[date_column] = pd.to_datetime(df[date_column]).dt.to_period("M")
-        return df
-
-    def date_manipulations_daily(self, df, date_column):
-        if not (df.empty):
-            # TODO: dates should already in date format
-            df[date_column] = (
-                df[date_column]
-                .dt.tz_localize(None)
-                .dt.floor("D")
-                .dt.date
-            )
-            datelist = pd.date_range(
-                start=df[date_column].min() + pd.DateOffset(-1),
-                end=pd.to_datetime("today"),
-                freq="D",
-            )
-            df_date = pd.DataFrame()
-            df_date["Date_continous"] = datelist
-            df_date["Date_continous"] = (
-                pd.to_datetime(df_date["Date_continous"], unit="s")
-                .dt.tz_localize(None)
-                .dt.floor("D")
-                .dt.date
-            )
-            df = df.merge(
-                df_date, how="right", left_on=date_column, right_on="Date_continous"
-            ).reset_index(drop=True)
-            df[date_column] = df["Date_continous"]
-            for i in df.columns:
-                if "Quantity" in i:
-                    df[i] = df[i].fillna(0)
-                else:
-                    df[i] = df[i].fillna("missing")
-                    df[i] = df[i].replace("", "missing")
-        return df
 
     def filter_pool_quantity(self, df, quantity_column):
         filtered = df[df[quantity_column] > 0]

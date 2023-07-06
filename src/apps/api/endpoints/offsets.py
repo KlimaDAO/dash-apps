@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from src.apps.services import Offsets as Service, services_slow_cache
+from src.apps.services import Offsets as Service, layout_cache
 from . import helpers
 
 
@@ -44,7 +44,7 @@ class AbstractOffsets(Resource):
 
 
 class OffsetsRaw(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         {helpers.OUTPUT_FORMATTER_HELP}
@@ -62,7 +62,7 @@ class OffsetsRaw(AbstractOffsets):
 
 
 class OffsetsDateAggregation(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         date_field: Field on which to perform the aggregation. One of {DATE_FIELDS}
@@ -91,7 +91,7 @@ class OffsetsDateAggregation(AbstractOffsets):
 
 
 class OffsetsCountriesAggregation(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         {helpers.OUTPUT_FORMATTER_HELP}
@@ -104,7 +104,7 @@ class OffsetsCountriesAggregation(AbstractOffsets):
 
 
 class OffsetsProjectsAggregation(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         {helpers.OUTPUT_FORMATTER_HELP}
@@ -117,7 +117,7 @@ class OffsetsProjectsAggregation(AbstractOffsets):
 
 
 class OffsetsMethodologiesAggregation(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         {helpers.OUTPUT_FORMATTER_HELP}
@@ -130,7 +130,7 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
 
 
 class OffsetsGlobalAggregation(AbstractOffsets):
-    @services_slow_cache.cached(query_string=True)
+    @layout_cache.cached(query_string=True)
     @helpers.with_help(
         f"""{BASE_HELP}
         """

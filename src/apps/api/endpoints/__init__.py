@@ -10,3 +10,7 @@ from .offsets import (  # noqa
 from .holders import Holders  # noqa
 from .prices import Prices  # noqa
 from .carbon_metrics import CarbonMetrics  # noqa
+from .retirements import (  # noqa
+    RetirementsRaw,
+    RetirementsDateAggregation
+)

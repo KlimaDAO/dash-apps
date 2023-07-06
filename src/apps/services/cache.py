@@ -1,3 +1,4 @@
+import pandas as pd
 from flask_caching import Cache
 import hashlib
 import pickle
@@ -132,3 +133,116 @@ def chained_cached_command():
 def single_cached_command():
     """Decorates a method to be cached. The method returns the result immediately and does not take inputs"""
     return cached_command(is_final_command=True, takes_input=False)
+
+
+class DfCacheable(KeyCacheable):
+    """ Contains a few basic df manipulation commands"""
+    @chained_cached_command()
+    def date_range(self, df, date_column, begin, end):
+        """Adds a date range filter"""
+        if end is not None:
+            df = df[
+                (df[date_column] <= end)
+            ]
+        if begin is not None:
+            df = df[
+                (df[date_column] > begin)
+            ]
+        return df
+
+    def date_agg(self, date_column, freq):
+        if freq == "daily":
+            return self.daily_agg(date_column)
+        elif freq == "monthly":
+            return self.monthly_agg(date_column)
+        else:
+            raise Exception("Unknown date aggregation frequency")
+
+    @chained_cached_command()
+    def daily_agg(self, df, columns):
+        if not type(columns) == list:
+            columns = [columns]
+        date_column = columns[0]
+        """Adds an aggregation by day"""
+        df = self.date_manipulations(df, date_column, "daily")
+        df = df.groupby(columns)
+        return df
+
+    @chained_cached_command()
+    def monthly_agg(self, df, columns):
+        """Adds an aggregation by month"""
+        if not type(columns) == list:
+            columns = [columns]
+        date_column = columns[0]
+        df = self.date_manipulations(df, date_column, "monthly")
+        df = df.groupby(columns)
+        return df
+
+    @final_cached_command()
+    def sum(self, df, column):
+        """Sums results, works also on aggregations"""
+        res = df[column].sum()
+
+        # Reset index if we are computing aggregated sums
+        if type(res) == pd.core.series.Series:
+            res = res.reset_index()
+
+        return res
+
+    @final_cached_command()
+    def sum_over_time(self, df, date_column, column, freq):
+        df = self.date_manipulations(df, date_column, freq)
+        df = df.sort_values(by=date_column, ascending=True)
+        df[column] = df[column].cumsum()
+        return df
+
+    @final_cached_command()
+    def cumsum(self, df, column):
+        """Cumulative sum"""
+        return df[column].cumsum()
+
+    def date_manipulations(self, df, date_column, freq):
+        if freq == "daily":
+            return self.date_manipulations_daily(df, date_column)
+        elif freq == "monthly":
+            return self.date_manipulations_monthly(df, date_column)
+
+    def date_manipulations_monthly(self, df, date_column):
+        df[date_column] = pd.to_datetime(df[date_column]).dt.to_period("M")
+        return df
+
+    def date_manipulations_daily(self, df, date_column):
+        if not (df.empty):
+            # TODO: dates should already in date format
+            df[date_column] = (
+                df[date_column]
+                .dt.tz_localize(None)
+                .dt.floor("D")
+                .dt.date
+            )
+            datelist = pd.date_range(
+                start=df[date_column].min() + pd.DateOffset(-1),
+                end=pd.to_datetime("today"),
+                freq="D",
+            )
+            df_date = pd.DataFrame()
+            df_date["Date_continous"] = datelist
+            df_date["Date_continous"] = (
+                pd.to_datetime(df_date["Date_continous"], unit="s")
+                .dt.tz_localize(None)
+                .dt.floor("D")
+                .dt.date
+            )
+            df = df.merge(
+                df_date, how="right", left_on=date_column, right_on="Date_continous"
+            ).reset_index(drop=True)
+            df[date_column] = df["Date_continous"]
+            for i in df.columns:
+                if "Quantity" in i:
+                    df[i] = df[i].fillna(0)
+                if "Amount" in i:
+                    df[i] = df[i].fillna(0)
+                else:
+                    df[i] = df[i].fillna("missing")
+                    df[i] = df[i].replace("", "missing")
+        return df
