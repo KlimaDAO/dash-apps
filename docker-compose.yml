@@ -21,6 +21,6 @@ services:
     entrypoint: python
     command: ["-m", "src.apps.api.app"]
     ports:
-      - 8051:8051
+      - 8051:8050
     volumes:
       - ./:/src
