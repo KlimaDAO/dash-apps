@@ -29,7 +29,7 @@ class Retirements(DfCacheable):
     def filter_tokens(self, df, tokens):
         """Filter klima retirements on tokens"""
         if df is None:
-            df = S3().load("raw_polygon_klima_retirements")
+            df = S3().load("polygon_klima_retirements")
 
         return df[
             df['dailyKlimaRetirements_token'].isin(tokens)
