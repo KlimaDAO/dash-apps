@@ -1,4 +1,4 @@
-from .helpers import API_URL, subendpoints_help  # noqa
+from .helpers import subendpoints_help  # noqa
 from .offsets import (  # noqa
     OffsetsRaw,
     OffsetsDatesAggregation,

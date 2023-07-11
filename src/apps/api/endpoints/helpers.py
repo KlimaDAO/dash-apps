@@ -1,21 +1,25 @@
+import re
 import pandas as pd
 import math
 from flask_restful import reqparse
+from flask import request
 import dateutil
-import os
 from src.apps.services import KeyCacheable
 
 
-API_URL = os.getenv("DASH_API_URL", "http://localhost:8051")
-API_VERSION = "0.0.1"
+API_MAJOR_VERSION = "v1"
+API_MINOR_VERSION = "0.1"
 
 
 def subendpoints_help(endpoints):
+    print("aa")
+    match = re.match("(.*/api/v1).*", request.base_url)
+    api_url = match.group(1)
     return {
         'api': 'dash-api',
-        'version': API_VERSION,
+        'version': f"{API_MAJOR_VERSION}.{API_MINOR_VERSION}",
         'endpoints': endpoints,
-        'help': f'Use {API_URL}/<endpoint>?help for assistance'
+        'help': f'Use {api_url}/<endpoint>?help for assistance'
     }
 
 
