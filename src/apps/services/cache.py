@@ -3,6 +3,7 @@ from flask_caching import Cache
 import hashlib
 import pickle
 import copy
+from .helpers import DashArgumentException
 from ...util import getenv # noqa
 
 # Configure cache
@@ -156,7 +157,7 @@ class DfCacheable(KeyCacheable):
         elif freq == "monthly":
             return self.monthly_agg(date_column)
         else:
-            raise Exception("Unknown date aggregation frequency")
+            raise DashArgumentException("Unknown date aggregation frequency")
 
     @chained_cached_command()
     def daily_agg(self, df, columns):
@@ -204,7 +205,8 @@ class DfCacheable(KeyCacheable):
     def sum_over_time(self, df, date_column, column, freq):
         df = self.date_manipulations(df, date_column, freq)
         df = df.sort_values(by=date_column, ascending=True)
-        df[column] = df[column].cumsum()
+        df = df.groupby(date_column)[column].sum()
+        df = df.groupby(level=0).cumsum().reset_index()
         return df
 
     @final_cached_command()
@@ -224,36 +226,38 @@ class DfCacheable(KeyCacheable):
 
     def date_manipulations_daily(self, df, date_column):
         if not (df.empty):
-            # TODO: dates should already in date format
             df[date_column] = (
                 df[date_column]
                 .dt.tz_localize(None)
                 .dt.floor("D")
                 .dt.date
             )
+            """
             datelist = pd.date_range(
                 start=df[date_column].min() + pd.DateOffset(-1),
                 end=pd.to_datetime("today"),
                 freq="D",
             )
             df_date = pd.DataFrame()
-            df_date["Date_continous"] = datelist
-            df_date["Date_continous"] = (
-                pd.to_datetime(df_date["Date_continous"], unit="s")
+            df_date["date_continous"] = datelist
+            df_date["date_continous"] = (
+                pd.to_datetime(df_date["date_continous"], unit="s")
                 .dt.tz_localize(None)
                 .dt.floor("D")
                 .dt.date
             )
             df = df.merge(
-                df_date, how="right", left_on=date_column, right_on="Date_continous"
+                df_date, how="right", left_on=date_column, right_on="date_continous"
             ).reset_index(drop=True)
-            df[date_column] = df["Date_continous"]
+            df[date_column] = df["date_continous"]
             for i in df.columns:
-                if "Quantity" in i:
+                if "quantity" in i:
                     df[i] = df[i].fillna(0)
-                if "Amount" in i:
+                if "amount" in i:
                     df[i] = df[i].fillna(0)
                 else:
                     df[i] = df[i].fillna("missing")
                     df[i] = df[i].replace("", "missing")
+
+            """
         return df

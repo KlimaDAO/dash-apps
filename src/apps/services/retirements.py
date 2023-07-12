@@ -1,4 +1,4 @@
-from . import S3, DfCacheable, final_cached_command, chained_cached_command, single_cached_command
+from . import S3, DashArgumentException, DfCacheable, final_cached_command, chained_cached_command, single_cached_command
 
 
 class Retirements(DfCacheable):
@@ -13,7 +13,7 @@ class Retirements(DfCacheable):
         elif filter == "klima":
             return S3().load("polygon_klima_retirements")
         else:
-            raise Exception(f"Unknown retirements filter {filter}")
+            raise DashArgumentException(f"Unknown retirements filter {filter}")
 
     @single_cached_command()
     def raw(self, filter):
@@ -37,5 +37,5 @@ class Retirements(DfCacheable):
 
     @chained_cached_command()
     def beneficiaries_agg(self, df):
-        df = df.groupby("Beneficiary")
+        df = df.groupby("beneficiary")
         return df

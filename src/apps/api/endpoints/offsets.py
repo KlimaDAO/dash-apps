@@ -3,16 +3,16 @@ from src.apps.services import Offsets as Service, layout_cache
 from . import helpers
 
 
-BRIDGES = ["all", "offchain", "Toucan", "C3", "Moss", "Polygon", "Eth"]
-POOLS = ["UBO", "NBO", "NCT", "BCT"]
+BRIDGES = ["all", "offchain", "toucan", "c3", "moss", "polygon", "eth"]
+POOLS = ["ubo", "nbo", "nct", "bct"]
 STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
 OPERATORS = ["sum", "cumsum"]
 DATE_FIELDS = [
-    "Bridged Date",
-    "Issuance Date",
-    "Retirement Date",
-    "Deposited Date",
-    "Redeemed Date"
+    "bridged_date",
+    "issuance_date",
+    "retirement_date",
+    "deposited_date",
+    "redeemed_date"
 ]
 BASE_HELP = f"""Query Parameters
         bridge: one of {BRIDGES}
@@ -52,11 +52,11 @@ class OffsetsRaw(AbstractOffsets):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("Bridged Date")
-    @helpers.with_daterange_filter("Issuance Date")
-    @helpers.with_daterange_filter("Retirement Date")
-    @helpers.with_daterange_filter("Deposited Date")
-    @helpers.with_daterange_filter("Redeemed Date")
+    @helpers.with_daterange_filter("bridged_date")
+    @helpers.with_daterange_filter("issuance_date")
+    @helpers.with_daterange_filter("retirement_date")
+    @helpers.with_daterange_filter("deposited_date")
+    @helpers.with_daterange_filter("redeemed_date")
     def get(self):
         return self.get_offsets()
 
@@ -72,20 +72,21 @@ class OffsetsDatesAggregation(AbstractOffsets):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("Bridged Date")
-    @helpers.with_daterange_filter("Issuance Date")
-    @helpers.with_daterange_filter("Retirement Date")
-    @helpers.with_daterange_filter("Deposited Date")
-    @helpers.with_daterange_filter("Redeemed Date")
+    @helpers.with_daterange_filter("bridged_date")
+    @helpers.with_daterange_filter("issuance_date")
+    @helpers.with_daterange_filter("retirement_date")
+    @helpers.with_daterange_filter("deposited_date")
+    @helpers.with_daterange_filter("redeemed_date")
     def get(self, freq):
+        # TODO: fix date comparisons
         args = offsets_agg_parser.parse_args()
         date_column = args["date_field"]
         operator = args["operator"]
         offsets = self.get_offsets()
         if operator == "sum":
-            offsets.date_agg(date_column, freq).sum("Quantity")
+            offsets.date_agg(date_column, freq).sum("quantity")
         elif operator == "cumsum":
-            offsets.sum_over_time(date_column, "Quantity", freq)
+            offsets.sum_over_time(date_column, "quantity", freq)
 
         return offsets
 
@@ -99,7 +100,7 @@ class OffsetsCountriesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().countries_agg().sum("Quantity")
+        offsets = self.get_offsets().countries_agg().sum("quantity")
         return offsets
 
 
@@ -112,7 +113,7 @@ class OffsetsProjectsAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().projects_agg().sum("Quantity")
+        offsets = self.get_offsets().projects_agg().sum("quantity")
         return offsets
 
 
@@ -125,7 +126,7 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().methodologies_agg().sum("Quantity")
+        offsets = self.get_offsets().methodologies_agg().sum("quantity")
         return offsets
 
 
@@ -137,5 +138,5 @@ class OffsetsGlobalAggregation(AbstractOffsets):
     )
     def get(self):
         return {
-            "value": self.get_offsets().sum("Quantity")
+            "quantity": self.get_offsets().sum("quantity")
         }

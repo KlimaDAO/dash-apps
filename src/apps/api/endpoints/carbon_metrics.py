@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from src.apps.services import Metrics as Service, layout_cache
+from src.apps.services import Metrics as Service, layout_cache, DashArgumentException
 from . import helpers
 
 
@@ -11,14 +11,14 @@ class CarbonMetrics(Resource):
         """
     )
     @helpers.with_output_formatter
-    def get(self, bridge):
+    def get(self, chain):
         service = Service()
-        if bridge == "eth":
+        if chain == "eth":
             metrics = service.eth()
-        elif bridge == "polygon":
+        elif chain == "polygon":
             metrics = service.polygon()
-        elif bridge == "celo":
+        elif chain == "celo":
             metrics = service.celo()
         else:
-            raise Exception("Unknown chain")
+            raise DashArgumentException(f"Unknown chain '{chain}'")
         return metrics

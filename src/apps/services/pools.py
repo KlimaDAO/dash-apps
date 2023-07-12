@@ -1,4 +1,4 @@
-from . import Offsets, KeyCacheable, chained_cached_command, final_cached_command
+from . import Offsets, KeyCacheable, DashArgumentException, chained_cached_command, final_cached_command
 
 
 class Pools(KeyCacheable):
@@ -18,7 +18,7 @@ class Pools(KeyCacheable):
         elif bridge == "C3":
             pool_labels = ["UBO", "NBO"]
         else:
-            raise Exception("Unknown bridge")
+            raise DashArgumentException("Unknown bridge")
         values = [Offsets().filter(bridge, pool, "bridged").sum("Quantity") for pool in pool_labels]
 
         pool_labels = pool_labels + ["Not Pooled"]

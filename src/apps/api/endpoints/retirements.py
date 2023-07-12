@@ -27,7 +27,7 @@ class RetirementsDatesAggregation(Resource):
     @helpers.with_output_formatter
     def get(self, filter, freq):
         retirements = Service().get(filter)
-        retirements.date_agg(["Retirement Date"], freq).sum("Quantity")
+        retirements.date_agg(["retirement_date"], freq).sum("quantity")
         return retirements
 
 
@@ -42,7 +42,7 @@ class RetirementsTokensAggregation(Resource):
     @helpers.with_output_formatter
     def get(self, freq):
         retirements = Service().get("klima")
-        retirements.date_agg(["Retirement Date", "Token"], freq).sum("Quantity")
+        retirements.date_agg(["retirement_date", "token"], freq).sum("quantity")
         return retirements
 
 
@@ -57,9 +57,9 @@ class RetirementsBeneficiariesAggregation(Resource):
     @helpers.with_output_formatter
     def get(self, filter):
         retirements = Service().get(filter)
-        retirements.beneficiaries_agg().agg("Quantity", {
-            "sum": "Amount retired",
-            "count": "Number of retirements"
+        retirements.beneficiaries_agg().agg("quantity", {
+            "sum": "amount_retired",
+            "count": "number_of_retirements"
         })
         return retirements
 
@@ -74,5 +74,5 @@ class RetirementsGlobalAggregation(Resource):
     )
     def get(self, filter):
         return {
-            "Quantity": Service().get(filter).sum("Quantity")
+            "quantity": Service().get(filter).sum("quantity")
         }

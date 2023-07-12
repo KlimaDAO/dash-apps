@@ -1,13 +1,14 @@
 from flask import Flask, make_response
-from flask_restful import Resource, Api
+from flask_restful import Resource
 import pandas as pd
 import json
 from . import endpoints
+from .dash_api import DashApi
 from src.apps.services import services_slow_cache, services_fast_cache, layout_cache
 from datetime import date, datetime
 
 app = Flask(__name__)
-api = Api(app, prefix="/api/v1")
+api = DashApi(app, prefix="/api/v1")
 services_slow_cache.init_app(app)
 services_fast_cache.init_app(app)
 layout_cache.init_app(app)
@@ -34,6 +35,7 @@ class Info(Resource):
     def get(self):
         return endpoints.subendpoints_help([
             "offsets/raw",
+            "offsets/agg",
             "offsets/agg/daily",
             "offsets/agg/monthly",
             "offsets/agg/countries",
@@ -49,8 +51,7 @@ class Info(Resource):
             "retirements/klima/agg/daily",
             "retirements/klima/agg/monthly",
             "retirements/klima/agg/beneficiaries",
-
-            ])
+        ])
 
 
 api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
@@ -61,7 +62,7 @@ api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
 api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
 api.add_resource(endpoints.Holders, '/holders')
 api.add_resource(endpoints.Prices, '/prices')
-api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:bridge>')
+api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:chain>')
 api.add_resource(endpoints.RetirementsRaw, '/retirements/<string:filter>/raw')
 api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/<string:filter>/agg')
 api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/<string:filter>/agg/<string:freq>')

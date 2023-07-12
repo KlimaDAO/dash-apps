@@ -5,7 +5,7 @@ from . import (
     S3,
     Countries,
     Tokens,
-    constants,
+    helpers,
     DfCacheable,
     chained_cached_command,
     final_cached_command,
@@ -17,7 +17,7 @@ class Offsets(DfCacheable):
     def __init__(self, commands=[]):
         super(Offsets, self).__init__(commands)
 
-    def load_df(self, bridge, pool, status):
+    def load_df(self, bridge: str, pool: str, status: str):
         is_pool_df = False
         s3 = S3()
         # Offchain data
@@ -27,9 +27,9 @@ class Offsets(DfCacheable):
             elif status == "retired":
                 df = s3.load("verra_retirements")
             else:
-                raise Exception(f"Unknown offset status {status}")
+                raise helpers.DashArgumentException(f"Unknown offset status {status}")
         # One Bridge data
-        elif bridge in ["Toucan", "C3", "Polygon"]:
+        elif bridge in ["toucan", "c3", "polygon"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets_v2")
             elif status == "retired":
@@ -45,40 +45,40 @@ class Offsets(DfCacheable):
                 df = s3.load("polygon_pools_redeemed_offsets")
                 is_pool_df = True
             else:
-                raise Exception(f"Unknown offset status {status}")
-        elif bridge in ["Moss", "Eth"]:
+                raise helpers.DashArgumentException(f"Unknown offset status {status}")
+        elif bridge in ["moss", "eth"]:
             if status == "bridged":
                 df = s3.load("eth_moss_bridged_offsets_v2")
             elif status == "retired":
                 df = s3.load("eth_retired_offsets_v2")
             else:
-                raise Exception(f"Unknown offset status {status}")
+                raise helpers.DashArgumentException(f"Unknown offset status {status}")
         # All bridges data concatenated
         elif bridge == "all":
             dfs = []
-            for bridg in constants.ALL_BRIDGES:
+            for bridg in helpers.ALL_BRIDGES:
                 bridg_df = self.load_df(bridg, pool, status)
                 date_column = Offsets.status_date_column(status)
-                bridg_df = bridg_df[[date_column, "Quantity", "Bridge"]]
+                bridg_df = bridg_df[[date_column, "quantity", "bridge"]]
                 dfs.append(bridg_df)
 
             df = pd.concat(dfs)
         else:
-            raise Exception(f"Unknown bridge {bridge}")
+            raise helpers.DashArgumentException(f"Unknown bridge {bridge}")
 
         # Filter bridge
         if not is_pool_df:
-            if bridge in constants.ALL_BRIDGES:
-                df = df[df["Bridge"] == bridge].reset_index()
+            if bridge in helpers.ALL_BRIDGES:
+                df = df[df["bridge"].str.lower() == bridge.lower()].reset_index()
 
         # Filter pool
         if pool:
             if not is_pool_df:
                 df = self.drop_duplicates(df)
                 if pool == "all":
-                    df = self.filter_pool_quantity(df, "Total Quantity")
+                    df = self.filter_pool_quantity(df, "total_quantity")
                 else:
-                    df = self.filter_pool_quantity(df, f"{pool} Quantity")
+                    df = self.filter_pool_quantity(df, f"{pool}_quantity")
             elif pool != "all":
                 df = self.filter_df_by_pool(df, pool)
 
@@ -94,34 +94,34 @@ class Offsets(DfCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
-        df = df.groupby("Vintage")
+        df = df.groupby("vintage")
         return df
 
     @chained_cached_command()
     def countries_agg(self, df):
-        df["Country Code"] = [
-            Countries().get_country(country) for country in df["Country"]
+        df["country_code"] = [
+            Countries().get_country(country) for country in df["country"]
         ]
-        df["Country Text"] = df["Country Code"].astype(str)
-        df = df.groupby(["Country", "Country Text", "Country Code"])
+        df["country_text"] = df["country_code"].astype(str)
+        df = df.groupby(["country", "country_text", "country_code"])
         return df
 
     @chained_cached_command()
     def projects_agg(self, df):
-        df = df.groupby("Project Type")
+        df = df.groupby("project_type")
         return df
 
     @chained_cached_command()
     def methodologies_agg(self, df):
-        df = df.groupby("Methodology")
+        df = df.groupby("methodology")
         return df
 
     def _summary(self, df, result_cols):
         """Creates a summary"""
         group_by_cols = result_cols.copy()
-        group_by_cols.remove("Quantity")
+        group_by_cols.remove("quantity")
         df = (
-            df.groupby(group_by_cols)["Quantity"]
+            df.groupby(group_by_cols)["quantity"]
             .sum()
             .to_frame()
             .reset_index()
@@ -133,28 +133,27 @@ class Offsets(DfCacheable):
     def pool_summary(self, df):
         """Creates a summary for pool data"""
         return self._summary(df, [
-            "Project ID",
-            "Token Address",
-            "View on PolygonScan",
-            "Quantity",
-            "Vintage",
-            "Country",
-            "Project Type",
-            "Methodology",
-            "Name"
+            "project_id",
+            "token Address",
+            "quantity",
+            "vintage",
+            "country",
+            "project_type",
+            "methodology",
+            "name"
          ])
 
     @final_cached_command()
     def bridge_summary(self, df):
         """Creates a summary for bridge data"""
         return self._summary(df, [
-            "Project ID",
-            "Quantity",
-            "Vintage",
-            "Country",
-            "Project Type",
-            "Methodology",
-            "Name"
+            "project_id",
+            "quantity",
+            "vintage",
+            "country",
+            "project_type",
+            "methodology",
+            "name"
         ])
 
     @final_cached_command()
@@ -165,72 +164,61 @@ class Offsets(DfCacheable):
 
     def filter_pool_quantity(self, df, quantity_column):
         filtered = df[df[quantity_column] > 0]
-        filtered["Quantity"] = filtered[quantity_column]
+        filtered["quantity"] = filtered[quantity_column]
         filtered = filtered[
             [
-                "Project ID",
-                "Vintage",
-                "Quantity",
-                "Country",
-                "Name",
-                "Project Type",
-                "Methodology",
-                "Token Address",
+                "project_id",
+                "vintage",
+                "quantity",
+                "country",
+                "name",
+                "project_type",
+                "methodology",
+                "token_address",
             ]
         ]
         pat = r"VCS-(?P<id>\d+)"
         repl = (
-            lambda m: "[VCS-"
-            + m.group("id")
-            + "](https://registry.verra.org/app/projectDetail/VCS/"
-            + m.group("id")
-            + ")"
+            lambda m: f"https://registry.verra.org/app/projectDetail/VCS/{m.group('id')}"
         )
-        filtered["Project ID"] = filtered["Project ID"].str.replace(pat, repl, regex=True)
-        filtered["View on PolygonScan"] = (
-            "["
-            + "Click Here"
-            + "](https://polygonscan.com/address/"
-            + filtered["Token Address"]
-            + ")"
-        )
+        filtered["project_url"] = filtered["project_id"].str.replace(pat, repl, regex=True)
         filtered = filtered[
             [
-                "Project ID",
-                "Token Address",
-                "View on PolygonScan",
-                "Quantity",
-                "Vintage",
-                "Country",
-                "Project Type",
-                "Methodology",
-                "Name",
+                "project_id",
+                "project_url",
+                "token_address",
+                "quantity",
+                "vintage",
+                "country",
+                "project_type",
+                "methodology",
+                "name",
             ]
         ].reset_index(drop=True)
         return filtered
 
     def filter_df_by_pool(self, df, pool):
         pool_address = Tokens().get(pool)["address"]
-        df["Pool"] = df["Pool"].str.lower()
-        df = df[(df["Pool"] == pool_address)].reset_index()
+        df["pool"] = df["pool"].str.lower()
+        df = df[(df["pool"] == pool_address)].reset_index()
         return df
 
     def drop_duplicates(self, df):
-        df = df.drop_duplicates(subset=["Token Address"], keep="first")
+        df = df.drop_duplicates(subset=["token_address"], keep="first")
         df = df.reset_index(drop=True)
         return df
 
     @staticmethod
     def status_date_column(status):
         if status == "issued":
-            return "Issuance Date"
+            return "issuance_date"
         elif status == "bridged":
-            return "Bridged Date"
+            return "bridged_date"
         elif status == "retired":
-            return "Retirement Date"
+            return "retirement_date"
         elif status == "redeemed":
-            return "Redeemed Date"
+            return "redeemed_date"
         elif status == "deposited":
-            return "Deposited Date"
+            return "deposited_date"
         else:
-            raise Exception("Unknown status")
+            raise helpers.DashArgumentException("Unknown status")

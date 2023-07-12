@@ -4,7 +4,7 @@ from . import S3, KeyCacheable, single_cached_command
 class Prices(KeyCacheable):
     """Service for carbon metrics"""
     def __init__(self, commands=[]):
-        self.df = S3().load("raw_assets_prices")
+        self.df = S3().load("assets_prices")
         super(Prices, self).__init__(commands)
 
     @single_cached_command()
