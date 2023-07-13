@@ -5,6 +5,7 @@ from . import helpers
 
 class RetirementsRaw(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         Returns raw retirements
@@ -18,6 +19,7 @@ class RetirementsRaw(Resource):
 
 class RetirementsDatesAggregation(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         Aggregates retirements on retirement date
@@ -33,6 +35,7 @@ class RetirementsDatesAggregation(Resource):
 
 class RetirementsTokensAggregation(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         Aggregates Klima retirements on retirement date and token
@@ -48,6 +51,7 @@ class RetirementsTokensAggregation(Resource):
 
 class RetirementsBeneficiariesAggregation(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         Aggregates retirements on beneficiary
@@ -66,6 +70,7 @@ class RetirementsBeneficiariesAggregation(Resource):
 
 class RetirementsGlobalAggregation(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         Returns the amount of retirements

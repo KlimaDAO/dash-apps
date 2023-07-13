@@ -4,7 +4,8 @@ import math
 from flask_restful import reqparse
 from flask import request
 import dateutil
-from src.apps.services import KeyCacheable
+from werkzeug.exceptions import BadRequest
+from src.apps.services import KeyCacheable, DashArgumentException
 
 API_MAJOR_VERSION = "v1"
 API_MINOR_VERSION = "0.1"
@@ -29,7 +30,7 @@ def validate_list(valid_values):
         if s in valid_values:
             return s
         valid_values_without_none = [item for item in valid_values if item]
-        raise Exception(f"Valid values are {', '.join(valid_values_without_none)}")
+        raise DashArgumentException(f"Valid values are {', '.join(valid_values_without_none)}")
     return func
 
 
@@ -63,10 +64,10 @@ def validate_page_size(s):
     try:
         s = int(s)
     except ValueError:
-        raise Exception("page_size must be an integer")
+        raise DashArgumentException("page_size must be an integer")
     if (s >= 1 and s <= MAX_PAGE_SIZE) or s == -1:
         return s
-    raise Exception(f"page_size must be between 1 and {MAX_PAGE_SIZE}")
+    raise DashArgumentException(f"page_size must be between 1 and {MAX_PAGE_SIZE}")
 
 
 output_formatter_parser = reqparse.RequestParser()
@@ -76,6 +77,16 @@ output_formatter_parser.add_argument('page', type=int, default=0)
 output_formatter_parser.add_argument('page_size', type=validate_page_size, default=DEFAULT_PAGE_SIZE)
 output_formatter_parser.add_argument('sort_by', default=0)
 output_formatter_parser.add_argument('sort_order', type=validate_list(["asc", "desc"]), default="asc")
+
+
+def with_errors_handler(func):
+    """Decorator to rethrow DashArgumentExceptions as 400 Bad requests"""
+    def wrapper(*func_args, **kwargs):
+        try:
+            return func(*func_args, **kwargs)
+        except DashArgumentException as e:
+            raise BadRequest(e.description)
+    return wrapper
 
 
 def with_output_formatter(func):
@@ -93,6 +104,8 @@ def with_output_formatter(func):
         sort_by = args["sort_by"]
         sort_order = args["sort_order"]
         if sort_by:
+            if sort_by not in df:
+                raise DashArgumentException(f"Invalid sort column '{sort_by}'")
             df = df.sort_values(by=sort_by, ascending=sort_order == "asc")
 
         # Paginate results

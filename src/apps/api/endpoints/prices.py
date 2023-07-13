@@ -5,6 +5,7 @@ from . import helpers
 
 class Prices(Resource):
     @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
     @helpers.with_help(
         f"""
         {helpers.OUTPUT_FORMATTER_HELP}

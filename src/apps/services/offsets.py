@@ -59,7 +59,20 @@ class Offsets(DfCacheable):
             for bridg in helpers.ALL_BRIDGES:
                 bridg_df = self.load_df(bridg, pool, status)
                 date_column = Offsets.status_date_column(status)
-                bridg_df = bridg_df[[date_column, "quantity", "bridge"]]
+                bridg_df = bridg_df[[
+                    "id",
+                    "token_address",
+                    date_column,
+                    "bridge",
+                    "project_id",
+                    "project_id_key",
+                    "project_type",
+                    "region",
+                    "country",
+                    "methodology",
+                    "vintage",
+                    "name",
+                ]]
                 dfs.append(bridg_df)
 
             df = pd.concat(dfs)
