@@ -60,7 +60,6 @@ class Offsets(DfCacheable):
                 bridg_df = self.load_df(bridg, pool, status)
                 date_column = Offsets.status_date_column(status)
                 bridg_df = bridg_df[[
-                    "id",
                     "token_address",
                     date_column,
                     "bridge",
@@ -82,7 +81,7 @@ class Offsets(DfCacheable):
         # Filter bridge
         if not is_pool_df:
             if bridge in helpers.ALL_BRIDGES:
-                df = df[df["bridge"].str.lower() == bridge.lower()].reset_index()
+                df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
 
         # Filter pool
         if pool:
@@ -137,7 +136,7 @@ class Offsets(DfCacheable):
             df.groupby(group_by_cols)["quantity"]
             .sum()
             .to_frame()
-            .reset_index()
+            .reset_index(drop=True)
         )
         df = df[result_cols]
         return df
@@ -213,7 +212,7 @@ class Offsets(DfCacheable):
     def filter_df_by_pool(self, df, pool):
         pool_address = Tokens().get(pool)["address"]
         df["pool"] = df["pool"].str.lower()
-        df = df[(df["pool"] == pool_address)].reset_index()
+        df = df[(df["pool"] == pool_address)].reset_index(drop=True)
         return df
 
     def drop_duplicates(self, df):

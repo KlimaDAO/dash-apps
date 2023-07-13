@@ -206,7 +206,7 @@ class DfCacheable(KeyCacheable):
         df = self.date_manipulations(df, date_column, freq)
         df = df.sort_values(by=date_column, ascending=True)
         df = df.groupby(date_column)[column].sum()
-        df = df.groupby(level=0).cumsum().reset_index()
+        df = df.groupby(level=0).cumsum().reset_index(drop=True)
         return df
 
     @final_cached_command()

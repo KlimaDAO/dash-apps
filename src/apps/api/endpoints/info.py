@@ -24,4 +24,3 @@ class Info(Resource):
             "retirements/klima/agg/monthly",
             "retirements/klima/agg/beneficiaries",
         ])
-

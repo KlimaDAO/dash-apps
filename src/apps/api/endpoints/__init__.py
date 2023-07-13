@@ -1,5 +1,5 @@
 from .helpers import subendpoints_help  # noqa
-from .info import Info
+from .info import Info  # noqa
 from .offsets import (  # noqa
     OffsetsRaw,
     OffsetsDatesAggregation,
