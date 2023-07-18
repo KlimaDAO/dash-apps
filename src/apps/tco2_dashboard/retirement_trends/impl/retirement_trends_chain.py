@@ -242,6 +242,9 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 'klimaRetires_proof': 'Proof',
                 'klimaRetires_amount': 'Amount in Tonnes'})
 
+        df = df.drop(columns=['klimaRetires_offset_projectID',
+                              'klimaRetires_offset_bridge'])
+
         df['Amount in Tonnes'] = df[
             'Amount in Tonnes'].round(3)
         df = df.assign(**{"On/Off Chain": 'On'})
@@ -251,7 +254,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
             df['Beneficiary'] + ')'
         )
         df['Date'] = df[
-            'Date'].astype(str).str.split(n=1)
+            'Date'].astype(str).str.split(n=1).str[0]
 
         return df
 
@@ -271,5 +274,5 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 'Credit Type': 'On/Off Chain',
                 'Serial Number': 'Proof',
                 'Quantity': 'Amount in Tonnes'})
-
+        filtered_df["Pledge"] = ""
         return filtered_df
