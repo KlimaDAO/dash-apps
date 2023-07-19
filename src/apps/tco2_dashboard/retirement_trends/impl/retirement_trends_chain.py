@@ -229,7 +229,17 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
 
         frames = [klima_retirements_df, verra_retirements_df]
 
-        merged = pd.concat(frames)
+        # Merge and reorder
+        merged = pd.concat(frames)[[
+            "Beneficiary",
+            "On/Off Chain",
+            "Bridge",
+            "Date",
+            "Project ID",
+            "Amount in Tonnes",
+            "Proof",
+            "Pledge"
+        ]]
 
         return ListData("Detailed list of Retirements", "Date", merged)
 
@@ -240,10 +250,9 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 'klimaRetires_token': 'On/Off Chain',
                 'klimaRetires_datetime': 'Date',
                 'klimaRetires_proof': 'Proof',
-                'klimaRetires_amount': 'Amount in Tonnes'})
-
-        df = df.drop(columns=['klimaRetires_offset_projectID',
-                              'klimaRetires_offset_bridge'])
+                'klimaRetires_amount': 'Amount in Tonnes',
+                'klimaRetires_offset_bridge': 'Bridge',
+                'klimaRetires_offset_projectID': 'Project ID'})
 
         df['Amount in Tonnes'] = df[
             'Amount in Tonnes'].round(3)
@@ -255,24 +264,30 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         )
         df['Date'] = df[
             'Date'].astype(str).str.split(n=1).str[0]
+        df['Project ID'] = df['Project ID'].str.split("-", expand=True)[1]
 
         return df
 
     def modify_verra_retirements_fg(self, df):
-        filtered_df = df[['Retirement Beneficiary',
+        filtered_df = df[['ID',
+                          'Project Type',
+                          'Retirement Beneficiary',
                           'Credit Type',
                           'Date',
                           'Serial Number',
                           'Quantity']].copy()
+        filtered_df = filtered_df[filtered_df['Quantity'] > 0]
         filtered_df = filtered_df.assign(**{"Credit Type": 'Off'})
         filtered_df['Date'] = filtered_df[
             'Date'].astype(str)
-
+        filtered_df['Bridge'] = "N/A"
         filtered_df = filtered_df.rename(
             columns={
                 'Retirement Beneficiary': 'Beneficiary',
                 'Credit Type': 'On/Off Chain',
                 'Serial Number': 'Proof',
-                'Quantity': 'Amount in Tonnes'})
-        filtered_df["Pledge"] = ""
+                'Quantity': 'Amount in Tonnes',
+                'ID': 'Project ID'
+                })
+        filtered_df["Pledge"] = "N/A"
         return filtered_df
