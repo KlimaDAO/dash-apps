@@ -233,10 +233,10 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         # Merge and reorder
         merged = pd.concat(frames)[[
             "Beneficiary",
+            "Project",
             "On/Off Chain",
             "Bridge",
             "Date",
-            "Project",
             "Amount in Tonnes",
             "Proof",
             "Pledge"
