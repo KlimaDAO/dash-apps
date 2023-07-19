@@ -622,6 +622,38 @@ def stacked_bar_chart_data_process(retirements_all):
     return wrs
 
 
+def verra_project_id_to_link(df):
+    df['Project_num'] = df['Project'].str.split("-", expand=True)[1]
+    df["Project"].fillna('N/A', inplace=True)
+
+    verra_l = 'https://registry.verra.org/app/projectDetail/VCS/'
+
+    df['Project_Link'] = verra_l
+
+    df["Project_Link"] = df["Project_Link"] + df["Project_num"]
+
+    missing_condition_1 = df['Project_Link'].str.match(
+        'https://registry.verra.org/app/projectDetail/VCS/N/A')
+
+    df['Project_Link'] = np.where(
+        missing_condition_1, "N/A",
+        "[" + df['Project'] + "]" + "(" + df['Project_Link'] + ")"
+        )
+    if "Token" in df:
+        mco2_condition = df['Token'].str.match('MCO2')
+        df['Project_Link'] = np.where(
+            mco2_condition, 'N/A', df['Project_Link'])
+
+    df.drop(['Project', 'Project_num'], axis=1, inplace=True)
+
+    df = df.rename(
+            columns={
+                'Project_Link': "Project"
+            }
+    )
+    return df
+
+
 def summary_table_data_process(retirements_all):
 
     monthly_transactions = retirements_all.groupby(
