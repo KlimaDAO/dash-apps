@@ -6,6 +6,7 @@ from src.apps.tco2_dashboard.retirement_trends.retirement_trends_types \
     import ChartContent, ListData, TopContent
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+from src.apps.tco2_dashboard.helpers import verra_project_id_to_link
 
 
 class RetirementTrendsByChain(RetirementTrendsInterface):
@@ -232,14 +233,15 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         # Merge and reorder
         merged = pd.concat(frames)[[
             "Beneficiary",
+            "Project",
             "On/Off Chain",
             "Bridge",
             "Date",
-            "Project ID",
             "Amount in Tonnes",
             "Proof",
             "Pledge"
         ]]
+        merged = verra_project_id_to_link(merged)
 
         return ListData("Detailed list of Retirements", "Date", merged)
 
@@ -252,7 +254,7 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 'klimaRetires_proof': 'Proof',
                 'klimaRetires_amount': 'Amount in Tonnes',
                 'klimaRetires_offset_bridge': 'Bridge',
-                'klimaRetires_offset_projectID': 'Project ID'})
+                'klimaRetires_offset_projectID': 'Project'})
 
         df['Amount in Tonnes'] = df[
             'Amount in Tonnes'].round(3)
@@ -264,7 +266,6 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
         )
         df['Date'] = df[
             'Date'].astype(str).str.split(n=1).str[0]
-        df['Project ID'] = df['Project ID'].str.split("-", expand=True)[1]
 
         return df
 
@@ -287,7 +288,9 @@ class RetirementTrendsByChain(RetirementTrendsInterface):
                 'Credit Type': 'On/Off Chain',
                 'Serial Number': 'Proof',
                 'Quantity': 'Amount in Tonnes',
-                'ID': 'Project ID'
+                'ID': 'Project'
                 })
+        filtered_df["Project"] = "VCS-" + filtered_df["Project"]
         filtered_df["Pledge"] = "N/A"
+
         return filtered_df
