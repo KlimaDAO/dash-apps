@@ -54,7 +54,7 @@ services:
       repository: dash-apps
       tag: ${GITHUB_SHA}
     health_check:
-      http_path: /api/v1/
+      http_path: /api/v1
       initial_delay_seconds: 60
       timeout_seconds: 1200
       period_seconds: 20
