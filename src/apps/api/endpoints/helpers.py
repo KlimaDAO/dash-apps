@@ -98,7 +98,7 @@ def with_output_formatter(func):
         if isinstance(df, KeyCacheable):
             df = df.resolve()
 
-        # If we have a series to dataframe 
+        # If we have a series to dataframe
         if isinstance(df, pd.core.series.Series):
             df = df.to_frame()
 

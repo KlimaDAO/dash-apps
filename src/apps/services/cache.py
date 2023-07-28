@@ -215,6 +215,8 @@ class DfCacheable(KeyCacheable):
         return df[column].cumsum()
 
     def date_manipulations(self, df, date_column, freq):
+        if date_column not in df:
+            raise DashArgumentException(f"Unknown column '{date_column}'")
         if freq == "daily":
             return self.date_manipulations_daily(df, date_column)
         elif freq == "monthly":
