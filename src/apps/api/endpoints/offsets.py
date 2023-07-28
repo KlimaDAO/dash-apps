@@ -135,6 +135,20 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
         return offsets
 
 
+class OffsetsVintageAggregation(AbstractOffsets):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        offsets = self.get_offsets().vintage_agg().sum("quantity")
+        return offsets
+
+
 class OffsetsGlobalAggregation(AbstractOffsets):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler

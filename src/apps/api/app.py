@@ -30,6 +30,7 @@ api.add_resource(endpoints.OffsetsDatesAggregation, '/offsets/agg/<string:freq>'
 api.add_resource(endpoints.OffsetsCountriesAggregation, '/offsets/agg/countries')
 api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
 api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
+api.add_resource(endpoints.OffsetsVintageAggregation, '/offsets/agg/vintage')
 
 api.add_resource(endpoints.Holders, '/holders')
 

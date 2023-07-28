@@ -6,6 +6,7 @@ from .offsets import (  # noqa
     OffsetsCountriesAggregation,
     OffsetsProjectsAggregation,
     OffsetsMethodologiesAggregation,
+    OffsetsVintageAggregation,
     OffsetsGlobalAggregation
 )
 from .holders import Holders  # noqa

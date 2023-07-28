@@ -13,6 +13,7 @@ class Info(Resource):
             "offsets/agg/countries",
             "offsets/agg/projects",
             "offsets/agg/methodologies",
+            "offsets/agg/vintage",
             "holders",
             "prices",
             "carbon_metrics/polygon",
