@@ -71,6 +71,7 @@ class Offsets(DfCacheable):
                     "methodology",
                     "vintage",
                     "name",
+                    "quantity"
                 ]]
                 dfs.append(bridg_df)
 
