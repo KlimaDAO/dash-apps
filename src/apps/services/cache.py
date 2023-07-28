@@ -205,8 +205,8 @@ class DfCacheable(KeyCacheable):
     def sum_over_time(self, df, date_column, column, freq):
         df = self.date_manipulations(df, date_column, freq)
         df = df.sort_values(by=date_column, ascending=True)
-        df = df.groupby(date_column)[column].sum()
-        df = df.groupby(level=0).cumsum().reset_index(drop=True)
+        df = df.groupby(date_column)[column].sum().to_frame().reset_index()
+        df[column] = df[column].cumsum()
         return df
 
     @final_cached_command()

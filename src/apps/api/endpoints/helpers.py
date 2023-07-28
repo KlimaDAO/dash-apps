@@ -94,9 +94,14 @@ def with_output_formatter(func):
         # Execute comamnd
         df: pd.DataFrame = func(*func_args, **kwargs)
 
-        # Resolve result if necessary
+        # Resolve value if it is not resolved already
         if isinstance(df, KeyCacheable):
             df = df.resolve()
+
+        # If we have a series to dataframe 
+        if isinstance(df, pd.core.series.Series):
+            df = df.to_frame()
+
         # Parse pagination arguments
         args = output_formatter_parser.parse_args()
 
