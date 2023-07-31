@@ -21,4 +21,4 @@ class Tokens(KeyCacheable):
 
     @single_cached_command()
     def get(self, pool) -> str:
-        return self.get_dict()[pool]
+        return self.get_dict()[pool.upper()]
