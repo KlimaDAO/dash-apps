@@ -176,39 +176,31 @@ class Offsets(DfCacheable):
         return np.average(df[column], weights=df[weights])
 
     def filter_pool_quantity(self, df, quantity_column):
-        filtered = df[df[quantity_column] > 0]
-        filtered["quantity"] = filtered[quantity_column]
-        filtered = filtered[
-            [
-                "project_id",
-                "vintage",
-                "quantity",
-                "country",
-                "name",
-                "project_type",
-                "methodology",
-                "token_address",
-            ]
-        ]
+        df = df[df[quantity_column] > 0]
+        df["quantity"] = df[quantity_column]
         pat = r"VCS-(?P<id>\d+)"
         repl = (
             lambda m: f"https://registry.verra.org/app/projectDetail/VCS/{m.group('id')}"
         )
-        filtered["project_url"] = filtered["project_id"].str.replace(pat, repl, regex=True)
-        filtered = filtered[
-            [
+        df["project_url"] = df["project_id"].str.replace(pat, repl, regex=True)
+        kept_columns = [
                 "project_id",
                 "project_url",
-                "token_address",
-                "quantity",
                 "vintage",
+                "quantity",
                 "country",
+                "name",
                 "project_type",
                 "methodology",
-                "name",
+                "token_address",
             ]
-        ].reset_index(drop=True)
-        return filtered
+        for date_field in ["retirement_date", "deposited_date", "redeemed_date", "bridged_date"]:
+            if date_field in df:
+                kept_columns = kept_columns + [date_field]
+
+        df = df[kept_columns].reset_index(drop=True)
+
+        return df
 
     def filter_df_by_pool(self, df, pool):
         pool_address = Tokens().get(pool)["address"]
