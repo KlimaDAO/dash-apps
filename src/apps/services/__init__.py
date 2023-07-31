@@ -1,13 +1,14 @@
 from .helpers import DashArgumentException  # noqa
 from .cache import ( # noqa
     layout_cache,
-    services_slow_cache,
-    services_fast_cache,
+    services_short_cache,
+    services_long_cache,
     chained_cached_command,
     final_cached_command,
     single_cached_command,
     DfCacheable,
-    KeyCacheable)
+    KeyCacheable,
+    init_app)
 
 from . import helpers  # noqa
 from .s3 import S3  # noqa

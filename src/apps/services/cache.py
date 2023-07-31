@@ -8,7 +8,8 @@ from ...util import getenv # noqa
 
 # Configure cache
 LAYOUT_CACHE_TIMEOUT = int(getenv("DASH_LAYOUT_CACHE_TIMEOUT", 86400))
-SERVICES_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_CACHE_TIMEOUT", 86400))
+SERVICES_SLOW_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_SLOW_CACHE_TIMEOUT", 86400))
+SERVICES_FAST_CACHE_TIMEOUT = int(getenv("DASH_SERVICES_FAST_CACHE_TIMEOUT", 60))
 
 layout_cache = Cache(
     config={
@@ -17,18 +18,25 @@ layout_cache = Cache(
         "CACHE_DEFAULT_TIMEOUT": LAYOUT_CACHE_TIMEOUT,
     },
 )
-services_slow_cache = Cache(
+services_long_cache = Cache(
     config={
         "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": "/tmp/cache-directory/services",
-        "CACHE_DEFAULT_TIMEOUT": SERVICES_CACHE_TIMEOUT,
+        "CACHE_DEFAULT_TIMEOUT": SERVICES_SLOW_CACHE_TIMEOUT,
     },
 )
-services_fast_cache = Cache(
+services_short_cache = Cache(
     config={
         "CACHE_TYPE": "SimpleCache",
+        "CACHE_DEFAULT_TIMEOUT": SERVICES_FAST_CACHE_TIMEOUT
     },
 )
+
+
+def init_app(app):
+    services_long_cache.init_app(app)
+    services_short_cache.init_app(app)
+    layout_cache.init_app(app)
 
 
 def key_hash(key: str):
@@ -40,7 +48,7 @@ def key_hash(key: str):
 
 class KeyCacheable():
     """A base class that enabe extending classes to use the cache decorators"""
-    def __init__(self, commands=[], cache=services_slow_cache):
+    def __init__(self, commands=[], cache=services_long_cache):
         self.cache_key: str = None
         self.cache = cache
         self.commands = commands.copy()

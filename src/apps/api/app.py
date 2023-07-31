@@ -2,7 +2,7 @@ from flask import Flask, make_response
 import json
 from . import endpoints
 from . import api_helpers
-from src.apps.services import services_slow_cache, services_fast_cache, layout_cache
+from src.apps import services
 
 # Initialize app
 app = Flask(__name__)
@@ -10,9 +10,7 @@ api = api_helpers.DashApi(app, prefix="/api/v1")
 
 
 # Initialize cache
-services_slow_cache.init_app(app)
-services_fast_cache.init_app(app)
-layout_cache.init_app(app)
+services.init_app(app)
 
 
 # Override json serialization
