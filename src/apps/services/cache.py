@@ -161,7 +161,7 @@ class DfCacheable(KeyCacheable):
 
     @chained_cached_command()
     def daily_agg(self, df, columns):
-        if not type(columns) == list:
+        if not isinstance(columns, list):
             columns = [columns]
         date_column = columns[0]
         """Adds an aggregation by day"""
@@ -172,7 +172,7 @@ class DfCacheable(KeyCacheable):
     @chained_cached_command()
     def monthly_agg(self, df, columns):
         """Adds an aggregation by month"""
-        if not type(columns) == list:
+        if not isinstance(columns, list):
             columns = [columns]
         date_column = columns[0]
         df = self.date_manipulations(df, date_column, "monthly")
@@ -196,7 +196,7 @@ class DfCacheable(KeyCacheable):
         res = df[column].sum()
 
         # Reset index if we are computing aggregated sums
-        if type(res) == pd.core.series.Series:
+        if isinstance(res, pd.core.series.Series):
             res = res.reset_index()
 
         return res
