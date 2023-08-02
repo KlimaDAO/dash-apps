@@ -3,6 +3,13 @@ from src.apps.services import Retirements as Service, layout_cache
 from . import helpers
 
 
+def render_aggregation(df):
+    return df.agg("quantity", {
+            "sum": "amount_retired",
+            "count": "number_of_retirements"
+        })
+
+
 class RetirementsRaw(Resource):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
@@ -28,12 +35,11 @@ class RetirementsDatesAggregation(Resource):
     )
     @helpers.with_output_formatter
     def get(self, filter, freq):
-        retirements = Service().get(filter)
-        retirements.date_agg(["retirement_date"], freq).sum("quantity")
-        return retirements
+        retirements = Service().get(filter).date_agg(["retirement_date"], freq)
+        return render_aggregation(retirements)
 
 
-class RetirementsTokensAggregation(Resource):
+class RetirementsTokensAndDatesAggregation(Resource):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -44,9 +50,23 @@ class RetirementsTokensAggregation(Resource):
     )
     @helpers.with_output_formatter
     def get(self, freq):
-        retirements = Service().get("klima")
-        retirements.date_agg(["retirement_date", "token"], freq).sum("quantity")
-        return retirements
+        retirements = Service().get("klima").date_agg(["retirement_date", "token"], freq)
+        return render_aggregation(retirements)
+
+
+class RetirementsTokensAggregation(Resource):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""
+        Aggregates Klima retirements on token
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        retirements = Service().get("klima").tokens_agg()
+        return render_aggregation(retirements)
 
 
 class RetirementsBeneficiariesAggregation(Resource):
@@ -60,12 +80,8 @@ class RetirementsBeneficiariesAggregation(Resource):
     )
     @helpers.with_output_formatter
     def get(self, filter):
-        retirements = Service().get(filter)
-        retirements.beneficiaries_agg().agg("quantity", {
-            "sum": "amount_retired",
-            "count": "number_of_retirements"
-        })
-        return retirements
+        retirements = Service().get(filter).beneficiaries_agg()
+        return render_aggregation(retirements)
 
 
 class RetirementsGlobalAggregation(Resource):

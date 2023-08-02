@@ -29,4 +29,7 @@ class Info(Resource):
             "retirements/klima/agg/daily",
             "retirements/klima/agg/monthly",
             "retirements/klima/agg/beneficiaries",
+            "retirements/klima/agg/tokens"
+            "retirements/klima/agg/tokens/daily"
+            "retirements/klima/agg/tokens/monthly"
         ])

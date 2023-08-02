@@ -40,10 +40,11 @@ api.add_resource(endpoints.RetirementsRaw, '/retirements/<string:filter>/raw')
 
 api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/<string:filter>/agg')
 api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/<string:filter>/agg/<string:freq>')
-api.add_resource(endpoints.RetirementsTokensAggregation, '/retirements/klima/agg/tokens/<string:freq>')
+api.add_resource(endpoints.RetirementsTokensAggregation, '/retirements/klima/agg/tokens')
+api.add_resource(endpoints.RetirementsTokensAndDatesAggregation, '/retirements/klima/agg/tokens/<string:freq>')
 api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/<string:filter>/agg/beneficiaries')
 
-api.add_resource(endpoints.Info, '')
+api.add_resource(endpoints.Info, '', '/')
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=8050)

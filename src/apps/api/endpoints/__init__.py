@@ -17,5 +17,6 @@ from .retirements import (  # noqa
     RetirementsDatesAggregation,
     RetirementsBeneficiariesAggregation,
     RetirementsGlobalAggregation,
+    RetirementsTokensAndDatesAggregation,
     RetirementsTokensAggregation
 )

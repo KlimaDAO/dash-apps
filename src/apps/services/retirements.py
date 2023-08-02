@@ -39,10 +39,15 @@ class Retirements(DfCacheable):
             df = S3().load("polygon_klima_retirements")
 
         return df[
-            df['dailyKlimaRetirements_token'].isin(tokens)
+            df['token'].isin(tokens)
         ]
 
     @chained_cached_command()
     def beneficiaries_agg(self, df):
         df = df.groupby("beneficiary")
+        return df
+
+    @chained_cached_command()
+    def tokens_agg(self, df):
+        df = df.groupby("token")
         return df
