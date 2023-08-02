@@ -148,20 +148,24 @@ def single_cached_command():
 class DfCacheable(KeyCacheable):
     """ Contains a few basic df manipulation commands"""
     @chained_cached_command()
-    def date_range(self, df, date_column: str, begin: datetime.datetime, end: datetime.datetime):
+    def date_range(self, df: pd.DataFrame, date_column: str, begin: datetime.datetime, end: datetime.datetime):
         """Adds a date range filter"""
-        needs_convertion = isinstance(df[date_column][0], datetime.date)
+        def convert_date(date):
+            print(df)
+            print(df.columns)
+            print(date_column)
+            if isinstance(df[date_column][0], datetime.date):
+                date = datetime.date(date.year, date.month, date.day)
+            return date
+        if df.empty:
+            return df
         if end is not None:
-            if needs_convertion:
-                end = datetime.date(begin.year, begin.month, begin.day)
             df = df[
-                (df[date_column] <= end)
+                (df[date_column] <= convert_date(end))
             ]
         if begin is not None:
-            if needs_convertion:
-                begin = datetime.date(begin.year, begin.month, begin.day)
             df = df[
-                (df[date_column] >= begin)
+                (df[date_column] >= convert_date(begin))
             ]
         return df
 
@@ -238,6 +242,7 @@ class DfCacheable(KeyCacheable):
 
     def date_manipulations_monthly(self, df, date_column):
         df[date_column] = pd.to_datetime(df[date_column]).dt.to_period("M")
+        df[date_column] = pd.to_datetime(df[date_column].dt.start_time).dt.date
         return df
 
     def date_manipulations_daily(self, df, date_column):

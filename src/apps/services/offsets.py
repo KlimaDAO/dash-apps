@@ -4,7 +4,6 @@ import numpy as np
 from . import (
     S3,
     Countries,
-    Tokens,
     helpers,
     DfCacheable,
     chained_cached_command,
@@ -18,7 +17,6 @@ class Offsets(DfCacheable):
         super(Offsets, self).__init__(commands)
 
     def load_df(self, bridge: str, pool: str, status: str):
-        is_pool_df = False
         s3 = S3()
         # Offchain data
         if bridge in ["offchain"]:
@@ -33,17 +31,7 @@ class Offsets(DfCacheable):
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets_v2")
             elif status == "retired":
-                if pool is None:
-                    df = s3.load("polygon_retired_offsets_v2")
-                else:
-                    df = s3.load("polygon_pools_retired_offsets")
-                    is_pool_df = True
-            elif status == "deposited":
-                df = s3.load("polygon_pools_deposited_offsets")
-                is_pool_df = True
-            elif status == "redeemed":
-                df = s3.load("polygon_pools_redeemed_offsets")
-                is_pool_df = True
+                df = s3.load("polygon_retired_offsets_v2")
             else:
                 raise helpers.DashArgumentException(f"Unknown offset status {status}")
         elif bridge in ["moss", "eth"]:
@@ -62,7 +50,6 @@ class Offsets(DfCacheable):
                 bridg_df = bridg_df[[
                     "token_address",
                     date_column,
-                    "bridge",
                     "project_id",
                     "project_id_key",
                     "project_type",
@@ -74,26 +61,23 @@ class Offsets(DfCacheable):
                     "quantity"
                 ]]
                 dfs.append(bridg_df)
-
             df = pd.concat(dfs)
+            # Prevent further filtering
+            return df
         else:
             raise helpers.DashArgumentException(f"Unknown bridge {bridge}")
 
         # Filter bridge
-        if not is_pool_df:
-            if bridge in helpers.ALL_BRIDGES:
-                df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
+        if bridge in helpers.ALL_BRIDGES:
+            df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
 
         # Filter pool
         if pool:
-            if not is_pool_df:
-                df = self.drop_duplicates(df)
-                if pool == "all":
-                    df = self.filter_pool_quantity(df, "total_quantity")
-                else:
-                    df = self.filter_pool_quantity(df, f"{pool}_quantity")
-            elif pool != "all":
-                df = self.filter_df_by_pool(df, pool)
+            df = self.drop_duplicates(df)
+            if pool == "all":
+                df = self.filter_pool_quantity(df, "total_quantity")
+            else:
+                df = self.filter_pool_quantity(df, f"{pool}_quantity")
 
         return df
 
@@ -178,16 +162,12 @@ class Offsets(DfCacheable):
     def filter_pool_quantity(self, df, quantity_column):
         df = df[df[quantity_column] > 0]
         df["quantity"] = df[quantity_column]
-        pat = r"VCS-(?P<id>\d+)"
-        repl = (
-            lambda m: f"https://registry.verra.org/app/projectDetail/VCS/{m.group('id')}"
-        )
-        df["project_url"] = df["project_id"].str.replace(pat, repl, regex=True)
         kept_columns = [
                 "project_id",
-                "project_url",
+                "project_id_key",
                 "vintage",
                 "quantity",
+                "region",
                 "country",
                 "name",
                 "project_type",
@@ -200,12 +180,6 @@ class Offsets(DfCacheable):
 
         df = df[kept_columns].reset_index(drop=True)
 
-        return df
-
-    def filter_df_by_pool(self, df, pool):
-        pool_address = Tokens().get(pool)["address"]
-        df["pool"] = df["pool"].str.lower()
-        df = df[(df["pool"] == pool_address)].reset_index(drop=True)
         return df
 
     def drop_duplicates(self, df):

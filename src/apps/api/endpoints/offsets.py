@@ -6,13 +6,10 @@ from . import helpers
 BRIDGES = ["all", "offchain", "toucan", "c3", "moss", "polygon", "eth"]
 POOLS = ["ubo", "nbo", "nct", "bct"]
 STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
-OPERATORS = ["sum", "cumsum"]
 DATE_FIELDS = [
     "bridged_date",
     "issuance_date",
     "retirement_date",
-    "deposited_date",
-    "redeemed_date"
 ]
 BASE_HELP = f"""Query Parameters
         bridge: one of {BRIDGES}
@@ -23,24 +20,33 @@ BASE_HELP = f"""Query Parameters
 offsets_filter_parser = reqparse.RequestParser()
 offsets_filter_parser.add_argument('bridge', type=helpers.validate_list(BRIDGES), default="all")
 offsets_filter_parser.add_argument('pool', type=helpers.validate_list(POOLS + [None]), default=None)
-offsets_filter_parser.add_argument('offset_status', type=helpers.validate_list(STATUSES + [None]), default=None)
-
-offsets_agg_parser = reqparse.RequestParser()
-offsets_agg_parser.add_argument('date_field', type=helpers.validate_list(DATE_FIELDS), required=True)
-offsets_agg_parser.add_argument('operator', type=helpers.validate_list(OPERATORS), default="sum")
+offsets_filter_parser.add_argument('status', type=helpers.validate_list(STATUSES + [None]), default=None)
 
 
 class AbstractOffsets(Resource):
+
+    def get_default_date_field(self):
+        # returns the date field appropriate given the selected status
+        args = offsets_filter_parser.parse_args()
+        bridge = args["bridge"]
+        status = args["status"]
+        if status is None:
+            return "issuance_date" if bridge == "offchain" else "bridged_date"
+        else:
+            return helpers.STATUS_TO_DATE_COLUMN_MATRIX.get(status)
+
     def get_offsets(self):
         args = offsets_filter_parser.parse_args()
         bridge = args["bridge"]
         pool = args["pool"]
-        offset_status = args["offset_status"]
-        if offset_status is None:
-            offset_status = "issued" if bridge == "offchain" else "bridged"
+        status = args["status"]
+
+        # auto select status
+        if status is None:
+            status = "issued" if bridge == "offchain" else "bridged"
 
         # Return offsets
-        return Service().filter(bridge, pool, offset_status)
+        return Service().filter(bridge, pool, status)
 
 
 class OffsetsRaw(AbstractOffsets):
@@ -56,8 +62,6 @@ class OffsetsRaw(AbstractOffsets):
     @helpers.with_daterange_filter("bridged_date")
     @helpers.with_daterange_filter("issuance_date")
     @helpers.with_daterange_filter("retirement_date")
-    @helpers.with_daterange_filter("deposited_date")
-    @helpers.with_daterange_filter("redeemed_date")
     def get(self):
         return self.get_offsets()
 
@@ -67,8 +71,7 @@ class OffsetsDatesAggregation(AbstractOffsets):
     @helpers.with_errors_handler
     @helpers.with_help(
         f"""{BASE_HELP}
-        date_field: Field on which to perform the aggregation. One of {DATE_FIELDS}
-        operator: one of {OPERATORS}
+        {helpers.dates_aggregation_help(DATE_FIELDS)}
         {helpers.OUTPUT_FORMATTER_HELP}
         {helpers.DATES_FILTER_HELP}
         """
@@ -80,17 +83,12 @@ class OffsetsDatesAggregation(AbstractOffsets):
     @helpers.with_daterange_filter("deposited_date")
     @helpers.with_daterange_filter("redeemed_date")
     def get(self, freq):
-        # TODO: fix date comparisons
-        args = offsets_agg_parser.parse_args()
-        date_column = args["date_field"]
-        operator = args["operator"]
-        offsets = self.get_offsets()
-        if operator == "sum":
-            offsets.date_agg(date_column, freq).sum("quantity")
-        elif operator == "cumsum":
-            offsets.sum_over_time(date_column, "quantity", freq)
-
-        return offsets
+        return helpers.apply_date_aggregation(
+            DATE_FIELDS,
+            self.get_offsets(),
+            freq,
+            self.get_default_date_field()
+        )
 
 
 class OffsetsCountriesAggregation(AbstractOffsets):

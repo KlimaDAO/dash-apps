@@ -9,6 +9,11 @@ from .offsets import (  # noqa
     OffsetsVintageAggregation,
     OffsetsGlobalAggregation
 )
+from .pools import (  # noqa
+    PoolsRaw,
+    PoolsGlobalAggregation,
+    PoolsDatesAggregation
+)
 from .holders import Holders  # noqa
 from .prices import Prices  # noqa
 from .carbon_metrics import CarbonMetrics  # noqa

@@ -6,6 +6,7 @@ from flask import request
 import dateutil
 from werkzeug.exceptions import BadRequest
 from src.apps.services import KeyCacheable, DashArgumentException
+from src.apps.services.helpers import STATUS_TO_DATE_COLUMN_MATRIX  # noqa
 
 API_MAJOR_VERSION = "v1"
 API_MINOR_VERSION = "0.1"
@@ -152,6 +153,38 @@ OUTPUT_FORMATTER_HELP = (
 
 
 DATES_FILTER_HELP = """You can filter dates using '<date_column>_gt' and '<date_column>_gt'"""
+
+
+# Dates aggregation
+OPERATORS = ["sum", "cumsum"]
+
+
+def dates_agg_parser(date_fields):
+    parser = reqparse.RequestParser()
+    parser.add_argument('date_field', type=validate_list(date_fields))
+    parser.add_argument('operator', type=validate_list(OPERATORS), default="sum")
+    return parser
+
+
+def apply_date_aggregation(date_fields, df, freq, default_date_column=None):
+    args = dates_agg_parser(date_fields).parse_args()
+    date_column = args.get("date_field")
+    operator = args["operator"]
+    if not date_column:
+        date_column = default_date_column
+    if operator == "sum":
+        df.date_agg(date_column, freq).sum("quantity")
+    elif operator == "cumsum":
+        df.sum_over_time(date_column, "quantity", freq)
+
+    return df
+
+
+def dates_aggregation_help(date_fields):
+    return f"""
+    date_field: Field on which to perform the aggregation. One of {date_fields}
+    operator: one of {OPERATORS}
+    """
 
 
 # DATE RANGE Filter

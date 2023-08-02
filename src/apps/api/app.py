@@ -30,6 +30,10 @@ api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
 api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
 api.add_resource(endpoints.OffsetsVintageAggregation, '/offsets/agg/vintage')
 
+api.add_resource(endpoints.PoolsRaw, '/pools/raw')
+api.add_resource(endpoints.PoolsGlobalAggregation, '/pools/agg')
+api.add_resource(endpoints.PoolsDatesAggregation, '/pools/agg/<string:freq>')
+
 api.add_resource(endpoints.Holders, '/holders')
 
 api.add_resource(endpoints.Prices, '/prices')

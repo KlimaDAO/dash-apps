@@ -14,6 +14,10 @@ class Info(Resource):
             "offsets/agg/projects",
             "offsets/agg/methodologies",
             "offsets/agg/vintage",
+            "pools/raw",
+            "pools/agg",
+            "pools/agg/daily",
+            "pools/agg/monthly",
             "holders",
             "prices",
             "carbon_metrics/polygon",
@@ -29,7 +33,7 @@ class Info(Resource):
             "retirements/klima/agg/daily",
             "retirements/klima/agg/monthly",
             "retirements/klima/agg/beneficiaries",
-            "retirements/klima/agg/tokens"
-            "retirements/klima/agg/tokens/daily"
+            "retirements/klima/agg/tokens",
+            "retirements/klima/agg/tokens/daily",
             "retirements/klima/agg/tokens/monthly"
         ])
