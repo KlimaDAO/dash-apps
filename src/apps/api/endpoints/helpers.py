@@ -60,7 +60,7 @@ DEFAULT_PAGE_SIZE = 20
 
 
 def validate_page_size(s):
-    """Page size validator -1 is a secret value to get one page containng all results"""
+    """Page size validator -1 is a secret value to get one page containing all results"""
     try:
         s = int(s)
     except ValueError:
@@ -160,7 +160,7 @@ def isotime(s):
 
 
 def with_daterange_filter(column):
-    """Sends a help message if requested to or execute normal command"""
+    """Filters the resulting dataframe by date using the provided column"""
     daterange_parser = reqparse.RequestParser()
     daterange_parser.add_argument(f'{column}_gt', type=isotime)
     daterange_parser.add_argument(f'{column}_lt', type=isotime)
