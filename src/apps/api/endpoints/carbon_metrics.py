@@ -9,17 +9,14 @@ class CarbonMetrics(Resource):
     @helpers.with_help(
         f"""
         {helpers.OUTPUT_FORMATTER_HELP}
+        {helpers.DATES_FILTER_HELP}
         """
     )
     @helpers.with_output_formatter
+    @helpers.with_daterange_filter("date")
     def get(self, chain):
         service = Service()
-        if chain == "eth":
-            metrics = service.eth()
-        elif chain == "polygon":
-            metrics = service.polygon()
-        elif chain == "celo":
-            metrics = service.celo()
-        else:
+        if (chain not in ["eth", "polygon", "celo", "all"]):
             raise DashArgumentException(f"Unknown chain '{chain}'")
+        metrics = getattr(service, chain)()
         return metrics
