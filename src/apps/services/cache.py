@@ -151,9 +151,6 @@ class DfCacheable(KeyCacheable):
     def date_range(self, df: pd.DataFrame, date_column: str, begin: datetime.datetime, end: datetime.datetime):
         """Adds a date range filter"""
         def convert_date(date):
-            print(df)
-            print(df.columns)
-            print(date_column)
             if isinstance(df[date_column][0], datetime.date):
                 date = datetime.date(date.year, date.month, date.day)
             return date

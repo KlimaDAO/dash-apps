@@ -20,5 +20,4 @@ class Prices(Resource):
     def get(self):
         args = parser.parse_args()
         token = args["token"]
-        print(token)
         return Service().filter(token)
