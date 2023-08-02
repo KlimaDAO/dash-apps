@@ -147,7 +147,6 @@ OUTPUT_FORMATTER_HELP = (
         format: One of 'json' or 'csv'
         sort_by: Column to sort results on
         sort_order: asc or desc
-        You can filter dates using '<date_column> gt' and '<date_column> gt'
         """
 )
 

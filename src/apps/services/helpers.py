@@ -1,4 +1,5 @@
 ALL_BRIDGES = ["toucan", "c3", "moss"]
+ALL_TOKENS = ["ubo", "nbo", "mco2", "nct", "bct"]
 
 
 class DashArgumentException(Exception):

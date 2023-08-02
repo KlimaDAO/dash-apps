@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 from flask_caching import Cache
 import hashlib
 import pickle
@@ -147,15 +148,20 @@ def single_cached_command():
 class DfCacheable(KeyCacheable):
     """ Contains a few basic df manipulation commands"""
     @chained_cached_command()
-    def date_range(self, df, date_column, begin, end):
+    def date_range(self, df, date_column: str, begin: datetime.datetime, end: datetime.datetime):
         """Adds a date range filter"""
+        needs_convertion = isinstance(df[date_column][0], datetime.date)
         if end is not None:
+            if needs_convertion:
+                end = datetime.date(begin.year, begin.month, begin.day)
             df = df[
                 (df[date_column] <= end)
             ]
         if begin is not None:
+            if needs_convertion:
+                begin = datetime.date(begin.year, begin.month, begin.day)
             df = df[
-                (df[date_column] > begin)
+                (df[date_column] >= begin)
             ]
         return df
 
