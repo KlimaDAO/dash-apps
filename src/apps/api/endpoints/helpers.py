@@ -6,7 +6,7 @@ from flask import request
 import dateutil
 from werkzeug.exceptions import BadRequest
 from src.apps.services import KeyCacheable, DashArgumentException
-from src.apps.services.helpers import STATUS_TO_DATE_COLUMN_MATRIX  # noqa
+from src.apps.services import status_date_column  # noqa
 
 API_MAJOR_VERSION = "v1"
 API_MINOR_VERSION = "0.1"

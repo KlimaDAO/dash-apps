@@ -1,5 +1,6 @@
 from .helpers import (  # noqa
     DashArgumentException,
+    status_date_column,
     ALL_BRIDGES,
     ALL_TOKENS
 )
@@ -18,7 +19,7 @@ from . import helpers  # noqa
 from .s3 import S3  # noqa
 from .countries import Countries  # noqa
 from .tokens import Tokens  # noqa
-from .offsets import Offsets  # noqa
+from .credits import Credits  # noqa
 from .pools import Pools  # noqa
 from .metrics import Metrics  # noqa
 from .retirements import Retirements  # noqa

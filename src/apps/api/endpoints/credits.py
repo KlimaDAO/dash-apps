@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from src.apps.services import Offsets as Service, layout_cache
+from src.apps.services import Credits as Service, layout_cache
 from . import helpers
 
 
@@ -14,29 +14,29 @@ DATE_FIELDS = [
 BASE_HELP = f"""Query Parameters
         bridge: one of {BRIDGES}
         pool: one of {POOLS}
-        offset_status: one of {STATUSES}
+        status: one of {STATUSES}
         """
 
-offsets_filter_parser = reqparse.RequestParser()
-offsets_filter_parser.add_argument('bridge', type=helpers.validate_list(BRIDGES), default="all")
-offsets_filter_parser.add_argument('pool', type=helpers.validate_list(POOLS + [None]), default=None)
-offsets_filter_parser.add_argument('status', type=helpers.validate_list(STATUSES + [None]), default=None)
+credits_filter_parser = reqparse.RequestParser()
+credits_filter_parser.add_argument('bridge', type=helpers.validate_list(BRIDGES), default="all")
+credits_filter_parser.add_argument('pool', type=helpers.validate_list(POOLS + [None]), default=None)
+credits_filter_parser.add_argument('status', type=helpers.validate_list(STATUSES + [None]), default=None)
 
 
-class AbstractOffsets(Resource):
+class AbstractCredits(Resource):
 
     def get_default_date_field(self):
         # returns the date field appropriate given the selected status
-        args = offsets_filter_parser.parse_args()
+        args = credits_filter_parser.parse_args()
         bridge = args["bridge"]
         status = args["status"]
         if status is None:
             return "issuance_date" if bridge == "offchain" else "bridged_date"
         else:
-            return helpers.STATUS_TO_DATE_COLUMN_MATRIX.get(status)
+            return helpers.status_date_column(status)
 
-    def get_offsets(self):
-        args = offsets_filter_parser.parse_args()
+    def get_credits(self):
+        args = credits_filter_parser.parse_args()
         bridge = args["bridge"]
         pool = args["pool"]
         status = args["status"]
@@ -45,11 +45,11 @@ class AbstractOffsets(Resource):
         if status is None:
             status = "issued" if bridge == "offchain" else "bridged"
 
-        # Return offsets
+        # Return credits
         return Service().filter(bridge, pool, status)
 
 
-class OffsetsRaw(AbstractOffsets):
+class CreditsRaw(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -63,10 +63,10 @@ class OffsetsRaw(AbstractOffsets):
     @helpers.with_daterange_filter("issuance_date")
     @helpers.with_daterange_filter("retirement_date")
     def get(self):
-        return self.get_offsets()
+        return self.get_credits()
 
 
-class OffsetsDatesAggregation(AbstractOffsets):
+class CreditsDatesAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -85,13 +85,13 @@ class OffsetsDatesAggregation(AbstractOffsets):
     def get(self, freq):
         return helpers.apply_date_aggregation(
             DATE_FIELDS,
-            self.get_offsets(),
+            self.get_credits(),
             freq,
             self.get_default_date_field()
         )
 
 
-class OffsetsCountriesAggregation(AbstractOffsets):
+class CreditsCountriesAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -101,11 +101,11 @@ class OffsetsCountriesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().countries_agg().sum("quantity")
-        return offsets
+        credits = self.get_credits().countries_agg().sum("quantity")
+        return credits
 
 
-class OffsetsProjectsAggregation(AbstractOffsets):
+class CreditsProjectsAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -115,11 +115,11 @@ class OffsetsProjectsAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().projects_agg().sum("quantity")
-        return offsets
+        credits = self.get_credits().projects_agg().sum("quantity")
+        return credits
 
 
-class OffsetsMethodologiesAggregation(AbstractOffsets):
+class CreditsMethodologiesAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -129,11 +129,11 @@ class OffsetsMethodologiesAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().methodologies_agg().sum("quantity")
-        return offsets
+        credits = self.get_credits().methodologies_agg().sum("quantity")
+        return credits
 
 
-class OffsetsVintageAggregation(AbstractOffsets):
+class CreditsVintageAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -143,11 +143,11 @@ class OffsetsVintageAggregation(AbstractOffsets):
     )
     @helpers.with_output_formatter
     def get(self):
-        offsets = self.get_offsets().vintage_agg().sum("quantity")
-        return offsets
+        credits = self.get_credits().vintage_agg().sum("quantity")
+        return credits
 
 
-class OffsetsGlobalAggregation(AbstractOffsets):
+class CreditsGlobalAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
     @helpers.with_help(
@@ -156,5 +156,5 @@ class OffsetsGlobalAggregation(AbstractOffsets):
     )
     def get(self):
         return {
-            "quantity": self.get_offsets().sum("quantity")
+            "quantity": self.get_credits().sum("quantity")
         }

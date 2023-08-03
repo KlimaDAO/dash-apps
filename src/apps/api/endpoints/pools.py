@@ -29,7 +29,7 @@ class AbstractPools(Resource):
         if status is None:
             return "deposited_date"
         else:
-            return helpers.STATUS_TO_DATE_COLUMN_MATRIX.get(status)
+            return helpers.status_date_column(status)
 
     def get_pool(self):
         args = pools_filter_parser.parse_args()

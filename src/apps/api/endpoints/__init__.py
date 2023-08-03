@@ -1,13 +1,13 @@
 from .helpers import subendpoints_help  # noqa
 from .info import Info  # noqa
-from .offsets import (  # noqa
-    OffsetsRaw,
-    OffsetsDatesAggregation,
-    OffsetsCountriesAggregation,
-    OffsetsProjectsAggregation,
-    OffsetsMethodologiesAggregation,
-    OffsetsVintageAggregation,
-    OffsetsGlobalAggregation
+from .credits import (  # noqa
+    CreditsRaw,
+    CreditsDatesAggregation,
+    CreditsCountriesAggregation,
+    CreditsProjectsAggregation,
+    CreditsMethodologiesAggregation,
+    CreditsVintageAggregation,
+    CreditsGlobalAggregation
 )
 from .pools import (  # noqa
     PoolsRaw,

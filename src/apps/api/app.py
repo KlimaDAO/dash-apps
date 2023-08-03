@@ -22,13 +22,13 @@ def output_json(data, code, headers=None):
 
 
 # Define endoints
-api.add_resource(endpoints.OffsetsRaw, '/offsets/raw')
-api.add_resource(endpoints.OffsetsGlobalAggregation, '/offsets/agg')
-api.add_resource(endpoints.OffsetsDatesAggregation, '/offsets/agg/<string:freq>')
-api.add_resource(endpoints.OffsetsCountriesAggregation, '/offsets/agg/countries')
-api.add_resource(endpoints.OffsetsProjectsAggregation, '/offsets/agg/projects')
-api.add_resource(endpoints.OffsetsMethodologiesAggregation, '/offsets/agg/methodologies')
-api.add_resource(endpoints.OffsetsVintageAggregation, '/offsets/agg/vintage')
+api.add_resource(endpoints.CreditsRaw, '/credits/raw')
+api.add_resource(endpoints.CreditsGlobalAggregation, '/credits/agg')
+api.add_resource(endpoints.CreditsDatesAggregation, '/credits/agg/<string:freq>')
+api.add_resource(endpoints.CreditsCountriesAggregation, '/credits/agg/countries')
+api.add_resource(endpoints.CreditsProjectsAggregation, '/credits/agg/projects')
+api.add_resource(endpoints.CreditsMethodologiesAggregation, '/credits/agg/methodologies')
+api.add_resource(endpoints.CreditsVintageAggregation, '/credits/agg/vintage')
 
 api.add_resource(endpoints.PoolsRaw, '/pools/raw')
 api.add_resource(endpoints.PoolsGlobalAggregation, '/pools/agg')

@@ -1,8 +1,8 @@
-from . import (  # noqa
+from . import (
     helpers,
     S3,
-    Offsets,
     Tokens,
+    Credits,
     DfCacheable,
     DashArgumentException,
     chained_cached_command,
@@ -11,7 +11,7 @@ from . import (  # noqa
 
 
 class Pools(DfCacheable):
-    """Service for offsets"""
+    """Service for pools"""
     def __init__(self, commands=[]):
         super(Pools, self).__init__(commands)
 
@@ -25,7 +25,7 @@ class Pools(DfCacheable):
         elif status == "redeemed":
             df = s3.load("polygon_pools_redeemed_offsets")
         else:
-            raise helpers.DashArgumentException(f"Unknown offset status {status}")
+            raise helpers.DashArgumentException(f"Unknown credit status {status}")
 
         if pool and pool != "all":
             df = self.filter_df_by_pool(df, pool)
@@ -49,7 +49,7 @@ class Pools(DfCacheable):
         values = [self.load_df(pool, "deposited").sum("Quantity") for pool in pool_labels]
 
         pool_labels = pool_labels + ["not_pooled"]
-        not_pool_qty = Offsets().filter(bridge, "all", "bridged").sum("Quantity") - sum(values)
+        not_pool_qty = Credits().filter(bridge, "all", "bridged").sum("Quantity") - sum(values)
         values = values + [not_pool_qty]
 
         return dict(zip(pool_labels, values))

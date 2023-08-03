@@ -11,10 +11,10 @@ from . import (
 )
 
 
-class Offsets(DfCacheable):
-    """Service for offsets"""
+class Credits(DfCacheable):
+    """Service for credits"""
     def __init__(self, commands=[]):
-        super(Offsets, self).__init__(commands)
+        super(Credits, self).__init__(commands)
 
     def load_df(self, bridge: str, pool: str, status: str):
         s3 = S3()
@@ -25,7 +25,7 @@ class Offsets(DfCacheable):
             elif status == "retired":
                 df = s3.load("verra_retirements")
             else:
-                raise helpers.DashArgumentException(f"Unknown offset status {status}")
+                raise helpers.DashArgumentException(f"Unknown credit status {status}")
         # One Bridge data
         elif bridge in ["toucan", "c3", "polygon"]:
             if status == "bridged":
@@ -33,20 +33,20 @@ class Offsets(DfCacheable):
             elif status == "retired":
                 df = s3.load("polygon_retired_offsets_v2")
             else:
-                raise helpers.DashArgumentException(f"Unknown offset status {status}")
+                raise helpers.DashArgumentException(f"Unknown credit status {status}")
         elif bridge in ["moss", "eth"]:
             if status == "bridged":
                 df = s3.load("eth_moss_bridged_offsets_v2")
             elif status == "retired":
                 df = s3.load("eth_retired_offsets_v2")
             else:
-                raise helpers.DashArgumentException(f"Unknown offset status {status}")
+                raise helpers.DashArgumentException(f"Unknown credit status {status}")
         # All bridges data concatenated
         elif bridge == "all":
             dfs = []
             for bridg in helpers.ALL_BRIDGES:
                 bridg_df = self.load_df(bridg, pool, status)
-                date_column = Offsets.status_date_column(status)
+                date_column = helpers.status_date_column(status)
                 bridg_df = bridg_df[[
                     "token_address",
                     date_column,
@@ -83,7 +83,7 @@ class Offsets(DfCacheable):
 
     @chained_cached_command()
     def filter(self, df, bridge, pool, status):
-        """Filters offsets on bridge pool and status"""
+        """Filters credits on bridge pool and status"""
         # Load dataset
         df = self.load_df(bridge, pool, status)
         return df
@@ -186,18 +186,3 @@ class Offsets(DfCacheable):
         df = df.drop_duplicates(subset=["token_address"], keep="first")
         df = df.reset_index(drop=True)
         return df
-
-    @staticmethod
-    def status_date_column(status):
-        if status == "issued":
-            return "issuance_date"
-        elif status == "bridged":
-            return "bridged_date"
-        elif status == "retired":
-            return "retirement_date"
-        elif status == "redeemed":
-            return "redeemed_date"
-        elif status == "deposited":
-            return "deposited_date"
-        else:
-            raise helpers.DashArgumentException("Unknown status")

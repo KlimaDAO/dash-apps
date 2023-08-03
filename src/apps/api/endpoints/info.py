@@ -6,14 +6,14 @@ class Info(Resource):
     """Returns subendpoints"""
     def get(self):
         return subendpoints_help([
-            "offsets/raw",
-            "offsets/agg",
-            "offsets/agg/daily",
-            "offsets/agg/monthly",
-            "offsets/agg/countries",
-            "offsets/agg/projects",
-            "offsets/agg/methodologies",
-            "offsets/agg/vintage",
+            "credits/raw",
+            "credits/agg",
+            "credits/agg/daily",
+            "credits/agg/monthly",
+            "credits/agg/countries",
+            "credits/agg/projects",
+            "credits/agg/methodologies",
+            "credits/agg/vintage",
             "pools/raw",
             "pools/agg",
             "pools/agg/daily",

@@ -3,16 +3,16 @@ import sys
 
 BASE_URL = sys.argv[1]
 paths = [
-    "offsets/raw",
-    "offsets/raw?status=bridged",
-    "offsets/agg",
-    "offsets/agg/daily",
-    "offsets/agg/daily?status=retired&retirement_date_gt=2021-10-30T00:38:28&retirement_date_lt=2022-10-30T00:38:28&sort_by=retirement_date&operator=cumsum",  # noqa
-    "offsets/agg/monthly",
-    "offsets/agg/countries",
-    "offsets/agg/projects",
-    "offsets/agg/methodologies",
-    "offsets/agg/vintage",
+    "credits/raw",
+    "credits/raw?status=bridged",
+    "credits/agg",
+    "credits/agg/daily",
+    "credits/agg/daily?status=retired&retirement_date_gt=2021-10-30T00:38:28&retirement_date_lt=2022-10-30T00:38:28&sort_by=retirement_date&operator=cumsum",  # noqa
+    "credits/agg/monthly",
+    "credits/agg/countries",
+    "credits/agg/projects",
+    "credits/agg/methodologies",
+    "credits/agg/vintage",
     "pools/raw",
     "pools/agg",
     "pools/agg/daily",
