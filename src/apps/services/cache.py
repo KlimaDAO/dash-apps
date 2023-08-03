@@ -250,32 +250,4 @@ class DfCacheable(KeyCacheable):
                 .dt.floor("D")
                 .dt.date
             )
-            """
-            datelist = pd.date_range(
-                start=df[date_column].min() + pd.DateOffset(-1),
-                end=pd.to_datetime("today"),
-                freq="D",
-            )
-            df_date = pd.DataFrame()
-            df_date["date_continous"] = datelist
-            df_date["date_continous"] = (
-                pd.to_datetime(df_date["date_continous"], unit="s")
-                .dt.tz_localize(None)
-                .dt.floor("D")
-                .dt.date
-            )
-            df = df.merge(
-                df_date, how="right", left_on=date_column, right_on="date_continous"
-            ).reset_index(drop=True)
-            df[date_column] = df["date_continous"]
-            for i in df.columns:
-                if "quantity" in i:
-                    df[i] = df[i].fillna(0)
-                if "amount" in i:
-                    df[i] = df[i].fillna(0)
-                else:
-                    df[i] = df[i].fillna("missing")
-                    df[i] = df[i].replace("", "missing")
-
-            """
         return df
