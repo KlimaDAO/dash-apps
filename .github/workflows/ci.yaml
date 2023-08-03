@@ -31,8 +31,6 @@ jobs:
       PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
       PYTHONUNBUFFERED: 1
     steps:
-      - name: test env
-        run: echo $PREFECT_API_URL
       - name: Check out source repository
         uses: actions/checkout@v2
       - name: Set up Python environment
