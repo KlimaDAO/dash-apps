@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from . import (
     S3,
-    Countries,
     helpers,
     DfCacheable,
     chained_cached_command,
@@ -96,11 +95,7 @@ class Credits(DfCacheable):
 
     @chained_cached_command()
     def countries_agg(self, df):
-        df["country_code"] = [
-            Countries().get_country(country) for country in df["country"]
-        ]
-        df["country_text"] = df["country_code"].astype(str)
-        df = df.groupby(["country", "country_text", "country_code"])
+        df = df.groupby(["country", "country_code"])
         return df
 
     @chained_cached_command()

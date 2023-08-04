@@ -17,7 +17,6 @@ from .cache import ( # noqa
 )
 from . import helpers  # noqa
 from .s3 import S3  # noqa
-from .countries import Countries  # noqa
 from .tokens import Tokens  # noqa
 from .credits import Credits  # noqa
 from .pools import Pools  # noqa
