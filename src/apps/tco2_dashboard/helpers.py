@@ -361,6 +361,7 @@ def merge_retirements_data_for_retirement_chart(
         by="Quantity", ascending=False
     ).reset_index()
 
+    # Merge Moss Data (Beneficiary)
     df_retired_eth_merged = df_retired_eth.merge(
         df_retired_moss,
         how="left",
@@ -368,24 +369,24 @@ def merge_retirements_data_for_retirement_chart(
         right_on="Tx ID",
         suffixes=("", "_moss"),
     )
-
-    df_retired_eth_merged["Beneficiary"] = df_retired_eth_merged["Retiree_moss"]
-    moss_corporate_wallet_list = [
-        "0x3424b93bda014d41b828f6b31ef08134f983a8fc",
-        "0x70d5eadcb367bcf733fc98b441def1c7c5eec187",
-        "0x225e489114291d74bd3960e3e5383e523ce8a462",
-    ]
+    # Remove retirements made from the Klima wallet
     klima_retire_wallet = "0xedaefcf60e12bd331c092341d5b3d8901c1c05a8"
     df_retired_eth_merged = df_retired_eth_merged[
         df_retired_eth_merged["Retiree_moss"] != klima_retire_wallet
     ]
+
+    # Fallback to the Moss retiree field if the Moss Beneficiary field is empty
     df_retired_eth_merged.loc[
-        df_retired_eth_merged["Retiree_moss"].isin(moss_corporate_wallet_list),
+        df_retired_eth_merged["Beneficiary"].isna(),
         "Beneficiary",
-    ] = df_retired_eth_merged["Receipt ID"]
+    ] = df_retired_eth_merged["Retiree_moss"]
+
+    # Remove rows where we do not know the Beneficiary
     df_retired_eth_merged = df_retired_eth_merged.loc[
-        (df_retired_eth_merged["Beneficiary"].notna())
+        (df_retired_eth_merged["Beneficiary"] != "")
     ]
+
+    # Prettify known beneficiaries
     df_retired_eth_merged.loc[
         df_retired_eth_merged["Beneficiary"].str.contains("ifood|IFOOD", case=False),
         "Beneficiary",
