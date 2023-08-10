@@ -299,7 +299,7 @@ def create_carbon_supply_content(
                                 className="card-text-carbon-supply",
                             ),
                             html.H5(
-                                "Percentage Retired by Klima",
+                                "Percentage Retired via KlimaDAO",
                                 className="card-title-carbon-supply",
                             ),
                             dbc.CardBody(

@@ -1784,7 +1784,7 @@ def get_eth_retirement_breakdown_figure(df):
             x=df["carbonMetrics_datetime"],
             y=df["carbonMetrics_totalRetirements"],
             mode="lines",
-            name="Not Retired by Klima",
+            name="Not Retired via KlimaDAO",
             stackgroup="one",
             line={"width": 0.5, "color": "#c74b0e"},
         )
