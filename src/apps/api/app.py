@@ -3,10 +3,12 @@ import json
 from . import endpoints
 from . import api_helpers
 from src.apps import services
+from flask_cors import CORS
 
 # Initialize app
 app = Flask(__name__)
 api = api_helpers.DashApi(app, prefix="/api/v1")
+CORS(app)
 
 
 # Initialize cache
