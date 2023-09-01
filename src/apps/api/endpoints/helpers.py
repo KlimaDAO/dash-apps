@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import numpy as np
 import math
 from flask_restful import reqparse
 from flask import request
@@ -128,6 +129,10 @@ def with_output_formatter(func):
 
         # Slice dataframe
         df = df[page_size * page:page_size * (page + 1)]
+
+        # Replace NaN with None
+        df = pd.DataFrame(df).replace({np.nan: None})
+
         # Return result
         if format == "json":
             return {
