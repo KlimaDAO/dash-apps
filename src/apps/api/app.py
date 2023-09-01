@@ -38,6 +38,8 @@ api.add_resource(endpoints.Holders, '/holders')
 
 api.add_resource(endpoints.Prices, '/prices')
 
+api.add_resource(endpoints.Tokens, '/tokens')
+
 api.add_resource(endpoints.CarbonMetrics, '/carbon_metrics/<string:chain>')
 
 api.add_resource(endpoints.RetirementsRaw, '/retirements/<string:filter>/raw')
