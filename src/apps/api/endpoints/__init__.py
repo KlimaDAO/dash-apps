@@ -25,3 +25,4 @@ from .retirements import (  # noqa
     RetirementsTokensAndDatesAggregation,
     RetirementsTokensAggregation
 )
+from .tokens import Tokens  # noqa
