@@ -383,7 +383,7 @@ def merge_retirements_data_for_retirement_chart(
 
     # Remove rows where we do not know the Beneficiary
     df_retired_eth_merged = df_retired_eth_merged.loc[
-        (df_retired_eth_merged["Beneficiary"] != "")
+        (df_retired_eth_merged["Beneficiary"] != "") & (~df_retired_eth_merged["Beneficiary"].isna())
     ]
 
     # Prettify known beneficiaries
