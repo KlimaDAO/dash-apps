@@ -1,11 +1,25 @@
+import pandas as pd
 from . import (
     S3,
     DashArgumentException,
     DfCacheable,
     final_cached_command,
     chained_cached_command,
-    single_cached_command
+    single_cached_command,
+    helpers
 )
+
+
+def summary(df):
+    res_df = pd.DataFrame()
+    res_df["retirement_date"] = [df["retirement_date"].iloc[0]]
+    res_df["amount_retired"] = [df["quantity"].sum()]
+    res_df["number_of_retirements"] = [df["quantity"].count()]
+    for token in helpers.ALL_TOKENS:
+        filtered_df = df[df["token"] == token.upper()]
+        res_df[f"amount_retired_{token}"] = [filtered_df["quantity"].sum()]
+        res_df[f"number_of_retirements_{token}"] = [filtered_df["quantity"].count()]
+    return res_df
 
 
 class Retirements(DfCacheable):
@@ -41,6 +55,11 @@ class Retirements(DfCacheable):
         return df[
             df['token'].isin(tokens)
         ]
+
+    @chained_cached_command()
+    def summary(self, df):
+        df = df.apply(summary)
+        return df
 
     @chained_cached_command()
     def beneficiaries_agg(self, df):
