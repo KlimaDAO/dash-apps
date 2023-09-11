@@ -58,7 +58,7 @@ class Retirements(DfCacheable):
 
     @chained_cached_command()
     def summary(self, df):
-        df = df.apply(summary)
+        df = df.apply(summary).reset_index(drop=True)
         return df
 
     @chained_cached_command()
