@@ -50,7 +50,7 @@ def key_hash(key: str):
 class KeyCacheable():
     """A base class that enabe extending classes to use the cache decorators"""
     def __init__(self, commands=[], cache=services_long_cache):
-        self.cache_key: str = None
+        self.cache_key: str = self.__class__.__name__
         self.cache = cache
         self.commands = commands.copy()
         if commands:
