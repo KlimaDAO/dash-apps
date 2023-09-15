@@ -32,9 +32,6 @@ class Metrics(DfCacheable):
         all = all.merge(eth, how="outer", left_on="date_polygon", right_on="date_eth")
         all = all.merge(celo, how="outer", left_on="date_polygon", right_on="date_celo")
         all["date"] = all.date_polygon.combine_first(all.date_eth).combine_first(all.date_celo)
-        all = all.rename(columns={
-            "total_klima_retirements_polygon": "total_klima_retirements",
-        })
         all["total_retirements"] = (
             all["total_retirements_polygon"] +
             all["total_retirements_eth"] +
