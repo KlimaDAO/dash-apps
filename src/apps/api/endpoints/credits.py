@@ -4,8 +4,8 @@ from . import helpers
 
 
 BRIDGES = ["all", "offchain", "toucan", "c3", "moss", "polygon", "eth"]
-POOLS = ["ubo", "nbo", "nct", "bct"]
-STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
+POOLS = ["ubo", "nbo", "nct", "bct", "all"]
+STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired", "all"]
 DATE_FIELDS = [
     "bridged_date",
     "issuance_date",
@@ -40,6 +40,14 @@ class AbstractCredits(Resource):
         bridge = args["bridge"]
         pool = args["pool"]
         status = args["status"]
+
+        # Accept a 'all' value for pools
+        if pool == "all":
+            pool = None
+
+        # Accept a 'all' value for status
+        if status == "all":
+            status = None
 
         # auto select status
         if status is None:
