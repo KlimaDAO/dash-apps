@@ -20,6 +20,7 @@ class Info(Resource):
             "pools/agg/monthly",
             "holders",
             "prices",
+            "tokens",
             "carbon_metrics/polygon",
             "carbon_metrics/eth",
             "carbon_metrics/celo",

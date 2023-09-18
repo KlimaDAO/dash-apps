@@ -50,8 +50,8 @@ class RetirementsTokensAndDatesAggregation(Resource):
     )
     @helpers.with_output_formatter
     def get(self, freq):
-        retirements = Service().get("klima").date_agg(["retirement_date", "token"], freq)
-        return render_aggregation(retirements)
+        retirements = Service().get("klima").date_agg(["retirement_date"], freq).summary()
+        return retirements
 
 
 class RetirementsTokensAggregation(Resource):
