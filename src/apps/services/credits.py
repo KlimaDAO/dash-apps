@@ -54,6 +54,7 @@ class Credits(DfCacheable):
                     "project_type",
                     "region",
                     "country",
+                    "country_code",
                     "methodology",
                     "vintage",
                     "name",
