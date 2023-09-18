@@ -23,6 +23,7 @@ from .retirements import (  # noqa
     RetirementsBeneficiariesAggregation,
     RetirementsGlobalAggregation,
     RetirementsTokensAndDatesAggregation,
-    RetirementsTokensAggregation
+    RetirementsTokensAggregation,
+    RetirementsOriginAndDatesAggregation,
 )
 from .tokens import Tokens  # noqa

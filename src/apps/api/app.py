@@ -49,6 +49,8 @@ api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/<string:fi
 api.add_resource(endpoints.RetirementsTokensAggregation, '/retirements/klima/agg/tokens')
 api.add_resource(endpoints.RetirementsTokensAndDatesAggregation, '/retirements/klima/agg/tokens/<string:freq>')
 api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/<string:filter>/agg/beneficiaries')
+api.add_resource(endpoints.RetirementsOriginAndDatesAggregation, '/retirements/all/agg/origin/<string:freq>')
+
 
 api.add_resource(endpoints.Info, '', '/')
 

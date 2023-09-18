@@ -30,6 +30,8 @@ paths = [
     "retirements/all/agg/daily",
     "retirements/all/agg/monthly",
     "retirements/all/agg/beneficiaries",
+    "retirements/all/agg/origin/daily",
+    "retirements/all/agg/origin/monthly"
     "retirements/klima/raw",
     "retirements/klima/agg",
     "retirements/klima/agg/daily",

@@ -10,7 +10,7 @@ from . import (
 )
 
 
-def summary(df):
+def token_summary(df):
     res_df = pd.DataFrame()
     res_df["retirement_date"] = [df["retirement_date"].iloc[0]]
     res_df["amount_retired"] = [df["quantity"].sum()]
@@ -19,6 +19,16 @@ def summary(df):
         filtered_df = df[df["token"] == token.upper()]
         res_df[f"amount_retired_{token}"] = [filtered_df["quantity"].sum()]
         res_df[f"number_of_retirements_{token}"] = [filtered_df["quantity"].count()]
+    return res_df
+
+
+def origin_summary(df):
+    res_df = pd.DataFrame()
+    res_df["retirement_date"] = [df["retirement_date"].iloc[0]]
+    for origin in ["Offchain", "Klima"]:
+        filtered_df = df[df["origin"] == origin]
+        res_df[f"amount_retired_{origin.lower()}"] = [filtered_df["quantity"].sum()]
+        res_df[f"number_of_retirements_{origin.lower()}"] = [filtered_df["quantity"].count()]
     return res_df
 
 
@@ -57,8 +67,13 @@ class Retirements(DfCacheable):
         ]
 
     @chained_cached_command()
-    def summary(self, df):
-        df = df.apply(summary).reset_index(drop=True)
+    def token_summary(self, df):
+        df = df.apply(token_summary).reset_index(drop=True)
+        return df
+
+    @chained_cached_command()
+    def origin_summary(self, df):
+        df = df.apply(origin_summary).reset_index(drop=True)
         return df
 
     @chained_cached_command()

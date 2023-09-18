@@ -1,6 +1,9 @@
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from src.apps.services import Metrics as Service, layout_cache, DashArgumentException
 from . import helpers
+
+carbon_metrics_parser = reqparse.RequestParser()
+carbon_metrics_parser.add_argument('sample', type=helpers.validate_list(["daily", "monthly"]), default="all")
 
 
 class CarbonMetrics(Resource):
@@ -18,5 +21,9 @@ class CarbonMetrics(Resource):
         service = Service()
         if (chain not in ["eth", "polygon", "celo", "all"]):
             raise DashArgumentException(f"Unknown chain '{chain}'")
+        args = carbon_metrics_parser.parse_args()
+        sample = args["sample"]
         metrics = getattr(service, chain)()
+        if sample == "monthly":
+            metrics = metrics.monthly_sample("date")
         return metrics

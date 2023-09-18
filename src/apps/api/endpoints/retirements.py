@@ -50,7 +50,22 @@ class RetirementsTokensAndDatesAggregation(Resource):
     )
     @helpers.with_output_formatter
     def get(self, freq):
-        retirements = Service().get("klima").date_agg(["retirement_date"], freq).summary()
+        retirements = Service().get("klima").date_agg(["retirement_date"], freq).token_summary()
+        return retirements
+
+
+class RetirementsOriginAndDatesAggregation(Resource):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""
+        Aggregates Klima retirements on retirement date and token
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self, freq):
+        retirements = Service().get("all").date_agg(["retirement_date"], freq).origin_summary()
         return retirements
 
 

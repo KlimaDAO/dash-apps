@@ -42,7 +42,7 @@ class Metrics(DfCacheable):
             "date_celo",
             "date_polygon"
         ])
-        all = all.fillna(0)
+        all = all.fillna(method="backfill")
         return all
 
     @final_cached_command()
