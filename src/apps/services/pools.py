@@ -17,7 +17,6 @@ class Pools(DfCacheable):
 
     def load_df(self, pool, status):
         s3 = S3()
-        # autoselect bridge
         if status == "retired":
             df = s3.load("polygon_pools_retired_offsets")
         elif status == "deposited":
@@ -55,6 +54,6 @@ class Pools(DfCacheable):
         return dict(zip(pool_labels, values))
 
     def filter_df_by_pool(self, df, pool):
-        pool_address = Tokens().get(pool)["address"]
+        pool_address = Tokens().get(pool)["token_address"]
         df = df[(df["pool"] == pool_address)].reset_index(drop=True)
         return df
