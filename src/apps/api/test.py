@@ -31,7 +31,7 @@ paths = [
     "retirements/all/agg/monthly",
     "retirements/all/agg/beneficiaries",
     "retirements/all/agg/origin/daily",
-    "retirements/all/agg/origin/monthly"
+    "retirements/all/agg/origin/monthly",
     "retirements/klima/raw",
     "retirements/klima/agg",
     "retirements/klima/agg/daily",
@@ -46,10 +46,10 @@ for path in paths:
     url = f"{BASE_URL}/{path}"
     response = requests.get(url)
     if response.status_code != 200:
-        print(f"{url} => Failed ({response.status_code})")
         print("---")
         print(response.text)
         print("---")
+        print(f"{url} => Failed ({response.status_code})")
         exit(1)
     print(f"{url} => OK")
 

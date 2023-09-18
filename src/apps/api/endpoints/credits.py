@@ -30,11 +30,17 @@ class AbstractCredits(Resource):
         args = credits_filter_parser.parse_args()
         bridge = args["bridge"]
         status = args["status"]
+
         if status is None:
             return "issuance_date" if bridge == "offchain" else "bridged_date"
         else:
             return helpers.status_date_column(status)
 
+    @helpers.with_daterange_filter("bridged_date")
+    @helpers.with_daterange_filter("issuance_date")
+    @helpers.with_daterange_filter("retirement_date")
+    @helpers.with_daterange_filter("deposited_date")
+    @helpers.with_daterange_filter("redeemed_date")
     def get_credits(self):
         args = credits_filter_parser.parse_args()
         bridge = args["bridge"]
@@ -67,9 +73,6 @@ class CreditsRaw(AbstractCredits):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date")
-    @helpers.with_daterange_filter("issuance_date")
-    @helpers.with_daterange_filter("retirement_date")
     def get(self):
         return self.get_credits()
 
@@ -85,11 +88,6 @@ class CreditsDatesAggregation(AbstractCredits):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date")
-    @helpers.with_daterange_filter("issuance_date")
-    @helpers.with_daterange_filter("retirement_date")
-    @helpers.with_daterange_filter("deposited_date")
-    @helpers.with_daterange_filter("redeemed_date")
     def get(self, freq):
         return helpers.apply_date_aggregation(
             DATE_FIELDS,
