@@ -154,15 +154,19 @@ class DfCacheable(KeyCacheable):
             if isinstance(df[date_column][0], datetime.date):
                 date = datetime.date(date.year, date.month, date.day)
             return date
+
+        if end is None and begin is None:
+            return df
+
         if df.empty:
             return df
         if end is not None:
             df = df[
-                (df[date_column] <= convert_date(end))
+                (df[date_column] <= end)
             ]
         if begin is not None:
             df = df[
-                (df[date_column] >= convert_date(begin))
+                (df[date_column] >= begin)
             ]
         return df
 
