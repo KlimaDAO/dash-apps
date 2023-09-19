@@ -108,7 +108,6 @@ class Credits(DfCacheable):
 
         def summary(df):
             res_df = pd.DataFrame()
-            print(df.columns)
             res_df[date_field] = [df[date_field].iloc[0]]
 
             for column in columns:

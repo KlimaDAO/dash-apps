@@ -65,8 +65,8 @@ class Pools(DfCacheable):
             for token in tokens:
                 address = tokens[token]["token_address"]
                 filtered_df = df[df["pool"] == address]
-                res_df[f"quantity_{token.lower()}"] = [filtered_df["quantity"].sum()]
-                res_df[f"count_{token.lower()}"] = [filtered_df["quantity"].count()]
+                res_df[f"{token.lower()}_quantity"] = [filtered_df["quantity"].sum()]
+                res_df[f"{token.lower()}_count"] = [filtered_df["quantity"].count()]
             return res_df
 
         df = df.apply(summary).reset_index(drop=True)
