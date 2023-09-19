@@ -29,10 +29,13 @@ api.add_resource(endpoints.CreditsCountriesAggregation, '/credits/agg/countries'
 api.add_resource(endpoints.CreditsProjectsAggregation, '/credits/agg/projects')
 api.add_resource(endpoints.CreditsMethodologiesAggregation, '/credits/agg/methodologies')
 api.add_resource(endpoints.CreditsVintageAggregation, '/credits/agg/vintage')
+api.add_resource(endpoints.CreditsPoolVintageAggregation, '/credits/agg/pool/vintage')
+api.add_resource(endpoints.CreditsPoolMethodologyAggregation, '/credits/agg/pool/methodology')
 
 api.add_resource(endpoints.PoolsRaw, '/pools/raw')
 api.add_resource(endpoints.PoolsGlobalAggregation, '/pools/agg')
 api.add_resource(endpoints.PoolsDatesAggregation, '/pools/agg/<string:freq>')
+api.add_resource(endpoints.PoolsTokensAndDatesAggregation, '/pools/agg/tokens/<string:freq>')
 
 api.add_resource(endpoints.Holders, '/holders')
 

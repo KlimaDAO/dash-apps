@@ -153,6 +153,34 @@ class CreditsVintageAggregation(AbstractCredits):
         return credits
 
 
+class CreditsPoolVintageAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits().vintage_agg().pool_summary("vintage")
+        return credits
+
+
+class CreditsPoolMethodologyAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits().methodologies_agg().pool_summary("methodology")
+        return credits
+
+
 class CreditsGlobalAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler

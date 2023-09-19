@@ -71,14 +71,7 @@ class Credits(DfCacheable):
         if bridge in helpers.ALL_BRIDGES:
             df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
 
-        # Filter pool
-        if pool:
-            df = self.drop_duplicates(df)
-            if pool == "all":
-                df = self.filter_pool_quantity(df, "total_quantity")
-            else:
-                df = self.filter_pool_quantity(df, f"{pool}_quantity")
-
+        print(df.columns)
         return df
 
     @chained_cached_command()
@@ -109,45 +102,21 @@ class Credits(DfCacheable):
         df = df.groupby("methodology")
         return df
 
-    def _summary(self, df, result_cols):
-        """Creates a summary"""
-        group_by_cols = result_cols.copy()
-        group_by_cols.remove("quantity")
-        df = (
-            df.groupby(group_by_cols)["quantity"]
-            .sum()
-            .to_frame()
-            .reset_index(drop=True)
-        )
-        df = df[result_cols]
+    @chained_cached_command()
+    def pool_summary(self, df, date_field):
+        columns = ["quantity", "total_quantity", "bct_quantity", "nct_quantity", "ubo_quantity", "nbo_quantity"]
+
+        def summary(df):
+            res_df = pd.DataFrame()
+            print(df.columns)
+            res_df[date_field] = [df[date_field].iloc[0]]
+
+            for column in columns:
+                res_df[column] = [df[column].sum()]
+            return res_df
+
+        df = df.apply(summary).reset_index(drop=True)
         return df
-
-    @final_cached_command()
-    def pool_summary(self, df):
-        """Creates a summary for pool data"""
-        return self._summary(df, [
-            "project_id",
-            "token Address",
-            "quantity",
-            "vintage",
-            "country",
-            "project_type",
-            "methodology",
-            "name"
-         ])
-
-    @final_cached_command()
-    def bridge_summary(self, df):
-        """Creates a summary for bridge data"""
-        return self._summary(df, [
-            "project_id",
-            "quantity",
-            "vintage",
-            "country",
-            "project_type",
-            "methodology",
-            "name"
-        ])
 
     @final_cached_command()
     def average(self, df, column, weights):

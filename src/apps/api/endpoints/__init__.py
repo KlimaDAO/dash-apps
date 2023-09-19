@@ -7,12 +7,15 @@ from .credits import (  # noqa
     CreditsProjectsAggregation,
     CreditsMethodologiesAggregation,
     CreditsVintageAggregation,
+    CreditsPoolVintageAggregation,
+    CreditsPoolMethodologyAggregation,
     CreditsGlobalAggregation
 )
 from .pools import (  # noqa
     PoolsRaw,
     PoolsGlobalAggregation,
-    PoolsDatesAggregation
+    PoolsDatesAggregation,
+    PoolsTokensAndDatesAggregation
 )
 from .holders import Holders  # noqa
 from .prices import Prices  # noqa
