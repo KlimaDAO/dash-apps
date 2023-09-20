@@ -71,6 +71,11 @@ class Credits(DfCacheable):
         if bridge in helpers.ALL_BRIDGES:
             df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
 
+        # Filter pool
+        if pool and pool != "all":
+            quantity_column = f"{pool}_quantity"
+            df = df[df[quantity_column] > 0]
+
         return df
 
     @chained_cached_command()
