@@ -108,14 +108,23 @@ class Credits(DfCacheable):
 
     @chained_cached_command()
     def pool_summary(self, df, date_field):
-        columns = ["quantity", "total_quantity", "bct_quantity", "nct_quantity", "ubo_quantity", "nbo_quantity"]
+        columns = [
+            "quantity",
+            "total_quantity",
+            "bct_quantity",
+            "nct_quantity",
+            "ubo_quantity",
+            "nbo_quantity",
+            "mco2_quantity"
+        ]
 
         def summary(df):
             res_df = pd.DataFrame()
             res_df[date_field] = [df[date_field].iloc[0]]
 
             for column in columns:
-                res_df[column] = [df[column].sum()]
+                if column in df:
+                    res_df[column] = [df[column].sum()]
             return res_df
 
         df = df.apply(summary).reset_index(drop=True)
