@@ -26,8 +26,6 @@ class Pools(DfCacheable):
             df = s3.load("polygon_pools_redeemed_offsets")
         else:
             raise helpers.DashArgumentException(f"Unknown credit status {status}")
-        print(df)
-        print(df.columns)
         if pool and pool != "all":
             df = self.filter_df_by_pool(df, pool)
 
