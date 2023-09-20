@@ -181,6 +181,21 @@ class CreditsPoolMethodologyAggregation(AbstractCredits):
         return credits
 
 
+class CreditsPoolDatesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self, freq):
+        date_column = self.get_default_date_field()
+        credits = self.get_credits().date_agg(date_column, freq).pool_summary(date_column)
+        return credits
+
+
 class CreditsGlobalAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler

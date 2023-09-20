@@ -9,6 +9,7 @@ from .credits import (  # noqa
     CreditsVintageAggregation,
     CreditsPoolVintageAggregation,
     CreditsPoolMethodologyAggregation,
+    CreditsPoolDatesAggregation,
     CreditsGlobalAggregation
 )
 from .pools import (  # noqa
