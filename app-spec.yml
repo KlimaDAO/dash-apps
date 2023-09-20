@@ -67,5 +67,5 @@ services:
     instance_count: 1
     instance_size_slug: basic-xs
     name: carbon-api
-    run_command: gunicorn --worker-tmp-dir /dev/shm --timeout ${GUNICORN_TIMEOUT} src.apps.api.app:app
+    run_command: gunicorn --workers=1 --threads=2 --worker-tmp-dir /dev/shm --timeout ${GUNICORN_TIMEOUT} src.apps.api.app:app
     source_dir: /
