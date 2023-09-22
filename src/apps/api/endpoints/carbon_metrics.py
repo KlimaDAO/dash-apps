@@ -24,6 +24,8 @@ class CarbonMetrics(Resource):
         args = carbon_metrics_parser.parse_args()
         sample = args["sample"]
         metrics = getattr(service, chain)()
+
         if sample == "monthly":
             metrics = metrics.monthly_sample("date")
+
         return metrics

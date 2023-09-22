@@ -65,7 +65,7 @@ services:
       - path: /api/v1/
         preserve_path_prefix: true
     instance_count: 1
-    instance_size_slug: basic-xs
+    instance_size_slug: basic-s
     name: carbon-api
     run_command: gunicorn --workers=1 --threads=2 --worker-tmp-dir /dev/shm --timeout ${GUNICORN_TIMEOUT} src.apps.api.app:app
     source_dir: /
