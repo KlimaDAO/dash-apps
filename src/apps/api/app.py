@@ -32,6 +32,7 @@ api.add_resource(endpoints.CreditsVintageAggregation, '/credits/agg/vintage')
 api.add_resource(endpoints.CreditsPoolVintageAggregation, '/credits/agg/pool/vintage')
 api.add_resource(endpoints.CreditsPoolMethodologyAggregation, '/credits/agg/pool/methodology')
 api.add_resource(endpoints.CreditsPoolDatesAggregation, '/credits/agg/pool/<string:freq>')
+api.add_resource(endpoints.CreditsBridgeVintageAggregation, '/credits/agg/bridge/vintage')
 
 
 api.add_resource(endpoints.PoolsRaw, '/pools/raw')

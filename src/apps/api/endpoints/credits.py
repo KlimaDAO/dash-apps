@@ -41,9 +41,10 @@ class AbstractCredits(Resource):
     @helpers.with_daterange_filter("retirement_date")
     @helpers.with_daterange_filter("deposited_date")
     @helpers.with_daterange_filter("redeemed_date")
-    def get_credits(self):
+    def get_credits(self, bridge=None):
         args = credits_filter_parser.parse_args()
-        bridge = args["bridge"]
+        if not bridge:
+            bridge = args["bridge"]
         pool = args["pool"]
         status = args["status"]
 
@@ -193,6 +194,20 @@ class CreditsPoolDatesAggregation(AbstractCredits):
     def get(self, freq):
         date_column = self.get_default_date_field()
         credits = self.get_credits().date_agg(date_column, freq).pool_summary(date_column)
+        return credits
+
+
+class CreditsBridgeVintageAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").vintage_agg().bridge_summary("vintage")
         return credits
 
 

@@ -43,6 +43,7 @@ class Metrics(DfCacheable):
             "date_polygon"
         ])
         all = all.fillna(method="backfill")
+        all = all.fillna(0)
 
         # Compute cross chain protocol data
         all["total_nct_supply"] = all.nct_supply_polygon + all.nct_supply_celo

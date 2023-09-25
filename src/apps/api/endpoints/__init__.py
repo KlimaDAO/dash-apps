@@ -10,6 +10,7 @@ from .credits import (  # noqa
     CreditsPoolVintageAggregation,
     CreditsPoolMethodologyAggregation,
     CreditsPoolDatesAggregation,
+    CreditsBridgeVintageAggregation,
     CreditsGlobalAggregation
 )
 from .pools import (  # noqa

@@ -130,6 +130,27 @@ class Credits(DfCacheable):
         df = df.apply(summary).reset_index(drop=True)
         return df
 
+    @chained_cached_command()
+    def bridge_summary(self, df, date_field):
+        column = "quantity"
+
+        def summary(df):
+            res_df = pd.DataFrame()
+            res_df[date_field] = [df[date_field].iloc[0]]
+            bridged_quantity = 0
+            for bridge in helpers.ALL_BRIDGES:
+                filtered_df = df[df["bridge"].str.lower() == bridge.lower()]
+                this_bridge_quantity = filtered_df[column].sum()
+                res_df[f"{bridge}_quantity"] = [this_bridge_quantity]
+                bridged_quantity = bridged_quantity + this_bridge_quantity
+            total_quantity = df[column].sum()
+            res_df["total_quantity"] = [total_quantity]
+            res_df["not_bridged_quantity"] = [total_quantity - bridged_quantity]
+            return res_df
+
+        df = df.apply(summary).reset_index(drop=True)
+        return df
+
     @final_cached_command()
     def average(self, df, column, weights):
         if df[weights].sum() == 0:
