@@ -20,6 +20,7 @@ class Info(Resource):
             "credits/agg/pool/daily",
             "credits/agg/pool/monthly",
             "credits/agg/bridge/vintage",
+            "credits/agg/bridge/countries",
             "pools/raw",
             "pools/agg",
             "pools/agg/daily",

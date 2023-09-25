@@ -131,12 +131,15 @@ class Credits(DfCacheable):
         return df
 
     @chained_cached_command()
-    def bridge_summary(self, df, date_field):
+    def bridge_summary(self, df, kept_fields):
         column = "quantity"
+        if not isinstance(kept_fields, list):
+            kept_fields = [kept_fields]
 
         def summary(df):
             res_df = pd.DataFrame()
-            res_df[date_field] = [df[date_field].iloc[0]]
+            for kept_field in kept_fields:
+                res_df[kept_field] = [df[kept_field].iloc[0]]
             bridged_quantity = 0
             for bridge in helpers.ALL_BRIDGES:
                 filtered_df = df[df["bridge"].str.lower() == bridge.lower()]

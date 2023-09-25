@@ -211,6 +211,20 @@ class CreditsBridgeVintageAggregation(AbstractCredits):
         return credits
 
 
+class CreditsBridgeCountriesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").countries_agg().bridge_summary(["country_code", "country"])
+        return credits
+
+
 class CreditsGlobalAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
