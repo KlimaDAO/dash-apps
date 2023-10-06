@@ -5,7 +5,7 @@ from . import helpers
 
 BRIDGES = ["all", "offchain", "toucan", "c3", "moss", "polygon", "eth"]
 POOLS = ["ubo", "nbo", "nct", "bct", "all"]
-STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired", "all"]
+STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired", "all_retired", "all"]
 DATE_FIELDS = [
     "bridged_date",
     "issuance_date",

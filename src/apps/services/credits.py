@@ -21,6 +21,10 @@ class Credits(DfCacheable):
         if bridge in ["offchain"]:
             if status == "issued":
                 df = s3.load("verra_data_v2")
+            # This is a hack to get all retired offsets even if the retirements occured offchain
+            elif status == "all_retired":
+                df = s3.load("verra_data_v2")
+                df = df[df["status"] == "Retired"]
             elif status == "retired":
                 df = s3.load("verra_retirements")
             else:
@@ -29,14 +33,14 @@ class Credits(DfCacheable):
         elif bridge in ["toucan", "c3", "polygon"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets_v2")
-            elif status == "retired":
+            elif status in ["retired", "all_retired"]:
                 df = s3.load("polygon_retired_offsets_v2")
             else:
                 raise helpers.DashArgumentException(f"Unknown credit status {status}")
         elif bridge in ["moss", "eth"]:
             if status == "bridged":
                 df = s3.load("eth_moss_bridged_offsets_v2")
-            elif status == "retired":
+            elif status in ["retired", "all_retired"]:
                 df = s3.load("eth_retired_offsets_v2")
             else:
                 raise helpers.DashArgumentException(f"Unknown credit status {status}")
