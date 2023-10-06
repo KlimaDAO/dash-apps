@@ -14,7 +14,7 @@ def status_date_column(status):
         return "issuance_date"
     elif status == "bridged":
         return "bridged_date"
-    elif status == "retired":
+    elif status in ["retired", "all_retired"]:
         return "retirement_date"
     elif status == "redeemed":
         return "redeemed_date"
