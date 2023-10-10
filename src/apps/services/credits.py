@@ -110,8 +110,9 @@ class Credits(DfCacheable):
         df = df.groupby("methodology")
         return df
 
+
     @chained_cached_command()
-    def pool_summary(self, df, date_field):
+    def pool_summary(self, df, kept_fields=[]):
         columns = [
             "quantity",
             "total_quantity",
@@ -121,16 +122,27 @@ class Credits(DfCacheable):
             "nbo_quantity",
             "mco2_quantity"
         ]
+        if isinstance(df, pd.DataFrame):
+            df = df.groupby(lambda x: True)
+
+        if not isinstance(kept_fields, list):
+            kept_fields = [kept_fields]
 
         def summary(df):
             res_df = pd.DataFrame()
-            res_df[date_field] = [df[date_field].iloc[0]]
+            for kept_field in kept_fields:
+                res_df[kept_field] = [df[kept_field].iloc[0]]
 
+            not_pooled_quantity = df["total_quantity"].sum()
             for column in columns:
                 if column in df:
-                    res_df[column] = [df[column].sum()]
+                    column_quantity = df[column].sum()
+                    res_df[column] = [column_quantity]
+                    if column not in ["quantity", "total_quantity"]:
+                        not_pooled_quantity -= column_quantity
+            res_df["not_pooled_quantity"] = [not_pooled_quantity]
+            
             return res_df
-
         df = df.apply(summary).reset_index(drop=True)
         return df
 
@@ -187,7 +199,9 @@ class Credits(DfCacheable):
 
         return df
 
-    def drop_duplicates(self, df):
+    @chained_cached_command()
+    def pool_analysis(self, df):
+        """When analysing pools we need a subset of the data"""
         df = df.drop_duplicates(subset=["token_address"], keep="first")
         df = df.reset_index(drop=True)
         return df
