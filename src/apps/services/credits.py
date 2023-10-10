@@ -92,22 +92,22 @@ class Credits(DfCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
-        df = df.groupby("vintage")
+        df = df.groupby("vintage", group_keys=False)
         return df
 
     @chained_cached_command()
     def countries_agg(self, df):
-        df = df.groupby(["country", "country_code"])
+        df = df.groupby(["country", "country_code"], group_keys=False)
         return df
 
     @chained_cached_command()
     def projects_agg(self, df):
-        df = df.groupby("project_type")
+        df = df.groupby("project_type", group_keys=False)
         return df
 
     @chained_cached_command()
     def methodologies_agg(self, df):
-        df = df.groupby("methodology")
+        df = df.groupby("methodology", group_keys=False)
         return df
 
 
@@ -123,7 +123,7 @@ class Credits(DfCacheable):
             "mco2_quantity"
         ]
         if isinstance(df, pd.DataFrame):
-            df = df.groupby(lambda x: True)
+            df = df.groupby(lambda x: True, group_keys=False)
 
         if not isinstance(kept_fields, list):
             kept_fields = [kept_fields]

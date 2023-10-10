@@ -77,10 +77,10 @@ class Retirements(DfCacheable):
 
     @chained_cached_command()
     def beneficiaries_agg(self, df):
-        df = df.groupby("beneficiary")
+        df = df.groupby("beneficiary", group_keys=False)
         return df
 
     @chained_cached_command()
     def tokens_agg(self, df):
-        df = df.groupby("token")
+        df = df.groupby("token", group_keys=False)
         return df
