@@ -113,12 +113,9 @@ class Credits(DfCacheable):
         df = df.groupby("methodology", group_keys=False)
         return df
 
-
     @chained_cached_command()
     def pool_summary(self, df, kept_fields=[]):
         columns = [
-            "quantity",
-            "total_quantity",
             "bct_quantity",
             "nct_quantity",
             "ubo_quantity",
@@ -136,15 +133,16 @@ class Credits(DfCacheable):
             for kept_field in kept_fields:
                 res_df[kept_field] = [df[kept_field].iloc[0]]
 
-            not_pooled_quantity = df["total_quantity"].sum()
+            total_quantity = df["total_quantity"].sum()
+            res_df["total_quantity"] = [total_quantity]
+            not_pooled_quantity = total_quantity
             for column in columns:
                 if column in df:
                     column_quantity = df[column].sum()
                     res_df[column] = [column_quantity]
-                    if column not in ["quantity", "total_quantity"]:
-                        not_pooled_quantity -= column_quantity
+                    not_pooled_quantity -= column_quantity
             res_df["not_pooled_quantity"] = [not_pooled_quantity]
-            
+
             return res_df
         df = df.apply(summary).reset_index(drop=True)
         return df

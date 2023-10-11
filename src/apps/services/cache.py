@@ -238,7 +238,10 @@ class DfCacheable(KeyCacheable):
     @chained_cached_command()
     def monthly_sample(self, df, date_column):
         """Samples daily data into monthly data"""
-        return df.groupby(pd.DatetimeIndex(df[date_column]).to_period('M'), group_keys=False).nth(-1).reset_index(drop=True)
+        return df.groupby(
+            pd.DatetimeIndex(df[date_column]).to_period('M'),
+            group_keys=False
+        ).nth(-1).reset_index(drop=True)
 
     def date_manipulations(self, df, date_column, freq):
         if date_column not in df:
