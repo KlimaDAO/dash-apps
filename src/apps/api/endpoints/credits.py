@@ -76,6 +76,17 @@ class AbstractCredits(Resource):
 
         return df
 
+    def get_pooled_credits(self, bridge=None):
+        """
+        Hack: Filter the polygon datasets for pool analysis
+        because the pool columns quantities are not properly made
+        """
+        args = credits_filter_parser.parse_args()
+        credits = self.get_credits(bridge)
+        if args["bridge"] in ["toucan", "c3", "polygon"]:
+            credits = credits.pool_analysis()
+        return credits
+
 
 class CreditsRaw(AbstractCredits):
     @layout_cache.cached(query_string=True)
@@ -189,7 +200,7 @@ class CreditsPoolVintageAggregation(AbstractCredits):
     )
     @helpers.with_output_formatter
     def get(self):
-        credits = self.get_credits().vintage_agg().pool_summary("vintage")
+        credits = self.get_pooled_credits().vintage_agg().pool_summary("vintage")
         return credits
 
 
@@ -203,7 +214,21 @@ class CreditsPoolMethodologyAggregation(AbstractCredits):
     )
     @helpers.with_output_formatter
     def get(self):
-        credits = self.get_credits().methodologies_agg().pool_summary("methodology")
+        credits = self.get_pooled_credits().methodologies_agg().pool_summary("methodology")
+        return credits
+
+
+class CreditsPoolCountriesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().countries_agg().pool_summary(["country_code", "country"])
         return credits
 
 
