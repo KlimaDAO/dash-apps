@@ -76,6 +76,9 @@ class AbstractCredits(Resource):
 
         return df
 
+    def get_pool_credits(self, bridge=None):
+        return self.get_credits(bridge).pool_analysis()
+
 
 class CreditsRaw(AbstractCredits):
     @layout_cache.cached(query_string=True)
@@ -177,7 +180,19 @@ class CreditsPoolVintageAggregation(AbstractCredits):
     )
     @helpers.with_output_formatter
     def get(self):
-        credits = self.get_credits().vintage_agg().pool_summary("vintage")
+        credits = self.get_pool_credits().vintage_agg().pool_summary("vintage")
+        return credits
+
+
+class CreditsPoolAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        """
+    )
+    def get(self):
+        credits = self.get_pool_credits().pool_summary().resolve().to_dict(orient='records')[0]
         return credits
 
 
@@ -191,7 +206,7 @@ class CreditsPoolMethodologyAggregation(AbstractCredits):
     )
     @helpers.with_output_formatter
     def get(self):
-        credits = self.get_credits().methodologies_agg().pool_summary("methodology")
+        credits = self.get_pool_credits().methodologies_agg().pool_summary("methodology")
         return credits
 
 
@@ -206,7 +221,7 @@ class CreditsPoolDatesAggregation(AbstractCredits):
     @helpers.with_output_formatter
     def get(self, freq):
         date_column = self.get_default_date_field()
-        credits = self.get_credits().date_agg(date_column, freq).pool_summary(date_column)
+        credits = self.get_pool_credits().date_agg(date_column, freq).pool_summary(date_column)
         return credits
 
 

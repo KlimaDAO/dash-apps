@@ -13,6 +13,7 @@ paths = [
     "credits/agg/projects",
     "credits/agg/methodologies",
     "credits/agg/vintage",
+    "credits/agg/pool",
     "credits/agg/pool/vintage",
     "credits/agg/pool/methodology",
     "credits/agg/pool/daily",

@@ -7,6 +7,7 @@ from .credits import (  # noqa
     CreditsProjectsAggregation,
     CreditsMethodologiesAggregation,
     CreditsVintageAggregation,
+    CreditsPoolAggregation,
     CreditsPoolVintageAggregation,
     CreditsPoolMethodologyAggregation,
     CreditsPoolDatesAggregation,
