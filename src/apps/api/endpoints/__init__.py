@@ -12,6 +12,8 @@ from .credits import (  # noqa
     CreditsPoolDatesAggregation,
     CreditsBridgeVintageAggregation,
     CreditsBridgeCountriesAggregation,
+    CreditsBridgeDateAggregation,
+    CreditsBridgeAggregation,
     CreditsGlobalAggregation
 )
 from .pools import (  # noqa

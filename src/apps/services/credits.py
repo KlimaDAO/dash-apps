@@ -21,6 +21,9 @@ class Credits(DfCacheable):
         if bridge in ["offchain"]:
             if status == "issued":
                 df = s3.load("verra_data_v2")
+            elif status == "bridged":
+                df = s3.load("verra_data_v2")
+                df = df.query("toucan | c3 | moss")
             # This is a hack to get all retired offsets even if the retirements occured offchain
             elif status == "all_retired":
                 df = s3.load("verra_data_v2")
@@ -136,6 +139,10 @@ class Credits(DfCacheable):
 
     @chained_cached_command()
     def bridge_summary(self, df, kept_fields):
+        # Full aggregation if we are presented a dataframe not grouped yet
+        if isinstance(df, pd.DataFrame):
+            df = df.groupby(lambda x: True)
+
         column = "quantity"
         if not isinstance(kept_fields, list):
             kept_fields = [kept_fields]
@@ -156,6 +163,7 @@ class Credits(DfCacheable):
             return res_df
 
         df = df.apply(summary).reset_index(drop=True)
+
         return df
 
     @final_cached_command()

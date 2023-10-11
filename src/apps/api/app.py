@@ -34,6 +34,8 @@ api.add_resource(endpoints.CreditsPoolMethodologyAggregation, '/credits/agg/pool
 api.add_resource(endpoints.CreditsPoolDatesAggregation, '/credits/agg/pool/<string:freq>')
 api.add_resource(endpoints.CreditsBridgeVintageAggregation, '/credits/agg/bridge/vintage')
 api.add_resource(endpoints.CreditsBridgeCountriesAggregation, '/credits/agg/bridge/countries')
+api.add_resource(endpoints.CreditsBridgeDateAggregation, '/credits/agg/bridge/<string:freq>')
+api.add_resource(endpoints.CreditsBridgeAggregation, '/credits/agg/bridge')
 
 
 api.add_resource(endpoints.PoolsRaw, '/pools/raw')
