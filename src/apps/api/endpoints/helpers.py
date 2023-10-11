@@ -125,7 +125,10 @@ def with_output_formatter(func):
             page_size = items_count
 
         # Compute info
-        pages_count = math.ceil(items_count / page_size)
+        if items_count > 0:
+            pages_count = math.ceil(items_count / page_size)
+        else:
+            pages_count = 1
 
         # Slice dataframe
         df = df[page_size * page:page_size * (page + 1)]
