@@ -10,9 +10,11 @@ from .credits import (  # noqa
     CreditsPoolAggregation,
     CreditsPoolVintageAggregation,
     CreditsPoolMethodologyAggregation,
+    CreditsPoolProjectsAggregation,
     CreditsPoolDatesAggregation,
     CreditsBridgeVintageAggregation,
     CreditsBridgeCountriesAggregation,
+    CreditsBridgeProjectsAggregation,
     CreditsBridgeDateAggregation,
     CreditsBridgeAggregation,
     CreditsGlobalAggregation

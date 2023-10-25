@@ -232,6 +232,20 @@ class CreditsPoolCountriesAggregation(AbstractCredits):
         return credits
 
 
+class CreditsPoolProjectsAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().projects_agg().pool_summary("project_type")
+        return credits
+
+
 class CreditsPoolDatesAggregation(AbstractCredits):
     @layout_cache.cached(query_string=True)
     @helpers.with_errors_handler
@@ -272,6 +286,20 @@ class CreditsBridgeCountriesAggregation(AbstractCredits):
     @helpers.with_output_formatter
     def get(self):
         credits = self.get_credits(bridge="offchain").countries_agg().bridge_summary(["country_code", "country"])
+        return credits
+
+
+class CreditsBridgeProjectsAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").projects_agg().bridge_summary("project_type")
         return credits
 
 
