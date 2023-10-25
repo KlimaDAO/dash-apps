@@ -169,7 +169,9 @@ class Credits(DfCacheable):
                 bridged_quantity = bridged_quantity + this_bridge_quantity
             total_quantity = df[column].sum()
             res_df["total_quantity"] = [total_quantity]
-            res_df["not_bridged_quantity"] = [total_quantity - bridged_quantity]
+            res_df["not_bridge_quantity"] = [total_quantity - bridged_quantity]
+            res_df["bridge_quantity"] = [bridged_quantity]
+            res_df["bridge_ratio"] = [bridged_quantity / total_quantity]
             return res_df
 
         df = df.apply(summary).reset_index(drop=True)
