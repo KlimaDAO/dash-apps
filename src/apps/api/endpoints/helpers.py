@@ -116,6 +116,7 @@ def with_output_formatter(func):
             df = df.sort_values(by=sort_by, ascending=sort_order == "asc")
 
         # Paginate results
+        print(df.shape)
         items_count = df.shape[0]
         page = args["page"]
         page_size = args["page_size"]

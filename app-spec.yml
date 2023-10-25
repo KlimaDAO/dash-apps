@@ -55,11 +55,11 @@ services:
       tag: ${GITHUB_SHA}
     health_check:
       http_path: /api/v1
-      initial_delay_seconds: 60
-      timeout_seconds: 1200
-      period_seconds: 20
+      initial_delay_seconds: 0
+      timeout_seconds: 1
+      period_seconds: 10
       success_threshold: 1
-      failure_threshold: 20
+      failure_threshold: 6
     http_port: 8050
     routes:
       - path: /api/v1/
