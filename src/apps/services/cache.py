@@ -154,15 +154,19 @@ class DfCacheable(KeyCacheable):
             if isinstance(df[date_column][0], datetime.date):
                 date = datetime.date(date.year, date.month, date.day)
             return date
+
+        if end is None and begin is None:
+            return df
+
         if df.empty:
             return df
         if end is not None:
             df = df[
-                (df[date_column] <= convert_date(end))
+                (df[date_column] <= end)
             ]
         if begin is not None:
             df = df[
-                (df[date_column] >= convert_date(begin))
+                (df[date_column] >= begin)
             ]
         return df
 
@@ -184,7 +188,7 @@ class DfCacheable(KeyCacheable):
         date_column = columns[0]
         """Adds an aggregation by day"""
         df = self.date_manipulations(df, date_column, "daily")
-        df = df.groupby(columns)
+        df = df.groupby(columns, group_keys=False)
         return df
 
     def monthly_agg(self, df, columns):
@@ -193,7 +197,7 @@ class DfCacheable(KeyCacheable):
             columns = [columns]
         date_column = columns[0]
         df = self.date_manipulations(df, date_column, "monthly")
-        df = df.groupby(columns)
+        df = df.groupby(columns, group_keys=False)
         return df
 
     @final_cached_command()
@@ -222,7 +226,7 @@ class DfCacheable(KeyCacheable):
     def sum_over_time(self, df, date_column, column, freq):
         df = self.date_manipulations(df, date_column, freq)
         df = df.sort_values(by=date_column, ascending=True)
-        df = df.groupby(date_column)[column].sum().to_frame().reset_index()
+        df = df.groupby(date_column, group_keys=False)[column].sum().to_frame().reset_index()
         df[column] = df[column].cumsum()
         return df
 
@@ -230,6 +234,14 @@ class DfCacheable(KeyCacheable):
     def cumsum(self, df, column):
         """Cumulative sum"""
         return df[column].cumsum()
+
+    @chained_cached_command()
+    def monthly_sample(self, df, date_column):
+        """Samples daily data into monthly data"""
+        return df.groupby(
+            pd.DatetimeIndex(df[date_column]).to_period('M'),
+            group_keys=False
+        ).nth(-1).reset_index(drop=True)
 
     def date_manipulations(self, df, date_column, freq):
         if date_column not in df:

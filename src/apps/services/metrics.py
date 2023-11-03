@@ -42,7 +42,20 @@ class Metrics(DfCacheable):
             "date_celo",
             "date_polygon"
         ])
+        all = all.fillna(method="backfill")
         all = all.fillna(0)
+
+        # Compute cross chain protocol data
+        all["total_nct_supply"] = all.nct_supply_polygon + all.nct_supply_celo
+        all["total_bct_supply"] = all.bct_supply_polygon + all.bct_supply_celo
+        all["total_nbo_supply"] = all.nbo_supply_polygon
+        all["total_ubo_supply"] = all.ubo_supply_polygon
+        all["total_mco2_supply"] = all.mco2_supply_polygon + all.mco2_supply_celo + all.mco2_supply_eth
+
+        all["total_toucan_supply"] = all.total_bct_supply + all.total_nct_supply
+        all["total_c3_supply"] = all.total_ubo_supply + all.total_nbo_supply
+        all["total_moss_supply"] = all.total_mco2_supply
+
         return all
 
     @final_cached_command()

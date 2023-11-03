@@ -4,8 +4,9 @@ from . import helpers
 
 
 BRIDGES = ["all", "offchain", "toucan", "c3", "moss", "polygon", "eth"]
-POOLS = ["ubo", "nbo", "nct", "bct"]
-STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired"]
+POOLS = ["ubo", "nbo", "nct", "bct", "all"]
+STATUSES = ["issued", "bridged", "deposited", "redeemed", "retired", "all_retired", "all"]
+OFFCHAIN_FILTER = ["tokenized", "toucan", "c3", "moss"]
 DATE_FIELDS = [
     "bridged_date",
     "issuance_date",
@@ -21,6 +22,11 @@ credits_filter_parser = reqparse.RequestParser()
 credits_filter_parser.add_argument('bridge', type=helpers.validate_list(BRIDGES), default="all")
 credits_filter_parser.add_argument('pool', type=helpers.validate_list(POOLS + [None]), default=None)
 credits_filter_parser.add_argument('status', type=helpers.validate_list(STATUSES + [None]), default=None)
+credits_filter_parser.add_argument(
+    'offchain_filter',
+    type=helpers.validate_list(OFFCHAIN_FILTER + [None]),
+    default=None
+)
 
 
 class AbstractCredits(Resource):
@@ -30,23 +36,56 @@ class AbstractCredits(Resource):
         args = credits_filter_parser.parse_args()
         bridge = args["bridge"]
         status = args["status"]
+
         if status is None:
             return "issuance_date" if bridge == "offchain" else "bridged_date"
         else:
             return helpers.status_date_column(status)
 
-    def get_credits(self):
+    @helpers.with_daterange_filter("bridged_date")
+    @helpers.with_daterange_filter("issuance_date")
+    @helpers.with_daterange_filter("retirement_date")
+    @helpers.with_daterange_filter("deposited_date")
+    @helpers.with_daterange_filter("redeemed_date")
+    def get_credits(self, bridge=None):
         args = credits_filter_parser.parse_args()
-        bridge = args["bridge"]
+        if not bridge:
+            bridge = args["bridge"]
         pool = args["pool"]
         status = args["status"]
+        offchain_filter = args["offchain_filter"]
+
+        # Accept a 'all' value for pools
+        if pool == "all":
+            pool = None
+
+        # Accept a 'all' value for status
+        if status == "all":
+            status = None
 
         # auto select status
         if status is None:
             status = "issued" if bridge == "offchain" else "bridged"
 
-        # Return credits
-        return Service().filter(bridge, pool, status)
+        # Select credits
+        df = Service().filter(bridge, pool, status)
+
+        # Filter offchain credits
+        if offchain_filter:
+            df = df.offchain_filter(offchain_filter)
+
+        return df
+
+    def get_pooled_credits(self, bridge=None):
+        """
+        Hack: Filter the polygon datasets for pool analysis
+        because the pool columns quantities are not properly made
+        """
+        args = credits_filter_parser.parse_args()
+        credits = self.get_credits(bridge)
+        if args["bridge"] in ["toucan", "c3", "polygon"]:
+            credits = credits.pool_analysis()
+        return credits
 
 
 class CreditsRaw(AbstractCredits):
@@ -59,9 +98,6 @@ class CreditsRaw(AbstractCredits):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date")
-    @helpers.with_daterange_filter("issuance_date")
-    @helpers.with_daterange_filter("retirement_date")
     def get(self):
         return self.get_credits()
 
@@ -77,11 +113,6 @@ class CreditsDatesAggregation(AbstractCredits):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("bridged_date")
-    @helpers.with_daterange_filter("issuance_date")
-    @helpers.with_daterange_filter("retirement_date")
-    @helpers.with_daterange_filter("deposited_date")
-    @helpers.with_daterange_filter("redeemed_date")
     def get(self, freq):
         return helpers.apply_date_aggregation(
             DATE_FIELDS,
@@ -145,6 +176,159 @@ class CreditsVintageAggregation(AbstractCredits):
     def get(self):
         credits = self.get_credits().vintage_agg().sum("quantity")
         return credits
+
+
+class CreditsPoolAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        """
+    )
+    def get(self):
+        credits = self.get_credits().pool_analysis().pool_summary().resolve().to_dict(orient='records')[0]
+        return credits
+
+
+class CreditsPoolVintageAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().vintage_agg().pool_summary("vintage")
+        return credits
+
+
+class CreditsPoolMethodologyAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().methodologies_agg().pool_summary("methodology")
+        return credits
+
+
+class CreditsPoolCountriesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().countries_agg().pool_summary(["country_code", "country"])
+        return credits
+
+
+class CreditsPoolProjectsAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_pooled_credits().projects_agg().pool_summary("project_type")
+        return credits
+
+
+class CreditsPoolDatesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self, freq):
+        date_column = self.get_default_date_field()
+        credits = self.get_credits().date_agg(date_column, freq).pool_summary(date_column)
+        return credits
+
+
+class CreditsBridgeVintageAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").vintage_agg().bridge_summary("vintage")
+        return credits
+
+
+class CreditsBridgeCountriesAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").countries_agg().bridge_summary(["country_code", "country"])
+        return credits
+
+
+class CreditsBridgeProjectsAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self):
+        credits = self.get_credits(bridge="offchain").projects_agg().bridge_summary("project_type")
+        return credits
+
+
+class CreditsBridgeDateAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.dates_aggregation_help(DATE_FIELDS)}
+        {helpers.OUTPUT_FORMATTER_HELP}
+        {helpers.DATES_FILTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self, freq):
+        return self.get_credits(bridge="offchain").date_agg("issuance_date", freq).bridge_summary("issuance_date")
+
+
+class CreditsBridgeAggregation(AbstractCredits):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""{BASE_HELP}
+        {helpers.dates_aggregation_help(DATE_FIELDS)}
+        {helpers.DATES_FILTER_HELP}
+        """
+    )
+    def get(self):
+        return self.get_credits(bridge="offchain").bridge_summary("quantity").resolve().to_dict(orient='records')[0]
 
 
 class CreditsGlobalAggregation(AbstractCredits):

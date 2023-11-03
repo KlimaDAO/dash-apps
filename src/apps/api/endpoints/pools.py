@@ -3,7 +3,7 @@ from src.apps.services import Pools as Service, layout_cache
 from . import helpers
 
 
-POOLS = ["ubo", "nbo", "nct", "bct"]
+POOLS = ["ubo", "nbo", "nct", "bct", "all"]
 STATUSES = ["deposited", "redeemed", "retired"]
 OPERATORS = ["sum", "cumsum"]
 DATE_FIELDS = [
@@ -31,6 +31,9 @@ class AbstractPools(Resource):
         else:
             return helpers.status_date_column(status)
 
+    @helpers.with_daterange_filter("retirement_date")
+    @helpers.with_daterange_filter("deposited_date")
+    @helpers.with_daterange_filter("redeemed_date")
     def get_pool(self):
         args = pools_filter_parser.parse_args()
         pool = args["pool"]
@@ -49,9 +52,6 @@ class PoolsRaw(AbstractPools):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("retirement_date")
-    @helpers.with_daterange_filter("deposited_date")
-    @helpers.with_daterange_filter("redeemed_date")
     def get(self):
         return self.get_pool()
 
@@ -65,9 +65,6 @@ class PoolsDatesAggregation(AbstractPools):
         """
     )
     @helpers.with_output_formatter
-    @helpers.with_daterange_filter("retirement_date")
-    @helpers.with_daterange_filter("deposited_date")
-    @helpers.with_daterange_filter("redeemed_date")
     def get(self, freq):
         return helpers.apply_date_aggregation(
             DATE_FIELDS,
@@ -75,6 +72,22 @@ class PoolsDatesAggregation(AbstractPools):
             freq,
             self.get_default_date_field()
         )
+
+
+class PoolsTokensAndDatesAggregation(AbstractPools):
+    @layout_cache.cached(query_string=True)
+    @helpers.with_errors_handler
+    @helpers.with_help(
+        f"""
+        Aggregates Pools retirements on date and token
+        {helpers.OUTPUT_FORMATTER_HELP}
+        """
+    )
+    @helpers.with_output_formatter
+    def get(self, freq):
+        date_field = self.get_default_date_field()
+        pools = self.get_pool().date_agg(date_field, freq).pool_summary(date_field)
+        return pools
 
 
 class PoolsGlobalAggregation(AbstractPools):

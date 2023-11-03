@@ -25,14 +25,27 @@ def output_json(data, code, headers=None):
 api.add_resource(endpoints.CreditsRaw, '/credits/raw')
 api.add_resource(endpoints.CreditsGlobalAggregation, '/credits/agg')
 api.add_resource(endpoints.CreditsDatesAggregation, '/credits/agg/<string:freq>')
-api.add_resource(endpoints.CreditsCountriesAggregation, '/credits/agg/countries')
-api.add_resource(endpoints.CreditsProjectsAggregation, '/credits/agg/projects')
-api.add_resource(endpoints.CreditsMethodologiesAggregation, '/credits/agg/methodologies')
+api.add_resource(endpoints.CreditsCountriesAggregation, '/credits/agg/country')
+api.add_resource(endpoints.CreditsProjectsAggregation, '/credits/agg/project')
+api.add_resource(endpoints.CreditsMethodologiesAggregation, '/credits/agg/methodology')
 api.add_resource(endpoints.CreditsVintageAggregation, '/credits/agg/vintage')
+api.add_resource(endpoints.CreditsPoolAggregation, '/credits/agg/pool')
+api.add_resource(endpoints.CreditsPoolVintageAggregation, '/credits/agg/pool/vintage')
+api.add_resource(endpoints.CreditsPoolMethodologyAggregation, '/credits/agg/pool/methodology')
+api.add_resource(endpoints.CreditsPoolProjectsAggregation, '/credits/agg/pool/project')
+api.add_resource(endpoints.CreditsPoolDatesAggregation, '/credits/agg/pool/<string:freq>')
+api.add_resource(endpoints.CreditsBridgeVintageAggregation, '/credits/agg/bridge/vintage')
+api.add_resource(endpoints.CreditsBridgeCountriesAggregation, '/credits/agg/bridge/country')
+api.add_resource(endpoints.CreditsBridgeProjectsAggregation, '/credits/agg/bridge/project')
+api.add_resource(endpoints.CreditsBridgeDateAggregation, '/credits/agg/bridge/<string:freq>')
+api.add_resource(endpoints.CreditsBridgeAggregation, '/credits/agg/bridge')
+
 
 api.add_resource(endpoints.PoolsRaw, '/pools/raw')
 api.add_resource(endpoints.PoolsGlobalAggregation, '/pools/agg')
 api.add_resource(endpoints.PoolsDatesAggregation, '/pools/agg/<string:freq>')
+api.add_resource(endpoints.PoolsTokensAndDatesAggregation, '/pools/agg/tokens/<string:freq>')
+
 
 api.add_resource(endpoints.Holders, '/holders')
 
@@ -48,7 +61,9 @@ api.add_resource(endpoints.RetirementsGlobalAggregation, '/retirements/<string:f
 api.add_resource(endpoints.RetirementsDatesAggregation, '/retirements/<string:filter>/agg/<string:freq>')
 api.add_resource(endpoints.RetirementsTokensAggregation, '/retirements/klima/agg/tokens')
 api.add_resource(endpoints.RetirementsTokensAndDatesAggregation, '/retirements/klima/agg/tokens/<string:freq>')
-api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/<string:filter>/agg/beneficiaries')
+api.add_resource(endpoints.RetirementsBeneficiariesAggregation, '/retirements/<string:filter>/agg/beneficiary')
+api.add_resource(endpoints.RetirementsOriginAndDatesAggregation, '/retirements/all/agg/origin/<string:freq>')
+
 
 api.add_resource(endpoints.Info, '', '/')
 

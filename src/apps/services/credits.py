@@ -21,6 +21,13 @@ class Credits(DfCacheable):
         if bridge in ["offchain"]:
             if status == "issued":
                 df = s3.load("verra_data_v2")
+            elif status == "bridged":
+                df = s3.load("verra_data_v2")
+                df = df.query("toucan | c3 | moss")
+            # This is a hack to get all retired offsets even if the retirements occured offchain
+            elif status == "all_retired":
+                df = s3.load("verra_data_v2")
+                df = df[df["status"] == "Retired"]
             elif status == "retired":
                 df = s3.load("verra_retirements")
             else:
@@ -29,14 +36,14 @@ class Credits(DfCacheable):
         elif bridge in ["toucan", "c3", "polygon"]:
             if status == "bridged":
                 df = s3.load("polygon_bridged_offsets_v2")
-            elif status == "retired":
+            elif status in ["retired", "all_retired"]:
                 df = s3.load("polygon_retired_offsets_v2")
             else:
                 raise helpers.DashArgumentException(f"Unknown credit status {status}")
         elif bridge in ["moss", "eth"]:
             if status == "bridged":
                 df = s3.load("eth_moss_bridged_offsets_v2")
-            elif status == "retired":
+            elif status in ["retired", "all_retired"]:
                 df = s3.load("eth_retired_offsets_v2")
             else:
                 raise helpers.DashArgumentException(f"Unknown credit status {status}")
@@ -54,6 +61,7 @@ class Credits(DfCacheable):
                     "project_type",
                     "region",
                     "country",
+                    "country_code",
                     "methodology",
                     "vintage",
                     "name",
@@ -71,12 +79,9 @@ class Credits(DfCacheable):
             df = df[df["bridge"].str.lower() == bridge.lower()].reset_index(drop=True)
 
         # Filter pool
-        if pool:
-            df = self.drop_duplicates(df)
-            if pool == "all":
-                df = self.filter_pool_quantity(df, "total_quantity")
-            else:
-                df = self.filter_pool_quantity(df, f"{pool}_quantity")
+        if pool and pool != "all":
+            quantity_column = f"{pool}_quantity"
+            df = df[df[quantity_column] > 0]
 
         return df
 
@@ -90,63 +95,88 @@ class Credits(DfCacheable):
     @chained_cached_command()
     def vintage_agg(self, df):
         """Adds an aggregation on vintage"""
-        df = df.groupby("vintage")
+        df = df.groupby("vintage", group_keys=False)
         return df
 
     @chained_cached_command()
     def countries_agg(self, df):
-        df = df.groupby(["country", "country_code"])
+        df = df.groupby(["country", "country_code"], group_keys=False)
         return df
 
     @chained_cached_command()
     def projects_agg(self, df):
-        df = df.groupby("project_type")
+        df = df.groupby("project_type", group_keys=False)
         return df
 
     @chained_cached_command()
     def methodologies_agg(self, df):
-        df = df.groupby("methodology")
+        df = df.groupby("methodology", group_keys=False)
         return df
 
-    def _summary(self, df, result_cols):
-        """Creates a summary"""
-        group_by_cols = result_cols.copy()
-        group_by_cols.remove("quantity")
-        df = (
-            df.groupby(group_by_cols)["quantity"]
-            .sum()
-            .to_frame()
-            .reset_index(drop=True)
-        )
-        df = df[result_cols]
+    @chained_cached_command()
+    def pool_summary(self, df, kept_fields=[]):
+        columns = [
+            "bct_quantity",
+            "nct_quantity",
+            "ubo_quantity",
+            "nbo_quantity",
+            "mco2_quantity"
+        ]
+        if isinstance(df, pd.DataFrame):
+            df = df.groupby(lambda x: True, group_keys=False)
+
+        if not isinstance(kept_fields, list):
+            kept_fields = [kept_fields]
+
+        def summary(df):
+            res_df = pd.DataFrame()
+            for kept_field in kept_fields:
+                res_df[kept_field] = [df[kept_field].iloc[0]]
+
+            total_quantity = df["total_quantity"].sum()
+            res_df["total_quantity"] = [total_quantity]
+            not_pooled_quantity = total_quantity
+            for column in columns:
+                if column in df:
+                    column_quantity = df[column].sum()
+                    res_df[column] = [column_quantity]
+                    not_pooled_quantity -= column_quantity
+            res_df["not_pooled_quantity"] = [not_pooled_quantity]
+
+            return res_df
+        df = df.apply(summary).reset_index(drop=True)
         return df
 
-    @final_cached_command()
-    def pool_summary(self, df):
-        """Creates a summary for pool data"""
-        return self._summary(df, [
-            "project_id",
-            "token Address",
-            "quantity",
-            "vintage",
-            "country",
-            "project_type",
-            "methodology",
-            "name"
-         ])
+    @chained_cached_command()
+    def bridge_summary(self, df, kept_fields):
+        # Full aggregation if we are presented a dataframe not grouped yet
+        if isinstance(df, pd.DataFrame):
+            df = df.groupby(lambda x: True)
 
-    @final_cached_command()
-    def bridge_summary(self, df):
-        """Creates a summary for bridge data"""
-        return self._summary(df, [
-            "project_id",
-            "quantity",
-            "vintage",
-            "country",
-            "project_type",
-            "methodology",
-            "name"
-        ])
+        column = "quantity"
+        if not isinstance(kept_fields, list):
+            kept_fields = [kept_fields]
+
+        def summary(df):
+            res_df = pd.DataFrame()
+            for kept_field in kept_fields:
+                res_df[kept_field] = [df[kept_field].iloc[0]]
+            bridged_quantity = 0
+            for bridge in helpers.ALL_BRIDGES:
+                filtered_df = df[df["bridge"].str.lower() == bridge.lower()]
+                this_bridge_quantity = filtered_df[column].sum()
+                res_df[f"{bridge}_quantity"] = [this_bridge_quantity]
+                bridged_quantity = bridged_quantity + this_bridge_quantity
+            total_quantity = df[column].sum()
+            res_df["total_quantity"] = [total_quantity]
+            res_df["not_bridge_quantity"] = [total_quantity - bridged_quantity]
+            res_df["bridge_quantity"] = [bridged_quantity]
+            res_df["bridge_ratio"] = [bridged_quantity / total_quantity]
+            return res_df
+
+        df = df.apply(summary).reset_index(drop=True)
+
+        return df
 
     @final_cached_command()
     def average(self, df, column, weights):
@@ -177,7 +207,9 @@ class Credits(DfCacheable):
 
         return df
 
-    def drop_duplicates(self, df):
+    @chained_cached_command()
+    def pool_analysis(self, df):
+        """When analysing pools we need a subset of the data"""
         df = df.drop_duplicates(subset=["token_address"], keep="first")
         df = df.reset_index(drop=True)
         return df

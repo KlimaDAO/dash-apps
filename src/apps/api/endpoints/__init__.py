@@ -7,12 +7,23 @@ from .credits import (  # noqa
     CreditsProjectsAggregation,
     CreditsMethodologiesAggregation,
     CreditsVintageAggregation,
+    CreditsPoolAggregation,
+    CreditsPoolVintageAggregation,
+    CreditsPoolMethodologyAggregation,
+    CreditsPoolProjectsAggregation,
+    CreditsPoolDatesAggregation,
+    CreditsBridgeVintageAggregation,
+    CreditsBridgeCountriesAggregation,
+    CreditsBridgeProjectsAggregation,
+    CreditsBridgeDateAggregation,
+    CreditsBridgeAggregation,
     CreditsGlobalAggregation
 )
 from .pools import (  # noqa
     PoolsRaw,
     PoolsGlobalAggregation,
-    PoolsDatesAggregation
+    PoolsDatesAggregation,
+    PoolsTokensAndDatesAggregation
 )
 from .holders import Holders  # noqa
 from .prices import Prices  # noqa
@@ -23,6 +34,7 @@ from .retirements import (  # noqa
     RetirementsBeneficiariesAggregation,
     RetirementsGlobalAggregation,
     RetirementsTokensAndDatesAggregation,
-    RetirementsTokensAggregation
+    RetirementsTokensAggregation,
+    RetirementsOriginAndDatesAggregation,
 )
 from .tokens import Tokens  # noqa
