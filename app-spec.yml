@@ -4,6 +4,8 @@ alerts:
 domains:
   - domain: ${DIGITALOCEAN_APP_DOMAIN}
     type: PRIMARY
+  - domain: ${DIGITALOCEAN_APP_DOMAIN_ALIAS}
+    type: ALIAS
     minimum_tls_version: "1.2"
 envs:
   - key: ENV
