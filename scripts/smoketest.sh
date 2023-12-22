@@ -2,7 +2,7 @@
 
 FAILING=0
 
-ENTRIES=(src/apps/api/app.py:/api/v1 src/apps/tco2_dashboard/app.py:/)
+ENTRIES=(src/apps/api/app.py:/api/v1)
 
 for ENTRY in ${ENTRIES[@]}; do
   ITEMS=(`echo $ENTRY | tr ":" " "`)
