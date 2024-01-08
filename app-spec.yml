@@ -36,6 +36,26 @@ services:
       repository: dash-apps
       tag: ${GITHUB_SHA}
     health_check:
+      http_path: /
+      initial_delay_seconds: 60
+      timeout_seconds: 1200
+      period_seconds: 20
+      success_threshold: 1
+      failure_threshold: 20
+    http_port: 8050
+    routes:
+      - path: /
+    instance_count: 1
+    instance_size_slug: ${DIGITALOCEAN_SIZE_SLUG}
+    name: treasury-dashboard
+    run_command: gunicorn --worker-tmp-dir /dev/shm --timeout ${GUNICORN_TIMEOUT} src.apps.treasury.index:server
+    source_dir: /
+  - environment_slug: python
+    image:
+      registry_type: DOCR
+      repository: dash-apps
+      tag: ${GITHUB_SHA}
+    health_check:
       http_path: /api/v1
       initial_delay_seconds: 0
       timeout_seconds: 1

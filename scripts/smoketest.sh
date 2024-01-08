@@ -2,14 +2,14 @@
 
 FAILING=0
 
-ENTRIES=(src/apps/api/app.py:/api/v1)
+ENTRIES=(src/apps/api/app.py:/api/v1 src/apps/treasury/index.py:/)
 
 for ENTRY in ${ENTRIES[@]}; do
   ITEMS=(`echo $ENTRY | tr ":" " "`)
   APP=${ITEMS[0]}
   SUBPATH=${ITEMS[1]}
   URL=http://127.0.0.1:8050$SUBPATH
-  echo $APP : Starting 
+  echo $APP : Starting
   module="${APP////.}"
   nohup python -m ${module%.py} > /tmp/nohup.out 2>&1 &
   DASH_PID=$!
@@ -18,7 +18,7 @@ for ENTRY in ${ENTRIES[@]}; do
   echo $APP : Pinging $URL
   RESP_CODE=$(curl --head --location --write-out %{http_code} --silent --output response.txt $URL)
   echo $APP : Response code: $RESP_CODE
-  kill $DASH_PID 
+  kill $DASH_PID
   # kill `lsof -w -n -i tcp:8050 | awk '$2!="PID" {print $2;}'` | head -n 1
   if [ "$RESP_CODE" != "200" ];
   then

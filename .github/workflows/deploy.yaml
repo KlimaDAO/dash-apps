@@ -87,11 +87,11 @@ jobs:
       DIGITALOCEAN_APP_NAME: ${{ secrets.DIGITALOCEAN_APP_NAME }}
       DIGITALOCEAN_APP_DOMAIN: ${{ secrets.DIGITALOCEAN_APP_DOMAIN }}
       DIGITALOCEAN_APP_DOMAIN_ALIAS: ${{ vars.DIGITALOCEAN_APP_DOMAIN_ALIAS }}
-      DIGITALOCEAN_SIZE_SLUG: ${{ secrets.DIGITALOCEAN_SIZE_SLUG }}
+      DIGITALOCEAN_SIZE_SLUG: ${{ vars.DIGITALOCEAN_SIZE_SLUG }}
       PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
       PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
       ENV: ${{ secrets.ENV }}
-      GUNICORN_TIMEOUT: ${{ secrets.GUNICORN_TIMEOUT }}
+      GUNICORN_TIMEOUT: ${{ vars.GUNICORN_TIMEOUT }}
     steps:
       - name: Check out source repository
         uses: actions/checkout@v2
