@@ -1,11 +1,11 @@
-from . import S3, KeyCacheable, single_cached_command
+from . import S3, KeyCacheable, single_cached_command, services_short_cache
 
 
 class Tokens(KeyCacheable):
     """Service for offsets"""
-    def __init__(self, commands=[]):
+    def __init__(self, commands=[], cache=services_short_cache):
         self.df = S3().load("tokens_data_v2")
-        super(Tokens, self).__init__(commands)
+        super(Tokens, self).__init__(commands, cache)
 
     def get_dict(self):
         return (
