@@ -14,8 +14,7 @@ from src.apps.treasury.data.protocol_metrics import \
 
 ILLIQUID_ASSETS_GSHEET = 'https://docs.google.com/spreadsheets/d/1beNgV2Aemu01I-iyTsfOvHDTSevb0dj8GWXqo5KDShk'
 
-# TODO: update page title for browser header
-dash.register_page(__name__)
+dash.register_page(__name__, title="KlimaDAO Treasury Heads Up Display")
 
 # TODO: add caching
 
@@ -121,9 +120,19 @@ green_ratio_df = pd.DataFrame.from_records(green_ratio_data)
 # TODO: style colors based on KIP
 # TODO: style holdings as $xx.yy[m/k] (i.e. human-formatted like indicators)
 # TODO: visualize targets in some way
-# TODO: load from Google Sheet for maintenance
-green_ratio_fig = px.pie(green_ratio_df, values="value",
-                         names="bucket", hole=.3)
+# TODO: load targets from Google Sheet for ease of maintenance
+green_ratio_fig = px.pie(
+    green_ratio_df, values="value",
+    names="bucket", hole=.3, color="bucket",
+    color_discrete_map={
+        'Op Ex': '#f2ae00',
+        'Carbon Forwards': '#6fff93',
+        'Carbon Backing': '#00cc33',
+        'Treasury Holdings': '#ddf641'
+    }
+)
+
+# target_indicators =
 
 layout = dbc.Container([
     html.Div([
@@ -138,5 +147,5 @@ layout = dbc.Container([
                 dcc.Graph(figure=green_ratio_fig)
             ], xs=12, sm=12, md=12, lg=6, xl=6),
         ]),
-    ], className='center_2'),
+    ], className='center'),
 ], id='page_content_hud', fluid=True)

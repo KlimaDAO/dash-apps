@@ -6,7 +6,7 @@ CONTENT_STYLE = {
     "position": "relative",
     "margin-right": "0rem",
     "margin-left": "0rem",
-    "background-color": "#202020",
+    "background-color": "#FFF",
     "height": "100vh"
 }
 FOOTER_STYLE = {
@@ -16,13 +16,10 @@ FOOTER_STYLE = {
     "right": 0,
     "height": "6rem",
     "padding": "1rem 1rem",
-    "background-color": "#202020",
+    "background-color": "#FFF",
 }
 
 app.layout = html.Div([
-    html.Div([
-        html.H1("KlimaDAO Treasury Dashboard")
-    ], className='center_2'),
     dash.page_container
 ])
 
