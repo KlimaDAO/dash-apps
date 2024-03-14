@@ -22,24 +22,24 @@ dash.register_page(__name__, title="KlimaDAO Treasury Heads Up Display")
 # last_metric_df = sg.query_df([last_metric.marketCap, last_metric.treasuryMarketValue, ...])
 
 # Market Cap indicator
-mc_fig = go.Figure(
+metric_fig = go.Figure(
     go.Indicator(
         mode="number",
         value=sg.query([last_metric.marketCap]),
         number={"prefix": "$", "valueformat": ".2s"},
         title={"text": "Market Cap"},
-        domain={'y': [0, 1], 'x': [0.25, 0.75]}
-    )
+        domain={'y': [0, 0.5], 'x': [0.25, 0.75]}
+    ),
 )
 
-# Net Asset Value / Total Treasury Value ($) indicator
-nav_fig = go.Figure(
+metric_fig.add_trace(
+    # Net Asset Value / Total Treasury Value ($) indicator
     go.Indicator(
         mode="number",
         value=sg.query([last_metric.treasuryMarketValue]),
         number={"prefix": "$", "valueformat": ".2s"},
         title={"text": "Net Asset Value"},
-        domain={'y': [0, 1], 'x': [0.25, 0.75]}
+        domain={'y': [0.5, 1], 'x': [0.25, 0.75]}
     )
 )
 
@@ -116,8 +116,12 @@ green_ratio_data = [
     {"bucket": "Treasury Holdings", "value": treasury_value, "target": 0.48}
 ]
 green_ratio_df = pd.DataFrame.from_records(green_ratio_data)
+order = [
+    'Op Ex', 'Carbon Forwards',
+    'Carbon Backing', 'Treasury Holdings'
+]
 
-# TODO: style colors based on KIP
+
 # TODO: style holdings as $xx.yy[m/k] (i.e. human-formatted like indicators)
 # TODO: visualize targets in some way
 # TODO: load targets from Google Sheet for ease of maintenance
@@ -129,23 +133,54 @@ green_ratio_fig = px.pie(
         'Carbon Forwards': '#6fff93',
         'Carbon Backing': '#00cc33',
         'Treasury Holdings': '#ddf641'
-    }
+    },
+    category_orders={'bucket': order},
+    title="Green Ratio: Current",
+)
+green_ratio_fig.update_layout(
+    title_x=0.5,
+    legend=dict(
+        yanchor='bottom',
+        y=-.5,
+        xanchor='auto',
+        x=.5
+    )
 )
 
-# target_indicators =
+green_ratio_target_fig = px.pie(
+    green_ratio_df, values="target",
+    names="bucket", hole=.3, color="bucket",
+    color_discrete_map={
+        'Op Ex': '#f2ae00',
+        'Carbon Forwards': '#6fff93',
+        'Carbon Backing': '#00cc33',
+        'Treasury Holdings': '#ddf641'
+    },
+    category_orders={'bucket': order},
+    title="Green Ratio: Target",
+)
+green_ratio_target_fig.update_layout(
+    title_x=0.5,
+    legend=dict(
+        yanchor='bottom',
+        y=-.5,
+        xanchor='auto',
+        x=.5
+    )
+)
 
 layout = dbc.Container([
     html.Div([
         dbc.Row([
             dbc.Col([
-                dcc.Graph(figure=mc_fig)
-            ], xs=12, sm=12, md=12, lg=3, xl=3),
-            dbc.Col([
-                dcc.Graph(figure=nav_fig)
-            ], xs=12, sm=12, md=12, lg=3, xl=3),
+                dcc.Graph(figure=metric_fig)
+            ], xs=12, sm=12, md=12, lg=4, xl=4),
             dbc.Col([
                 dcc.Graph(figure=green_ratio_fig)
-            ], xs=12, sm=12, md=12, lg=6, xl=6),
+            ], xs=12, sm=6, md=6, lg=4, xl=4),
+            dbc.Col([
+                dcc.Graph(figure=green_ratio_target_fig)
+            ], xs=12, sm=6, md=6, lg=4, xl=4)
         ]),
     ], className='center'),
 ], id='page_content_hud', fluid=True)
