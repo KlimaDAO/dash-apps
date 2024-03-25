@@ -27,19 +27,27 @@ metric_fig = go.Figure(
         mode="number",
         value=sg.query([last_metric.marketCap]),
         number={"prefix": "$", "valueformat": ".2s"},
-        title={"text": "Market Cap"},
-        domain={'y': [0, 0.5], 'x': [0.25, 0.75]}
-    ),
+        title={
+            "text":
+            ("<a title='KLIMA supply multiplied by current price' href="
+             "'https://www.coinbase.com/learn/crypto-basics/what-is-market-cap'>"
+             "Market Cap</a>")
+        },
+        domain={'y': [0, 0.5], 'x': [0.25, 0.75]},
+    )
 )
 
 metric_fig.add_trace(
-    # Net Asset Value / Total Treasury Value ($) indicator
+    # Total Treasury Market Value ($) indicator
     go.Indicator(
         mode="number",
         value=sg.query([last_metric.treasuryMarketValue]),
         number={"prefix": "$", "valueformat": ".2s"},
-        title={"text": "Net Asset Value"},
-        domain={'y': [0.5, 1], 'x': [0.25, 0.75]}
+        title={
+            "text":
+            "Treasury <a href='https://en.wikipedia.org/wiki/Market_value'>Market Value</a>"
+        },
+        domain={'y': [0.5, 1], 'x': [0.25, 0.75]},
     )
 )
 
@@ -157,7 +165,7 @@ green_ratio_target_fig = px.pie(
         'Treasury Holdings': '#ddf641'
     },
     category_orders={'bucket': order},
-    title="Green Ratio: Target",
+    title="<a href='https://forum.klimadao.finance/d/285-rfc-green-ratio'>Green Ratio: Target</a>",
 )
 green_ratio_target_fig.update_layout(
     title_x=0.5,
@@ -182,5 +190,15 @@ layout = dbc.Container([
                 dcc.Graph(figure=green_ratio_target_fig)
             ], xs=12, sm=6, md=6, lg=4, xl=4)
         ]),
-    ], className='center'),
+        dbc.Row([
+            dbc.Col([
+                html.H3(
+                    html.A(
+                        'Learn more',
+                        href='https://dune.com/Cujowolf/Klima-DAO'
+                    )
+                )
+            ], xs=12, sm=12, md=12, lg=12, xl=12)
+        ])
+    ], className='center')
 ], id='page_content_hud', fluid=True)
