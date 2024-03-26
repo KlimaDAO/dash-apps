@@ -1,0 +1,68 @@
+/* Fonts used in the app. To add a new font, it's easier to download the font tff file and import it here */
+@font-face {
+  font-family: 'Como';
+  src: url('Como/Como.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('Poppins/Poppins-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins-SemiBold';
+  src: url('Poppins/Poppins-SemiBold.ttf') format('truetype');
+}
+/* Set the default font to Poppins regular*/
+*{
+  font-family: 'Poppins', sans-serif;
+  margin:0;
+  padding:0;
+}
+
+.card_topic{
+  font-family: 'Poppins-SemiBold', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 54px;
+  text-align: center;
+  color: #000;
+}
+
+.card_metric{
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 54px;
+  text-align: center;
+  color: #000;
+}
+.vl {
+  border-left: 1px solid #FFFFFF;
+  height: 100%;
+  width: 1px;
+  /*display: inline-block;*/
+  margin: 0 auto;
+  position: relative;
+  transform: rotate(0deg);
+  }
+.carousel-inner > .item > img {
+  width:40px;
+  height:60px;
+}
+
+body{
+  font-family: 'Poppins', sans-serif;
+  line-height:1.2;
+  background-color: #FFF;
+  background-size:auto;
+  background-position:center;
+}
+
+.center {
+  margin: auto;
+  width: 100%;
+  text-align: center;
+}
+
+

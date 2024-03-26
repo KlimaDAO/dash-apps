@@ -1,5 +1,5 @@
+plotly==5.20.0
 prefect==2.12.0
 prefect-aws==0.3.7
-pydantic==1.10.9
 pyarrow==12.0.0
 Flask-RESTful==0.3.10
